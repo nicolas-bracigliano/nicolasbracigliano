@@ -1,9 +1,14 @@
+// Cloudflare Pages Function. Uses the standard Web Fetch API surface (Request/
+// Response) so unit tests can construct `Request` from Node's global fetch
+// without pulling Cloudflare's workers-types into the test scope.
+
 type PagesFunction = (context: { request: Request }) => Promise<Response> | Response;
 
 const SUPPORTED = ['en', 'es'] as const;
-const DEFAULT_LOCALE = 'en';
+type Supported = (typeof SUPPORTED)[number];
+const DEFAULT_LOCALE: Supported = 'en';
 
-function pickLocale(acceptLanguage: string | null): (typeof SUPPORTED)[number] {
+function pickLocale(acceptLanguage: string | null): Supported {
   if (!acceptLanguage) return DEFAULT_LOCALE;
   const ranges = acceptLanguage
     .split(',')
@@ -19,7 +24,7 @@ function pickLocale(acceptLanguage: string | null): (typeof SUPPORTED)[number] {
     if (!tag) continue;
     const primary = tag.split('-')[0];
     if (primary && (SUPPORTED as readonly string[]).includes(primary)) {
-      return primary as (typeof SUPPORTED)[number];
+      return primary as Supported;
     }
   }
   return DEFAULT_LOCALE;

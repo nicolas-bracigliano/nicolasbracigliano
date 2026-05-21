@@ -1,6 +1,5 @@
 import { defineConfig } from 'astro/config';
 import sitemap from '@astrojs/sitemap';
-import { shield } from '@kindspells/astro-shield';
 
 const SITE = 'https://nicolasbracigliano.com';
 
@@ -22,6 +21,27 @@ export default defineConfig({
       redirectToDefaultLocale: false,
     },
   },
+  // Astro 6 ships built-in CSP under `security.csp`. It emits per-page
+  // `<meta http-equiv="content-security-policy">` with sha256 hashes for
+  // every bundled inline script/style. The strict directives in
+  // `public/_headers` are still served by Cloudflare at the edge.
+  security: {
+    csp: {
+      algorithm: 'SHA-256',
+      directives: [
+        "default-src 'self'",
+        "img-src 'self' data:",
+        "font-src 'self'",
+        "connect-src 'self'",
+        "base-uri 'self'",
+        "form-action 'self'",
+        "frame-ancestors 'none'",
+        'upgrade-insecure-requests',
+      ],
+      styleDirective: { resources: ["'self'"] },
+      scriptDirective: { resources: ["'self'"], strictDynamic: false },
+    },
+  },
   integrations: [
     sitemap({
       i18n: {
@@ -30,14 +50,6 @@ export default defineConfig({
       },
       filter: (page) =>
         !page.includes('/about/now') && !page.includes('/sobre/ahora') && !page.endsWith('/404'),
-    }),
-    // astro-shield computes SRI hashes for inline scripts/styles. Header
-    // injection is intentionally NOT enabled here — we maintain public/_headers
-    // ourselves (Cloudflare provider support varies across versions).
-    shield({
-      sri: {
-        enableStatic: true,
-      },
     }),
   ],
   vite: {

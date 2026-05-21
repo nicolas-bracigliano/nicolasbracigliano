@@ -4,7 +4,10 @@
     "noUncheckedIndexedAccess": true,
     "verbatimModuleSyntax": true,
     "allowImportingTsExtensions": false,
+    // TS 6 deprecated `baseUrl`; declare it explicitly so paths still resolve
+    // relative to the project root, and silence the deprecation warning.
     "baseUrl": ".",
+    "ignoreDeprecations": "6.0",
     "paths": {
       "@/*": ["src/*"],
       "@lib/*": ["src/lib/*"],

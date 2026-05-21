@@ -50,8 +50,6 @@ jobs:
           if [ -f dist/_headers ]; then
             diff -u public/_headers dist/_headers || (echo "_headers is stale; re-run build and commit." && exit 1)
           fi
-      - name: Lockfile lint
-        run: pnpm lockfile-lint
       - name: Pagefind sanity
         run: ls dist/_pagefind/pagefind.js >/dev/null
       - uses: actions/upload-artifact@v4

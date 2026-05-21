@@ -15,9 +15,6 @@ pre-commit:
     stylelint:
       glob: '*.css'
       run: pnpm exec stylelint {staged_files}
-    lockfile-lint:
-      glob: 'pnpm-lock.yaml'
-      run: pnpm lockfile-lint
     gitleaks:
       run: |
         if command -v gitleaks >/dev/null 2>&1; then

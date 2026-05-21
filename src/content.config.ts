@@ -1,5 +1,8 @@
-import { defineCollection, z } from 'astro:content';
+import { defineCollection } from 'astro:content';
 import { glob } from 'astro/loaders';
+// Astro 6 deprecates the `z` re-export from `astro:content`; import from
+// `astro/zod` instead (Astro 6 ships zod v4).
+import { z } from 'astro/zod';
 
 const base = z.object({
   title: z.string().min(1).max(80),
@@ -36,7 +39,7 @@ const works = defineCollection({
   loader: glob({ pattern: '**/*.md', base: './src/content/works', generateId: pathId }),
   schema: ({ image }) =>
     base.extend({
-      repo: z.string().url().optional(),
+      repo: z.url().optional(),
       specs: z.record(z.string(), z.string()).default({}),
       hero: image().optional(),
       ogOverride: image().optional(),

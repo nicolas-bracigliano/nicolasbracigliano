@@ -1,7 +1,7 @@
 // Astro-runtime layer: depends on astro:content. Pure routing primitives
 // live in routes.ts so they remain unit-testable in plain vitest.
 import { getCollection, type CollectionEntry } from 'astro:content';
-import { ROUTES, otherLocale, type Locale } from './routes';
+import { ROUTES, otherLocale } from './routes';
 
 export * from './routes';
 
@@ -11,24 +11,24 @@ export type AnyEntry =
   | CollectionEntry<'essays'>
   | CollectionEntry<'pages'>;
 
+const PAGE_ROUTE_KEYS = ['home', 'about', 'now', 'colophon'] as const;
+type PageSlug = (typeof PAGE_ROUTE_KEYS)[number];
+
+function isPageSlug(slug: string): slug is PageSlug {
+  return (PAGE_ROUTE_KEYS as readonly string[]).includes(slug);
+}
+
 export function entryRouteFor(entry: AnyEntry): string {
   const { collection } = entry;
   const { lang, slug } = entry.data;
   if (collection === 'pages') {
-    const map = {
-      home: ROUTES.home,
-      about: ROUTES.about,
-      now: ROUTES.now,
-      colophon: ROUTES.colophon,
-    } as const;
-    const pair = (map as Record<string, { en: string; es: string }>)[slug];
-    return pair?.[lang] ?? `/${lang}/`;
+    return isPageSlug(slug) ? ROUTES[slug][lang] : `/${lang}/`;
   }
   return `${ROUTES[collection][lang]}${slug}/`;
 }
 
 export async function getSibling(entry: AnyEntry): Promise<AnyEntry | null> {
-  const target = otherLocale(entry.data.lang as Locale);
+  const target = otherLocale(entry.data.lang);
   const all = await getCollection(entry.collection);
   const sibling = all.find(
     (e) =>
