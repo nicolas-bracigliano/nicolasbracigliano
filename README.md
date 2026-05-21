@@ -52,7 +52,7 @@ access and aren't done yet:
 
 - **SSH commit signing** — `git config gpg.format ssh && git config commit.gpgsign true` (local) plus add the SSH key to GitHub Settings → SSH and GPG keys → Signing keys.
 - **Branch protection on `main`** — signed commits required, linear history, force-push disabled, all CI checks required.
-- **Cloudflare Pages project** — create `nb-site`, add `nicolasbracigliano.com` + `www` custom domains.
+- **Cloudflare Pages project** — create `nicolas-bracigliano`, add `nicolasbracigliano.com` + `www` custom domains.
 - **DNSSEC** — enable for the zone; copy the DS record to the registrar (see `docs/security.md`).
 - **Cloudflare Web Analytics** — enable in server-side mode for the zone.
 - **GitHub secrets** — `CLOUDFLARE_API_TOKEN` (scoped to Pages on this project) + `CLOUDFLARE_ACCOUNT_ID`.

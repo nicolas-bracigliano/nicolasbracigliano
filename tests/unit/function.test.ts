@@ -1,44 +1,17 @@
+// Adapter smoke test. The redirect logic itself is covered by
+// `pick-locale.test.ts` against the platform-neutral handler;
+// this just confirms the Cloudflare Pages wiring forwards the request.
+
 import { describe, expect, it } from 'vitest';
 import { onRequest } from '../../functions/index';
 
-function makeRequest(headers: Record<string, string>): Request {
-  return new Request('https://nicolasbracigliano.com/', { headers });
-}
-
-describe('Pages Function: Accept-Language redirect at /', () => {
-  it('redirects to /es/ when Spanish is preferred', async () => {
-    const res = await onRequest({
-      request: makeRequest({ 'accept-language': 'es-AR,es;q=0.9,en;q=0.7' }),
+describe('Cloudflare Pages adapter', () => {
+  it('forwards request to acceptLanguageRedirect and returns a 302', async () => {
+    const request = new Request('https://nicolasbracigliano.com/', {
+      headers: { 'accept-language': 'es' },
     });
+    const res = await onRequest({ request });
     expect(res.status).toBe(302);
-    expect(res.headers.get('Location')).toMatch(/\/es\/$/);
-    expect(res.headers.get('Vary')).toBe('Accept-Language');
-  });
-
-  it('redirects to /en/ when English is preferred', async () => {
-    const res = await onRequest({ request: makeRequest({ 'accept-language': 'en-AU,en;q=0.9' }) });
-    expect(res.status).toBe(302);
-    expect(res.headers.get('Location')).toMatch(/\/en\/$/);
-  });
-
-  it('falls back to default locale (en) when no header is present', async () => {
-    const res = await onRequest({ request: makeRequest({}) });
-    expect(res.status).toBe(302);
-    expect(res.headers.get('Location')).toMatch(/\/en\/$/);
-  });
-
-  it('falls back to default locale on unknown languages', async () => {
-    const res = await onRequest({ request: makeRequest({ 'accept-language': 'fr-FR,fr;q=0.9' }) });
-    expect(res.status).toBe(302);
-    expect(res.headers.get('Location')).toMatch(/\/en\/$/);
-  });
-
-  it('respects q-value ordering', async () => {
-    const res = await onRequest({
-      request: makeRequest({ 'accept-language': 'fr;q=1.0,es;q=0.8,en;q=0.5' }),
-    });
-    expect(res.status).toBe(302);
-    // fr unsupported → fall through to es (higher q than en)
     expect(res.headers.get('Location')).toMatch(/\/es\/$/);
   });
 });
