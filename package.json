@@ -1,0 +1,71 @@
+{
+  "name": "nicolasbracigliano-com",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Personal site — colophon, bilingual (en/es), Astro + Cloudflare Pages.",
+  "license": "MIT",
+  "type": "module",
+  "engines": {
+    "node": ">=24.0.0 <25.0.0"
+  },
+  "packageManager": "pnpm@10.33.4",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "dev:fn": "astro build && wrangler pages dev ./dist --compatibility-date=2026-05-01",
+    "typecheck": "astro check && tsc --noEmit",
+    "lint": "eslint . && stylelint \"src/**/*.css\"",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:e2e": "playwright test",
+    "lockfile-lint": "lockfile-lint --path pnpm-lock.yaml --type npm --validate-https --allowed-hosts npm --validate-package-names --validate-checksum",
+    "subset-fonts": "node scripts/subset-fonts.mjs",
+    "postbuild": "pagefind --site dist --output-subdir _pagefind"
+  },
+  "dependencies": {
+    "@astrojs/rss": "4.0.18",
+    "@astrojs/sitemap": "3.7.2",
+    "@kindspells/astro-shield": "1.7.1",
+    "astro": "5.18.1",
+    "sharp": "0.34.5"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "esbuild",
+      "lefthook",
+      "sharp",
+      "workerd"
+    ]
+  },
+  "devDependencies": {
+    "@astrojs/check": "0.9.9",
+    "@axe-core/playwright": "4.11.3",
+    "@cloudflare/vitest-pool-workers": "0.16.8",
+    "@eslint/js": "9.18.0",
+    "@playwright/test": "1.49.1",
+    "@resvg/resvg-js": "2.6.2",
+    "@types/node": "24.0.0",
+    "@typescript-eslint/eslint-plugin": "8.59.4",
+    "@typescript-eslint/parser": "8.59.4",
+    "eslint": "9.18.0",
+    "eslint-plugin-astro": "1.7.0",
+    "eslint-plugin-jsx-a11y": "6.10.2",
+    "globals": "15.14.0",
+    "html-validate": "11.2.0",
+    "lefthook": "2.1.8",
+    "lightningcss": "1.31.0",
+    "lockfile-lint": "5.0.0",
+    "pagefind": "1.5.2",
+    "prettier": "3.4.2",
+    "prettier-plugin-astro": "0.14.1",
+    "satori": "0.26.0",
+    "stylelint": "17.12.0",
+    "stylelint-config-standard": "40.0.0",
+    "typescript": "5.9.3",
+    "vitest": "2.1.8",
+    "wrangler": "3.99.0"
+  }
+}

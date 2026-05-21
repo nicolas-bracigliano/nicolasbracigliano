@@ -1,0 +1,66 @@
+name: security
+
+on:
+  schedule:
+    - cron: '0 22 * * 0' # Sun 22:00 UTC → Mon 08:00 Australia/Melbourne (winter) / 09:00 (summer)
+  workflow_dispatch:
+
+permissions: {}
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+      - run: corepack enable
+      - run: pnpm install --frozen-lockfile
+      - name: pnpm audit (prod, high+)
+        run: pnpm audit --prod --audit-level=high
+      - name: License check (allow-list)
+        run: |
+          pnpm dlx license-checker --production --onlyAllow \
+            "MIT;ISC;Apache-2.0;BSD-2-Clause;BSD-3-Clause;CC0-1.0;0BSD;Unlicense"
+
+  gitleaks:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: gitleaks/gitleaks-action@v2
+
+  codeql:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: github/codeql-action/init@v3
+        with:
+          languages: javascript-typescript
+      - uses: github/codeql-action/analyze@v3
+
+  security-txt-expires:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check security.txt Expires
+        run: |
+          expires=$(grep -i '^Expires:' public/.well-known/security.txt | sed 's/Expires:[[:space:]]*//')
+          if [ -z "$expires" ]; then echo "no Expires line"; exit 1; fi
+          days=$(( ( $(date -d "$expires" +%s) - $(date +%s) ) / 86400 ))
+          echo "security.txt expires in $days day(s)"
+          if [ "$days" -lt 30 ]; then
+            echo "Expires < 30 days — rotate before publishing."
+            exit 1
+          fi

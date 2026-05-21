@@ -1,0 +1,52 @@
+---
+import BaseLayout from './BaseLayout.astro';
+import type { CollectionEntry } from 'astro:content';
+import type { Locale } from '@lib/i18n';
+
+export interface Props {
+  entry: CollectionEntry<'works'>;
+  path: string;
+  siblingPath: string | null;
+}
+
+const { entry, path, siblingPath } = Astro.props;
+const { title, date, lede, tags, lang, specs, status } = entry.data;
+const specEntries = Object.entries(specs);
+---
+
+<BaseLayout
+  title={title}
+  description={lede}
+  locale={lang as Locale}
+  path={path}
+  siblingPath={siblingPath}
+>
+  <article class="work">
+    <header class="work-head">
+      <p class="meta">
+        <time datetime={date.toISOString().slice(0, 10)}>
+          {date.toISOString().slice(0, 10)}
+        </time>
+        <span class={`status status--${status}`}>{status}</span>
+      </p>
+      <h1>{title}</h1>
+      {lede && <p class="lede">{lede}</p>}
+      {tags.length > 0 && <p class="tags">{tags.join(' · ')}</p>}
+    </header>
+    {
+      specEntries.length > 0 && (
+        <dl class="specs">
+          {specEntries.map(([k, v]) => (
+            <>
+              <dt>{k}</dt>
+              <dd>{v}</dd>
+            </>
+          ))}
+        </dl>
+      )
+    }
+    <div class="prose">
+      <slot />
+    </div>
+  </article>
+</BaseLayout>

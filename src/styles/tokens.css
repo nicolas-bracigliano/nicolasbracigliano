@@ -1,0 +1,37 @@
+@layer tokens {
+  :root {
+    --bg: #f6f4ef;
+    --bg-2: #ece9e0;
+    --paper: #fbfaf6;
+    --ink: #1a1814;
+    --ink-2: #3e3a34;
+    --ink-3: #8a8377;
+    --rule: #d4cfc2;
+    --accent: #b8512a;
+    --olive: #5a6a3a;
+    --ink-blue: #2d4a7a;
+
+    --font-display: 'Newsreader', 'Iowan Old Style', Georgia, serif;
+    --font-body: 'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+
+    --measure: 64ch;
+    --gutter: clamp(1rem, 4vw, 2rem);
+
+    --speed-micro: 240ms ease;
+    --speed-standard: 320ms cubic-bezier(0.2, 0.7, 0.2, 1);
+    --speed-page: 520ms cubic-bezier(0.2, 0.7, 0.2, 1);
+  }
+
+  [data-theme='noche'] {
+    --bg: #14130f;
+    --bg-2: #1d1c17;
+    --paper: #1a1915;
+    --ink: #f0ebde;
+    --ink-2: #c6c0b1;
+    --ink-3: #807a6e;
+    --rule: #2c2a24;
+    --accent: #d8a07e;
+    --olive: #8a9a6a;
+    --ink-blue: #6b88b5;
+  }
+}

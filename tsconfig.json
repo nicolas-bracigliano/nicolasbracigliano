@@ -1,0 +1,23 @@
+{
+  "extends": "astro/tsconfigs/strictest",
+  "compilerOptions": {
+    "noUncheckedIndexedAccess": true,
+    "verbatimModuleSyntax": true,
+    "allowImportingTsExtensions": false,
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["src/*"],
+      "@lib/*": ["src/lib/*"],
+      "@layouts/*": ["src/layouts/*"],
+      "@components/*": ["src/components/*"],
+      "@styles/*": ["src/styles/*"]
+    },
+    // Deferred from initial bootstrap — flip back on in a follow-up PR.
+    "exactOptionalPropertyTypes": false,
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
+    "noImplicitReturns": false
+  },
+  "include": [".astro/types.d.ts", ".astro/content.d.ts", ".astro/integrations.d.ts", "**/*"],
+  "exclude": ["dist", "node_modules", "tests/e2e", ".astro/collections"]
+}

@@ -1,0 +1,17 @@
+---
+import BaseLayout from '@layouts/BaseLayout.astro';
+import { ROUTES } from '@lib/i18n';
+---
+
+<BaseLayout
+  title="Essays"
+  description="Long-form essays."
+  locale="en"
+  path={ROUTES.essays.en}
+  siblingPath={ROUTES.essays.es}
+>
+  <section class="index">
+    <h1>Essays</h1>
+    <p><em>No essays yet. The first one will land here when it's almost right.</em></p>
+  </section>
+</BaseLayout>

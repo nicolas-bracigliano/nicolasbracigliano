@@ -1,0 +1,208 @@
+---
+import '@styles/reset.css';
+import '@styles/tokens.css';
+import '@styles/base.css';
+import { ROUTES, type Locale } from '@lib/i18n';
+
+export interface Props {
+  title: string;
+  description?: string;
+  locale: Locale;
+  /** Current page path (e.g. "/en/notes/hello/") */
+  path: string;
+  /** Sibling path in the other locale, or null if there is no published translation */
+  siblingPath: string | null;
+  /** Optional override for OG image (absolute URL or path under site origin) */
+  ogImage?: string;
+}
+
+const { title, description, locale, path, siblingPath, ogImage } = Astro.props;
+const site = Astro.site?.toString() ?? 'https://nicolasbracigliano.com';
+const origin = site.replace(/\/$/, '');
+
+const enHref = locale === 'en' ? path : (siblingPath ?? path);
+const esHref = locale === 'es' ? path : (siblingPath ?? path);
+
+const toggleDisabled = siblingPath === null;
+
+const navItems: Array<{ key: keyof typeof ROUTES; label: string }> =
+  locale === 'en'
+    ? [
+        { key: 'notes', label: 'notes' },
+        { key: 'works', label: 'works' },
+        { key: 'about', label: 'about' },
+        { key: 'colophon', label: 'colophon' },
+      ]
+    : [
+        { key: 'notes', label: 'notas' },
+        { key: 'works', label: 'obras' },
+        { key: 'about', label: 'sobre' },
+        { key: 'colophon', label: 'colofón' },
+      ];
+---
+
+<!doctype html>
+<html lang={locale}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    {description && <meta name="description" content={description} />}
+
+    <link rel="canonical" href={`${origin}${path}`} />
+    <link rel="alternate" hreflang="en" href={`${origin}${enHref}`} />
+    <link rel="alternate" hreflang="es" href={`${origin}${esHref}`} />
+    <link rel="alternate" hreflang="x-default" href={`${origin}${enHref}`} />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={title} />
+    {description && <meta property="og:description" content={description} />}
+    <meta property="og:url" content={`${origin}${path}`} />
+    <meta property="og:locale" content={locale === 'en' ? 'en_US' : 'es_AR'} />
+    {
+      ogImage && (
+        <meta
+          property="og:image"
+          content={ogImage.startsWith('http') ? ogImage : `${origin}${ogImage}`}
+        />
+      )
+    }
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+
+    {/* FOUC-prevention: external file so CSP can stay `script-src 'self'` with no hashes. */}
+    <script is:inline src="/theme-init.js"></script>
+  </head>
+  <body>
+    <a href="#main" class="skip-link">Skip to content</a>
+
+    <header class="chrome">
+      <a href={ROUTES.home[locale]} class="mark" aria-label={locale === 'en' ? 'Home' : 'Inicio'}>
+        <span aria-hidden="true">NB</span>
+      </a>
+
+      <nav class="nav" aria-label={locale === 'en' ? 'Primary' : 'Principal'}>
+        <ul>
+          {
+            navItems.map(({ key, label }) => (
+              <li>
+                <a
+                  href={ROUTES[key][locale]}
+                  aria-current={path.startsWith(ROUTES[key][locale]) ? 'page' : undefined}
+                >
+                  {label}
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+      </nav>
+
+      <div
+        class="chrome-end"
+        role="group"
+        aria-label={locale === 'en' ? 'Preferences' : 'Preferencias'}
+      >
+        <div class="lang-toggle">
+          <a
+            class={`lang ${locale === 'en' ? 'on' : ''}`}
+            href={locale === 'en' ? path : (siblingPath ?? path)}
+            aria-current={locale === 'en' ? 'page' : undefined}
+            aria-disabled={locale === 'es' && toggleDisabled ? 'true' : undefined}
+            data-lang="en"
+          >
+            EN
+          </a>
+          <span aria-hidden="true">·</span>
+          <a
+            class={`lang ${locale === 'es' ? 'on' : ''}`}
+            href={locale === 'es' ? path : (siblingPath ?? path)}
+            aria-current={locale === 'es' ? 'page' : undefined}
+            aria-disabled={locale === 'en' && toggleDisabled ? 'true' : undefined}
+            data-lang="es"
+          >
+            ES
+          </a>
+          {
+            toggleDisabled && (
+              <span class="only-note" data-testid="only-note">
+                {locale === 'en' ? 'Only in English.' : 'Solo en español.'}
+              </span>
+            )
+          }
+        </div>
+
+        <button
+          type="button"
+          id="theme-toggle"
+          role="switch"
+          aria-checked="false"
+          aria-label={locale === 'en' ? 'Toggle dark mode' : 'Alternar modo oscuro'}
+        >
+          <span aria-hidden="true">◐</span>
+        </button>
+      </div>
+    </header>
+
+    <main id="main">
+      <slot />
+    </main>
+
+    <footer class="footer">
+      <p>
+        <small>
+          {locale === 'en' ? '© ' : '© '}Nicolas Bracigliano · {new Date().getFullYear()} ·
+          <a href={ROUTES.colophon[locale]}>{locale === 'en' ? 'Colophon' : 'Colofón'}</a>
+        </small>
+      </p>
+    </footer>
+
+    <script>
+      // Language + theme toggle, ~1 KB, hashed by astro-shield
+      const root = document.documentElement;
+      const themeBtn = document.getElementById('theme-toggle');
+      if (themeBtn) {
+        const apply = (t: 'dia' | 'noche') => {
+          root.dataset.theme = t;
+          themeBtn.setAttribute('aria-checked', String(t === 'noche'));
+        };
+        const stored = (() => {
+          try {
+            return localStorage.getItem('theme');
+          } catch {
+            return null;
+          }
+        })();
+        if (stored === 'dia' || stored === 'noche') apply(stored);
+        else {
+          const prefersDark = window.matchMedia?.('(prefers-color-scheme: dark)').matches;
+          apply(prefersDark ? 'noche' : 'dia');
+        }
+        themeBtn.addEventListener('click', () => {
+          const next = root.dataset.theme === 'noche' ? 'dia' : 'noche';
+          apply(next);
+          try {
+            localStorage.setItem('theme', next);
+          } catch {
+            /* ignore */
+          }
+        });
+      }
+      // Persist language preference on click; href already points to the sibling, let it navigate.
+      document.querySelectorAll<HTMLAnchorElement>('.lang-toggle a[data-lang]').forEach((a) => {
+        a.addEventListener('click', (e) => {
+          if (a.getAttribute('aria-disabled') === 'true') {
+            e.preventDefault();
+            return;
+          }
+          try {
+            localStorage.setItem('lang', a.dataset.lang ?? 'en');
+          } catch {
+            /* ignore */
+          }
+        });
+      });
+    </script>
+  </body>
+</html>

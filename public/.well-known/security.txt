@@ -1,0 +1,4 @@
+Contact: mailto:security@nicolasbracigliano.com
+Expires: 2027-05-21T00:00:00.000Z
+Preferred-Languages: en, es
+Canonical: https://nicolasbracigliano.com/.well-known/security.txt

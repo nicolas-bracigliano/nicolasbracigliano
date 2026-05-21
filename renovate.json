@@ -1,0 +1,31 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:recommended",
+    ":pinAllExceptPeerDependencies",
+    "helpers:pinGitHubActionDigests"
+  ],
+  "timezone": "Australia/Melbourne",
+  "schedule": ["after 9am on monday", "before 11am on monday"],
+  "labels": ["renovate"],
+  "vulnerabilityAlerts": {
+    "enabled": true,
+    "labels": ["security"],
+    "schedule": ["at any time"]
+  },
+  "lockFileMaintenance": {
+    "enabled": true,
+    "schedule": ["on the first day of the month"]
+  },
+  "packageRules": [
+    {
+      "matchUpdateTypes": ["minor", "patch"],
+      "groupName": "all minor + patch",
+      "automerge": false
+    },
+    {
+      "matchUpdateTypes": ["major"],
+      "automerge": false
+    }
+  ]
+}

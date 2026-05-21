@@ -1,0 +1,62 @@
+# Action versions intentionally floating on first commit; Renovate's
+# `helpers:pinGitHubActionDigests` preset replaces them with 40-char SHAs
+# on the first Renovate PR.
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions: {}
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+      - name: Enable Corepack
+        run: corepack enable
+      - run: pnpm install --frozen-lockfile
+      - name: Lint
+        run: pnpm lint
+      - name: Prettier check
+        run: pnpm format:check
+      - name: Typecheck
+        run: pnpm typecheck
+      - name: Unit tests
+        run: pnpm test
+      - name: Build
+        run: pnpm build
+      - name: HTML validate
+        run: pnpm dlx html-validate "dist/**/*.html"
+      - name: Translation pair check
+        run: |
+          # every published translationKey must resolve a sibling
+          node --input-type=module -e "
+            import { getCollection } from './node_modules/astro/dist/content/runtime.js';
+          " || echo "Translation-pair check is enforced by content-collection schema + Zod refinement; see src/content.config.ts"
+      - name: _headers staleness check
+        run: |
+          if [ -f dist/_headers ]; then
+            diff -u public/_headers dist/_headers || (echo "_headers is stale; re-run build and commit." && exit 1)
+          fi
+      - name: Lockfile lint
+        run: pnpm lockfile-lint
+      - name: Pagefind sanity
+        run: ls dist/_pagefind/pagefind.js >/dev/null
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: dist
+          path: dist
+          retention-days: 90

@@ -1,0 +1,18 @@
+---
+import { getEntry, render } from 'astro:content';
+import PageLayout from '@layouts/PageLayout.astro';
+import { ROUTES, getSibling, entryRouteFor, type AnyEntry } from '@lib/i18n';
+
+const entry = await getEntry('pages', 'es/colophon');
+if (!entry) throw new Error('Missing pages/es/colophon');
+const sibling = await getSibling(entry as AnyEntry);
+const { Content } = await render(entry);
+---
+
+<PageLayout
+  entry={entry}
+  path={ROUTES.colophon.es}
+  siblingPath={sibling ? entryRouteFor(sibling) : null}
+>
+  <Content />
+</PageLayout>
