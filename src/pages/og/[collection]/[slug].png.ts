@@ -1,22 +1,26 @@
-import type { APIRoute } from 'astro';
-import { getCollection } from 'astro:content';
+import type { APIRoute, InferGetStaticPropsType } from 'astro';
+import { getCollection, type CollectionEntry } from 'astro:content';
 import { readFile } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
 import { resolve } from 'node:path';
 
-// NOTE: Satori + Resvg integration is wired but requires font files at
-// public/fonts/og-newsreader.ttf. Run `pnpm run subset-fonts` to produce them.
-// If the font file is missing, the endpoint returns a 1200x630 solid-color
-// PNG via Sharp as a fallback so the build never breaks.
+// Satori + Resvg integration. Requires `public/fonts/og-newsreader.ttf` —
+// run `pnpm run subset-fonts` to produce it. Until then, the endpoint
+// falls back to a solid-colour 1200×630 PNG via Sharp so the build never
+// breaks on a fresh clone.
 
 const FONT_PATH = resolve(process.cwd(), 'public/fonts/og-newsreader.ttf');
 
+type OgCollection = 'notes' | 'works' | 'essays';
+type OgEntry = CollectionEntry<OgCollection>;
+
 export async function getStaticPaths() {
-  const allOgs = [
-    ...(await getCollection('notes')).map((e) => ({ collection: 'notes' as const, entry: e })),
-    ...(await getCollection('works')).map((e) => ({ collection: 'works' as const, entry: e })),
-    ...(await getCollection('essays')).map((e) => ({ collection: 'essays' as const, entry: e })),
-  ].filter(({ entry }) => entry.data.status === 'published');
+  const grouped = await Promise.all(
+    (['notes', 'works', 'essays'] as const).map(async (name) =>
+      (await getCollection(name)).map((entry) => ({ collection: name, entry })),
+    ),
+  );
+  const allOgs = grouped.flat().filter(({ entry }) => entry.data.status === 'published');
 
   return allOgs.map(({ collection, entry }) => ({
     params: { collection, slug: `${entry.data.lang}-${entry.data.slug}` },
@@ -24,9 +28,10 @@ export async function getStaticPaths() {
   }));
 }
 
-export const GET: APIRoute = async ({ props }) => {
-  const entry = props.entry as { data: { title: string; lede?: string; lang: 'en' | 'es' } };
-  const collection = props.collection as 'notes' | 'works' | 'essays';
+type Props = InferGetStaticPropsType<typeof getStaticPaths>;
+
+export const GET: APIRoute<Props> = async ({ props }) => {
+  const { entry, collection } = props as { entry: OgEntry; collection: OgCollection };
   const kind = collection === 'notes' ? 'note' : collection === 'works' ? 'work' : 'essay';
 
   if (existsSync(FONT_PATH)) {
@@ -59,7 +64,6 @@ export const GET: APIRoute = async ({ props }) => {
     }
   }
 
-  // Fallback: solid-color 1200x630 PNG via Sharp. Build never breaks.
   const sharp = (await import('sharp')).default;
   const png = await sharp({
     create: {

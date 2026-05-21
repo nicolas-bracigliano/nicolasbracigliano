@@ -1,7 +1,8 @@
 ---
 import { getCollection } from 'astro:content';
 import BaseLayout from '@layouts/BaseLayout.astro';
-import { ROUTES, entryRouteFor, type AnyEntry } from '@lib/i18n';
+import { ROUTES } from '@lib/routes';
+import { entryRouteFor } from '@lib/i18n';
 
 const notes = (
   await getCollection('notes', (e) => e.data.lang === 'en' && e.data.status === 'published')
@@ -24,7 +25,7 @@ const siblingPath = ROUTES.notes.es;
       {
         notes.map((n) => (
           <li>
-            <a href={entryRouteFor(n as AnyEntry)}>
+            <a href={entryRouteFor(n)}>
               <time datetime={n.data.date.toISOString().slice(0, 10)}>
                 {n.data.date.toISOString().slice(0, 10)}
               </time>

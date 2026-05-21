@@ -1,7 +1,7 @@
 ---
 import { getCollection, render } from 'astro:content';
 import WorkLayout from '@layouts/WorkLayout.astro';
-import { getSibling, entryRouteFor, type AnyEntry } from '@lib/i18n';
+import { getSibling, entryRouteFor } from '@lib/i18n';
 
 export async function getStaticPaths() {
   const works = await getCollection(
@@ -15,9 +15,9 @@ export async function getStaticPaths() {
 }
 
 const { entry } = Astro.props;
-const sibling = await getSibling(entry as AnyEntry);
+const sibling = await getSibling(entry);
 const { Content } = await render(entry);
-const path = entryRouteFor(entry as AnyEntry);
+const path = entryRouteFor(entry);
 const siblingPath = sibling ? entryRouteFor(sibling) : null;
 ---
 
