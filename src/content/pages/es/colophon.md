@@ -10,7 +10,7 @@ lede: 'Pila, tipos, hospedaje, flujo.'
 
 ## Pila
 
-- **Framework** — Astro 5 (salida estática, sin adaptador SSR).
+- **Framework** — Astro 6 (salida estática, sin adaptador SSR).
 - **Hospedaje** — Cloudflare Pages + una Pages Function para la redirección Accept-Language en `/`.
 - **Contenido** — Markdown en el repositorio, tipado con colecciones Zod.
 - **Tipos** — Newsreader (display, variable). JetBrains Mono (cuerpo, mono, variable).

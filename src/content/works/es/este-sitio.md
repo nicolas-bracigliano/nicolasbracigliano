@@ -8,7 +8,7 @@ status: published
 tags: [code]
 lede: 'El colofón que estás leyendo.'
 specs:
-  Framework: 'Astro 5'
+  Framework: 'Astro 6'
   Hosting: 'Cloudflare Pages'
   Lenguaje: 'TypeScript (estricto)'
   Tipos: 'Newsreader · JetBrains Mono'

@@ -10,7 +10,7 @@ lede: 'Stack, fonts, hosting, workflow.'
 
 ## Stack
 
-- **Framework** — Astro 5 (static output, no SSR adapter).
+- **Framework** — Astro 6 (static output, no SSR adapter).
 - **Hosting** — Cloudflare Pages + one Pages Function for the `/` Accept-Language redirect.
 - **Content** — Markdown in repo, typed via Zod content collections.
 - **Type** — Newsreader (display, variable). JetBrains Mono (body, mono, variable).

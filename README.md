@@ -1,11 +1,10 @@
 # nicolasbracigliano.com
 
-A small, hand-built personal site — colophon, bilingual (en/es), Astro 5 +
-TypeScript on Cloudflare Pages.
+Nicolas's digital home.
 
 ## Stack
 
-- **Framework** — Astro 5 (static output, no SSR adapter)
+- **Framework** — Astro 6 (static output, no SSR adapter)
 - **Runtime** — Node 24 LTS, pnpm via Corepack
 - **Content** — Markdown in repo, typed via Zod content collections
 - **Hosting** — Cloudflare Pages + one Pages Function for the `/` Accept-Language redirect

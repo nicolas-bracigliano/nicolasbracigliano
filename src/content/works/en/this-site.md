@@ -8,7 +8,7 @@ status: published
 tags: [code]
 lede: 'The colophon you are reading.'
 specs:
-  Framework: 'Astro 5'
+  Framework: 'Astro 6'
   Hosting: 'Cloudflare Pages'
   Language: 'TypeScript (strict)'
   Fonts: 'Newsreader · JetBrains Mono'
