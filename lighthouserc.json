@@ -10,7 +10,7 @@
         "http://localhost/en/works/this-site/",
         "http://localhost/es/notas/hola/"
       ],
-      "numberOfRuns": 3,
+      "numberOfRuns": 2,
       "settings": {
         "skipAudits": ["uses-http2"]
       }

@@ -16,7 +16,7 @@ jobs:
   build:
     name: Build & verify
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 8
     permissions:
       contents: read
     steps:
@@ -44,7 +44,37 @@ jobs:
         run: |
           test -f dist/_pagefind/pagefind-entry.json
           grep -q '"version"' dist/_pagefind/pagefind-entry.json
-      - name: Lighthouse CI
+      - name: Upload dist artifact
+        if: success()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: dist
+          path: dist
+          retention-days: 30
+          if-no-files-found: error
+
+  lighthouse:
+    name: Lighthouse CI
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+      - uses: pnpm/action-setup@a7487c7e89a18df4991f7f222e4898a00d66ddda # v4.1.0
+      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
+        with:
+          node-version-file: '.nvmrc'
+          cache: 'pnpm'
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+      - name: Download verified dist artifact
+        uses: actions/download-artifact@018cc2cf5baa6db3ef3c5f8a56943fffe632ef53 # v6.0.0
+        with:
+          name: dist
+          path: dist
+      - name: Run Lighthouse CI
         run: pnpm lhci
       - name: Upload Lighthouse report
         if: always()
@@ -54,14 +84,6 @@ jobs:
           path: .lighthouseci
           retention-days: 30
           if-no-files-found: ignore
-      - name: Upload dist artifact
-        if: success()
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
-        with:
-          name: dist
-          path: dist
-          retention-days: 30
-          if-no-files-found: error
 
   e2e:
     name: E2E tests (Playwright)
@@ -134,7 +156,10 @@ jobs:
 
   deploy:
     name: Deploy to Cloudflare Pages
-    needs: [build, e2e, deploy-check]
+    # Gated on every quality check (build, lighthouse perf budget, e2e a11y
+    # + behaviour) plus the secrets presence. Lighthouse parallel with e2e
+    # rather than inside build so wall-clock time isn't bottlenecked on it.
+    needs: [build, lighthouse, e2e, deploy-check]
     if: needs.deploy-check.outputs.ready == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 5

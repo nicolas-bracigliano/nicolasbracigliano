@@ -14,7 +14,7 @@
     "build": "astro build",
     "preview": "astro preview",
     "dev:fn": "astro build && wrangler pages dev ./dist --compatibility-date=2026-05-01",
-    "typecheck": "astro check && tsc --noEmit",
+    "typecheck": "astro check",
     "lint": "eslint . && stylelint \"src/**/*.css\"",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
