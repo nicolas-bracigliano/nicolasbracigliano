@@ -2,65 +2,95 @@ name: security
 
 on:
   schedule:
-    - cron: '0 22 * * 0' # Sun 22:00 UTC → Mon 08:00 Australia/Melbourne (winter) / 09:00 (summer)
+    # Daily at 22:00 UTC. CVE disclosure → exploit-in-the-wild can be hours;
+    # weekly was too slow. Cost: ~4 free CI-minutes/day.
+    - cron: '0 22 * * *'
   workflow_dispatch:
 
 permissions: {}
 
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: false
+
 jobs:
   audit:
+    name: Dependency audit + license check
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     permissions:
       contents: read
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+      - uses: pnpm/action-setup@a7487c7e89a18df4991f7f222e4898a00d66ddda # v4.1.0
+      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
         with:
           node-version-file: '.nvmrc'
-      - run: corepack enable
+          cache: 'pnpm'
       - run: pnpm install --frozen-lockfile
-      - name: pnpm audit (prod, high+)
+      - name: pnpm audit (prod, fail on high+)
         run: pnpm audit --prod --audit-level=high
-      - name: License check (allow-list)
+      - name: pnpm audit (full report, non-failing)
+        if: always()
+        run: pnpm audit --json > audit.json || true
+      - name: License allow-list
         run: |
-          pnpm dlx license-checker --production --onlyAllow \
+          pnpm exec license-checker --production --onlyAllow \
             "MIT;ISC;Apache-2.0;BSD-2-Clause;BSD-3-Clause;CC0-1.0;0BSD;Unlicense"
+      - name: Upload audit report
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: pnpm-audit-${{ github.run_id }}
+          path: audit.json
+          retention-days: 90
+          if-no-files-found: ignore
 
   gitleaks:
+    name: Secret scan
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     permissions:
       contents: read
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
         with:
           fetch-depth: 0
-      - uses: gitleaks/gitleaks-action@v2
+      - uses: gitleaks/gitleaks-action@ff98106e4c7b2bc287b24eaf42907196329070c7 # v2.3.9
 
   codeql:
+    name: CodeQL static analysis
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     permissions:
       contents: read
       security-events: write
+      actions: read
     steps:
-      - uses: actions/checkout@v4
-      - uses: github/codeql-action/init@v3
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+      - uses: github/codeql-action/init@e12f0178983d466f2f6028f5cc7a6d786fd97f4b # v4.31.4
         with:
           languages: javascript-typescript
-      - uses: github/codeql-action/analyze@v3
+          config-file: .github/codeql/codeql-config.yml
+      - uses: github/codeql-action/analyze@e12f0178983d466f2f6028f5cc7a6d786fd97f4b # v4.31.4
+        with:
+          category: '/language:javascript-typescript'
 
   security-txt-expires:
+    name: security.txt expiry guard
     runs-on: ubuntu-latest
+    timeout-minutes: 1
     permissions:
       contents: read
     steps:
-      - uses: actions/checkout@v4
-      - name: Check security.txt Expires
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+      - name: Check security.txt Expires (>=30 days)
         run: |
           expires=$(grep -i '^Expires:' public/.well-known/security.txt | sed 's/Expires:[[:space:]]*//')
-          if [ -z "$expires" ]; then echo "no Expires line"; exit 1; fi
+          if [ -z "$expires" ]; then echo "::error::no Expires line in security.txt"; exit 1; fi
           days=$(( ( $(date -d "$expires" +%s) - $(date +%s) ) / 86400 ))
-          echo "security.txt expires in $days day(s)"
+          echo "security.txt expires in $days day(s) ($expires)"
           if [ "$days" -lt 30 ]; then
-            echo "Expires < 30 days — rotate before publishing."
+            echo "::error::Expires < 30 days — rotate before publishing."
             exit 1
           fi
