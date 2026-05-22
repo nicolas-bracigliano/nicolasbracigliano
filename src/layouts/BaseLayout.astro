@@ -240,24 +240,48 @@ const navItems: Array<{ key: keyof typeof ROUTES; label: string }> =
         }
       });
 
-      // Cross-tab sync: localStorage write from a sibling tab dispatches a
-      // `storage` event here. Apply the new theme so all open tabs stay
-      // in step without requiring user interaction.
+      // Cross-tab sync: localStorage write or remove in a sibling tab
+      // dispatches a `storage` event here. Newvalue === null means the
+      // sibling retired its override (see matchMedia handler below) — this
+      // tab should re-resolve from matchMedia to match.
       window.addEventListener('storage', (event) => {
         if (event.key !== 'theme') return;
         if (event.newValue === 'dia' || event.newValue === 'noche') {
           applyTheme(event.newValue);
+        } else if (event.newValue === null) {
+          applyTheme(resolveTheme());
         }
       });
 
-      // OS dark-mode toggle: react only when the user hasn't expressed an
-      // explicit preference (localStorage empty). If they have, their
-      // choice wins over the OS schedule.
+      // State machine for OS theme changes.
+      //
+      //   no override + OS changes       → follow OS (auto mode)
+      //   override matches new OS theme  → silently retire the override; we
+      //                                    were holding the user against the
+      //                                    OS, but the OS just agreed with
+      //                                    them, so future OS toggles should
+      //                                    just be followed
+      //   override disagrees with new OS → keep the override; user has been
+      //                                    explicit and the OS isn't yet aligned
+      //
+      // Concretely: user overrides to "noche" while OS is "dia". Sunset
+      // arrives, OS goes "noche", the override matches and retires. Next
+      // sunrise, OS goes back to "dia", site follows automatically.
       const mql = window.matchMedia?.('(prefers-color-scheme: dark)');
       mql?.addEventListener('change', (event) => {
-        if (readStoredTheme() === null) {
-          applyTheme(event.matches ? 'noche' : 'dia');
+        const osTheme: Theme = event.matches ? 'noche' : 'dia';
+        const stored = readStoredTheme();
+        if (stored === null) {
+          applyTheme(osTheme);
+        } else if (stored === osTheme) {
+          try {
+            localStorage.removeItem('theme');
+          } catch {
+            /* localStorage unavailable */
+          }
+          applyTheme(osTheme);
         }
+        // else: stored !== osTheme — user wants the opposite of the OS, keep it.
       });
 
       // Delegated click handler covers both toggles for the life of the tab.
