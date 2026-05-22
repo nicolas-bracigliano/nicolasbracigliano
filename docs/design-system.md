@@ -10,7 +10,9 @@ The reference for everything about this site. Read this before changing color, c
 - **2026‑05‑21** — v1 scope cuts to clear the bootstrap path. Dropped: intro overlay (§11), scroll thread (§11). Clarified: "no analytics" → "no client-side analytics" in §16 (Cloudflare server-side aggregation is allowed). Why: removing JS-heavy decorations keeps the near-zero-JS promise honest and unblocks the Astro/Cloudflare bootstrap.
 - **2026‑05‑22** — §16 CSP clarified: `script-src` stays strict (`'self'`); `style-src` adds `'unsafe-inline'`. Why: enables Astro `<ClientRouter />` native View Transitions, which inject per-build runtime styles that build-time CSP hashing can't cover. The real attack surface (script execution) is untouched.
 - **2026‑05‑22** — `docs/design-system.md` declared the canonical version. Why: was previously forked between this in-repo copy and the external `~/Developer/NB/Design System/DESIGN-SYSTEM.md`. One source of truth, lives with the code.
-- **2026‑05‑22** — full content sync from the external file (the canonical-promotion only synced the change-log earlier). §11 components and §12 a11y updated to reflect the dropped intro overlay + scroll thread + addressed-in-v1 a11y items; §16 security tightened with the actual shipped CSP. Plus token fixes: Día `--ink-3` `#8a8377` → `#736b5e` (3.41:1 → 5.19:1) and Noche `--ink-3` `#807a6e` → `#8c8678` (4.36:1 → 5.19:1) — both were below WCAG AA and were caught by axe-core in e2e CI. §10 motion table no longer references the removed intro fade. §17 search + OG cards moved out of "open" since Pagefind and Satori are wired.
+- **2026‑05‑22** — `--ink-3` tokens darkened (Día `#736b5e`) and lightened (Noche `#8c8678`) to pass WCAG AA. Why: axe-core caught the originals failing contrast in CI.
+- **2026‑05‑22** — §11/§12/§16 brought up to current state; §17 Search + OG cards moved to shipped. Why: canonical promotion missed everything but the change-log.
+- **2026‑05‑22** — first-paint motion removed (ADR 0006). Why: incompatible with axe-core contrast checks in CI.
 
 When something material changes, add a line. Keep the log short: date, what changed, why. If you can't write the _why_ in one clause, you probably shouldn't make the change.
 
@@ -201,7 +203,7 @@ Three speeds, used everywhere. Don't invent a fourth.
 
 ### Principle
 
-Animate **into existence**, then rest. Continuous loops read as nervous, not alive (see §15 anti-patterns). The first-paint fade-up was tried and dropped — axe-core caught the mid-animation partial-opacity colours as failing contrast, and the visual win didn't justify the timing flakiness. Hover, click, theme transition, and cross-page View Transition motion all remain.
+Animate **into existence**, then rest. Continuous loops read as nervous, not alive (see §15 anti-patterns). First-paint motion is intentionally absent — content lands at its final state on the first frame. Hover, click, theme transition, and cross-page View Transition motion all play. See [ADR 0006](./decisions/0006-no-first-paint-animation.md) for the rationale.
 
 `@media (prefers-reduced-motion: reduce)` forces every animation to 0.01 ms. Honoured globally.
 
