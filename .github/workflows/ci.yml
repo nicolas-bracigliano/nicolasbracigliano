@@ -52,7 +52,7 @@ jobs:
         with:
           name: lighthouse-report
           path: .lighthouseci
-          retention-days: 14
+          retention-days: 30
           if-no-files-found: ignore
       - name: Upload dist artifact
         if: success()
