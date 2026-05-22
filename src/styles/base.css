@@ -345,7 +345,7 @@
     opacity: 0.5;
   }
 
-  /* Olive pulsing dot in the eyebrow — animation in animations.css */
+  /* Mate pulsing dot in the eyebrow — animation in animations.css */
   .dot {
     display: inline-block;
     width: 7px;
@@ -354,24 +354,29 @@
     border-radius: 50%;
     vertical-align: 1px;
   }
-  .dot.olive {
-    background: var(--olive);
+  .dot.mate {
+    background: var(--mate);
   }
 
-  /* Inline vignettes — coffee + mate, used in masthead h1/bio and field notes */
+  /* Inline vignettes — coffee + mate, used in masthead h1/bio and field notes.
+     SVG sizes off `em` so it scales with the surrounding text (tiny in body
+     copy, big inside the masthead h1). Doubled class on the `em` rule bumps
+     specificity to (0,2,1) so it beats `.masthead-text h1 em { color: --ink }`
+     and the vignette label keeps its own colour even inside the headline. */
   .inline-vignette {
     display: inline-flex;
-    align-items: baseline;
-    gap: 0.25rem;
+    align-items: center;
+    gap: 0.25em;
     white-space: nowrap;
     color: var(--accent);
     position: relative;
   }
   .inline-vignette svg {
     flex-shrink: 0;
-    transform: translateY(3px);
+    width: 1.3em;
+    height: 1.3em;
   }
-  .inline-vignette em {
+  .inline-vignette.inline-vignette em {
     color: var(--accent);
     font-style: italic;
     font-family: var(--font-display);
@@ -379,8 +384,9 @@
   .inline-vignette .vignette-label {
     color: inherit;
   }
-  .vignette--mate {
-    color: var(--olive);
+  .vignette--mate,
+  .vignette--mate.inline-vignette em {
+    color: var(--mate);
   }
 
   /* Bench section — "Currently on the bench" + 2×2 dashed-rule grid */
@@ -494,8 +500,8 @@
     color: var(--accent);
   }
   .bench-card--garden .bench-card-art {
-    background: color-mix(in oklab, var(--olive) 16%, var(--bg-2));
-    color: var(--olive);
+    background: color-mix(in oklab, var(--mate) 16%, var(--bg-2));
+    color: var(--mate);
   }
   .bench-card--print .bench-card-art {
     background: color-mix(in oklab, var(--ink-blue) 12%, var(--bg-2));
@@ -592,8 +598,8 @@
     line-height: 1.2;
   }
   .kind-pill.k-note {
-    color: var(--olive);
-    border-color: color-mix(in oklab, var(--olive) 30%, var(--rule));
+    color: var(--mate);
+    border-color: color-mix(in oklab, var(--mate) 30%, var(--rule));
   }
   .kind-pill.k-essay {
     color: var(--ink-blue);
@@ -710,7 +716,7 @@
     align-items: baseline;
   }
   .meta .tags {
-    color: var(--olive);
+    color: var(--mate);
   }
   .lede {
     color: var(--ink-2);
@@ -745,7 +751,7 @@
     border: 1px solid var(--rule);
   }
   .status--published {
-    color: var(--olive);
+    color: var(--mate);
   }
   .status--draft {
     color: var(--ink-3);

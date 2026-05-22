@@ -239,8 +239,8 @@
 
     /* ─── Home: bench vignettes + masthead presence dot ──────────────── */
 
-    /* Olive presence dot in the eyebrow row — a quiet 2.4s pulse. */
-    .dot.olive {
+    /* Mate presence dot in the eyebrow row — a quiet 2.4s pulse. */
+    .dot.mate {
       animation: pulse 2400ms ease-in-out infinite;
     }
 
