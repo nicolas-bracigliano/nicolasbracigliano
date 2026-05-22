@@ -1,0 +1,31 @@
+---
+// Inline coffee vignette — the steaming long-black icon used in the
+// masthead h1 ("…and <Coffee /> every morning") and the Field Notes
+// "In the cup" block. Steam strokes loop via @keyframes steam-rise,
+// gated by prefers-reduced-motion in animations.css.
+//
+// The icon is decorative: <svg aria-hidden>, no aria-label on the
+// wrapper. Meaning comes from the optional visible `label` prop
+// (used in the masthead h1) or from adjacent prose (Field Notes
+// — the cafe name follows the icon and carries the semantics).
+
+export interface Props {
+  /** Optional italic-serif label rendered before the icon. */
+  label?: string;
+}
+
+const { label } = Astro.props;
+---
+
+<span class="inline-vignette vignette--coffee">
+  {label && <em>{label}</em>}
+  <svg viewBox="0 0 30 30" width="22" height="22" aria-hidden="true" class="icon-coffee">
+    <g fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round">
+      <path d="M5 22 L 25 22"></path>
+      <path d="M7 12 L 9 22 L 21 22 L 23 12 Z"></path>
+      <path d="M23 14 q 4 0 4 4 q 0 4 -4 4"></path>
+      <path class="steam steam-1" d="M12 8 q 0 -3 2 -3 q 2 0 2 3"></path>
+      <path class="steam steam-2" d="M17 8 q 0 -3 2 -3 q 2 0 2 3"></path>
+    </g>
+  </svg>
+</span>

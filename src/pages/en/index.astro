@@ -1,19 +1,199 @@
 ---
-import { getEntry, render } from 'astro:content';
-import PageLayout from '@layouts/PageLayout.astro';
+import { getCollection, getEntry } from 'astro:content';
+import BaseLayout from '@layouts/BaseLayout.astro';
+import Masthead from '@components/Masthead.astro';
+import BenchCard from '@components/BenchCard.astro';
+import LatestEntries, { type LatestItem } from '@components/LatestEntries.astro';
+import FieldNotesSidebar from '@components/FieldNotesSidebar.astro';
+import Coffee from '@components/Coffee.astro';
+import Mate from '@components/Mate.astro';
 import { ROUTES } from '@lib/routes';
 import { getSibling, entryRouteFor } from '@lib/i18n';
 
 const entry = await getEntry('pages', 'en/home');
 if (!entry) throw new Error('Missing pages/en/home');
 const sibling = await getSibling(entry);
-const { Content } = await render(entry);
+const { title, lede } = entry.data;
+
+// Latest 4 across notes + works, newest first. Home is the only place
+// that mixes collections, hence the union typing on LatestItem.
+const [notes, works] = await Promise.all([
+  getCollection('notes', (e) => e.data.lang === 'en' && e.data.status === 'published'),
+  getCollection('works', (e) => e.data.lang === 'en' && e.data.status === 'published'),
+]);
+const latest: LatestItem[] = [
+  ...notes.map((e) => ({ entry: e, kind: 'note' as const })),
+  ...works.map((e) => ({ entry: e, kind: 'work' as const })),
+]
+  .sort((a, b) => +b.entry.data.date - +a.entry.data.date)
+  .slice(0, 4);
+
+// "thursday, 22 may" — lowercase, matches prototype's bench header style.
+const benchDate = new Intl.DateTimeFormat('en-AU', {
+  weekday: 'long',
+  day: 'numeric',
+  month: 'long',
+  timeZone: 'Australia/Melbourne',
+})
+  .format(new Date())
+  .toLowerCase();
+
+const bench = [
+  {
+    kind: 'code' as const,
+    tag: '01 · code',
+    title: 'A small static-site generator',
+    line: "Markdown in, Lighthouse 100 out. Day three of rewriting it in Rust, mostly to find out what I don't know.",
+  },
+  {
+    kind: 'guitar' as const,
+    tag: '02 · guitar',
+    title: 'Learning Milonga del Ángel',
+    line: 'Piazzolla. The right-hand fingering is a puzzle box. I keep looping bars 9–16 at half speed.',
+    guitarLabel: 'A m | Milonga del Ángel · bar 9',
+  },
+  {
+    kind: 'garden' as const,
+    tag: '03 · garden',
+    title: 'Tomatoes vs. Melbourne October',
+    line: 'Black Russian, San Marzano, a punnet of basil. The pollinators showed up two weeks early.',
+    seedlingTag: 'tomato',
+  },
+  {
+    kind: 'print' as const,
+    tag: '04 · 3d',
+    title: 'A modular catch-all tray',
+    line: 'Magnets in the corners; the slot for the espresso tamper finally fits. Five iterations later.',
+  },
+];
+
+const elsewhere = [
+  { label: 'github / nicolas', href: 'https://github.com/' },
+  { label: 'printables / nicolas', href: 'https://www.printables.com/' },
+  { label: 'mastodon @ nicolas', href: 'https://mastodon.social/' },
+  { label: 'rss.xml', href: '/rss-en.xml', suffix: '(en)' },
+  { label: 'rss.xml', href: '/rss-es.xml', suffix: '(es)' },
+];
+
+const reading = [
+  { title: 'The Mom Test', author: 'Rob Fitzpatrick' },
+  { title: 'El jardín de senderos que se bifurcan', author: 'Jorge Luis Borges' },
+  { title: 'A Philosophy of Software Design', author: 'John Ousterhout' },
+];
 ---
 
-<PageLayout
-  entry={entry}
+<BaseLayout
+  title={title}
+  description={lede}
+  locale="en"
   path={ROUTES.home.en}
   siblingPath={sibling ? entryRouteFor(sibling) : null}
 >
-  <Content />
-</PageLayout>
+  <article class="home">
+    <Masthead portraitCaption="retrato · pendiente">
+      <Fragment slot="eyebrow">
+        Nicolas Bracigliano
+        <span class="sep">·</span>
+        <span class="dot olive" aria-hidden="true"></span>
+        Melbourne, AU
+        <span class="sep">·</span>
+        <span class="now-time" data-now-melbourne>—:—</span>
+      </Fragment>
+
+      <h1 slot="h1">
+        I make <em>things</em> on the internet,
+        <br />
+        <span class="indent">useful things at home,</span>
+        <br />
+        <span class="indent2">and <Coffee label="a long black" /> every morning.</span>
+      </h1>
+
+      <Fragment slot="bio">
+        Senior software engineer, twenty years deep. Off-screen: guitar, 3D design, garden, pool,
+        gym. Argentinian, so there's always
+        <Mate /> in the cup. Audiobook in one ear, secateurs in the other. This is the <em
+          >colofón</em
+        > — a place to keep the work, the drafts, and the receipts.
+      </Fragment>
+
+      <Fragment slot="meta">
+        <span>en proceso, en público</span>
+        <span class="sep">·</span>
+        <span>v.1.0 · hecho a mano</span>
+      </Fragment>
+    </Masthead>
+
+    <section class="bench" aria-labelledby="bench-h">
+      <header class="bench-head">
+        <span class="eyebrow" id="bench-h">Currently on the bench</span>
+        <span class="bench-date">{benchDate}</span>
+      </header>
+      <ul class="bench-grid">
+        {
+          bench.map((b) => (
+            <li>
+              <BenchCard {...b} />
+            </li>
+          ))
+        }
+      </ul>
+    </section>
+
+    {
+      latest.length > 0 && (
+        <LatestEntries
+          items={latest}
+          eyebrow="Latest entries"
+          allEntriesLabel="all entries →"
+          allEntriesHref={ROUTES.notes.en}
+          kindLabels={{ note: 'note', work: 'work', essay: 'essay' }}
+        />
+      )
+    }
+
+    <FieldNotesSidebar
+      elsewhereLabel="Elsewhere"
+      readingLabel="Reading right now"
+      cupLabel="In the cup"
+      elsewhere={elsewhere}
+      reading={reading}
+    >
+      <Fragment slot="cup">
+        <p class="cup">
+          <Coffee />
+          &nbsp;Padre Coffee, Brunswick — <span class="muted">single origin, Ethiopia.</span>
+        </p>
+        <p class="cup">
+          <Mate />
+          &nbsp;Cruz de Malta — <span class="muted">amargo, siempre.</span>
+        </p>
+      </Fragment>
+    </FieldNotesSidebar>
+  </article>
+
+  <script>
+    // Live Melbourne wall-clock in the masthead eyebrow.
+    // Tick chain self-arms on astro:page-load and self-stops when the
+    // element is gone (i.e. navigated off home), so no accumulators
+    // across <ClientRouter /> page swaps.
+    const fmt = new Intl.DateTimeFormat('en-AU', {
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false,
+      timeZone: 'Australia/Melbourne',
+    });
+    function paintNow(): boolean {
+      const el = document.querySelector<HTMLElement>('[data-now-melbourne]');
+      if (!el) return false;
+      el.textContent = fmt.format(new Date());
+      return true;
+    }
+    function tick(): void {
+      if (paintNow()) setTimeout(tick, 60_000);
+    }
+    document.addEventListener('astro:page-load', () => {
+      if (!paintNow()) return;
+      setTimeout(tick, (60 - new Date().getSeconds()) * 1000);
+    });
+  </script>
+</BaseLayout>

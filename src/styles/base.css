@@ -244,6 +244,434 @@
     margin-block-start: 0.25rem;
   }
 
+  /* ─── Home: Workshop bench (design system §3) ──────────────────────────
+     The home page composes four sections — masthead, bench, latest
+     entries, field notes — inside one <main>. `.home { gap }` stacks
+     them; each section sets its own padding for the workshop-zine
+     rhythm. The bench, latest, and field-notes blocks each open with
+     a 1px rule line so they read as "chapters" of one page. */
+
+  .home {
+    display: grid;
+    gap: clamp(2rem, 5vw, 3.5rem);
+  }
+
+  /* Masthead — 2-col portrait + text on desktop, single column under 720px */
+  .masthead {
+    padding-block-start: clamp(1.5rem, 5vw, 3rem);
+  }
+  .masthead-grid {
+    display: grid;
+    grid-template-columns: 240px 1fr;
+    gap: clamp(2rem, 6vw, 5rem);
+    align-items: start;
+  }
+  @media (max-width: 720px) {
+    .masthead-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+  .masthead-portrait {
+    position: relative;
+    color: var(--ink-3);
+  }
+  .portrait-mono {
+    width: 220px;
+    height: 220px;
+    max-width: 100%;
+  }
+  .portrait-caption {
+    margin-block-start: 0.75rem;
+    font-size: 0.7rem;
+    color: var(--ink-3);
+    letter-spacing: 0.04em;
+    max-width: none;
+  }
+
+  .masthead-text .eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5em;
+    font-size: 0.7rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+    font-feature-settings: 'tnum';
+    margin: 0;
+    max-width: none;
+  }
+  .masthead-text h1 {
+    font-family: var(--font-display);
+    font-weight: 400;
+    font-size: clamp(2.4rem, 5.4vw, 4.5rem);
+    line-height: 1.04;
+    letter-spacing: -0.02em;
+    margin: 1rem 0 1.75rem;
+    color: var(--ink);
+    text-wrap: pretty;
+  }
+  .masthead-text h1 em {
+    font-style: italic;
+    color: var(--ink);
+  }
+  .masthead-text h1 .indent {
+    padding-inline-start: 1.2em;
+    display: inline-block;
+  }
+  .masthead-text h1 .indent2 {
+    padding-inline-start: 2.4em;
+    display: inline-block;
+  }
+  .masthead-bio {
+    font-size: 0.95rem;
+    line-height: 1.7;
+    max-width: 50ch;
+    color: var(--ink-2);
+    margin: 0;
+  }
+  .masthead-meta {
+    margin-block-start: 1.75rem;
+    font-size: 0.7rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    align-items: center;
+    max-width: none;
+  }
+  .masthead-meta .sep {
+    opacity: 0.5;
+  }
+
+  /* Olive pulsing dot in the eyebrow — animation in animations.css */
+  .dot {
+    display: inline-block;
+    width: 7px;
+    height: 7px;
+    background: var(--accent);
+    border-radius: 50%;
+    vertical-align: 1px;
+  }
+  .dot.olive {
+    background: var(--olive);
+  }
+
+  /* Inline vignettes — coffee + mate, used in masthead h1/bio and field notes */
+  .inline-vignette {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 0.25rem;
+    white-space: nowrap;
+    color: var(--accent);
+    position: relative;
+  }
+  .inline-vignette svg {
+    flex-shrink: 0;
+    transform: translateY(3px);
+  }
+  .inline-vignette em {
+    color: var(--accent);
+    font-style: italic;
+    font-family: var(--font-display);
+  }
+  .inline-vignette .vignette-label {
+    color: inherit;
+  }
+  .vignette--mate {
+    color: var(--olive);
+  }
+
+  /* Bench section — "Currently on the bench" + 2×2 dashed-rule grid */
+  .bench {
+    padding-block-start: clamp(2rem, 5vw, 3.5rem);
+  }
+  .bench-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1rem;
+    border-block-end: 1px solid var(--rule);
+    padding-block-end: 1rem;
+    margin-block-end: 1.5rem;
+  }
+  .bench-head .eyebrow {
+    font-size: 0.7rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+  }
+  .bench-date {
+    font-size: 0.7rem;
+    color: var(--ink-3);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    font-feature-settings: 'tnum';
+  }
+  .bench-grid {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0;
+    border-block-start: 1px dashed var(--rule);
+    border-inline-start: 1px dashed var(--rule);
+  }
+  @media (max-width: 720px) {
+    .bench-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+  .bench-card {
+    border-inline-end: 1px dashed var(--rule);
+    border-block-end: 1px dashed var(--rule);
+    padding: 1.75rem;
+    display: grid;
+    grid-template-rows: 140px auto;
+    gap: 1.25rem;
+    position: relative;
+    background: transparent;
+  }
+  .bench-card::before {
+    content: '';
+    position: absolute;
+    inset-block-start: 0.5rem;
+    inset-inline-end: 0.5rem;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--accent);
+    opacity: 0;
+  }
+  .bench-card-art {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--ink);
+    position: relative;
+    overflow: hidden;
+    border-radius: 2px;
+    background: var(--bg-2);
+  }
+  .bench-card-text {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+  }
+  .bench-tag {
+    font-size: 0.65rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+  }
+  .bench-title {
+    font-family: var(--font-display);
+    font-size: 1.4rem;
+    font-weight: 400;
+    letter-spacing: -0.01em;
+    margin: 0;
+    color: var(--ink);
+  }
+  .bench-line {
+    margin: 0;
+    font-size: 0.85rem;
+    color: var(--ink-2);
+    line-height: 1.55;
+    max-width: none;
+  }
+
+  /* Per-kind art backgrounds — terminal is its own dark canvas; others
+     tint --bg-2 with their accent so they read as kind without a full
+     palette swap. */
+  .bench-card--code .bench-card-art {
+    background: var(--terminal-bg);
+    color: var(--terminal-fg);
+  }
+  .bench-card--guitar .bench-card-art {
+    background: color-mix(in oklab, var(--accent) 18%, var(--bg-2));
+    color: var(--accent);
+  }
+  .bench-card--garden .bench-card-art {
+    background: color-mix(in oklab, var(--olive) 16%, var(--bg-2));
+    color: var(--olive);
+  }
+  .bench-card--print .bench-card-art {
+    background: color-mix(in oklab, var(--ink-blue) 12%, var(--bg-2));
+    color: var(--ink-blue);
+  }
+
+  /* Terminal vignette */
+  .terminal-vig {
+    font-family: var(--font-body);
+    font-size: 10.5px;
+    line-height: 1.6;
+    color: var(--terminal-fg);
+    white-space: pre;
+    margin: 0;
+    padding: 0.9rem 1.1rem;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+  }
+  .terminal-vig .caret {
+    display: inline-block;
+    width: 7px;
+    height: 12px;
+    background: var(--terminal-fg);
+    margin-inline-start: 4px;
+    vertical-align: -1px;
+  }
+
+  /* Vignette canvases share padding rules */
+  .guitar-vig,
+  .seedling-vig,
+  .print-vig {
+    width: 100%;
+    height: 100%;
+    padding: 0.4rem 0.6rem;
+  }
+
+  /* Home: Latest entries — 4-col grid (pill / date / title / arrow) */
+  .home-latest {
+    padding-block-start: clamp(1rem, 3vw, 2rem);
+  }
+  .latest-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 1rem;
+    border-block-end: 1px solid var(--rule);
+    padding-block-end: 1rem;
+    margin-block-end: 0.5rem;
+  }
+  .latest-head .eyebrow {
+    font-size: 0.7rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+  }
+  .latest-all {
+    font-size: 0.7rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ink-2);
+    text-decoration: none;
+  }
+  .latest-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .latest-row {
+    border-block-end: 1px dashed var(--rule);
+  }
+  .latest-link {
+    display: grid;
+    grid-template-columns: 64px 110px 1fr 24px;
+    gap: 1.5rem;
+    align-items: baseline;
+    padding: 1rem 0.5rem;
+    text-decoration: none;
+    color: var(--ink);
+    position: relative;
+  }
+  .kind-pill {
+    font-size: 0.65rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+    padding: 0.15rem 0.4rem;
+    border: 1px solid var(--rule);
+    border-radius: 2px;
+    background: var(--paper);
+    text-align: center;
+    display: inline-block;
+    line-height: 1.2;
+  }
+  .kind-pill.k-note {
+    color: var(--olive);
+    border-color: color-mix(in oklab, var(--olive) 30%, var(--rule));
+  }
+  .kind-pill.k-essay {
+    color: var(--ink-blue);
+    border-color: color-mix(in oklab, var(--ink-blue) 30%, var(--rule));
+  }
+  .kind-pill.k-work {
+    color: var(--accent);
+    border-color: color-mix(in oklab, var(--accent) 30%, var(--rule));
+  }
+  .latest-date {
+    font-variant-numeric: tabular-nums;
+    color: var(--ink-3);
+    font-size: 0.78rem;
+  }
+  .latest-title {
+    font-family: var(--font-display);
+    font-size: 1.2rem;
+    letter-spacing: -0.01em;
+    color: var(--ink);
+  }
+  .latest-arrow {
+    color: var(--ink-3);
+  }
+  @media (max-width: 640px) {
+    .latest-link {
+      grid-template-columns: 56px 1fr 24px;
+    }
+    .latest-date {
+      display: none;
+    }
+  }
+
+  /* Field notes — 3-col sidebar (Elsewhere / Reading / In the cup) */
+  .field-notes {
+    padding-block-start: clamp(1rem, 3vw, 2rem);
+    padding-block-end: 1.5rem;
+  }
+  .field-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: clamp(1.5rem, 4vw, 2.25rem);
+  }
+  @media (max-width: 720px) {
+    .field-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+  .field-col .eyebrow {
+    font-size: 0.7rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+    display: block;
+  }
+  .field-col ul {
+    list-style: none;
+    margin: 0.75rem 0 0;
+    padding: 0;
+  }
+  .field-col li {
+    padding: 0.25rem 0;
+    font-size: 0.82rem;
+    color: var(--ink-2);
+  }
+  .field-col a {
+    color: var(--ink-2);
+    text-decoration: none;
+  }
+  .field-col .muted {
+    color: var(--ink-3);
+  }
+  .cup {
+    margin: 0.75rem 0 0.25rem;
+    font-size: 0.82rem;
+    color: var(--ink-2);
+    max-width: none;
+  }
+
   .card-list {
     list-style: none;
     padding: 0;

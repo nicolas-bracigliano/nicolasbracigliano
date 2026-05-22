@@ -1,0 +1,71 @@
+---
+// Home-page "Field notes" sidebar (design system §3). Three columns
+// underneath the bench + latest sections: elsewhere links, what's
+// being read right now, and what's in the cup.
+//
+// The cup column is a slot because it composes <Coffee /> and <Mate />
+// inline vignettes with localized prose — the page knows the locale
+// and which copy goes with which beverage.
+
+export interface ReadingItem {
+  /** Italic serif title (book name). */
+  title: string;
+  /** Plain-weight author / attribution. */
+  author: string;
+}
+
+export interface ElsewhereLink {
+  label: string;
+  href: string;
+  /** Muted text after the link, e.g. "(en)" for an RSS suffix. */
+  suffix?: string;
+}
+
+export interface Props {
+  elsewhereLabel: string;
+  readingLabel: string;
+  cupLabel: string;
+  elsewhere: ElsewhereLink[];
+  reading: ReadingItem[];
+}
+
+const { elsewhereLabel, readingLabel, cupLabel, elsewhere, reading } = Astro.props;
+---
+
+<section class="field-notes" aria-label={elsewhereLabel}>
+  <div class="field-grid">
+    <div class="field-col">
+      <span class="eyebrow">{elsewhereLabel}</span>
+      <ul class="elsewhere">
+        {
+          elsewhere.map((link) => (
+            <li>
+              <a href={link.href} data-astro-prefetch={link.href.startsWith('/') ? '' : undefined}>
+                {link.label}
+              </a>
+              {link.suffix && <span class="muted"> {link.suffix}</span>}
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+
+    <div class="field-col">
+      <span class="eyebrow">{readingLabel}</span>
+      <ul class="reading">
+        {
+          reading.map((book) => (
+            <li>
+              <em>{book.title}</em> — {book.author}
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+
+    <div class="field-col">
+      <span class="eyebrow">{cupLabel}</span>
+      <slot name="cup" />
+    </div>
+  </div>
+</section>
