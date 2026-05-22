@@ -355,6 +355,16 @@
          rail is the always-visible nav anchor instead. */
       backdrop-filter: none;
       position: relative;
+      /* Switch from the desktop `grid-template-columns: auto 1fr auto`
+         to a flex row with `space-between`. The desktop grid puts the
+         nav in the middle 1fr column, but mobile fixes-positions the
+         nav out of flow; the grid's "second child" (chrome-end) then
+         lands in the middle column instead of the right edge. Flex
+         with space-between flushes mark left and chrome-end right
+         regardless of whether the nav is in-flow. */
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
     }
     /* Compress the wordmark stack so cube + "Nicolás Bracigliano" fits
        alongside lang + theme. */
