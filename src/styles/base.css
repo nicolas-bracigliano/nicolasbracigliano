@@ -284,6 +284,15 @@
     .masthead-portrait {
       display: none;
     }
+    /* Hide the live Melbourne wall-clock on mobile so the eyebrow row
+       fits on a single line: "Nicolás Bracigliano · ● Melbourne, AU".
+       `:has()` lets us drop the preceding `·` separator too without
+       touching the markup. The time keeps ticking under the hood
+       (the script is unaffected); it's just visually removed. */
+    .masthead-text .eyebrow .now-time,
+    .masthead-text .eyebrow .sep:has(+ .now-time) {
+      display: none;
+    }
   }
   .masthead-portrait {
     position: relative;
