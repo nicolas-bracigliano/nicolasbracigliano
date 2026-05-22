@@ -148,36 +148,38 @@
   }
 
   #theme-toggle {
-    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     width: 2rem;
     height: 2rem;
     border-radius: 50%;
     border: 1px solid var(--rule);
     background: var(--paper);
-    color: var(--ink-2);
+    color: var(--accent); /* SVG children pick this up via `currentColor` */
     transition:
       background-color var(--speed-micro),
-      color var(--speed-micro);
+      border-color var(--speed-micro);
   }
   #theme-toggle:hover {
-    color: var(--accent);
+    border-color: var(--ink-3);
   }
-  /* Both icons share the centre of the button. Default invisible; the
-     matching one becomes visible via [data-theme] selectors. Opacity
-     transition lives in animations.css under the reduced-motion gate. */
-  #theme-toggle .sun,
-  #theme-toggle .moon {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    width: 1rem;
-    height: 1rem;
-    transform: translate(-50%, -50%);
+  /* Default (Día): rays visible at full opacity, mask hidden off to the right.
+     [data-theme="noche"] overrides set rays invisible and slide the mask
+     into the disc to carve a crescent. Transitions are in animations.css. */
+  #theme-toggle .moon-mask {
     opacity: 0;
+    transform: translateX(8px);
+    transform-origin: center;
   }
-  [data-theme='dia'] #theme-toggle .sun,
-  [data-theme='noche'] #theme-toggle .moon {
+  [data-theme='noche'] #theme-toggle .sun-rays {
+    opacity: 0;
+    transform: scale(0.6) rotate(-30deg);
+    transform-origin: 11px 11px;
+  }
+  [data-theme='noche'] #theme-toggle .moon-mask {
     opacity: 1;
+    transform: translateX(0);
   }
 
   main {

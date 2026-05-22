@@ -86,11 +86,30 @@
       color: var(--ink);
     }
 
-    /* Day/night icon crossfade — opacity is set in base.css per [data-theme];
-       this just controls the timing between visible and invisible. */
-    #theme-toggle .sun,
-    #theme-toggle .moon {
-      transition: opacity var(--speed-standard);
+    /* Day/night icon: sun-rays fade + retract while moon-mask slides in
+       from the right to carve the crescent. Positioning per state is in
+       base.css; this just controls the timing of the transition.
+       — sun-rays animate at standard speed for opacity, page speed for
+         the scale+rotate retraction (subtle, not abrupt).
+       — moon-mask uses the same pair so both layers feel like one motion.
+       — the whole SVG rotates 28° on hover at page speed, a small
+         "winding-up" gesture toward the click. */
+    #theme-toggle svg {
+      transition: transform var(--speed-page);
+    }
+    #theme-toggle:hover svg {
+      transform: rotate(28deg);
+    }
+    #theme-toggle .sun-rays {
+      transform-origin: 11px 11px;
+      transition:
+        opacity var(--speed-standard),
+        transform var(--speed-page);
+    }
+    #theme-toggle .moon-mask {
+      transition:
+        transform var(--speed-page),
+        opacity var(--speed-standard);
     }
 
     /* ─── Entry list (notes/works/essays indexes): slide right on hover ── */
