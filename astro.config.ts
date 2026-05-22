@@ -8,7 +8,13 @@ export default defineConfig({
   output: 'static',
   trailingSlash: 'always',
   compressHTML: true,
-  prefetch: false,
+  // Opt-in prefetching: only the links explicitly marked with
+  // `data-astro-prefetch` (nav, entry-list, cards) prefetch on hover.
+  // Cheap perceived-speed win once `<ClientRouter />` is already on the page.
+  prefetch: {
+    prefetchAll: false,
+    defaultStrategy: 'hover',
+  },
   build: {
     inlineStylesheets: 'auto',
     format: 'directory',

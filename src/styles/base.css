@@ -1,4 +1,4 @@
-@layer reset, tokens, base, routes, utilities;
+@layer reset, tokens, base, routes, animations, utilities;
 
 @layer base {
   html {

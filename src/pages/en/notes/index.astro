@@ -25,7 +25,7 @@ const siblingPath = ROUTES.notes.es;
       {
         notes.map((n) => (
           <li>
-            <a href={entryRouteFor(n)}>
+            <a href={entryRouteFor(n)} data-astro-prefetch>
               <time datetime={n.data.date.toISOString().slice(0, 10)}>
                 {n.data.date.toISOString().slice(0, 10)}
               </time>

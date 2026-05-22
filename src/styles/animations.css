@@ -4,37 +4,41 @@
  * §10 prescribes: "animate into existence, then rest" — no infinite loops,
  * no decoration in motion.
  *
- * Every animation is gated behind `prefers-reduced-motion: no-preference`.
- * The `@layer reset` rule in `reset.css` clamps animation/transition to
- * 0.01ms when the user has reduced-motion set, but we belt-and-brace the
- * keyframes here so a user who toggles the OS pref mid-session also gets
- * stillness on the next navigation.
+ * Cascade-wise, this layer sits AFTER `routes` in `base.css`'s @layer
+ * declaration, so motion rules win over layout rules on the same element.
+ *
+ * `@keyframes` are defined unconditionally so any future caller that
+ * references `animation-name: fade-up` resolves cleanly. *Usage* is
+ * gated behind `prefers-reduced-motion: no-preference`. The global
+ * `@layer reset` rule in `reset.css` clamps every animation/transition
+ * to 0.01ms when the OS preference flips, so users opting in mid-session
+ * get stillness on the next paint without us having to re-emit CSS.
  */
 
-@layer routes {
+@layer animations {
+  /* ─── Keyframes (always defined, gated usage below) ─────────────── */
+
+  @keyframes fade-up {
+    from {
+      opacity: 0;
+      transform: translateY(6px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes fade-in {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
   @media (prefers-reduced-motion: no-preference) {
-    /* ─── Keyframes ─────────────────────────────────────────────────── */
-
-    @keyframes fade-up {
-      from {
-        opacity: 0;
-        transform: translateY(6px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-
-    @keyframes fade-in {
-      from {
-        opacity: 0;
-      }
-      to {
-        opacity: 1;
-      }
-    }
-
     /* ─── Page-load: main content fades up once ─────────────────────── */
 
     main {
@@ -100,6 +104,9 @@
 
     .card a {
       position: relative;
+      /* Required: the ::before paper-stack sits at z-index: -1; without
+         a local stacking context it would slip behind the parent's parent
+         (and disappear under the page background). */
       isolation: isolate;
     }
     .card a::before {
@@ -143,14 +150,12 @@
         animation-range: entry 0% entry 60%;
       }
     }
-  }
 
-  /* ─── View Transitions API ──────────────────────────────────────────
-   * Astro's <ClientRouter /> uses the native View Transitions API for
-   * cross-page navigation. Pseudo-elements like ::view-transition-old/new
-   * are styleable; we map them to our three speed tokens. */
+    /* ─── View Transitions API ───────────────────────────────────────
+     * Astro's <ClientRouter /> uses the native View Transitions API for
+     * cross-page navigation. Pseudo-elements like ::view-transition-old/new
+     * are styleable; we map them to our three speed tokens. */
 
-  @media (prefers-reduced-motion: no-preference) {
     ::view-transition-old(root),
     ::view-transition-new(root) {
       animation-duration: var(--speed-page);

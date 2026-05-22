@@ -86,7 +86,14 @@ const navItems: Array<{ key: keyof typeof ROUTES; label: string }> =
   <body>
     <a href="#main" class="skip-link">Skip to content</a>
 
-    <header class="chrome">
+    {
+      /* `transition:animate="none"` keeps the chrome visually stable during
+        ClientRouter navigations — the page body fades to the new content
+        but the chrome doesn't fade with it. Attributes inside (aria-current
+        on nav, href/aria-disabled on lang toggle) still update because
+        the chrome re-renders; only its animation opts out. */
+    }
+    <header class="chrome" transition:animate="none">
       <a
         href={ROUTES.home[locale]}
         class="mark"
@@ -104,6 +111,7 @@ const navItems: Array<{ key: keyof typeof ROUTES; label: string }> =
                 <a
                   href={ROUTES[key][locale]}
                   aria-current={path.startsWith(ROUTES[key][locale]) ? 'page' : undefined}
+                  data-astro-prefetch
                 >
                   {label}
                 </a>

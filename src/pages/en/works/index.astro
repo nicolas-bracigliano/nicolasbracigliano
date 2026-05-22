@@ -25,7 +25,7 @@ const siblingPath = ROUTES.works.es;
       {
         works.map((w) => (
           <li class="card">
-            <a href={entryRouteFor(w)}>
+            <a href={entryRouteFor(w)} data-astro-prefetch>
               <h2>{w.data.title}</h2>
               {w.data.lede && <p>{w.data.lede}</p>}
             </a>
