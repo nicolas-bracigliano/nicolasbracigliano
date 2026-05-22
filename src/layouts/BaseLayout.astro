@@ -162,7 +162,42 @@ const navItems: Array<{ key: keyof typeof ROUTES; label: string }> =
           aria-checked="false"
           aria-label={locale === 'en' ? 'Toggle dark mode' : 'Alternar modo oscuro'}
         >
-          <span aria-hidden="true">◐</span>
+          {
+            /* Two SVGs share the centre of the button; CSS in animations.css
+              cross-fades them based on [data-theme] on the <html> root.
+              Both stroke `currentColor` so they pick up the button's
+              colour (which already has its own hover transition). */
+          }
+          <svg
+            class="sun"
+            viewBox="0 0 16 16"
+            width="16"
+            height="16"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.5"
+            stroke-linecap="round"
+            aria-hidden="true"
+          >
+            <circle cx="8" cy="8" r="3"></circle>
+            <path
+              d="M8 1v2 M8 13v2 M1 8h2 M13 8h2 M3.05 3.05l1.41 1.41 M11.54 11.54l1.41 1.41 M3.05 12.95l1.41-1.41 M11.54 4.46l1.41-1.41"
+            ></path>
+          </svg>
+          <svg
+            class="moon"
+            viewBox="0 0 16 16"
+            width="16"
+            height="16"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.5"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+          >
+            <path d="M14 9.5A6 6 0 0 1 6.5 2 4.5 4.5 0 0 0 8 11a4.5 4.5 0 0 0 6-1.5z"></path>
+          </svg>
         </button>
       </div>
     </header>

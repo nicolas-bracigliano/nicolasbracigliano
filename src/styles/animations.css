@@ -86,6 +86,13 @@
       color: var(--ink);
     }
 
+    /* Day/night icon crossfade — opacity is set in base.css per [data-theme];
+       this just controls the timing between visible and invisible. */
+    #theme-toggle .sun,
+    #theme-toggle .moon {
+      transition: opacity var(--speed-standard);
+    }
+
     /* ─── Entry list (notes/works/essays indexes): slide right on hover ── */
 
     .entry-list a {
