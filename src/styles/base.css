@@ -344,6 +344,17 @@
     .chrome {
       gap: 0.5rem;
       padding: 0.65rem var(--gutter);
+      /* CRITICAL: drop `backdrop-filter` and `position: sticky` on
+         mobile. `backdrop-filter` (any non-`none` value) establishes a
+         containing block for fixed-positioned descendants, which was
+         trapping `.chrome .nav { position: fixed; bottom: 0 }` inside
+         the chrome and pinning the foot-rail to the bottom of the
+         (short) chrome element — visually next to the top of the
+         page. Removing both restores the viewport as the containing
+         block. The mobile chrome doesn't need to stick — the foot-
+         rail is the always-visible nav anchor instead. */
+      backdrop-filter: none;
+      position: relative;
     }
     /* Compress the wordmark stack so cube + "Nicolás Bracigliano" fits
        alongside lang + theme. */
