@@ -67,22 +67,43 @@ The `public/_headers` file uses Cloudflare/Netlify syntax. If you ever move the
 site, this table is the host-neutral source of truth for what each directive
 needs to look like on the new host. Update both columns in lock-step.
 
-| Logical directive               | Cloudflare/Netlify `_headers`                                             | Vercel `vercel.json` `headers`                                           | nginx                                                                                             |
-| ------------------------------- | ------------------------------------------------------------------------- | ------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------- |
-| Strict CSP (no `unsafe-inline`) | `Content-Security-Policy: default-src 'self'; …`                          | `{ "key": "Content-Security-Policy", "value": "default-src 'self'; …" }` | `add_header Content-Security-Policy "default-src 'self'; …" always;`                              |
-| HSTS preload                    | `Strict-Transport-Security: max-age=63072000; includeSubDomains; preload` | same value, JSON object                                                  | `add_header Strict-Transport-Security "…" always;`                                                |
-| MIME sniffing off               | `X-Content-Type-Options: nosniff`                                         | same                                                                     | `add_header X-Content-Type-Options nosniff always;`                                               |
-| Referrer policy                 | `Referrer-Policy: strict-origin-when-cross-origin`                        | same                                                                     | `add_header Referrer-Policy "strict-origin-when-cross-origin" always;`                            |
-| Permissions policy              | `Permissions-Policy: accelerometer=(), camera=(), …`                      | same                                                                     | `add_header Permissions-Policy "…" always;`                                                       |
-| Cross-origin opener             | `Cross-Origin-Opener-Policy: same-origin`                                 | same                                                                     | `add_header Cross-Origin-Opener-Policy same-origin always;`                                       |
-| Cross-origin resource           | `Cross-Origin-Resource-Policy: same-origin`                               | same                                                                     | `add_header Cross-Origin-Resource-Policy same-origin always;`                                     |
-| Frame deny                      | `X-Frame-Options: DENY`                                                   | same                                                                     | `add_header X-Frame-Options DENY always;`                                                         |
-| Immutable Pagefind              | `/_pagefind/* … Cache-Control: public, max-age=31536000, immutable`       | per-route entry with `source: "/_pagefind/(.*)"`                         | `location /_pagefind/ { add_header Cache-Control "public, max-age=31536000, immutable" always; }` |
-| Immutable fonts                 | `/fonts/* … Cache-Control: public, max-age=31536000, immutable`           | `source: "/fonts/(.*)"`                                                  | same shape                                                                                        |
+| Logical directive              | Cloudflare/Netlify `_headers`                                                                         | Vercel `vercel.json` `headers`                                           | nginx                                                                                             |
+| ------------------------------ | ----------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------- |
+| Strict CSP (script-src strict) | `Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; …` | `{ "key": "Content-Security-Policy", "value": "default-src 'self'; …" }` | `add_header Content-Security-Policy "default-src 'self'; …" always;`                              |
+| HSTS preload                   | `Strict-Transport-Security: max-age=63072000; includeSubDomains; preload`                             | same value, JSON object                                                  | `add_header Strict-Transport-Security "…" always;`                                                |
+| MIME sniffing off              | `X-Content-Type-Options: nosniff`                                                                     | same                                                                     | `add_header X-Content-Type-Options nosniff always;`                                               |
+| Referrer policy                | `Referrer-Policy: strict-origin-when-cross-origin`                                                    | same                                                                     | `add_header Referrer-Policy "strict-origin-when-cross-origin" always;`                            |
+| Permissions policy             | `Permissions-Policy: accelerometer=(), camera=(), …`                                                  | same                                                                     | `add_header Permissions-Policy "…" always;`                                                       |
+| Cross-origin opener            | `Cross-Origin-Opener-Policy: same-origin`                                                             | same                                                                     | `add_header Cross-Origin-Opener-Policy same-origin always;`                                       |
+| Cross-origin resource          | `Cross-Origin-Resource-Policy: same-origin`                                                           | same                                                                     | `add_header Cross-Origin-Resource-Policy same-origin always;`                                     |
+| Frame deny                     | `X-Frame-Options: DENY`                                                                               | same                                                                     | `add_header X-Frame-Options DENY always;`                                                         |
+| Immutable Pagefind             | `/_pagefind/* … Cache-Control: public, max-age=31536000, immutable`                                   | per-route entry with `source: "/_pagefind/(.*)"`                         | `location /_pagefind/ { add_header Cache-Control "public, max-age=31536000, immutable" always; }` |
+| Immutable fonts                | `/fonts/* … Cache-Control: public, max-age=31536000, immutable`                                       | `source: "/fonts/(.*)"`                                                  | same shape                                                                                        |
 
-The CSP is _additionally_ emitted per-page via `<meta http-equiv>` by Astro 6's
-`security.csp` config — so even if a future host doesn't honour `_headers`,
-script/style hashes ship in the HTML.
+### CSP delivery — \_headers only
+
+CSP is delivered **exclusively** by `public/_headers` at the edge. We do
+not emit `<meta http-equiv="content-security-policy">` because Astro 6's
+`<ClientRouter />` (used for native View Transitions) injects per-build
+view-transition styles at runtime, and Astro's build-time CSP hashing
+cannot cover them. The CSP spec also says `'unsafe-inline'` is _ignored_
+when any hash is present in the same directive — so mixing the two
+(Astro's auto-emitted hashes + an `'unsafe-inline'` fallback) doesn't
+permit the runtime styles in practice.
+
+### Why `style-src 'unsafe-inline'`
+
+ClientRouter needs to inject inline styles at runtime for View
+Transition group naming and animation. The accepted trade-off:
+
+- **`script-src 'self'`** stays strict. This is the real XSS attack
+  surface — inline-script CSP weakening is what enables most real-world
+  attacks.
+- **`style-src 'self' 'unsafe-inline'`** permits the runtime styles.
+  CSS injection's attack surface on a static, no-user-input site is
+  effectively nil (no auth to phish, no data to exfiltrate via CSS
+  selectors, `img-src 'self'` already blocks the `background-image:
+url(evil.com)` exfiltration vector).
 
 ## Why Cloudflare Pages — lock-in surface and escape plan
 

@@ -21,29 +21,19 @@ export default defineConfig({
       redirectToDefaultLocale: false,
     },
   },
-  // Astro 6 ships built-in CSP under `security.csp`. It emits per-page
-  // `<meta http-equiv="content-security-policy">` with sha256 hashes for
-  // every bundled inline script/style. The strict directives in
-  // `public/_headers` are still served by Cloudflare at the edge.
-  security: {
-    csp: {
-      algorithm: 'SHA-256',
-      directives: [
-        "default-src 'self'",
-        "img-src 'self' data:",
-        "font-src 'self'",
-        "connect-src 'self'",
-        "base-uri 'self'",
-        "form-action 'self'",
-        // `frame-ancestors` is intentionally omitted here — browsers ignore
-        // it when delivered via <meta>; the directive lives in public/_headers
-        // and is enforced at the edge.
-        'upgrade-insecure-requests',
-      ],
-      styleDirective: { resources: ["'self'"] },
-      scriptDirective: { resources: ["'self'"], strictDynamic: false },
-    },
-  },
+  // CSP is delivered exclusively via `public/_headers` (Cloudflare serves
+  // it at the edge). We do not emit `<meta http-equiv>` CSP because:
+  //
+  //   1. `<ClientRouter />` injects per-build view-transition styles at
+  //      runtime — Astro's `security.csp` cannot hash them, documented in
+  //      Astro's CSP docs as an incompatibility.
+  //   2. CSP spec rule: when hashes are present in `style-src`,
+  //      `'unsafe-inline'` is ignored. So mixing them (the only fallback
+  //      for runtime styles) doesn't actually permit the runtime styles.
+  //
+  // `_headers` is the single source of truth; the directive table in
+  // `docs/security.md` documents every header so future-you can translate
+  // to another host's syntax if needed.
   integrations: [
     sitemap({
       i18n: {

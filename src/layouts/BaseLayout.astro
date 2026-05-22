@@ -2,6 +2,8 @@
 import '@styles/reset.css';
 import '@styles/tokens.css';
 import '@styles/base.css';
+import '@styles/animations.css';
+import { ClientRouter } from 'astro:transitions';
 import { ROUTES, type Locale } from '@lib/routes';
 
 export interface Props {
@@ -73,12 +75,24 @@ const navItems: Array<{ key: keyof typeof ROUTES; label: string }> =
 
     {/* FOUC-prevention: external file so CSP can stay `script-src 'self'` with no hashes. */}
     <script is:inline src="/theme-init.js"></script>
+
+    {
+      /* Native View Transitions API for cross-page navigation. ~3 KB once,
+        cached after first page. No SPA — every page still server-rendered
+        and indexable. Animation choreography lives in animations.css. */
+    }
+    <ClientRouter />
   </head>
   <body>
     <a href="#main" class="skip-link">Skip to content</a>
 
     <header class="chrome">
-      <a href={ROUTES.home[locale]} class="mark" aria-label={locale === 'en' ? 'Home' : 'Inicio'}>
+      <a
+        href={ROUTES.home[locale]}
+        class="mark"
+        aria-label={locale === 'en' ? 'Home' : 'Inicio'}
+        transition:name="mark"
+      >
         <span aria-hidden="true">NB</span>
       </a>
 
@@ -159,14 +173,16 @@ const navItems: Array<{ key: keyof typeof ROUTES; label: string }> =
     </footer>
 
     <script>
-      // Language + theme toggle, ~1 KB, hashed by astro-shield
+      // Theme + language toggle, event-delegated so it survives <ClientRouter />
+      // body swaps (the script itself is bundled once and persists; the bound
+      // listener lives on `document`, not on per-page elements).
+      type Theme = 'dia' | 'noche';
+
       const root = document.documentElement;
-      const themeBtn = document.getElementById('theme-toggle');
-      if (themeBtn) {
-        const apply = (t: 'dia' | 'noche') => {
-          root.dataset.theme = t;
-          themeBtn.setAttribute('aria-checked', String(t === 'noche'));
-        };
+
+      // Initial sync: if theme-init.js applied a stored value, mirror it on
+      // the toggle's aria-checked. Otherwise pick from system preference.
+      function syncTheme(): void {
         const stored = (() => {
           try {
             return localStorage.getItem('theme');
@@ -174,34 +190,49 @@ const navItems: Array<{ key: keyof typeof ROUTES; label: string }> =
             return null;
           }
         })();
-        if (stored === 'dia' || stored === 'noche') apply(stored);
-        else {
-          const prefersDark = window.matchMedia?.('(prefers-color-scheme: dark)').matches;
-          apply(prefersDark ? 'noche' : 'dia');
+        let theme: Theme;
+        if (stored === 'dia' || stored === 'noche') {
+          theme = stored;
+        } else {
+          theme = window.matchMedia?.('(prefers-color-scheme: dark)').matches ? 'noche' : 'dia';
         }
-        themeBtn.addEventListener('click', () => {
-          const next = root.dataset.theme === 'noche' ? 'dia' : 'noche';
-          apply(next);
+        root.dataset.theme = theme;
+        const btn = document.getElementById('theme-toggle');
+        btn?.setAttribute('aria-checked', String(theme === 'noche'));
+      }
+      syncTheme();
+      // Re-sync after every ClientRouter navigation (new toggle element in DOM).
+      document.addEventListener('astro:page-load', syncTheme);
+
+      // One delegated click handler covers both toggles for the life of the tab.
+      document.addEventListener('click', (event) => {
+        const target = event.target as Element | null;
+
+        const themeBtn = target?.closest<HTMLButtonElement>('#theme-toggle');
+        if (themeBtn) {
+          const next: Theme = root.dataset.theme === 'noche' ? 'dia' : 'noche';
+          root.dataset.theme = next;
+          themeBtn.setAttribute('aria-checked', String(next === 'noche'));
           try {
             localStorage.setItem('theme', next);
           } catch {
-            /* ignore */
+            /* localStorage unavailable */
           }
-        });
-      }
-      // Persist language preference on click; href already points to the sibling, let it navigate.
-      document.querySelectorAll<HTMLAnchorElement>('.lang-toggle a[data-lang]').forEach((a) => {
-        a.addEventListener('click', (e) => {
-          if (a.getAttribute('aria-disabled') === 'true') {
-            e.preventDefault();
+          return;
+        }
+
+        const langLink = target?.closest<HTMLAnchorElement>('.lang-toggle a[data-lang]');
+        if (langLink) {
+          if (langLink.getAttribute('aria-disabled') === 'true') {
+            event.preventDefault();
             return;
           }
           try {
-            localStorage.setItem('lang', a.dataset.lang ?? 'en');
+            localStorage.setItem('lang', langLink.dataset['lang'] ?? 'en');
           } catch {
-            /* ignore */
+            /* localStorage unavailable */
           }
-        });
+        }
       });
     </script>
   </body>

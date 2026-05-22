@@ -1,0 +1,167 @@
+/*
+ * Motion vocabulary. Pulls speed tokens from `tokens.css` (--speed-micro,
+ * --speed-standard, --speed-page) and applies them as the design system
+ * §10 prescribes: "animate into existence, then rest" — no infinite loops,
+ * no decoration in motion.
+ *
+ * Every animation is gated behind `prefers-reduced-motion: no-preference`.
+ * The `@layer reset` rule in `reset.css` clamps animation/transition to
+ * 0.01ms when the user has reduced-motion set, but we belt-and-brace the
+ * keyframes here so a user who toggles the OS pref mid-session also gets
+ * stillness on the next navigation.
+ */
+
+@layer routes {
+  @media (prefers-reduced-motion: no-preference) {
+    /* ─── Keyframes ─────────────────────────────────────────────────── */
+
+    @keyframes fade-up {
+      from {
+        opacity: 0;
+        transform: translateY(6px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes fade-in {
+      from {
+        opacity: 0;
+      }
+      to {
+        opacity: 1;
+      }
+    }
+
+    /* ─── Page-load: main content fades up once ─────────────────────── */
+
+    main {
+      animation: fade-up var(--speed-standard) both;
+    }
+
+    /* ─── Chrome: Mark + nav + lang/day-night toggles ───────────────── */
+
+    .mark,
+    .footer a {
+      transition: color var(--speed-micro);
+    }
+    .mark:hover {
+      color: var(--accent);
+    }
+    .footer a:hover {
+      color: var(--ink);
+    }
+
+    /* Nav link: animated underline draw on hover, persistent on aria-current */
+    .nav a {
+      background-image: linear-gradient(currentcolor, currentcolor);
+      background-repeat: no-repeat;
+      background-position: 0 100%;
+      background-size: 0 1px;
+      transition:
+        background-size var(--speed-standard),
+        color var(--speed-micro);
+    }
+    .nav a:hover {
+      background-size: 100% 1px;
+    }
+    .nav a[aria-current='page'] {
+      /* Active route already underlined via reset.css — clear the gradient
+         strip so the underline doesn't double up. */
+      background-image: none;
+    }
+
+    .lang-toggle .lang {
+      transition:
+        color var(--speed-micro),
+        opacity var(--speed-micro);
+    }
+    .lang-toggle .lang:not(.on):hover {
+      color: var(--ink);
+    }
+
+    /* ─── Entry list (notes/works/essays indexes): slide right on hover ── */
+
+    .entry-list a {
+      transition:
+        transform var(--speed-standard),
+        color var(--speed-micro);
+    }
+    .entry-list a:hover {
+      transform: translateX(4px);
+    }
+    .entry-list a:hover .title {
+      color: var(--accent);
+    }
+
+    /* ─── Work cards: paper stacks behind on hover ──────────────────── */
+
+    .card a {
+      position: relative;
+      isolation: isolate;
+    }
+    .card a::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: var(--paper);
+      border: 1px solid var(--rule);
+      z-index: -1;
+      transform: translate(0, 0);
+      transition: transform var(--speed-standard);
+    }
+    .card a:hover::before {
+      transform: translate(6px, 6px);
+    }
+
+    /* ─── Prose: link underline-draw on hover ───────────────────────── */
+
+    .prose a {
+      background-image: linear-gradient(var(--accent), var(--accent));
+      background-repeat: no-repeat;
+      background-position: 0 100%;
+      background-size: 100% 1px;
+      text-decoration: none;
+      transition: background-size var(--speed-standard);
+    }
+    .prose a:hover {
+      background-size: 100% 2px;
+    }
+
+    /* ─── Scroll-driven reveal where supported (Chromium 115+, Firefox
+     * 139+, Safari 26+). Falls back silently to immediate appearance on
+     * browsers without view-timeline support. */
+
+    @supports (animation-timeline: view()) {
+      .entry-list > li,
+      .card-list > .card,
+      .specs {
+        animation: fade-up linear both;
+        animation-timeline: view();
+        animation-range: entry 0% entry 60%;
+      }
+    }
+  }
+
+  /* ─── View Transitions API ──────────────────────────────────────────
+   * Astro's <ClientRouter /> uses the native View Transitions API for
+   * cross-page navigation. Pseudo-elements like ::view-transition-old/new
+   * are styleable; we map them to our three speed tokens. */
+
+  @media (prefers-reduced-motion: no-preference) {
+    ::view-transition-old(root),
+    ::view-transition-new(root) {
+      animation-duration: var(--speed-page);
+      animation-timing-function: cubic-bezier(0.2, 0.7, 0.2, 1);
+    }
+
+    /* Mark (NB logo) morphs continuously across navigations rather than
+       fading in/out — feels like the chrome stays put. */
+    ::view-transition-old(mark),
+    ::view-transition-new(mark) {
+      animation-duration: var(--speed-standard);
+    }
+  }
+}
