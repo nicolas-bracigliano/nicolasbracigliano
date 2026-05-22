@@ -39,11 +39,10 @@
   }
 
   @media (prefers-reduced-motion: no-preference) {
-    /* ─── Page-load: main content fades up once ─────────────────────── */
-
-    main {
-      animation: fade-up var(--speed-standard) both;
-    }
+    /* No page-load `main` fade — tried it and axe-core saw the partial-
+     * opacity mid-animation colours and flagged them as failing contrast,
+     * making e2e timing-flaky. The motion vocabulary still kicks in on
+     * hover / scroll / page transitions; first-paint just lands as-is. */
 
     /* ─── Chrome: Mark + nav + lang/day-night toggles ───────────────── */
 
@@ -169,19 +168,15 @@
       background-size: 100% 2px;
     }
 
-    /* ─── Scroll-driven reveal where supported (Chromium 115+, Firefox
-     * 139+, Safari 26+). Falls back silently to immediate appearance on
-     * browsers without view-timeline support. */
-
-    @supports (animation-timeline: view()) {
-      .entry-list > li,
-      .card-list > .card,
-      .specs {
-        animation: fade-up linear both;
-        animation-timeline: view();
-        animation-range: entry 0% entry 60%;
-      }
-    }
+    /* Scroll-driven `view-timeline` reveals were tried (and removed). The
+     * issue: at first paint, the timeline hasn't computed scroll position
+     * yet, so items above the fold render at partial opacity for a frame
+     * or two — long enough for axe-core to flag them as failing colour
+     * contrast (it sees the alpha-blended pixel, not the design-token
+     * colour). The page-load `main { animation: fade-up }` above already
+     * gives the "fade in" feel; per-item scroll-driven animation isn't
+     * worth the a11y noise. Re-introduce when browser timing across the
+     * scroll-timeline init and the first paint is more reliable. */
 
     /* ─── View Transitions API ───────────────────────────────────────
      * Astro's <ClientRouter /> uses the native View Transitions API for

@@ -11,6 +11,12 @@ export default defineConfig({
   use: {
     baseURL: `http://localhost:${PORT}`,
     trace: 'on-first-retry',
+    /* Pin colour scheme so axe-core's contrast checker always evaluates
+       the Día palette deterministically. Without this Playwright would
+       inherit the host's `prefers-color-scheme`, and a CI runner that
+       reports `dark` would have our `theme-init.js` apply Noche tokens
+       before axe runs — different colours, possibly different results. */
+    colorScheme: 'light',
   },
   webServer: {
     command: 'pnpm preview --port 4321',
