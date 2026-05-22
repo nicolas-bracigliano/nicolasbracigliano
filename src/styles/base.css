@@ -96,20 +96,55 @@
     font-weight: 600;
     color: var(--ink);
     text-decoration: none;
+    /* `perspective` on the parent gives the .mark-cube child its 3D
+       foreshortening as it rotateY's. 240px reads as a moderate depth
+       for a 32px cube — enough to feel dimensional without theatrics. */
+    perspective: 240px;
+  }
+  /* Mark is a link; the global `a:hover { text-decoration: underline }`
+     would draw a line under the whole "[cube] Nicolás Bracigliano" row.
+     Suppress it so the cube + name read as a brand mark, not as text
+     content. */
+  .mark:hover,
+  .mark:focus-visible {
+    text-decoration: none;
   }
   .mark-cube {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
+    position: relative;
+    display: inline-block;
     width: 2rem;
     height: 2rem;
-    background: var(--ink);
-    color: var(--bg);
+    flex-shrink: 0;
+    transform-style: preserve-3d;
+  }
+  .cube-face {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     border-radius: 3px;
     font-size: 0.85rem;
     font-weight: 700;
     letter-spacing: 0.04em;
-    flex-shrink: 0;
+    /* Hide whichever face is currently turned away so the two glyphs
+       never overlap mid-rotation. */
+    backface-visibility: hidden;
+  }
+  .cube-face--front {
+    background: var(--ink);
+    color: var(--bg);
+  }
+  .cube-face--back {
+    /* --bg on raw --accent is the same 4.49:1 trap as accent text on bg
+       — light + raw accent fails AA either direction. Use the same
+       darkened accent the family name uses; visually almost identical
+       (88% accent / 12% ink in oklab) but now passes 4.5:1. */
+    background: color-mix(in oklab, var(--accent) 88%, var(--ink) 12%);
+    color: var(--bg);
+    /* Pre-rotated 180° so when the cube reaches rotateY(180deg) on
+       hover, this face is facing the viewer. */
+    transform: rotateY(180deg);
   }
   .mark-word {
     font-size: 0.85rem;

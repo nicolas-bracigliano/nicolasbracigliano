@@ -44,21 +44,43 @@
      * making e2e timing-flaky. The motion vocabulary still kicks in on
      * hover / scroll / page transitions; first-paint just lands as-is. */
 
-    /* ─── Chrome: Mark cube + nav + lang/day-night toggles ──────────────
-       The mark cube swaps to --accent and rotates a quarter turn on
-       hover — colour at standard speed (snappy), rotation at page speed
-       (deliberate). The name block colours don't change on hover; the
-       cube does the heavy lifting. */
+    /* ─── Chrome: Mark cube + name swap + nav + toggles ─────────────────
+       The mark is a two-part gesture on hover:
+
+       1. The cube does a 3D Y-rotation — front face (--ink/NB) sweeps
+          its right edge back, the prepared back face (--accent/NB)
+          slides in from the left. `backface-visibility: hidden` on
+          each face keeps the off-screen glyph from showing through.
+
+       2. The "Nicolás Bracigliano" name swaps colours: the accent
+          (darkened to pass AA on --bg) moves from the family name to
+          the given name. Same end-state palette as the cube colour
+          pair — the brand colours are dancing across the mark, not
+          changing identity.
+
+       Rotation runs at --speed-page (deliberate); the colour swap
+       runs at --speed-standard so the cube turn and the name flip
+       feel coupled but not synchronous. */
 
     .mark-cube {
-      transition:
-        background var(--speed-standard),
-        transform var(--speed-page);
+      transition: transform var(--speed-page);
     }
     .mark:hover .mark-cube,
     .mark:focus-visible .mark-cube {
-      background: var(--accent);
-      transform: rotate(90deg);
+      transform: rotateY(180deg);
+    }
+
+    .mark-given,
+    .mark-family {
+      transition: color var(--speed-standard);
+    }
+    .mark:hover .mark-given,
+    .mark:focus-visible .mark-given {
+      color: color-mix(in oklab, var(--accent) 88%, var(--ink) 12%);
+    }
+    .mark:hover .mark-family,
+    .mark:focus-visible .mark-family {
+      color: var(--ink);
     }
 
     .footer a {

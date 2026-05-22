@@ -95,10 +95,16 @@ const navItems: Array<{ key: keyof typeof ROUTES; label: string }> =
     }
     <header class="chrome" transition:animate="none">
       {
-        /* Mark is two pieces: a square "cube" containing NB, plus the
-           name "Nicolás Bracigliano" (given in --ink, family in --accent).
-           On hover the cube switches background to --accent and rotates
-           90°. The name block is decorative — `aria-label` on the <a>
+        /* Mark is two pieces:
+           - a 3D cube with two faces (front = --ink/NB, back = --accent/NB).
+             Hovering the mark rotates the cube 180° around its Y axis so
+             the right edge sweeps back and the back face slides in from
+             the left — a "showing another face" gesture, not a 2D spin.
+           - the name "Nicolás Bracigliano" (given in --ink, family in
+             --accent at the start; on hover the colours swap so the
+             accent moves from Bracigliano to Nicolás).
+
+           The name block is decorative — `aria-label` on the <a>
            provides the accessible name, the visible spans are aria-hidden
            so screen readers don't double-announce. */
       }
@@ -108,7 +114,10 @@ const navItems: Array<{ key: keyof typeof ROUTES; label: string }> =
         aria-label={locale === 'en' ? 'Home' : 'Inicio'}
         transition:name="mark"
       >
-        <span class="mark-cube" aria-hidden="true">NB</span>
+        <span class="mark-cube" aria-hidden="true">
+          <span class="cube-face cube-face--front">NB</span>
+          <span class="cube-face cube-face--back">NB</span>
+        </span>
         <span class="mark-word" aria-hidden="true"
           ><span class="mark-given">Nicolás</span>&nbsp;<span class="mark-family">Bracigliano</span
           ></span
