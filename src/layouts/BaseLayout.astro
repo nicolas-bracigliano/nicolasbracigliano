@@ -304,6 +304,48 @@ function isActive(key: keyof typeof ROUTES, currentPath: string): boolean {
       // listener covers both code paths.
       document.addEventListener('astro:page-load', syncTheme);
 
+      // Mobile foot-rail nav: slide it out of view on scroll-down past
+      // ~120 px, slide it back when the user scrolls up. CSS handles the
+      // transform; this script just toggles `.is-hidden` on `.nav`.
+      // The window listener is attached once and persists across
+      // ClientRouter swaps — the nav element is found fresh each time
+      // because the chrome doesn't view-transition (animate="none").
+      // A 5 px dy threshold debounces tiny inertial wobbles on iOS.
+      let lastScrollY = window.scrollY;
+      let scrollTicking = false;
+      function updateNavVisibility(): void {
+        const nav = document.querySelector<HTMLElement>('.chrome .nav');
+        if (!nav) {
+          scrollTicking = false;
+          return;
+        }
+        const y = window.scrollY;
+        const dy = y - lastScrollY;
+        if (y > 120 && dy > 5) {
+          nav.classList.add('is-hidden');
+        } else if (dy < -5 || y <= 60) {
+          nav.classList.remove('is-hidden');
+        }
+        lastScrollY = y;
+        scrollTicking = false;
+      }
+      window.addEventListener(
+        'scroll',
+        () => {
+          if (!scrollTicking) {
+            requestAnimationFrame(updateNavVisibility);
+            scrollTicking = true;
+          }
+        },
+        { passive: true },
+      );
+      // Reset the scroll-direction baseline after each page swap so we
+      // don't carry stale `lastScrollY` from the previous route.
+      document.addEventListener('astro:page-load', () => {
+        lastScrollY = window.scrollY;
+        document.querySelector<HTMLElement>('.chrome .nav')?.classList.remove('is-hidden');
+      });
+
       // FOUC prevention across ClientRouter navigations.
       //
       // ClientRouter replaces `<html>`'s attributes with the incoming

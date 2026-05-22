@@ -363,6 +363,87 @@
     #theme-toggle {
       padding: 0.25rem;
     }
+    /* Top chrome at mobile is just: wordmark + day/night toggle. Lang
+       toggle hides (matching the spec's "very calm" header) — locale
+       switching at mobile is a deliberate consideration we'll handle
+       in a follow-up if/when needed. */
+    .lang-toggle {
+      display: none;
+    }
+
+    /* ─── Mobile foot-rail nav ───────────────────────────────────────
+       The top-chrome nav moves to a fixed bottom bar so thumbs can
+       reach it. 44 px tall, dashed top rule, five labels evenly
+       spaced, active route gets a 2 px terracotta tick above its
+       label. Hides on scroll-down past ~120 px and slides back up on
+       scroll-up — the toggle is driven by JS adding/removing
+       `.is-hidden` (transform: translateY(100%)). `env()` safe-area
+       padding gives the iOS home-indicator some breathing room. */
+    .chrome .nav {
+      position: fixed;
+      inset-inline: 0;
+      inset-block-end: 0;
+      z-index: 5;
+      background: var(--bg);
+      border-block-start: 1px dashed var(--rule);
+      padding-block-end: env(safe-area-inset-bottom, 0);
+      transition: transform var(--speed-page);
+    }
+    .chrome .nav.is-hidden {
+      transform: translateY(100%);
+    }
+    .chrome .nav ul {
+      display: flex;
+      justify-content: space-around;
+      align-items: stretch;
+      gap: 0;
+      margin: 0;
+      padding: 0 0.5rem;
+    }
+    .chrome .nav li {
+      display: flex;
+      flex: 1;
+    }
+    .chrome .nav a {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex: 1;
+      min-height: 44px;
+      padding: 0 0.25rem;
+      /* Foot-rail labels don't use the gradient underline — the active
+         tick (::before) carries the active state instead. */
+      padding-block-end: 0;
+      background-image: none;
+    }
+    /* `/` slash hides in the foot-rail — five labels evenly spread
+       already feel busy enough, and the slash is a desktop-URL hint
+       that doesn't translate to a thumb-tappable bar. */
+    .chrome .nav a .nav-key {
+      display: none;
+    }
+    .chrome .nav a[aria-current='page'] {
+      background-image: none;
+      position: relative;
+    }
+    /* 2 px terracotta tick above the active label. Uses pure
+       `--accent` (not the AA-darkened variant) — it's a 2 px line
+       decoration, not text, so the contrast rule doesn't apply. */
+    .chrome .nav a[aria-current='page']::before {
+      content: '';
+      position: absolute;
+      inset-block-start: 6px;
+      inset-inline-start: 50%;
+      transform: translateX(-50%);
+      width: 1.5rem;
+      height: 2px;
+      background: var(--accent);
+    }
+
+    /* Page content needs room for the foot-rail. */
+    body {
+      padding-block-end: calc(44px + env(safe-area-inset-bottom, 0));
+    }
   }
 
   /* ─── Palette transitions ────────────────────────────────────────────
