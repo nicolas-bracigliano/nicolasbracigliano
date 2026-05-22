@@ -67,19 +67,20 @@ and escape plan.
 
 ## Where to put new code
 
-| New thing                           | Goes in                                                                                                             |
-| ----------------------------------- | ------------------------------------------------------------------------------------------------------------------- |
-| A markdown note / work / essay      | `src/content/{collection}/{lang}/*.md`                                                                              |
-| A new bilingual route               | mirror it in `src/pages/en/` + `src/pages/es/`; add it to `ROUTES`                                                  |
-| A schema field on existing content  | edit `src/content.config.ts`                                                                                        |
-| A pure helper (no framework deps)   | `src/lib/*.ts` — must be unit-testable in plain Vitest                                                              |
-| A helper that needs `astro:content` | `src/lib/i18n.ts` (or a sibling `*.ts` next to it)                                                                  |
-| A reusable `.astro` snippet         | `src/components/` — only once it's used in 2+ places                                                                |
-| A design token                      | `src/styles/tokens.css`                                                                                             |
-| Per-route styling                   | `src/styles/base.css` `@layer routes` (split into `routes/*.css` later)                                             |
-| Cloudflare-specific code            | `functions/` — keep it adapter-thin                                                                                 |
-| Header / redirect / cache rule      | `public/_headers` or `public/_redirects` — mirror the change in `docs/security.md § Host-neutral header directives` |
-| Build-time generated artefact       | a script in `scripts/`, wired into a `package.json` script                                                          |
+| New thing                              | Goes in                                                                                                                                          |
+| -------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
+| A markdown note / work / essay         | `src/content/{collection}/{lang}/*.md`                                                                                                           |
+| A new bilingual route                  | mirror it in `src/pages/en/` + `src/pages/es/`; add it to `ROUTES`                                                                               |
+| A schema field on existing content     | edit `src/content.config.ts`                                                                                                                     |
+| A pure helper (no framework deps)      | `src/lib/*.ts` — must be unit-testable in plain Vitest                                                                                           |
+| A helper that needs `astro:content`    | `src/lib/i18n.ts` (or a sibling `*.ts` next to it)                                                                                               |
+| A reusable `.astro` snippet            | `src/components/` — only once it's used in 2+ places                                                                                             |
+| A design token                         | `src/styles/tokens.css`                                                                                                                          |
+| Per-route styling                      | `src/styles/base.css` `@layer routes` (split into `routes/*.css` later)                                                                          |
+| Cloudflare-specific code               | `functions/` — keep it adapter-thin                                                                                                              |
+| Header / redirect / cache rule         | `public/_headers` or `public/_redirects` — mirror the change in `docs/security.md § Host-neutral header directives`                              |
+| Build-time generated artefact          | a script in `scripts/`, wired into a `package.json` script                                                                                       |
+| A consequential architectural decision | `docs/decisions/NNNN-kebab-name.md` — use the next free 0006+ number; see `docs/decisions/README.md` for the format. Append-only; never rewrite. |
 
 ## Why this works at this size
 

@@ -10,6 +10,7 @@ The reference for everything about this site. Read this before changing color, c
 - **2026‑05‑21** — v1 scope cuts to clear the bootstrap path. Dropped: intro overlay (§11), scroll thread (§11). Clarified: "no analytics" → "no client-side analytics" in §16 (Cloudflare server-side aggregation is allowed). Why: removing JS-heavy decorations keeps the near-zero-JS promise honest and unblocks the Astro/Cloudflare bootstrap.
 - **2026‑05‑22** — §16 CSP clarified: `script-src` stays strict (`'self'`); `style-src` adds `'unsafe-inline'`. Why: enables Astro `<ClientRouter />` native View Transitions, which inject per-build runtime styles that build-time CSP hashing can't cover. The real attack surface (script execution) is untouched.
 - **2026‑05‑22** — `docs/design-system.md` declared the canonical version. Why: was previously forked between this in-repo copy and the external `~/Developer/NB/Design System/DESIGN-SYSTEM.md`. One source of truth, lives with the code.
+- **2026‑05‑22** — full content sync from the external file (the canonical-promotion only synced the change-log earlier). §11 components and §12 a11y updated to reflect the dropped intro overlay + scroll thread + addressed-in-v1 a11y items; §16 security tightened with the actual shipped CSP. Plus token fixes: Día `--ink-3` `#8a8377` → `#736b5e` (3.41:1 → 5.19:1) and Noche `--ink-3` `#807a6e` → `#8c8678` (4.36:1 → 5.19:1) — both were below WCAG AA and were caught by axe-core in e2e CI. §10 motion table no longer references the removed intro fade. §17 search + OG cards moved out of "open" since Pagefind and Satori are wired.
 
 When something material changes, add a line. Keep the log short: date, what changed, why. If you can't write the _why_ in one clause, you probably shouldn't make the change.
 
@@ -160,7 +161,7 @@ Two palettes, switched by the day/night toggle. The other two palettes from earl
 | `--paper`    | `#fbfaf6` | Card backgrounds                               |
 | `--ink`      | `#1a1814` | Primary text                                   |
 | `--ink-2`    | `#3e3a34` | Secondary text                                 |
-| `--ink-3`    | `#8a8377` | Tertiary text, labels                          |
+| `--ink-3`    | `#736b5e` | Tertiary text, labels (5.19:1 on `--bg`, AA)   |
 | `--rule`     | `#d4cfc2` | Dividers                                       |
 | `--accent`   | `#b8512a` | Links, hover, dots, micro-accents (terracotta) |
 | `--olive`    | `#5a6a3a` | Garden moments                                 |
@@ -168,7 +169,7 @@ Two palettes, switched by the day/night toggle. The other two palettes from earl
 
 ### Noche (dark)
 
-Mirrors Cream with one swap worth knowing: `--accent` softens from `#b8512a` to `#d8a07e` because the bright terracotta loses authority on dark backgrounds. Same hue, lower chroma.
+Two swaps worth knowing: `--accent` softens from `#b8512a` to `#d8a07e` because the bright terracotta loses authority on dark backgrounds (same hue, lower chroma). `--ink-3` brightens from the Día value to `#8c8678` so tertiary text passes WCAG AA against both `--bg` (5.19:1) and `--bg-2` (4.75:1) — the Día and Noche tertiary tokens are not the same value, they're independently tuned for contrast.
 
 ### Trade-offs (not rules)
 
@@ -192,15 +193,15 @@ These exist as trade-offs, not commandments. Break them when the trade is worth 
 
 Three speeds, used everywhere. Don't invent a fourth.
 
-| Speed    | Duration   | Easing                     | For                                                  |
-| -------- | ---------- | -------------------------- | ---------------------------------------------------- |
-| Micro    | **240 ms** | `ease`                     | Color, hover state, focus rings                      |
-| Standard | **320 ms** | `cubic-bezier(.2,.7,.2,1)` | Card hover, mode toggle, link underline draw         |
-| Page     | **520 ms** | `cubic-bezier(.2,.7,.2,1)` | Route transitions, intro fade, link underline redraw |
+| Speed    | Duration   | Easing                     | For                                                |
+| -------- | ---------- | -------------------------- | -------------------------------------------------- |
+| Micro    | **240 ms** | `ease`                     | Color, hover state, focus rings                    |
+| Standard | **320 ms** | `cubic-bezier(.2,.7,.2,1)` | Card hover, mode toggle, link underline draw       |
+| Page     | **520 ms** | `cubic-bezier(.2,.7,.2,1)` | Cross-page View Transitions, link underline redraw |
 
 ### Principle
 
-Animate **into existence**, then rest. The site's current bench vignettes loop forever; that's a known anti-pattern (§16) and should be replaced with animate-once-on-mount.
+Animate **into existence**, then rest. Continuous loops read as nervous, not alive (see §15 anti-patterns). The first-paint fade-up was tried and dropped — axe-core caught the mid-animation partial-opacity colours as failing contrast, and the visual win didn't justify the timing flakiness. Hover, click, theme transition, and cross-page View Transition motion all remain.
 
 `@media (prefers-reduced-motion: reduce)` forces every animation to 0.01 ms. Honoured globally.
 
@@ -208,14 +209,12 @@ Animate **into existence**, then rest. The site's current bench vignettes loop f
 
 Listed for orientation. The CSS files are the source of truth.
 
-- **Chrome** — sticky header. Mark (left) · Nav (center) · Lang + Day/Night (right).
-- **Scroll thread** — 1-px terracotta margin line + tick dot. Hidden below 880 px.
+- **Chrome** — sticky header. Mark (left) · Nav (center) · Lang + Day/Night (right). Day/Night is a `<button role="switch" aria-checked>` with a single SVG that animates between sun (rays + disc) and moon (disc + slid-in mask) via CSS `transform` + `opacity` keyed to `[data-theme]`. Lang is a pair of links with a disabled-style state when the sibling translation is missing.
 - **Bench card** — home page vignette card (terminal / guitar / seedling / 3D print).
 - **Latest entry row** — kind pill, date, title, arrow. Hover slides right.
 - **Note entry** — three-column grid: date + tags (left), prose (centre), aside (right).
-- **Work card** — vignette + spec list + status. Hover stacks a paper card behind.
+- **Work card** — vignette + spec list + status. Hover stacks a paper card behind via `::before` translate.
 - **Facts card** (About sidebar) — small-caps title, `dl` of rows, optional footer link.
-- **Intro overlay** — single "hola." that fades up and dissolves. Module-scoped, replays on full reload, not on internal nav.
 - **ASCII signature** — `╭─ NB · '26 ─╮` at the foot of Colofón.
 - **NotFound** — 404 illustration + map back.
 
@@ -229,15 +228,16 @@ Currently honoured:
 - The language toggle is a `role="group"` with `.on` reflecting active state.
 - `prefers-reduced-motion` honoured globally.
 
-Currently **not** honoured (TODO before any v1 launch):
+Addressed in the v1 bootstrap (see `docs/architecture.md` and the ADRs in `docs/decisions/`):
 
-- The day/night toggle is a button with a `title`, not a `role="switch"` with `aria-checked`. Fix.
-- The scroll thread has no screen-reader equivalent. Add a hidden landmark progress region or remove the visual.
-- The intro overlay traps focus when active. Trap should release on dismiss + the dismiss should be reachable by `Tab` not just `Esc`.
-- No `lang` attribute swaps when language changes. Set `<html lang="es">` when ES is active.
-- Notes/works/about don't expose dates as `<time datetime="…">`. Wrap them.
+- Day/night toggle is `<button role="switch" aria-checked>` (not a `title` button).
+- Scroll thread is **removed** — was a loop-ish decoration with no screen-reader equivalent.
+- Intro overlay is **removed** — no more focus trap to worry about.
+- `<html lang="…">` is correct on every page (mirrored `/en/*` and `/es/*` static routes set it at build time).
+- All dates wrapped as `<time datetime="YYYY-MM-DD">` in layouts.
+- WCAG AA colour contrast enforced via axe-core in Playwright e2e (32 tests) + Lighthouse CI (a11y ≥95 budget, currently 100/100 across all 5 audited URLs). Tertiary token `--ink-3` was darkened/lightened in both palettes (§8 footnotes) after axe caught the originals at 3.41:1 / 4.36:1.
 
-If you're publishing without fixing these, write it down. Don't ship and call it "AA."
+If you're publishing without one of these in place, write it down. Don't ship and call it "AA."
 
 ## 13 · Images & assets
 
@@ -270,24 +270,30 @@ The site has known tells. Document them so they don't repeat.
 7. **Quotable closing lines.** Every section ending with a quotable summary reads as LLM-generated. Let some sections end un-resolved.
 8. **Performative completeness.** Listing every keyboard, every espresso machine, every guitar by exact model in the colofón. Pick one or two. Restraint is the brand.
 
-## 16 · Production targets (not current state)
+## 16 · Production targets (commitments)
 
-These are commitments, not facts. The prototype loads dependencies from CDNs and uses Babel-in-browser; production won't.
+The prototype loads dependencies from CDNs and uses Babel-in-browser; production doesn't.
 
-**Performance.** Static HTML built at deploy time. Self-hosted, subsetted fonts under 80 KB combined. No third-party scripts. Target Lighthouse ≥ 95 / page weight ≤ 100 KB gzipped / above-the-fold CSS inlined.
+**Performance.** Static HTML built at deploy time. Self-hosted, subsetted fonts under 80 KB combined. No third-party scripts. Target Lighthouse ≥ 95 / page weight ≤ 100 KB gzipped / above-the-fold CSS inlined. _Currently shipping_: 100/100 across perf/a11y/best-practices/SEO on all 5 audited URLs at ~11 KB per page.
 
-**Security.** Cloudflare Pages with HSTS preload, DNSSEC, strict CSP (`default-src 'self'`), no cookies, no analytics. Preferences (mode, lang) live in `localStorage` only.
+**Security.** Cloudflare Pages with HSTS preload, DNSSEC, **strict `script-src` CSP** (`default-src 'self'; script-src 'self'`), no cookies, no **client-side** analytics (Cloudflare's server-side aggregation off edge logs is allowed — it has no beacon, no cookie, no CSP loosening). Preferences (mode, lang) live in `localStorage` only.
+
+`style-src` is `'self' 'unsafe-inline'` — a _deliberate_ loosening to permit Astro's `<ClientRouter />` view-transition runtime styles. The XSS attack surface (`script-src`) stays strict; CSS injection on a no-user-input static site is effectively nil (no auth to phish, `img-src 'self'` blocks the `background-image: url(evil.com)` exfil vector). Full reasoning in [`docs/decisions/0002-csp-style-src-unsafe-inline.md`](./decisions/0002-csp-style-src-unsafe-inline.md).
 
 ## 17 · Open questions
 
 1. **Real avatar.** Pick a direction from `AVATAR-OPTIONS.md` and commission or draw.
-2. **Real essays.** `/essays` is in the IA but unbuilt. Same notebook treatment as `/notes`, longer.
+2. **Real essays.** `/essays` is in the IA but has no content yet. Same notebook treatment as `/notes`, longer.
 3. **Real copy.** Most body copy on Home, About, Notes, Now, and Colofón is currently invented. Replace with material Nicolas actually wrote.
-4. **Search.** Static index (pagefind preferred) for notes + essays + works. Out of scope for the prototype.
-5. **OG cards.** Every entry needs a 1200 × 630 social card, generated from frontmatter at build time.
-6. **Print stylesheet.** Notes and essays should print like typed letters. Dedicated `@media print` pass.
-7. **`/drafts` index.** A public list of unfinished posts — the site claims "en proceso, en público"; right now nothing demonstrates that.
+4. **Search UI.** Pagefind index is built (`postbuild` produces `dist/_pagefind/`); UI not yet wired into the layouts. Drop in a small `.astro` component on `/notes`.
+5. **Print stylesheet.** Notes and essays should print like typed letters. Dedicated `@media print` pass.
+6. **`/drafts` index.** A public list of unfinished posts — the site claims "en proceso, en público"; right now nothing demonstrates that.
+
+### Shipped (moved out of this list)
+
+- **Search index** — Pagefind (`postbuild` script, per-language facet via `data-pagefind-filter="lang"`). UI still TODO above.
+- **OG cards** — Satori + Resvg via `src/pages/og/[collection]/[slug].png.ts`, fonts in `public/fonts/og-newsreader.ttf`.
 
 ---
 
-_Last set in type on 21 May 2026. — N. B._
+_Last set in type on 22 May 2026. — N. B._
