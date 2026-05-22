@@ -99,11 +99,17 @@ const reading = [
       </Fragment>
 
       <h1 slot="h1">
-        Hago <em>cosas</em> en internet,
+        Hago <em>cosas</em>
         <br />
-        <span class="indent">cosas útiles en casa,</span>
+        en internet,
         <br />
-        <span class="indent2">y <Coffee label="un café largo" /> cada mañana.</span>
+        <span class="indent">cosas</span>
+        <br />
+        útiles en casa,
+        <br />
+        <span class="indent2">y <Coffee label="un café largo" /></span>
+        <br />
+        cada mañana.
       </h1>
 
       <Fragment slot="bio">
@@ -184,7 +190,33 @@ const reading = [
     function tick(): void {
       if (paintNow()) setTimeout(tick, 60_000);
     }
+
+    // Bench vignettes animate once when the card scrolls 20% into view
+    // (DS §15 — no looping vignettes). One observer per page-load;
+    // unobserve after first hit so scroll-back doesn't re-trigger.
+    function armBenchObserver(): void {
+      const cards = document.querySelectorAll<HTMLElement>('.bench-card');
+      if (cards.length === 0) return;
+      if (!('IntersectionObserver' in window)) {
+        cards.forEach((c) => c.classList.add('in-view'));
+        return;
+      }
+      const obs = new IntersectionObserver(
+        (entries) => {
+          for (const entry of entries) {
+            if (entry.isIntersecting) {
+              entry.target.classList.add('in-view');
+              obs.unobserve(entry.target);
+            }
+          }
+        },
+        { threshold: 0.2 },
+      );
+      cards.forEach((c) => obs.observe(c));
+    }
+
     document.addEventListener('astro:page-load', () => {
+      armBenchObserver();
       if (!paintNow()) return;
       setTimeout(tick, (60 - new Date().getSeconds()) * 1000);
     });

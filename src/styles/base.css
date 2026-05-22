@@ -277,6 +277,13 @@
     .masthead-grid {
       grid-template-columns: 1fr;
     }
+    /* Hide the 220-px portrait monogram on narrow viewports — it adds a
+       lot of vertical scroll before the h1 reads. The placeholder
+       monogram returns on desktop; once the real avatar lands in Phase 3
+       this rule may flip to a shrunk inline version. */
+    .masthead-portrait {
+      display: none;
+    }
   }
   .masthead-portrait {
     position: relative;
@@ -332,7 +339,7 @@
   .masthead-bio {
     font-size: 0.95rem;
     line-height: 1.7;
-    max-width: min(var(--masthead-cap), 100%);
+    max-width: min(var(--header), 100%);
     color: var(--ink-2);
     margin: 0;
   }
@@ -366,9 +373,6 @@
   }
 
   /* Inline vignettes — coffee + mate, used in masthead h1/bio and field notes.
-     SVG sizes off `em` so it scales with the surrounding text (tiny in body
-     copy, big inside the masthead h1). Doubled class on the `em` rule bumps
-     specificity to (0,2,1) so it beats `.masthead-text h1 em { color: --ink }`
      and the vignette label keeps its own colour even inside the headline. */
   .inline-vignette {
     display: inline-flex;

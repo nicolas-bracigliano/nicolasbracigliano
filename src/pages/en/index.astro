@@ -105,9 +105,13 @@ const reading = [
         <br />
         on the internet,
         <br />
-        <span class="indent">useful things at home,</span>
+        <span class="indent">useful</span>
         <br />
-        <span class="indent2">and <Coffee label="a long black" /> every morning.</span>
+        things at home,
+        <br />
+        <span class="indent2">and <Coffee label="a long black" /></span>
+        <br />
+        every morning.
       </h1>
 
       <Fragment slot="bio">
@@ -193,7 +197,36 @@ const reading = [
     function tick(): void {
       if (paintNow()) setTimeout(tick, 60_000);
     }
+
+    // Bench vignettes — animate-once-on-mount, triggered when each card
+    // is at least 20% in view. Plays one staged animation per card per
+    // visit (DS §15: no looping vignettes). The observer unobserves
+    // after the first hit so the animation doesn't re-fire on scroll-
+    // back. Fresh page-load (incl. ClientRouter navigations back to
+    // home) gets a fresh observer so the bench feels alive each visit.
+    function armBenchObserver(): void {
+      const cards = document.querySelectorAll<HTMLElement>('.bench-card');
+      if (cards.length === 0) return;
+      if (!('IntersectionObserver' in window)) {
+        cards.forEach((c) => c.classList.add('in-view'));
+        return;
+      }
+      const obs = new IntersectionObserver(
+        (entries) => {
+          for (const entry of entries) {
+            if (entry.isIntersecting) {
+              entry.target.classList.add('in-view');
+              obs.unobserve(entry.target);
+            }
+          }
+        },
+        { threshold: 0.2 },
+      );
+      cards.forEach((c) => obs.observe(c));
+    }
+
     document.addEventListener('astro:page-load', () => {
+      armBenchObserver();
       if (!paintNow()) return;
       setTimeout(tick, (60 - new Date().getSeconds()) * 1000);
     });
