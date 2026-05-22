@@ -11,6 +11,12 @@ Nicolas's digital home.
 - **Type** — Newsreader (variable, display) · JetBrains Mono (variable, body/mono)
 - **CI** — GitHub Actions, SHA-pinned (Renovate manages)
 
+## Docs
+
+- [`docs/design-system.md`](./docs/design-system.md) — **canonical** design system. Read before changing color, copy, layout, or adding a route.
+- [`docs/architecture.md`](./docs/architecture.md) — layer map + dependency rule + where to put new code.
+- [`docs/security.md`](./docs/security.md) — commit signing, DNSSEC, host-neutral header directives, Cloudflare lock-in surface + escape plan.
+
 ## License
 
 - Code: MIT — see [`LICENSE`](./LICENSE).
