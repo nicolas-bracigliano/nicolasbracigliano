@@ -181,47 +181,57 @@ const navItems: Array<{ key: keyof typeof ROUTES; label: string }> =
     </footer>
 
     <script>
-      // Theme + language toggle, event-delegated so it survives <ClientRouter />
-      // body swaps (the script itself is bundled once and persists; the bound
-      // listener lives on `document`, not on per-page elements).
+      // Theme + language toggle, event-delegated so the handlers survive
+      // <ClientRouter /> body swaps (this script is bundled once and persists;
+      // listeners live on `document` / `window`, not on per-page elements).
       import type { TransitionBeforeSwapEvent } from 'astro:transitions/client';
 
       type Theme = 'dia' | 'noche';
 
       const root = document.documentElement;
 
-      // Initial sync: if theme-init.js applied a stored value, mirror it on
-      // the toggle's aria-checked. Otherwise pick from system preference.
-      function syncTheme(): void {
-        const stored = (() => {
-          try {
-            return localStorage.getItem('theme');
-          } catch {
-            return null;
-          }
-        })();
-        let theme: Theme;
-        if (stored === 'dia' || stored === 'noche') {
-          theme = stored;
-        } else {
-          theme = window.matchMedia?.('(prefers-color-scheme: dark)').matches ? 'noche' : 'dia';
+      function readStoredTheme(): Theme | null {
+        try {
+          const stored = localStorage.getItem('theme');
+          return stored === 'dia' || stored === 'noche' ? stored : null;
+        } catch {
+          return null;
         }
+      }
+
+      function resolveTheme(): Theme {
+        return (
+          readStoredTheme() ??
+          (window.matchMedia?.('(prefers-color-scheme: dark)').matches ? 'noche' : 'dia')
+        );
+      }
+
+      function applyTheme(theme: Theme): void {
         root.dataset.theme = theme;
         const btn = document.getElementById('theme-toggle');
         btn?.setAttribute('aria-checked', String(theme === 'noche'));
       }
-      syncTheme();
+
+      function syncTheme(): void {
+        applyTheme(resolveTheme());
+      }
+
+      // Initial sync is handled by `astro:page-load` — it fires once on
+      // first load AND after every ClientRouter navigation, so a single
+      // listener covers both code paths.
+      document.addEventListener('astro:page-load', syncTheme);
 
       // FOUC prevention across ClientRouter navigations.
       //
-      // ClientRouter replaces the `<html>` element's attributes with the
-      // incoming page's, which wipes our client-side `data-theme`. Without
-      // intervention the page paints in light mode for one frame before
+      // ClientRouter replaces `<html>`'s attributes with the incoming
+      // page's. Server-rendered pages have no `data-theme` (theme is
+      // client state), so without intervention `data-theme="noche"` gets
+      // wiped on swap and the page paints in light for one frame before
       // `astro:page-load` re-applies the user's theme — visible flash.
       //
-      // `astro:before-swap` fires AFTER the new document has been parsed
-      // but BEFORE its attributes are committed. Mutating the incoming
-      // `<html>` here means the swap brings the correct theme in atomically.
+      // `astro:before-swap` fires AFTER the new document is parsed but
+      // BEFORE its attributes commit. Mutating the incoming `<html>` here
+      // means the swap brings the correct theme in atomically.
       document.addEventListener('astro:before-swap', (event) => {
         const evt = event as TransitionBeforeSwapEvent;
         const current = root.dataset.theme;
@@ -230,19 +240,34 @@ const navItems: Array<{ key: keyof typeof ROUTES; label: string }> =
         }
       });
 
-      // Belt-and-braces: re-sync the toggle's aria-checked after each
-      // navigation (the button is a fresh DOM node post-swap).
-      document.addEventListener('astro:page-load', syncTheme);
+      // Cross-tab sync: localStorage write from a sibling tab dispatches a
+      // `storage` event here. Apply the new theme so all open tabs stay
+      // in step without requiring user interaction.
+      window.addEventListener('storage', (event) => {
+        if (event.key !== 'theme') return;
+        if (event.newValue === 'dia' || event.newValue === 'noche') {
+          applyTheme(event.newValue);
+        }
+      });
 
-      // One delegated click handler covers both toggles for the life of the tab.
+      // OS dark-mode toggle: react only when the user hasn't expressed an
+      // explicit preference (localStorage empty). If they have, their
+      // choice wins over the OS schedule.
+      const mql = window.matchMedia?.('(prefers-color-scheme: dark)');
+      mql?.addEventListener('change', (event) => {
+        if (readStoredTheme() === null) {
+          applyTheme(event.matches ? 'noche' : 'dia');
+        }
+      });
+
+      // Delegated click handler covers both toggles for the life of the tab.
       document.addEventListener('click', (event) => {
         const target = event.target as Element | null;
 
         const themeBtn = target?.closest<HTMLButtonElement>('#theme-toggle');
         if (themeBtn) {
           const next: Theme = root.dataset.theme === 'noche' ? 'dia' : 'noche';
-          root.dataset.theme = next;
-          themeBtn.setAttribute('aria-checked', String(next === 'noche'));
+          applyTheme(next);
           try {
             localStorage.setItem('theme', next);
           } catch {
