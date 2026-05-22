@@ -174,10 +174,25 @@
     text-decoration: none;
     text-transform: lowercase;
   }
+  /* `/` glyph before each nav label — a quiet hint that these are
+     URL paths. Lower-contrast than the label so it reads as ornamental
+     punctuation, not as part of the word. */
+  .nav a .nav-key {
+    color: var(--ink-3);
+    margin-inline-end: 2px;
+  }
+  /* Active route: accent colour + matching underline.
+     `--accent` straight against `--bg` measures 4.49:1 — one hundredth
+     under AA — so this uses the same darkened accent the family-name
+     and back-face rules use. */
   .nav a[aria-current='page'] {
-    color: var(--ink);
+    color: color-mix(in oklab, var(--accent) 88%, var(--ink) 12%);
     text-decoration: underline;
+    text-decoration-color: color-mix(in oklab, var(--accent) 88%, var(--ink) 12%);
     text-underline-offset: 4px;
+  }
+  .nav a[aria-current='page'] .nav-key {
+    color: color-mix(in oklab, var(--accent) 88%, var(--ink) 12%);
   }
 
   .chrome-end {
@@ -188,18 +203,24 @@
 
   .lang-toggle {
     display: inline-flex;
-    align-items: baseline;
-    gap: 0.35rem;
-    font-size: 0.85rem;
+    align-items: center;
+    gap: 0.2rem;
+    font-size: 0.7rem;
+    font-variant: small-caps;
+    letter-spacing: 0.08em;
   }
   .lang-toggle .lang {
     color: var(--ink-3);
     text-decoration: none;
+    padding: 0.1rem 0.4rem;
+    border: 1px solid transparent;
+    border-radius: 3px;
   }
+  /* Active locale: bordered chip rather than an underline. Reads as
+     a discrete toggle state. */
   .lang-toggle .lang.on {
     color: var(--ink);
-    text-decoration: underline;
-    text-underline-offset: 3px;
+    border-color: var(--rule);
   }
   .lang-toggle .lang[aria-disabled='true'] {
     color: var(--ink-3);
@@ -213,22 +234,51 @@
     font-style: italic;
   }
 
+  /* Theme toggle is a pill-shaped button: sun/moon SVG + small-caps text
+     label ("day" / "night" / "día" / "noche", set via ::before below).
+     The 32-px circular variant is the compact-mode fallback under
+     720 px (label hides, padding tightens). */
   #theme-toggle {
     display: inline-flex;
     align-items: center;
-    justify-content: center;
-    width: 2rem;
-    height: 2rem;
-    border-radius: 50%;
+    gap: 0.5rem;
+    padding: 0.25rem 0.65rem 0.25rem 0.4rem;
     border: 1px solid var(--rule);
+    border-radius: 999px;
     background: var(--paper);
-    color: var(--accent); /* SVG children pick this up via `currentColor` */
+    color: var(--accent); /* SVG children inherit via `currentColor` */
+    font-family: var(--font-body);
+    font-size: 0.7rem;
+    font-variant: small-caps;
+    letter-spacing: 0.08em;
+    text-transform: lowercase;
     transition:
       background-color var(--speed-micro),
-      border-color var(--speed-micro);
+      border-color var(--speed-micro),
+      color var(--speed-micro);
   }
   #theme-toggle:hover {
     border-color: var(--ink-3);
+    color: var(--ink);
+  }
+  /* Label content is data-driven via attribute selectors on <html>:
+     `lang` (en/es) + `data-theme` (set by the theme JS). Pure CSS
+     keeps the label in sync without an extra JS write per toggle. */
+  .theme-toggle-label {
+    color: var(--ink-2);
+    letter-spacing: 0.1em;
+  }
+  .theme-toggle-label::before {
+    content: 'day';
+  }
+  :root[data-theme='noche'] .theme-toggle-label::before {
+    content: 'night';
+  }
+  :root[lang='es']:not([data-theme='noche']) .theme-toggle-label::before {
+    content: 'día';
+  }
+  :root[lang='es'][data-theme='noche'] .theme-toggle-label::before {
+    content: 'noche';
   }
   /* Default (Día): rays visible at full opacity, mask hidden off to the right.
      [data-theme="noche"] overrides set rays invisible and slide the mask
@@ -292,6 +342,34 @@
     .chrome-end {
       gap: 0.5rem;
     }
+    /* Theme-toggle label hides under 720 px so the chrome row fits a
+       360–400 px viewport. Padding tightens so the pill collapses to
+       a compact icon button. */
+    .theme-toggle-label {
+      display: none;
+    }
+    #theme-toggle {
+      padding: 0.25rem;
+    }
+  }
+
+  /* ─── Palette transitions ────────────────────────────────────────────
+     Día ↔ Noche switching sweeps the chrome surfaces, not just the
+     <body>. Lives outside the prefers-reduced-motion gate because the
+     reset clamps transitions to 0.01 ms under reduced-motion, snapping
+     to the new palette without a slow colour shift. */
+  .chrome,
+  .cube-face,
+  .nav a,
+  .nav a .nav-key,
+  #theme-toggle,
+  .theme-toggle-label,
+  .lang-toggle .lang {
+    transition:
+      background-color 480ms cubic-bezier(0.2, 0.7, 0.2, 1),
+      color 380ms cubic-bezier(0.2, 0.7, 0.2, 1),
+      border-color 380ms cubic-bezier(0.2, 0.7, 0.2, 1),
+      text-decoration-color 380ms cubic-bezier(0.2, 0.7, 0.2, 1);
   }
 }
 

@@ -129,13 +129,8 @@ const navItems: Array<{ key: keyof typeof ROUTES; label: string }> =
           {
             navItems.map(({ key, label }) => (
               <li>
-                <a
-                  href={ROUTES[key][locale]}
-                  aria-current={path.startsWith(ROUTES[key][locale]) ? 'page' : undefined}
-                  data-astro-prefetch
-                >
-                  {label}
-                </a>
+                {/* prettier-ignore */}
+                <a href={ROUTES[key][locale]} aria-current={path.startsWith(ROUTES[key][locale]) ? 'page' : undefined} data-astro-prefetch><span class="nav-key" aria-hidden="true">/</span>{label}</a>
               </li>
             ))
           }
@@ -155,7 +150,7 @@ const navItems: Array<{ key: keyof typeof ROUTES; label: string }> =
             aria-disabled={locale === 'es' && toggleDisabled ? 'true' : undefined}
             data-lang="en"
           >
-            EN
+            en
           </a>
           <span aria-hidden="true">·</span>
           <a
@@ -165,7 +160,7 @@ const navItems: Array<{ key: keyof typeof ROUTES; label: string }> =
             aria-disabled={locale === 'en' && toggleDisabled ? 'true' : undefined}
             data-lang="es"
           >
-            ES
+            es
           </a>
           {
             toggleDisabled && (
@@ -230,6 +225,13 @@ const navItems: Array<{ key: keyof typeof ROUTES; label: string }> =
               fill="currentColor"
               mask="url(#moon-crescent)"></circle>
           </svg>
+          {
+            /* Day/night text label next to the SVG. Content is set via
+               CSS ::before keyed on [data-theme] and [lang] so it stays
+               in sync with the live theme + locale without extra JS.
+               Hidden under 720px (label only — icon stays). */
+          }
+          <span class="theme-toggle-label" aria-hidden="true"></span>
         </button>
       </div>
     </header>
