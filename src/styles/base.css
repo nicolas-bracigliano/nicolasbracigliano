@@ -336,17 +336,30 @@
   }
 
   /* ─── Chrome: compact mode under 720px ─────────────────────────────
-     Hide the "Nicolás Bracigliano" word block (the cube + nav + toggles
-     keep their full identity) and tighten the row gaps so the chrome
-     fits a typical 360–400 px mobile viewport on one line. The cube
-     stays 2 rem so it's still a clear tap target. */
+     Top chrome on mobile keeps the full kit — cube + wordmark + lang
+     toggle + theme toggle — just compressed so it fits a 360–400 px
+     viewport on one line. The center nav moves to the foot-rail
+     below; nothing else hides. */
   @media (max-width: 720px) {
     .chrome {
-      gap: 0.75rem;
-      padding: 0.75rem var(--gutter);
+      gap: 0.5rem;
+      padding: 0.65rem var(--gutter);
+    }
+    /* Compress the wordmark stack so cube + "Nicolás Bracigliano" fits
+       alongside lang + theme. */
+    .mark {
+      gap: 0.4rem;
+    }
+    .mark-cube {
+      width: 1.5rem;
+      height: 1.5rem;
+    }
+    .cube-face {
+      font-size: 0.7rem;
     }
     .mark-word {
-      display: none;
+      font-size: 0.7rem;
+      letter-spacing: 0;
     }
     .nav ul {
       gap: 0.75rem;
@@ -354,21 +367,22 @@
     .chrome-end {
       gap: 0.5rem;
     }
-    /* Theme-toggle label hides under 720 px so the chrome row fits a
-       360–400 px viewport. Padding tightens so the pill collapses to
-       a compact icon button. */
+    /* Theme-toggle label hides; pill collapses to a compact icon button. */
     .theme-toggle-label {
       display: none;
     }
     #theme-toggle {
-      padding: 0.25rem;
+      padding: 0.2rem;
     }
-    /* Top chrome at mobile is just: wordmark + day/night toggle. Lang
-       toggle hides (matching the spec's "very calm" header) — locale
-       switching at mobile is a deliberate consideration we'll handle
-       in a follow-up if/when needed. */
+    /* Tighter lang chip — small-caps "en · es" with the same bordered
+       active treatment, just compressed for mobile. */
     .lang-toggle {
-      display: none;
+      gap: 0.1rem;
+    }
+    .lang-toggle .lang {
+      min-width: 1.25rem;
+      min-height: 1.2rem;
+      padding: 0 0.3rem;
     }
 
     /* ─── Mobile foot-rail nav ───────────────────────────────────────
