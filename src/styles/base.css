@@ -256,8 +256,15 @@
     gap: clamp(2rem, 5vw, 3.5rem);
   }
 
-  /* Masthead — 2-col portrait + text on desktop, single column under 720px */
+  /* Masthead — 2-col portrait + text on desktop, single column under 720px.
+     `--masthead-cap` anchors the bio (and any future flow text) to roughly
+     the eyebrow's natural single-line width — "Nicolas Bracigliano · ●
+     Melbourne, AU · HH:MM" at the eyebrow's 0.7rem mono. Bio matches it
+     regardless of viewport aspect ratio; the eyebrow itself stays
+     content-sized via inline-flex so it can't underflow the cap. The
+     `min(cap, 100%)` guard prevents overflow on narrow viewports. */
   .masthead {
+    --masthead-cap: 19rem;
     padding-block-start: clamp(1.5rem, 5vw, 3rem);
   }
   .masthead-grid {
@@ -325,7 +332,7 @@
   .masthead-bio {
     font-size: 0.95rem;
     line-height: 1.7;
-    max-width: 50ch;
+    max-width: min(var(--masthead-cap), 100%);
     color: var(--ink-2);
     margin: 0;
   }
