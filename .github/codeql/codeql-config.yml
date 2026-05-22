@@ -1,0 +1,9 @@
+name: 'CodeQL config'
+
+paths-ignore:
+  - tests/**
+  - dist/**
+  - public/_pagefind/**
+  - scripts/**
+  - node_modules/**
+  - .astro/**

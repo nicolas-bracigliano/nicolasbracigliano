@@ -1,0 +1,83 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+
+  "extends": ["config:best-practices", ":pinAllExceptPeerDependencies"],
+
+  "timezone": "Australia/Melbourne",
+  "schedule": ["before 4am on monday"],
+
+  "labels": ["renovate"],
+  "rangeStrategy": "pin",
+
+  "prHourlyLimit": 4,
+  "prConcurrentLimit": 6,
+
+  "minimumReleaseAge": "3 days",
+
+  "platformAutomerge": false,
+
+  "dependencyDashboard": true,
+  "dependencyDashboardOSVVulnerabilitySummary": "unresolved",
+  "osvVulnerabilityAlerts": true,
+
+  "vulnerabilityAlerts": {
+    "enabled": true,
+    "labels": ["security"],
+    "schedule": ["at any time"],
+    "minimumReleaseAge": "0 days",
+    "automerge": true
+  },
+
+  "lockFileMaintenance": {
+    "enabled": true,
+    "schedule": ["before 4am on friday"],
+    "labels": ["renovate", "lockfile-maintenance"],
+    "automerge": true
+  },
+
+  "packageRules": [
+    {
+      "description": "Auto-merge safe update types when CI is green.",
+      "matchUpdateTypes": ["patch", "minor", "digest"],
+      "automerge": true
+    },
+    {
+      "description": "Majors always require human review.",
+      "matchUpdateTypes": ["major"],
+      "automerge": false,
+      "labels": ["renovate", "major-update"]
+    },
+    {
+      "description": "Astro core (framework + type-checker move together).",
+      "matchPackageNames": ["astro", "@astrojs/check"],
+      "groupName": "astro core"
+    },
+    {
+      "description": "Astro integrations (sitemap, rss, etc — versioned independently of core).",
+      "matchPackageNames": ["@astrojs/**", "!@astrojs/check"],
+      "groupName": "astrojs integrations"
+    },
+    {
+      "description": "typescript-eslint parser + plugin MUST share a version.",
+      "matchPackageNames": ["@typescript-eslint/**"],
+      "groupName": "typescript-eslint"
+    },
+    {
+      "description": "ESLint plugins — move together to avoid plugin/eslint-core mismatches.",
+      "matchPackageNames": ["eslint-plugin-*"],
+      "groupName": "eslint plugins"
+    },
+    {
+      "description": "Type definitions — additive, low-risk; group all update types incl. major.",
+      "matchPackageNames": ["@types/**"],
+      "groupName": "types"
+    },
+    {
+      "description": "GitHub Actions on their own track (digest pins maintained by best-practices preset).",
+      "matchManagers": ["github-actions"],
+      "groupName": "github-actions",
+      "automerge": true,
+      "labels": ["renovate", "github-actions"]
+    }
+  ]
+}

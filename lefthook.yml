@@ -1,0 +1,44 @@
+pre-commit:
+  parallel: true
+  commands:
+    eslint:
+      glob: '*.{js,ts,tsx,astro}'
+      run: pnpm exec eslint --fix {staged_files}
+      stage_fixed: true
+    prettier:
+      glob: '*.{js,ts,tsx,astro,css,md,json,yml,yaml}'
+      run: pnpm exec prettier --write {staged_files}
+      stage_fixed: true
+    typecheck:
+      glob: '*.{ts,tsx,astro}'
+      run: pnpm exec tsc --noEmit --incremental
+    stylelint:
+      glob: '*.css'
+      run: pnpm exec stylelint {staged_files}
+    gitleaks:
+      run: |
+        if command -v gitleaks >/dev/null 2>&1; then
+          gitleaks protect --staged --no-banner
+        else
+          echo "gitleaks not installed; skipping staged-secret scan (install via 'brew install gitleaks')"
+        fi
+
+pre-push:
+  commands:
+    signed-commits:
+      run: |
+        remote="$1"; url="$2"
+        while read -r local_ref local_sha remote_ref remote_sha; do
+          if [ "$local_sha" = "0000000000000000000000000000000000000000" ]; then continue; fi
+          if [ "$remote_sha" = "0000000000000000000000000000000000000000" ]; then
+            range="$local_sha"
+          else
+            range="${remote_sha}..${local_sha}"
+          fi
+          unsigned=$(git log --format='%H %G?' "$range" | awk '$2 != "G" && $2 != "U" {print $1}')
+          if [ -n "$unsigned" ]; then
+            echo "ERROR: unsigned commits in push range:"; echo "$unsigned"
+            echo "Enable SSH commit signing: git config --global gpg.format ssh && git config --global commit.gpgsign true"
+            exit 1
+          fi
+        done

@@ -1,0 +1,81 @@
+import type { APIRoute, InferGetStaticPropsType } from 'astro';
+import { getCollection, type CollectionEntry } from 'astro:content';
+import { readFile } from 'node:fs/promises';
+import { existsSync } from 'node:fs';
+import { resolve } from 'node:path';
+
+// Satori + Resvg integration. Requires `public/fonts/og-newsreader.ttf` —
+// run `pnpm run subset-fonts` to produce it. Until then, the endpoint
+// falls back to a solid-colour 1200×630 PNG via Sharp so the build never
+// breaks on a fresh clone.
+
+const FONT_PATH = resolve(process.cwd(), 'public/fonts/og-newsreader.ttf');
+
+type OgCollection = 'notes' | 'works' | 'essays';
+type OgEntry = CollectionEntry<OgCollection>;
+
+export async function getStaticPaths() {
+  const grouped = await Promise.all(
+    (['notes', 'works', 'essays'] as const).map(async (name) =>
+      (await getCollection(name)).map((entry) => ({ collection: name, entry })),
+    ),
+  );
+  const allOgs = grouped.flat().filter(({ entry }) => entry.data.status === 'published');
+
+  return allOgs.map(({ collection, entry }) => ({
+    params: { collection, slug: `${entry.data.lang}-${entry.data.slug}` },
+    props: { entry, collection },
+  }));
+}
+
+type Props = InferGetStaticPropsType<typeof getStaticPaths>;
+
+export const GET: APIRoute<Props> = async ({ props }) => {
+  const { entry, collection } = props as { entry: OgEntry; collection: OgCollection };
+  const kind = collection === 'notes' ? 'note' : collection === 'works' ? 'work' : 'essay';
+
+  if (existsSync(FONT_PATH)) {
+    try {
+      const [{ default: satori }, { Resvg }, { OgCard }] = await Promise.all([
+        import('satori'),
+        import('@resvg/resvg-js'),
+        import('@lib/og-template'),
+      ]);
+      const fontData = await readFile(FONT_PATH);
+      const svg = await satori(
+        OgCard({
+          title: entry.data.title,
+          lede: entry.data.lede,
+          locale: entry.data.lang,
+          kind,
+        }) as never,
+        {
+          width: 1200,
+          height: 630,
+          fonts: [{ name: 'Newsreader', data: fontData, weight: 500, style: 'normal' }],
+        },
+      );
+      const png = new Resvg(svg, { fitTo: { mode: 'width', value: 1200 } }).render().asPng();
+      return new Response(new Uint8Array(png), {
+        headers: { 'Content-Type': 'image/png', 'Cache-Control': 'public, max-age=86400' },
+      });
+    } catch (err) {
+      console.error('OG generation failed, falling back to solid PNG:', err);
+    }
+  }
+
+  const sharp = (await import('sharp')).default;
+  const png = await sharp({
+    create: {
+      width: 1200,
+      height: 630,
+      channels: 4,
+      background: { r: 246, g: 244, b: 239, alpha: 1 },
+    },
+  })
+    .png()
+    .toBuffer();
+  return new Response(new Uint8Array(png), {
+    headers: { 'Content-Type': 'image/png', 'Cache-Control': 'public, max-age=86400' },
+  });
+};

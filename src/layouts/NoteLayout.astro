@@ -1,0 +1,44 @@
+---
+import BaseLayout from './BaseLayout.astro';
+import type { CollectionEntry } from 'astro:content';
+import type { Locale } from '@lib/routes';
+
+export interface Props {
+  entry: CollectionEntry<'notes'>;
+  path: string;
+  siblingPath: string | null;
+}
+
+const { entry, path, siblingPath } = Astro.props;
+const { title, date, lede, tags, lang } = entry.data;
+---
+
+<BaseLayout
+  title={title}
+  description={lede}
+  locale={lang as Locale}
+  path={path}
+  siblingPath={siblingPath}
+>
+  <article class="note">
+    <header class="note-head">
+      <p class="meta">
+        <time datetime={date.toISOString().slice(0, 10)}>
+          {date.toISOString().slice(0, 10)}
+        </time>
+        {tags.length > 0 && <span class="tags">{tags.join(' · ')}</span>}
+      </p>
+      <h1>{title}</h1>
+      {
+        lede && (
+          <p class="lede">
+            <em>{lede}</em>
+          </p>
+        )
+      }
+    </header>
+    <div class="prose">
+      <slot />
+    </div>
+  </article>
+</BaseLayout>

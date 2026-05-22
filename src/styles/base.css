@@ -1,0 +1,370 @@
+@layer reset, tokens, base, routes, animations, utilities;
+
+@layer base {
+  html {
+    background: var(--bg);
+    color: var(--ink);
+  }
+
+  body {
+    font-family: var(--font-body);
+    font-size: 15px;
+    color: var(--ink);
+    background: var(--bg);
+    transition:
+      background-color var(--speed-standard),
+      color var(--speed-standard);
+  }
+
+  p {
+    text-wrap: pretty;
+    max-width: var(--measure);
+  }
+
+  h1 {
+    font-family: var(--font-display);
+    font-weight: 500;
+    font-size: clamp(2rem, 4vw + 1rem, 3.25rem);
+    line-height: 1.1;
+    color: var(--ink);
+  }
+
+  h2 {
+    font-family: var(--font-display);
+    font-weight: 500;
+    font-size: clamp(1.4rem, 2vw + 0.75rem, 2rem);
+  }
+
+  h3 {
+    font-family: var(--font-display);
+    font-weight: 500;
+    font-size: 1.25rem;
+  }
+
+  em {
+    color: var(--ink-2);
+  }
+
+  hr {
+    border: 0;
+    border-top: 1px solid var(--rule);
+    margin: 2rem 0;
+  }
+
+  a {
+    color: var(--accent);
+  }
+
+  a:hover {
+    text-decoration: underline;
+  }
+
+  .skip-link {
+    position: absolute;
+    inset-block-start: -3rem;
+    inset-inline-start: 0;
+    padding: 0.5rem 1rem;
+    background: var(--paper);
+    color: var(--ink);
+    border: 1px solid var(--rule);
+  }
+  .skip-link:focus {
+    inset-block-start: 0;
+    z-index: 10;
+  }
+
+  /* chrome */
+  .chrome {
+    position: sticky;
+    top: 0;
+    z-index: 5;
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    gap: var(--gutter);
+    padding: 1rem var(--gutter);
+    border-block-end: 1px solid var(--rule);
+    background: color-mix(in srgb, var(--bg) 96%, transparent);
+    backdrop-filter: saturate(140%) blur(6px);
+  }
+
+  .mark {
+    font-family: var(--font-body);
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    color: var(--ink);
+    text-decoration: none;
+  }
+
+  .nav ul {
+    display: flex;
+    gap: 1.25rem;
+    justify-content: center;
+    padding: 0;
+    list-style: none;
+  }
+  .nav a {
+    color: var(--ink-2);
+    text-decoration: none;
+    text-transform: lowercase;
+  }
+  .nav a[aria-current='page'] {
+    color: var(--ink);
+    text-decoration: underline;
+    text-underline-offset: 4px;
+  }
+
+  .chrome-end {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .lang-toggle {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 0.35rem;
+    font-size: 0.85rem;
+  }
+  .lang-toggle .lang {
+    color: var(--ink-3);
+    text-decoration: none;
+  }
+  .lang-toggle .lang.on {
+    color: var(--ink);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+  .lang-toggle .lang[aria-disabled='true'] {
+    color: var(--ink-3);
+    opacity: 0.45;
+    pointer-events: none;
+  }
+  .only-note {
+    margin-inline-start: 0.5rem;
+    font-size: 0.75rem;
+    color: var(--ink-3);
+    font-style: italic;
+  }
+
+  #theme-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2rem;
+    height: 2rem;
+    border-radius: 50%;
+    border: 1px solid var(--rule);
+    background: var(--paper);
+    color: var(--accent); /* SVG children pick this up via `currentColor` */
+    transition:
+      background-color var(--speed-micro),
+      border-color var(--speed-micro);
+  }
+  #theme-toggle:hover {
+    border-color: var(--ink-3);
+  }
+  /* Default (Día): rays visible at full opacity, mask hidden off to the right.
+     [data-theme="noche"] overrides set rays invisible and slide the mask
+     into the disc to carve a crescent. Transitions are in animations.css. */
+  /* `.moon-mask` lives inside <defs><mask> in the SVG. CSS still applies
+     (defs are non-rendering but still styleable) — the opacity + transform
+     animate the mask geometry, which animates the disc's carved shape. */
+  #theme-toggle .moon-mask {
+    opacity: 0;
+    transform: translateX(8px);
+    transform-origin: center;
+  }
+  [data-theme='noche'] #theme-toggle .sun-rays {
+    opacity: 0;
+    transform: scale(0.6) rotate(-30deg);
+    transform-origin: 11px 11px;
+  }
+  [data-theme='noche'] #theme-toggle .moon-mask {
+    opacity: 1;
+    transform: translateX(0);
+  }
+
+  main {
+    display: block;
+    padding: clamp(1.5rem, 4vw, 3rem) var(--gutter);
+    max-width: 72rem;
+    margin: 0 auto;
+  }
+
+  .footer {
+    padding: 2rem var(--gutter) 3rem;
+    border-block-start: 1px solid var(--rule);
+    color: var(--ink-3);
+    font-size: 0.85rem;
+  }
+  /* Footer link uses --ink-2 instead of inheriting --accent: --accent on
+     --bg measured 4.49:1 (just under AA's 4.5:1 for small text). --ink-2
+     passes comfortably; the underline keeps it readable as a link. */
+  .footer a {
+    color: var(--ink-2);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+}
+
+@layer routes {
+  .index h1 {
+    margin-block-end: 1.5rem;
+  }
+
+  .entry-list {
+    list-style: none;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+  .entry-list a {
+    display: grid;
+    grid-template-columns: 8rem 1fr;
+    gap: 1rem;
+    padding: 0.75rem 0;
+    border-block-end: 1px dotted var(--rule);
+    text-decoration: none;
+    color: var(--ink);
+  }
+  .entry-list a:hover .title {
+    text-decoration: underline;
+  }
+  .entry-list time {
+    color: var(--ink-3);
+    font-feature-settings: 'tnum';
+  }
+  .entry-list .lede {
+    display: block;
+    color: var(--ink-3);
+    font-style: italic;
+    font-size: 0.9rem;
+    margin-block-start: 0.25rem;
+  }
+
+  .card-list {
+    list-style: none;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+    gap: 1.5rem;
+  }
+  .card a {
+    display: block;
+    padding: 1.25rem;
+    background: var(--paper);
+    border: 1px solid var(--rule);
+    text-decoration: none;
+    color: var(--ink);
+    transition: transform var(--speed-standard);
+  }
+  .card a:hover {
+    transform: translateY(-2px);
+  }
+
+  .note,
+  .work,
+  .page {
+    max-width: var(--measure);
+  }
+  .note-head,
+  .work-head,
+  .page-head {
+    margin-block-end: 1.5rem;
+  }
+  .meta {
+    color: var(--ink-3);
+    font-size: 0.85rem;
+    display: flex;
+    gap: 1rem;
+    align-items: baseline;
+  }
+  .meta .tags {
+    color: var(--olive);
+  }
+  .lede {
+    color: var(--ink-2);
+    margin-block-start: 0.5rem;
+  }
+
+  .specs {
+    display: grid;
+    grid-template-columns: max-content 1fr;
+    gap: 0.5rem 1.5rem;
+    margin: 1.5rem 0;
+    padding: 1rem;
+    background: var(--bg-2);
+    border-inline-start: 2px solid var(--accent);
+  }
+  .specs dt {
+    color: var(--ink-3);
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  .specs dd {
+    margin: 0;
+    color: var(--ink);
+  }
+
+  .status {
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-size: 0.7rem;
+    padding: 0.1rem 0.4rem;
+    border: 1px solid var(--rule);
+  }
+  .status--published {
+    color: var(--olive);
+  }
+  .status--draft {
+    color: var(--ink-3);
+  }
+  .status--retired {
+    color: var(--ink-3);
+    text-decoration: line-through;
+  }
+
+  .prose p {
+    margin-block-start: 1rem;
+  }
+  .prose h2 {
+    margin-block-start: 2rem;
+    margin-block-end: 0.5rem;
+  }
+  .prose ul,
+  .prose ol {
+    margin: 1rem 0 1rem 1.25rem;
+  }
+  .prose code {
+    background: var(--bg-2);
+    padding: 0.05em 0.3em;
+    border-radius: 2px;
+    font-size: 0.85em;
+  }
+  .prose pre {
+    background: var(--bg-2);
+    padding: 1rem;
+    overflow-x: auto;
+    border-inline-start: 2px solid var(--accent);
+  }
+
+  .notfound {
+    text-align: center;
+    padding-block: 4rem;
+  }
+  .notfound h1 {
+    font-size: clamp(4rem, 12vw, 8rem);
+    color: var(--ink-3);
+  }
+  .flag-links {
+    list-style: none;
+    padding: 0;
+    display: flex;
+    gap: 2rem;
+    justify-content: center;
+    margin-block-start: 2rem;
+  }
+}

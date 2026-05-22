@@ -1,0 +1,3 @@
+# Normalize the unaccented variant of /es/colofón
+/es/colofon       /es/colofón       301
+/es/colofon/      /es/colofón/      301

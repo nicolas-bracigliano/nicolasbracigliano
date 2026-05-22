@@ -1,0 +1,37 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '@layouts/BaseLayout.astro';
+import { ROUTES } from '@lib/routes';
+import { entryRouteFor } from '@lib/i18n';
+
+const works = (
+  await getCollection('works', (e) => e.data.lang === 'en' && e.data.status === 'published')
+).sort((a, b) => +b.data.date - +a.data.date);
+
+const path = ROUTES.works.en;
+const siblingPath = ROUTES.works.es;
+---
+
+<BaseLayout
+  title="Works"
+  description="Projects — digital and physical."
+  locale="en"
+  path={path}
+  siblingPath={siblingPath}
+>
+  <section class="index">
+    <h1>Works</h1>
+    <ul class="card-list">
+      {
+        works.map((w) => (
+          <li class="card">
+            <a href={entryRouteFor(w)} data-astro-prefetch>
+              <h2>{w.data.title}</h2>
+              {w.data.lede && <p>{w.data.lede}</p>}
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+  </section>
+</BaseLayout>

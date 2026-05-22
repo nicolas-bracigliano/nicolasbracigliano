@@ -1,0 +1,26 @@
+---
+import { getCollection, render } from 'astro:content';
+import NoteLayout from '@layouts/NoteLayout.astro';
+import { getSibling, entryRouteFor } from '@lib/i18n';
+
+export async function getStaticPaths() {
+  const notes = await getCollection(
+    'notes',
+    (e) => e.data.lang === 'es' && e.data.status === 'published',
+  );
+  return notes.map((entry) => ({
+    params: { slug: entry.data.slug },
+    props: { entry },
+  }));
+}
+
+const { entry } = Astro.props;
+const sibling = await getSibling(entry);
+const { Content } = await render(entry);
+const path = entryRouteFor(entry);
+const siblingPath = sibling ? entryRouteFor(sibling) : null;
+---
+
+<NoteLayout entry={entry} path={path} siblingPath={siblingPath}>
+  <Content />
+</NoteLayout>

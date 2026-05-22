@@ -1,0 +1,33 @@
+node_modules/
+dist/
+.astro/
+.cache/
+.wrangler/
+
+# env / secrets
+.env
+.env.*
+!.env.example
+
+# OS
+.DS_Store
+Thumbs.db
+
+# editor
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+.idea/
+
+# tests / coverage
+coverage/
+playwright-report/
+test-results/
+.lighthouseci/
+
+# build artefacts
+*.log
+*.tsbuildinfo
+
+# Claude Code session state (harness scratch — never commit)
+.claude/

@@ -1,0 +1,40 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '@layouts/BaseLayout.astro';
+import { ROUTES } from '@lib/routes';
+import { entryRouteFor } from '@lib/i18n';
+
+const notes = (
+  await getCollection('notes', (e) => e.data.lang === 'es' && e.data.status === 'published')
+).sort((a, b) => +b.data.date - +a.data.date);
+
+const path = ROUTES.notes.es;
+const siblingPath = ROUTES.notes.en;
+---
+
+<BaseLayout
+  title="Notas"
+  description="Notas cortas, TILs, micro-posts."
+  locale="es"
+  path={path}
+  siblingPath={siblingPath}
+>
+  <section class="index">
+    <h1>Notas</h1>
+    <ul class="entry-list">
+      {
+        notes.map((n) => (
+          <li>
+            <a href={entryRouteFor(n)} data-astro-prefetch>
+              <time datetime={n.data.date.toISOString().slice(0, 10)}>
+                {n.data.date.toISOString().slice(0, 10)}
+              </time>
+              <span class="title">{n.data.title}</span>
+              {n.data.lede && <span class="lede">{n.data.lede}</span>}
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+  </section>
+</BaseLayout>

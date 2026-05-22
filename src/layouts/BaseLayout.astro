@@ -1,0 +1,364 @@
+---
+import '@styles/reset.css';
+import '@styles/tokens.css';
+import '@styles/base.css';
+import '@styles/animations.css';
+import { ClientRouter } from 'astro:transitions';
+import { ROUTES, type Locale } from '@lib/routes';
+
+export interface Props {
+  title: string;
+  description?: string;
+  locale: Locale;
+  /** Current page path (e.g. "/en/notes/hello/") */
+  path: string;
+  /** Sibling path in the other locale, or null if there is no published translation */
+  siblingPath: string | null;
+  /** Optional override for OG image (absolute URL or path under site origin) */
+  ogImage?: string;
+}
+
+const { title, description, locale, path, siblingPath, ogImage } = Astro.props;
+const site = Astro.site?.toString() ?? 'https://nicolasbracigliano.com';
+const origin = site.replace(/\/$/, '');
+
+const enHref = locale === 'en' ? path : (siblingPath ?? path);
+const esHref = locale === 'es' ? path : (siblingPath ?? path);
+
+const toggleDisabled = siblingPath === null;
+
+const navItems: Array<{ key: keyof typeof ROUTES; label: string }> =
+  locale === 'en'
+    ? [
+        { key: 'notes', label: 'notes' },
+        { key: 'works', label: 'works' },
+        { key: 'about', label: 'about' },
+        { key: 'colophon', label: 'colophon' },
+      ]
+    : [
+        { key: 'notes', label: 'notas' },
+        { key: 'works', label: 'obras' },
+        { key: 'about', label: 'sobre' },
+        { key: 'colophon', label: 'colofón' },
+      ];
+---
+
+<!doctype html>
+<html lang={locale}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    {description && <meta name="description" content={description} />}
+
+    <link rel="canonical" href={`${origin}${path}`} />
+    <link rel="alternate" hreflang="en" href={`${origin}${enHref}`} />
+    <link rel="alternate" hreflang="es" href={`${origin}${esHref}`} />
+    <link rel="alternate" hreflang="x-default" href={`${origin}${enHref}`} />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={title} />
+    {description && <meta property="og:description" content={description} />}
+    <meta property="og:url" content={`${origin}${path}`} />
+    <meta property="og:locale" content={locale === 'en' ? 'en_US' : 'es_AR'} />
+    {
+      ogImage && (
+        <meta
+          property="og:image"
+          content={ogImage.startsWith('http') ? ogImage : `${origin}${ogImage}`}
+        />
+      )
+    }
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+
+    {/* FOUC-prevention: external file so CSP can stay `script-src 'self'` with no hashes. */}
+    <script is:inline src="/theme-init.js"></script>
+
+    {
+      /* Native View Transitions API for cross-page navigation. ~3 KB once,
+        cached after first page. No SPA — every page still server-rendered
+        and indexable. Animation choreography lives in animations.css. */
+    }
+    <ClientRouter />
+  </head>
+  <body>
+    <a href="#main" class="skip-link">Skip to content</a>
+
+    {
+      /* `transition:animate="none"` keeps the chrome visually stable during
+        ClientRouter navigations — the page body fades to the new content
+        but the chrome doesn't fade with it. Attributes inside (aria-current
+        on nav, href/aria-disabled on lang toggle) still update because
+        the chrome re-renders; only its animation opts out. */
+    }
+    <header class="chrome" transition:animate="none">
+      <a
+        href={ROUTES.home[locale]}
+        class="mark"
+        aria-label={locale === 'en' ? 'Home' : 'Inicio'}
+        transition:name="mark"
+      >
+        <span aria-hidden="true">NB</span>
+      </a>
+
+      <nav class="nav" aria-label={locale === 'en' ? 'Primary' : 'Principal'}>
+        <ul>
+          {
+            navItems.map(({ key, label }) => (
+              <li>
+                <a
+                  href={ROUTES[key][locale]}
+                  aria-current={path.startsWith(ROUTES[key][locale]) ? 'page' : undefined}
+                  data-astro-prefetch
+                >
+                  {label}
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+      </nav>
+
+      <div
+        class="chrome-end"
+        role="group"
+        aria-label={locale === 'en' ? 'Preferences' : 'Preferencias'}
+      >
+        <div class="lang-toggle">
+          <a
+            class={`lang ${locale === 'en' ? 'on' : ''}`}
+            href={locale === 'en' ? path : (siblingPath ?? path)}
+            aria-current={locale === 'en' ? 'page' : undefined}
+            aria-disabled={locale === 'es' && toggleDisabled ? 'true' : undefined}
+            data-lang="en"
+          >
+            EN
+          </a>
+          <span aria-hidden="true">·</span>
+          <a
+            class={`lang ${locale === 'es' ? 'on' : ''}`}
+            href={locale === 'es' ? path : (siblingPath ?? path)}
+            aria-current={locale === 'es' ? 'page' : undefined}
+            aria-disabled={locale === 'en' && toggleDisabled ? 'true' : undefined}
+            data-lang="es"
+          >
+            ES
+          </a>
+          {
+            toggleDisabled && (
+              <span class="only-note" data-testid="only-note">
+                {locale === 'en' ? 'Only in English.' : 'Solo en español.'}
+              </span>
+            )
+          }
+        </div>
+
+        <button
+          type="button"
+          id="theme-toggle"
+          role="switch"
+          aria-checked="false"
+          aria-label={locale === 'en' ? 'Toggle dark mode' : 'Alternar modo oscuro'}
+        >
+          {
+            /* One SVG, three layers. Both themes share `.sun-disc` as the
+              filled circle body; `.sun-rays` fade + scale-rotate out in
+              dark mode while `.moon-mask` (a circle filled with the
+              button's background colour) slides in from translateX(8)
+              to translateX(0) to carve out the crescent shape. The whole
+              SVG rotates 28deg on hover. Positioning in base.css; timings
+              in animations.css under the prefers-reduced-motion gate. */
+          }
+          <svg viewBox="0 0 22 22" width="18" height="18" aria-hidden="true">
+            {
+              /* Native SVG mask: the disc is masked by a white rect (fully
+                visible) with a black circle (.moon-mask) that, when slid
+                into position, carves out the crescent. The mask is
+                pure-alpha based, so it works regardless of what colour
+                the button background is — no colour-matching coupling. */
+            }
+            <defs>
+              <mask id="moon-crescent">
+                <rect width="22" height="22" fill="white"></rect>
+                <circle class="moon-mask" cx="14" cy="9" r="4.5" fill="black"></circle>
+              </mask>
+            </defs>
+            <g
+              class="sun-rays"
+              stroke="currentColor"
+              stroke-width="1.3"
+              stroke-linecap="round"
+              fill="none"
+            >
+              <line x1="11" y1="2" x2="11" y2="4"></line>
+              <line x1="11" y1="18" x2="11" y2="20"></line>
+              <line x1="2" y1="11" x2="4" y2="11"></line>
+              <line x1="18" y1="11" x2="20" y2="11"></line>
+              <line x1="4.5" y1="4.5" x2="6" y2="6"></line>
+              <line x1="16" y1="16" x2="17.5" y2="17.5"></line>
+              <line x1="4.5" y1="17.5" x2="6" y2="16"></line>
+              <line x1="16" y1="6" x2="17.5" y2="4.5"></line>
+            </g>
+            <circle
+              class="sun-disc"
+              cx="11"
+              cy="11"
+              r="4.5"
+              fill="currentColor"
+              mask="url(#moon-crescent)"></circle>
+          </svg>
+        </button>
+      </div>
+    </header>
+
+    <main id="main">
+      <slot />
+    </main>
+
+    <footer class="footer">
+      <p>
+        <small>
+          {locale === 'en' ? '© ' : '© '}Nicolas Bracigliano · {new Date().getFullYear()} ·
+          <a href={ROUTES.colophon[locale]}>{locale === 'en' ? 'Colophon' : 'Colofón'}</a>
+        </small>
+      </p>
+    </footer>
+
+    <script>
+      // Theme + language toggle, event-delegated so the handlers survive
+      // <ClientRouter /> body swaps (this script is bundled once and persists;
+      // listeners live on `document` / `window`, not on per-page elements).
+      import type { TransitionBeforeSwapEvent } from 'astro:transitions/client';
+
+      type Theme = 'dia' | 'noche';
+
+      const root = document.documentElement;
+
+      function readStoredTheme(): Theme | null {
+        try {
+          const stored = localStorage.getItem('theme');
+          return stored === 'dia' || stored === 'noche' ? stored : null;
+        } catch {
+          return null;
+        }
+      }
+
+      function resolveTheme(): Theme {
+        return (
+          readStoredTheme() ??
+          (window.matchMedia?.('(prefers-color-scheme: dark)').matches ? 'noche' : 'dia')
+        );
+      }
+
+      function applyTheme(theme: Theme): void {
+        root.dataset.theme = theme;
+        const btn = document.getElementById('theme-toggle');
+        btn?.setAttribute('aria-checked', String(theme === 'noche'));
+      }
+
+      function syncTheme(): void {
+        applyTheme(resolveTheme());
+      }
+
+      // Initial sync is handled by `astro:page-load` — it fires once on
+      // first load AND after every ClientRouter navigation, so a single
+      // listener covers both code paths.
+      document.addEventListener('astro:page-load', syncTheme);
+
+      // FOUC prevention across ClientRouter navigations.
+      //
+      // ClientRouter replaces `<html>`'s attributes with the incoming
+      // page's. Server-rendered pages have no `data-theme` (theme is
+      // client state), so without intervention `data-theme="noche"` gets
+      // wiped on swap and the page paints in light for one frame before
+      // `astro:page-load` re-applies the user's theme — visible flash.
+      //
+      // `astro:before-swap` fires AFTER the new document is parsed but
+      // BEFORE its attributes commit. Mutating the incoming `<html>` here
+      // means the swap brings the correct theme in atomically.
+      document.addEventListener('astro:before-swap', (event) => {
+        const evt = event as TransitionBeforeSwapEvent;
+        const current = root.dataset.theme;
+        if (current === 'dia' || current === 'noche') {
+          evt.newDocument.documentElement.dataset.theme = current;
+        }
+      });
+
+      // Cross-tab sync: localStorage write or remove in a sibling tab
+      // dispatches a `storage` event here. Newvalue === null means the
+      // sibling retired its override (see matchMedia handler below) — this
+      // tab should re-resolve from matchMedia to match.
+      window.addEventListener('storage', (event) => {
+        if (event.key !== 'theme') return;
+        if (event.newValue === 'dia' || event.newValue === 'noche') {
+          applyTheme(event.newValue);
+        } else if (event.newValue === null) {
+          applyTheme(resolveTheme());
+        }
+      });
+
+      // State machine for OS theme changes.
+      //
+      //   no override + OS changes       → follow OS (auto mode)
+      //   override matches new OS theme  → silently retire the override; we
+      //                                    were holding the user against the
+      //                                    OS, but the OS just agreed with
+      //                                    them, so future OS toggles should
+      //                                    just be followed
+      //   override disagrees with new OS → keep the override; user has been
+      //                                    explicit and the OS isn't yet aligned
+      //
+      // Concretely: user overrides to "noche" while OS is "dia". Sunset
+      // arrives, OS goes "noche", the override matches and retires. Next
+      // sunrise, OS goes back to "dia", site follows automatically.
+      const mql = window.matchMedia?.('(prefers-color-scheme: dark)');
+      mql?.addEventListener('change', (event) => {
+        const osTheme: Theme = event.matches ? 'noche' : 'dia';
+        const stored = readStoredTheme();
+        if (stored === null) {
+          applyTheme(osTheme);
+        } else if (stored === osTheme) {
+          try {
+            localStorage.removeItem('theme');
+          } catch {
+            /* localStorage unavailable */
+          }
+          applyTheme(osTheme);
+        }
+        // else: stored !== osTheme — user wants the opposite of the OS, keep it.
+      });
+
+      // Delegated click handler covers both toggles for the life of the tab.
+      document.addEventListener('click', (event) => {
+        const target = event.target as Element | null;
+
+        const themeBtn = target?.closest<HTMLButtonElement>('#theme-toggle');
+        if (themeBtn) {
+          const next: Theme = root.dataset.theme === 'noche' ? 'dia' : 'noche';
+          applyTheme(next);
+          try {
+            localStorage.setItem('theme', next);
+          } catch {
+            /* localStorage unavailable */
+          }
+          return;
+        }
+
+        const langLink = target?.closest<HTMLAnchorElement>('.lang-toggle a[data-lang]');
+        if (langLink) {
+          if (langLink.getAttribute('aria-disabled') === 'true') {
+            event.preventDefault();
+            return;
+          }
+          try {
+            localStorage.setItem('lang', langLink.dataset['lang'] ?? 'en');
+          } catch {
+            /* localStorage unavailable */
+          }
+        }
+      });
+    </script>
+  </body>
+</html>

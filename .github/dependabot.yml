@@ -1,0 +1,4 @@
+# Intentionally minimal — Renovate is the primary dependency manager.
+# This file exists only so GitHub stops nagging about a missing dependabot config.
+version: 2
+updates: []

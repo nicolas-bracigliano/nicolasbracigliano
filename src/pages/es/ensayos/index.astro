@@ -1,0 +1,17 @@
+---
+import BaseLayout from '@layouts/BaseLayout.astro';
+import { ROUTES } from '@lib/routes';
+---
+
+<BaseLayout
+  title="Ensayos"
+  description="Ensayos extensos."
+  locale="es"
+  path={ROUTES.essays.es}
+  siblingPath={ROUTES.essays.en}
+>
+  <section class="index">
+    <h1>Ensayos</h1>
+    <p><em>Aún no hay ensayos. El primero aterrizará aquí cuando esté casi bien.</em></p>
+  </section>
+</BaseLayout>
