@@ -173,6 +173,10 @@
     color: var(--ink-2);
     text-decoration: none;
     text-transform: lowercase;
+    /* Padding below the label pushes the gradient underline (drawn at
+       `background-position: 0 100%` in animations.css) down from the
+       baseline. Without it the line sat flush against the descenders. */
+    padding-block-end: 6px;
   }
   /* `/` glyph before each nav label — a quiet hint that these are
      URL paths. Lower-contrast than the label so it reads as ornamental
@@ -181,15 +185,14 @@
     color: var(--ink-3);
     margin-inline-end: 2px;
   }
-  /* Active route: accent colour + matching underline.
-     `--accent` straight against `--bg` measures 4.49:1 — one hundredth
-     under AA — so this uses the same darkened accent the family-name
-     and back-face rules use. */
+  /* Active route: accent colour for both label and slash glyph. The
+     persistent underline comes from animations.css (keeping the
+     background-size: 100% 1px from the hover gradient permanently
+     drawn) so it sits at the same offset as the hover underline.
+     `--accent` straight against `--bg` is 4.49:1 — one hundredth under
+     AA — so this uses the same darkened accent the family name uses. */
   .nav a[aria-current='page'] {
     color: color-mix(in oklab, var(--accent) 88%, var(--ink) 12%);
-    text-decoration: underline;
-    text-decoration-color: color-mix(in oklab, var(--accent) 88%, var(--ink) 12%);
-    text-underline-offset: 4px;
   }
   .nav a[aria-current='page'] .nav-key {
     color: color-mix(in oklab, var(--accent) 88%, var(--ink) 12%);
@@ -210,11 +213,20 @@
     letter-spacing: 0.08em;
   }
   .lang-toggle .lang {
+    /* inline-flex + centred alignment keeps "en"/"es" optically vertically
+       centred inside the chip — small-caps glyphs have asymmetric metrics
+       that read off-centre with padding alone. */
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 1.5rem;
+    min-height: 1.4rem;
     color: var(--ink-3);
     text-decoration: none;
-    padding: 0.1rem 0.4rem;
+    padding: 0 0.4rem;
     border: 1px solid transparent;
     border-radius: 3px;
+    line-height: 1;
   }
   /* Active locale: bordered chip rather than an underline. Reads as
      a discrete toggle state. */

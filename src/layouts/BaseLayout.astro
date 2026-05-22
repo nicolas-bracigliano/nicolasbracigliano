@@ -30,17 +30,28 @@ const toggleDisabled = siblingPath === null;
 const navItems: Array<{ key: keyof typeof ROUTES; label: string }> =
   locale === 'en'
     ? [
+        { key: 'home', label: 'home' },
         { key: 'notes', label: 'notes' },
         { key: 'works', label: 'works' },
         { key: 'about', label: 'about' },
         { key: 'colophon', label: 'colophon' },
       ]
     : [
+        { key: 'home', label: 'inicio' },
         { key: 'notes', label: 'notas' },
         { key: 'works', label: 'obras' },
         { key: 'about', label: 'sobre' },
         { key: 'colophon', label: 'colofón' },
       ];
+
+// Home matches only at the exact path; every other route matches
+// when the current path starts with the route base (so /en/notes/foo/
+// keeps "notes" active). Without this, "home" would be active on
+// every page because every /en/* path startsWith /en/.
+function isActive(key: keyof typeof ROUTES, currentPath: string): boolean {
+  const target = ROUTES[key][locale];
+  return key === 'home' ? currentPath === target : currentPath.startsWith(target);
+}
 ---
 
 <!doctype html>
@@ -108,12 +119,15 @@ const navItems: Array<{ key: keyof typeof ROUTES; label: string }> =
            provides the accessible name, the visible spans are aria-hidden
            so screen readers don't double-announce. */
       }
-      <a
-        href={ROUTES.home[locale]}
-        class="mark"
-        aria-label={locale === 'en' ? 'Home' : 'Inicio'}
-        transition:name="mark"
-      >
+      {
+        /* No `transition:name="mark"` here on purpose. The chrome's
+           `transition:animate="none"` keeps the whole header static
+           across navigations; giving the mark its own view-transition
+           name would opt it back IN, and the 3D cube + perspective
+           interpolate weirdly when the user clicks the lang toggle
+           mid-rotation. Static reads cleanly. */
+      }
+      <a href={ROUTES.home[locale]} class="mark" aria-label={locale === 'en' ? 'Home' : 'Inicio'}>
         <span class="mark-cube" aria-hidden="true">
           <span class="cube-face cube-face--front">NB</span>
           <span class="cube-face cube-face--back">NB</span>
@@ -130,7 +144,7 @@ const navItems: Array<{ key: keyof typeof ROUTES; label: string }> =
             navItems.map(({ key, label }) => (
               <li>
                 {/* prettier-ignore */}
-                <a href={ROUTES[key][locale]} aria-current={path.startsWith(ROUTES[key][locale]) ? 'page' : undefined} data-astro-prefetch><span class="nav-key" aria-hidden="true">/</span>{label}</a>
+                <a href={ROUTES[key][locale]} aria-current={isActive(key, path) ? 'page' : undefined} data-astro-prefetch><span class="nav-key" aria-hidden="true">/</span>{label}</a>
               </li>
             ))
           }

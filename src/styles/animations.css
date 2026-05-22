@@ -104,9 +104,11 @@
       background-size: 100% 1px;
     }
     .nav a[aria-current='page'] {
-      /* Active route already underlined via reset.css — clear the gradient
-         strip so the underline doesn't double up. */
-      background-image: none;
+      /* Persistent underline for the active route — same `linear-gradient
+         currentcolor` strip the hover state uses, just held at full width.
+         `currentcolor` inherits the accent from the colour rule in
+         base.css, so the underline matches the label automatically. */
+      background-size: 100% 1px;
     }
 
     .lang-toggle .lang {
@@ -222,11 +224,17 @@
       animation-timing-function: cubic-bezier(0.2, 0.7, 0.2, 1);
     }
 
-    /* Mark (NB logo) morphs continuously across navigations rather than
-       fading in/out — feels like the chrome stays put. */
+    /* Mark no longer carries `view-transition-name: mark` (see BaseLayout
+       comment) — the chrome's `transition:animate="none"` keeps it static
+       across navigations, which avoids the 3D-cube perspective glitch
+       that happened when the user clicked the lang toggle mid-rotation.
+       Rule kept commented out so the choice is documented at the
+       call-site. */
+    /*
     ::view-transition-old(mark),
     ::view-transition-new(mark) {
       animation-duration: var(--speed-standard);
     }
+    */
   }
 }
