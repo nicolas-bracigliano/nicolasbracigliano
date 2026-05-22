@@ -28,3 +28,6 @@ test-results/
 # build artefacts
 *.log
 *.tsbuildinfo
+
+# Claude Code session state (harness scratch — never commit)
+.claude/
