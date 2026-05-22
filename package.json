@@ -21,6 +21,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:e2e": "playwright test",
+    "lhci": "lhci autorun",
     "subset-fonts": "node scripts/subset-fonts.mjs",
     "postbuild": "pagefind --site dist --output-subdir _pagefind"
   },
@@ -43,6 +44,7 @@
     "@axe-core/playwright": "4.11.3",
     "@cloudflare/vitest-pool-workers": "0.16.8",
     "@eslint/js": "10.0.1",
+    "@lhci/cli": "0.15.1",
     "@playwright/test": "1.60.0",
     "@resvg/resvg-js": "2.6.2",
     "@types/node": "25.9.1",

@@ -44,6 +44,16 @@ jobs:
         run: |
           test -f dist/_pagefind/pagefind-entry.json
           grep -q '"version"' dist/_pagefind/pagefind-entry.json
+      - name: Lighthouse CI
+        run: pnpm lhci
+      - name: Upload Lighthouse report
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: lighthouse-report
+          path: .lighthouseci
+          retention-days: 14
+          if-no-files-found: ignore
       - name: Upload dist artifact
         if: success()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2

@@ -6,7 +6,7 @@ const SITE = 'https://nicolasbracigliano.com';
 export default defineConfig({
   site: SITE,
   output: 'static',
-  trailingSlash: 'never',
+  trailingSlash: 'always',
   compressHTML: true,
   prefetch: false,
   build: {
@@ -35,7 +35,9 @@ export default defineConfig({
         "connect-src 'self'",
         "base-uri 'self'",
         "form-action 'self'",
-        "frame-ancestors 'none'",
+        // `frame-ancestors` is intentionally omitted here — browsers ignore
+        // it when delivered via <meta>; the directive lives in public/_headers
+        // and is enforced at the edge.
         'upgrade-insecure-requests',
       ],
       styleDirective: { resources: ["'self'"] },
