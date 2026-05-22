@@ -97,8 +97,14 @@
     #theme-toggle svg {
       transition: transform var(--speed-page);
     }
-    #theme-toggle:hover svg {
-      transform: rotate(28deg);
+    /* Hover rotation only on devices that genuinely support hover.
+       On touch devices the simulated-hover-on-tap would otherwise rotate
+       the icon while the rays/mask are animating — three things at once,
+       too busy. Pointer users still get the "winding up" cue. */
+    @media (hover: hover) {
+      #theme-toggle:hover svg {
+        transform: rotate(28deg);
+      }
     }
     #theme-toggle .sun-rays {
       transform-origin: 11px 11px;

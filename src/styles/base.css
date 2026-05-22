@@ -167,6 +167,9 @@
   /* Default (Día): rays visible at full opacity, mask hidden off to the right.
      [data-theme="noche"] overrides set rays invisible and slide the mask
      into the disc to carve a crescent. Transitions are in animations.css. */
+  /* `.moon-mask` lives inside <defs><mask> in the SVG. CSS still applies
+     (defs are non-rendering but still styleable) — the opacity + transform
+     animate the mask geometry, which animates the disc's carved shape. */
   #theme-toggle .moon-mask {
     opacity: 0;
     transform: translateX(8px);

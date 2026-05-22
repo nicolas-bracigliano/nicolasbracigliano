@@ -172,6 +172,19 @@ const navItems: Array<{ key: keyof typeof ROUTES; label: string }> =
               in animations.css under the prefers-reduced-motion gate. */
           }
           <svg viewBox="0 0 22 22" width="18" height="18" aria-hidden="true">
+            {
+              /* Native SVG mask: the disc is masked by a white rect (fully
+                visible) with a black circle (.moon-mask) that, when slid
+                into position, carves out the crescent. The mask is
+                pure-alpha based, so it works regardless of what colour
+                the button background is — no colour-matching coupling. */
+            }
+            <defs>
+              <mask id="moon-crescent">
+                <rect width="22" height="22" fill="white"></rect>
+                <circle class="moon-mask" cx="14" cy="9" r="4.5" fill="black"></circle>
+              </mask>
+            </defs>
             <g
               class="sun-rays"
               stroke="currentColor"
@@ -188,8 +201,13 @@ const navItems: Array<{ key: keyof typeof ROUTES; label: string }> =
               <line x1="4.5" y1="17.5" x2="6" y2="16"></line>
               <line x1="16" y1="6" x2="17.5" y2="4.5"></line>
             </g>
-            <circle class="sun-disc" cx="11" cy="11" r="4.5" fill="currentColor"></circle>
-            <circle class="moon-mask" cx="14" cy="9" r="4.5" fill="var(--paper)"></circle>
+            <circle
+              class="sun-disc"
+              cx="11"
+              cy="11"
+              r="4.5"
+              fill="currentColor"
+              mask="url(#moon-crescent)"></circle>
           </svg>
         </button>
       </div>
