@@ -44,14 +44,25 @@
      * making e2e timing-flaky. The motion vocabulary still kicks in on
      * hover / scroll / page transitions; first-paint just lands as-is. */
 
-    /* ─── Chrome: Mark + nav + lang/day-night toggles ───────────────── */
+    /* ─── Chrome: Mark cube + nav + lang/day-night toggles ──────────────
+       The mark cube swaps to --accent and rotates a quarter turn on
+       hover — colour at standard speed (snappy), rotation at page speed
+       (deliberate). The name block colours don't change on hover; the
+       cube does the heavy lifting. */
 
-    .mark,
+    .mark-cube {
+      transition:
+        background var(--speed-standard),
+        transform var(--speed-page);
+    }
+    .mark:hover .mark-cube,
+    .mark:focus-visible .mark-cube {
+      background: var(--accent);
+      transform: rotate(90deg);
+    }
+
     .footer a {
       transition: color var(--speed-micro);
-    }
-    .mark:hover {
-      color: var(--accent);
     }
     .footer a:hover {
       color: var(--ink);

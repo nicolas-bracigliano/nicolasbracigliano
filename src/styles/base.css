@@ -89,11 +89,42 @@
   }
 
   .mark {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
     font-family: var(--font-body);
-    font-weight: 700;
-    letter-spacing: 0.05em;
+    font-weight: 600;
     color: var(--ink);
     text-decoration: none;
+  }
+  .mark-cube {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2rem;
+    height: 2rem;
+    background: var(--ink);
+    color: var(--bg);
+    border-radius: 3px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    flex-shrink: 0;
+  }
+  .mark-word {
+    font-size: 0.85rem;
+    letter-spacing: 0.01em;
+    white-space: nowrap;
+  }
+  .mark-given {
+    color: var(--ink);
+  }
+  .mark-family {
+    /* --accent (#b8512a) measures 4.49:1 against --bg — just under AA's
+       4.5:1 floor for small text. Nudging ~12% toward --ink lifts it
+       past 4.5:1 while staying visually a terracotta read. Same
+       trade-off the .footer a rule documented. */
+    color: color-mix(in oklab, var(--accent) 88%, var(--ink) 12%);
   }
 
   .nav ul {
@@ -205,6 +236,27 @@
     color: var(--ink-2);
     text-decoration: underline;
     text-underline-offset: 2px;
+  }
+
+  /* ─── Chrome: compact mode under 720px ─────────────────────────────
+     Hide the "Nicolás Bracigliano" word block (the cube + nav + toggles
+     keep their full identity) and tighten the row gaps so the chrome
+     fits a typical 360–400 px mobile viewport on one line. The cube
+     stays 2 rem so it's still a clear tap target. */
+  @media (max-width: 720px) {
+    .chrome {
+      gap: 0.75rem;
+      padding: 0.75rem var(--gutter);
+    }
+    .mark-word {
+      display: none;
+    }
+    .nav ul {
+      gap: 0.75rem;
+    }
+    .chrome-end {
+      gap: 0.5rem;
+    }
   }
 }
 

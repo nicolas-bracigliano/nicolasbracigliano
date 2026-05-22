@@ -94,13 +94,25 @@ const navItems: Array<{ key: keyof typeof ROUTES; label: string }> =
         the chrome re-renders; only its animation opts out. */
     }
     <header class="chrome" transition:animate="none">
+      {
+        /* Mark is two pieces: a square "cube" containing NB, plus the
+           name "Nicolás Bracigliano" (given in --ink, family in --accent).
+           On hover the cube switches background to --accent and rotates
+           90°. The name block is decorative — `aria-label` on the <a>
+           provides the accessible name, the visible spans are aria-hidden
+           so screen readers don't double-announce. */
+      }
       <a
         href={ROUTES.home[locale]}
         class="mark"
         aria-label={locale === 'en' ? 'Home' : 'Inicio'}
         transition:name="mark"
       >
-        <span aria-hidden="true">NB</span>
+        <span class="mark-cube" aria-hidden="true">NB</span>
+        <span class="mark-word" aria-hidden="true"
+          ><span class="mark-given">Nicolás</span>&nbsp;<span class="mark-family">Bracigliano</span
+          ></span
+        >
       </a>
 
       <nav class="nav" aria-label={locale === 'en' ? 'Primary' : 'Principal'}>
