@@ -12,7 +12,30 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  # Self-activating gate: deploy job only runs once both Cloudflare secrets
+  # exist. Until then this job emits a notice and the deploy job is skipped
+  # (which GitHub renders as a successful check, not a failure).
+  check:
+    runs-on: ubuntu-latest
+    outputs:
+      ready: ${{ steps.cf.outputs.ready }}
+    steps:
+      - name: Check Cloudflare credentials are configured
+        id: cf
+        env:
+          CF_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CF_ACCOUNT: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          if [ -z "$CF_TOKEN" ] || [ -z "$CF_ACCOUNT" ]; then
+            echo "::notice::Cloudflare credentials not configured — skipping deploy. Set CLOUDFLARE_API_TOKEN and CLOUDFLARE_ACCOUNT_ID in repo secrets to enable."
+            echo "ready=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "ready=true" >> "$GITHUB_OUTPUT"
+          fi
+
   deploy:
+    needs: check
+    if: needs.check.outputs.ready == 'true'
     runs-on: ubuntu-latest
     permissions:
       contents: read
