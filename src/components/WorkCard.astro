@@ -24,9 +24,15 @@ const dateFormatter = new Intl.DateTimeFormat(locale === 'es' ? 'es-AR' : 'en-AU
 const dateDisplay = dateFormatter.format(date).toLowerCase().replace(/\s+/g, ' Â· ');
 ---
 
-{/* `data-kind` is read by WorkFilters' inline script to toggle visibility. */}
+{
+  /* `data-kind` is read by WorksFilters' inline script to toggle visibility.
+    Stretched-link pattern: the `<a>` only wraps the visible title, and a
+    `::before { inset: 0 }` extends the click target over the whole card.
+    Screen readers get a clean "This site, link" name; sighted users still
+    click anywhere on the card. */
+}
 <li class="work-card" data-kind={kind}>
-  <a class="work-card-inner" href={permalink} data-astro-prefetch>
+  <div class="work-card-inner">
     <WorkArt kind={kind} />
 
     <div class="work-card-meta">
@@ -34,7 +40,9 @@ const dateDisplay = dateFormatter.format(date).toLowerCase().replace(/\s+/g, ' Â
       <span class="work-card-kind">{kind}</span>
     </div>
 
-    <h3 class="work-card-title">{title}</h3>
+    <h3 class="work-card-title">
+      <a class="work-card-link" href={permalink} data-astro-prefetch>{title}</a>
+    </h3>
     {lede && <p class="work-card-desc">{lede}</p>}
 
     {
@@ -57,5 +65,5 @@ const dateDisplay = dateFormatter.format(date).toLowerCase().replace(/\s+/g, ' Â
       </span>
       <span class="work-card-date">{dateDisplay}</span>
     </div>
-  </a>
+  </div>
 </li>

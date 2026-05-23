@@ -3,6 +3,16 @@
 // `.work-art.work-art--${kind}` carries the colour theme (terminal-bg
 // for code, accent tint for music, mate tint for garden, ink-blue for
 // print); the SVG strokes use `currentColor` to follow it.
+//
+// One vignette per kind, not one per work. The prototype has per-work
+// art (ArtSSG, ArtCapo, ArtKnob, etc) — that route was deliberately
+// not taken here to keep the surface small. If per-work art is wanted
+// later, add an optional `art?: string` field to the works schema and
+// switch on it here before falling back to the kind-default.
+//
+// Captions inside the vignettes are intentionally absent: a single
+// hardcoded string ("milonga.wav · 02:14", "$ ssg new ... ready in
+// 12ms") would misrepresent every work after the first of its kind.
 
 export type WorkKind = 'code' | 'print' | 'music' | 'garden';
 
@@ -15,12 +25,12 @@ const { kind } = Astro.props;
 <div class={`work-art work-art--${kind}`} aria-hidden="true">
   {
     kind === 'code' && (
-      <pre class="work-art-terminal">{`$ ssg new   ─────────────╮
-  ✓ scaffolded site      │
+      <pre class="work-art-terminal">{`$ build   ──────────────╮
+  ✓ scaffolded site     │
   ✓ /content             │
   ✓ /public              │
-  ✓ atom.xml feed        │
-  ── ready in 12ms ──────╯`}</pre>
+  ✓ feed.xml             │
+  ── ready ──────────────╯`}</pre>
     )
   }
   {
@@ -59,9 +69,6 @@ const { kind } = Astro.props;
             return <line x1={10 + i * 4.5} x2={10 + i * 4.5} y1={70 - h / 2} y2={70 + h / 2} />;
           })}
         </g>
-        <text x="100" y="124" text-anchor="middle" font-size="9" fill="currentColor" opacity="0.6">
-          milonga.wav · 02:14
-        </text>
       </svg>
     )
   }
