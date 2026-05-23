@@ -38,7 +38,12 @@ const glyphKind = glyphMap[glyph] ?? 'none';
 ---
 
 <li class="note">
-  <aside class="note-left" aria-hidden="true">
+  {
+    /* `<div>` not `<aside>` — note-left/note-right are visual rails inside
+      an `<article>`, not page-level supplementary landmarks. html-validate's
+      unique-landmark rule rightly flags N asides on a list of N notes. */
+  }
+  <div class="note-left">
     <div class="note-date">{dateDisplay}</div>
     {
       tags && tags.length > 0 && (
@@ -51,7 +56,7 @@ const glyphKind = glyphMap[glyph] ?? 'none';
     }
     {
       glyphKind !== 'none' && (
-        <div class={`note-glyph g-${glyphKind}`}>
+        <div class={`note-glyph g-${glyphKind}`} aria-hidden="true">
           {glyphKind === 'code' && (
             <svg viewBox="0 0 24 24" width="22" height="22">
               <g
@@ -96,7 +101,7 @@ const glyphKind = glyphMap[glyph] ?? 'none';
         </div>
       )
     }
-  </aside>
+  </div>
 
   <article class="note-body">
     <h3 class="note-title">
@@ -119,7 +124,7 @@ const glyphKind = glyphMap[glyph] ?? 'none';
     </div>
   </article>
 
-  <aside class="note-right">
+  <div class="note-right">
     {aside && <MarginNote text={aside} mark={isFirst ? '✸' : '↳'} />}
-  </aside>
+  </div>
 </li>
