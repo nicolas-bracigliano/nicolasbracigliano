@@ -207,9 +207,12 @@ function isActive(key: keyof typeof ROUTES, currentPath: string): boolean {
     {
       /* Sibling of .chrome (not a child) so position: fixed isn't trapped by
         the chrome's backdrop-filter containing block. Hidden on desktop via
-        CSS; .chrome .nav is hidden on mobile in exchange. */
+        CSS; .chrome .nav is hidden on mobile in exchange. Distinct aria-label
+        from the top nav so html-validate's unique-landmark check passes —
+        both navs ship in the source HTML even though only one is visible
+        per viewport. */
     }
-    <nav class="foot-rail" aria-label={locale === 'en' ? 'Primary' : 'Principal'}>
+    <nav class="foot-rail" aria-label={locale === 'en' ? 'Primary (mobile)' : 'Principal (móvil)'}>
       <ul>
         {
           navItems.map(({ key, label }) => (
