@@ -97,3 +97,32 @@ test('ASCII signature renders with the current two-digit year', async ({ page })
   // The block reads `│   N  ·  B  ·  'NN │` — assert the year segment.
   await expect(page.locator('.ascii-sig')).toContainText(`'${yearTwoDigit}`);
 });
+
+// Notes-structural assertions. PR 1.2 shipped without these; a future
+// refactor could silently break the marginalia visual rules without any
+// of the existing axe/lang/hreflang/wire-up tests noticing.
+test('notes index — first note margin-mark is ✸, subsequent rows are ↳', async ({ page }) => {
+  await page.goto('/en/notes/');
+  const marks = page.locator('.note .margin-mark');
+  // At least two notes need asides for this to mean anything; the seed
+  // content guarantees three (hello, text-wrap-pretty, right-hand).
+  await expect(marks).not.toHaveCount(0);
+  await expect(marks.first()).toHaveText('✸');
+  await expect(marks.nth(1)).toHaveText('↳');
+});
+
+test('note ornament <hr> renders inside .note-prose when markdown has ---', async ({ page }) => {
+  await page.goto('/en/notes/hello/');
+  // The hello note's body has a `---` between paragraphs that markdown
+  // renders as <hr>, which CSS dresses as a dotted-radial ornament.
+  await expect(page.locator('.note-prose hr')).toHaveCount(1);
+});
+
+test('note glyphs render an SVG keyed to each kind', async ({ page }) => {
+  await page.goto('/en/notes/');
+  // The seed content covers code + guitar; garden + coffee remain
+  // covered by the schema and the NoteGlyph component but aren't
+  // exercised by demo notes today.
+  await expect(page.locator('.note-glyph.g-code svg')).not.toHaveCount(0);
+  await expect(page.locator('.note-glyph.g-guitar svg')).toHaveCount(1);
+});

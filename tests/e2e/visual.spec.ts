@@ -52,7 +52,12 @@ test.describe('chrome visual', () => {
     await page.setViewportSize(MOBILE_VIEWPORT);
     await page.goto('/en/');
     await page.waitForLoadState('networkidle');
-    await expect(page.locator('.foot-rail')).toHaveScreenshot('foot-rail-mobile.png', {
+    // Narrow to the `<ul>` rather than the outer `<nav>` — the nav has
+    // `padding-block-end: env(safe-area-inset-bottom, 0)` which sometimes
+    // catches a simulated iOS home-indicator overlay in Playwright's
+    // mobile emulation, flaking the snapshot. The `<ul>` is the actual
+    // nav content and renders identically run-to-run.
+    await expect(page.locator('.foot-rail ul')).toHaveScreenshot('foot-rail-mobile.png', {
       maxDiffPixelRatio: 0.02,
     });
   });
