@@ -1793,6 +1793,34 @@
     margin-block-start: 0.5rem;
   }
 
+  /* ─── About: intro overlay ─────────────────────────────────────────────
+     First-visit-only "hola." that dissolves into the masthead. CSS
+     drives the auto-dismiss (animation runs unconditionally on
+     mount); JS owns sessionStorage + click/Esc early-dismiss + DOM
+     cleanup on animationend. Reduced-motion users see the overlay
+     for one frame thanks to the reset.css clamp. */
+  .about-intro {
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+    background: var(--bg);
+    display: grid;
+    place-items: center;
+    cursor: pointer;
+    animation: about-intro-out 1450ms 200ms cubic-bezier(0.2, 0.7, 0.2, 1) forwards;
+  }
+  .about-intro.is-dismissed {
+    animation: about-intro-dismiss 1920ms cubic-bezier(0.2, 0.7, 0.2, 1) forwards;
+  }
+  .about-intro-hola {
+    font-family: var(--font-display);
+    font-style: italic;
+    font-size: clamp(3rem, 9vw, 6rem);
+    color: var(--ink);
+    letter-spacing: -0.02em;
+    animation: about-intro-hola-in 400ms 120ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
+  }
+
   /* ─── About: Editorial + sidebar (design system §3) ────────────────────
      Masthead (eyebrow + serif h1 + italic lede) then a two-column
      grid: an editorial prose column on the left (h2-§ section marks,

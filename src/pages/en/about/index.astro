@@ -4,6 +4,7 @@ import BaseLayout from '@layouts/BaseLayout.astro';
 import AboutMasthead from '@components/AboutMasthead.astro';
 import AboutPortrait from '@components/AboutPortrait.astro';
 import AboutCta from '@components/AboutCta.astro';
+import AboutIntro from '@components/AboutIntro.astro';
 import FactsCard from '@components/FactsCard.astro';
 import FactsRow from '@components/FactsRow.astro';
 import { ROUTES } from '@lib/routes';
@@ -34,6 +35,8 @@ const today = new Intl.DateTimeFormat('en-AU', {
   siblingPath={siblingPath}
   {...lede && { description: lede }}
 >
+  <AboutIntro />
+
   <section class="about wrap">
     <AboutMasthead locale="en" />
 
