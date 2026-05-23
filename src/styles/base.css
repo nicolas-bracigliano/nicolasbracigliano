@@ -1802,7 +1802,7 @@
   .about-intro {
     position: fixed;
     inset: 0;
-    z-index: 100;
+    z-index: var(--z-overlay);
     background: var(--bg);
     display: grid;
     place-items: center;
@@ -1820,35 +1820,24 @@
     font-size: clamp(3rem, 9vw, 6rem);
     color: var(--ink);
     letter-spacing: -0.02em;
-    /* Two stacked animations: a 700 ms fade-in on mount, then at
-       1.3 s a slow morph-out that translates the word up-and-left
-       toward where the masthead `Hola.` lives + shrinks toward its
-       size. The overlay fades in parallel so the page reveals as
-       the word arrives at the masthead position. */
+    /* Two stacked animations:
+       1. `about-intro-hola-in` — a 700 ms fade-in on mount.
+       2. `about-intro-hola-morph` — at 1.3 s the word blurs out
+          and fades to 0 in place. The overlay's own out-animation
+          runs in parallel (`about-intro-out`) so the page reveals
+          as the word dissipates. */
     animation:
       about-intro-hola-in 700ms 200ms cubic-bezier(0.2, 0.7, 0.2, 1) both,
       about-intro-hola-morph 1100ms 1300ms cubic-bezier(0.2, 0.7, 0.2, 1) forwards;
   }
   /* Accent-coloured punctuation — gives the word a small visual
      hook that echoes the site's accent-dot motif (the masthead
-     eyebrow's olive dot, the section §-marks, etc). */
-  .about-intro-dot {
+     eyebrow's olive dot, the section §-marks, etc). Mirrored on the
+     masthead `.about-h1-dot` so the intro's last-frame visual rhymes
+     with what the page reveals. */
+  .about-intro-dot,
+  .about-h1-dot {
     color: var(--accent);
-  }
-  /* Dissolve-into-particles via the SVG turbulence-displacement
-     filter defined in AboutIntro.astro. Scoped behind a
-     `prefers-reduced-motion` opt-out because SMIL animations don't
-     respect the global reset's `animation-duration` clamp — without
-     this guard the displacement would still ramp for reduced-motion
-     visitors, undoing the intent. */
-  .about-intro-defs {
-    position: absolute;
-    pointer-events: none;
-  }
-  @media not (prefers-reduced-motion: reduce) {
-    .about-intro-hola {
-      filter: url('#about-intro-dissolve');
-    }
   }
 
   /* ─── About: Editorial + sidebar (design system §3) ────────────────────

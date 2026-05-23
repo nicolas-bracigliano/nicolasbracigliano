@@ -78,19 +78,18 @@
       visibility: hidden;
     }
   }
-  /* Morph-out: the word translates up-and-left toward where the
-     masthead's `Hola.` will be and shrinks toward its size, while
-     also fading. The translate values are viewport-relative so
-     they read sensibly across breakpoints without trying to be
-     pixel-perfect against the masthead's actual position. */
+  /* Morph-out: clean blur-dissolve in place. Opacity fades from 1
+     to 0 while the word blurs out. No transform — earlier
+     iterations with a scale-pulse or translate-up read as fussy
+     against the rest of the page's quieter motion vocabulary. */
   @keyframes about-intro-hola-morph {
     0% {
-      transform: translate(0, 0) scale(1);
       opacity: 1;
+      filter: blur(0);
     }
     100% {
-      transform: translate(-20vw, -28vh) scale(0.55);
       opacity: 0;
+      filter: blur(14px);
     }
   }
   @keyframes about-intro-dismiss {

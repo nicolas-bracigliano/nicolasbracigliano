@@ -1,49 +1,39 @@
 ---
 // First-visit overlay on /about/ — a single italic "hola." that
-// dissolves into the masthead. Markup ships in static HTML so the
-// effect doesn't depend on JS reaching the page; CSS @keyframes
-// drives the auto-dismiss. JS layer handles:
-//   - sessionStorage skip on subsequent visits within the same tab
-//   - click / Esc early dismissal
-//   - removing the element from the DOM after it fades out (so
-//     trailing `pointer-events: none` + a hidden node don't sit on
-//     top of `.about` forever and interfere with the inspector)
+// softly pulses outward and dissolves into the page below.
 //
-// Accessibility: the overlay is `aria-hidden` and `role="presentation"`
-// — screen readers skip it entirely; the actual "Hola." that drives the
-// page is the masthead h1 below.
+// Architecture: CSS drives the auto-dismiss (a `@keyframes
+// about-intro-out` on `.about-intro` with `animation-fill-mode:
+// forwards`); JS owns sessionStorage + click/Esc early-dismiss + DOM
+// cleanup on `animationend`. The overlay markup ships in static HTML —
+// if JS never runs, the CSS animation still fades it out, so the
+// intro never traps a visitor behind it.
 //
-// `prefers-reduced-motion`: the global reset clamps animation-duration
-// to 0.01 ms, so reduced-motion users get the overlay for one frame
-// and then it's gone. No motion exposure.
+// **Note: not extracted as a reusable `<IntroOverlay>`** — the
+// timing curve, the `hola.` copy, and the morph all couple tightly
+// to the about page's masthead identity. If a similar effect ever
+// lands on another route, this is the file to copy + adapt, not a
+// shared component to parameterise.
+//
+// A11y:
+// - `role="presentation"` + `aria-hidden="true"` — screen readers
+//   skip the overlay entirely; the actual "Hola." that drives the
+//   page is the masthead `<h1>` below.
+// - The global `prefers-reduced-motion: reduce` clamp in reset.css
+//   drops the animation-duration to 0.01 ms, so reduced-motion users
+//   see the overlay for one frame and it's gone. No motion exposure.
+//
+// History: an earlier version translated the word up-and-left toward
+// the masthead AND used an SVG turbulence + displacement filter for a
+// particle dissolve. Both were dropped:
+// - Translate was abandoned because the masthead-position target
+//   only worked at desktop viewport sizes (translate values were
+//   viewport-relative magic numbers tuned to 1280×900).
+// - SVG filter was dropped because (a) SMIL is officially deprecated
+//   and (b) the GPU cost of feTurbulence + feDisplacementMap stutters
+//   on lower-end devices. CSS `filter: blur()` reads as a soft
+//   dissolve at much lower cost and is fully spec-stable.
 ---
-
-{
-  /* Off-DOM SVG filter — feTurbulence-driven displacement that ramps up
-    during the morph so the word reads as "breaking apart into particles"
-    while it translates up toward the masthead. SMIL `<animate>` drives
-    the scale; the same timing as `about-intro-hola-morph`. Gated by
-    `@media not (prefers-reduced-motion: reduce)` in CSS — the filter
-    isn't applied for reduced-motion users (the global reset already
-    clamps CSS animation-duration, but SMIL needs its own opt-out). */
-}
-<svg class="about-intro-defs" width="0" height="0" aria-hidden="true" focusable="false">
-  <defs>
-    <filter id="about-intro-dissolve" x="-50%" y="-50%" width="200%" height="200%">
-      <feTurbulence type="fractalNoise" baseFrequency="0.04" numOctaves="2" seed="3" result="noise"
-      ></feTurbulence>
-      <feDisplacementMap in="SourceGraphic" in2="noise">
-        <animate
-          attributeName="scale"
-          values="0; 0; 90"
-          keyTimes="0; 0.55; 1"
-          dur="2400ms"
-          begin="200ms"
-          fill="freeze"></animate>
-      </feDisplacementMap>
-    </filter>
-  </defs>
-</svg>
 
 <div class="about-intro" role="presentation" aria-hidden="true" data-about-intro>
   <span class="about-intro-hola serif-italic">hola<span class="about-intro-dot">.</span></span>

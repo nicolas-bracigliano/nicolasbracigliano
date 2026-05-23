@@ -147,6 +147,69 @@ test('work-card stretched-link covers the whole card', async ({ page }) => {
   expect(hit?.cls).toContain('work-card-link');
 });
 
+test('/en/about/ — sidebar carries 4 cards (3 FactsCard + 1 AboutCta with mailto)', async ({
+  page,
+}) => {
+  await page.goto('/en/about/');
+  await expect(page.locator('.about-aside .facts-card')).toHaveCount(4);
+  await expect(page.locator('.about-cta-link[href^="mailto:"]')).toHaveCount(1);
+});
+
+test('/es/sobre/ — sidebar carries 4 cards (mirror)', async ({ page }) => {
+  await page.goto('/es/sobre/');
+  await expect(page.locator('.about-aside .facts-card')).toHaveCount(4);
+  await expect(page.locator('.about-cta-link[href^="mailto:"]')).toHaveCount(1);
+});
+
+test('/about/ — "full bench tour" footer link points at the right /now route per locale', async ({
+  page,
+}) => {
+  await page.goto('/en/about/');
+  await expect(page.locator('.facts-foot-link')).toHaveAttribute('href', '/en/about/now/');
+  await page.goto('/es/sobre/');
+  await expect(page.locator('.facts-foot-link')).toHaveAttribute('href', '/es/sobre/ahora/');
+});
+
+test('/about/ — byline contains the current month name', async ({ page }) => {
+  await page.goto('/en/about/');
+  // `en-AU` month: long → "may", "june", etc. Lowercased in template.
+  const currentMonth = new Intl.DateTimeFormat('en-AU', { month: 'long' })
+    .format(new Date())
+    .toLowerCase();
+  await expect(page.locator('.about-out')).toContainText(currentMonth);
+});
+
+test('/about/ — intro overlay ships in static HTML (renders before JS)', async ({ page }) => {
+  // Disable JS so the static HTML is the only thing the page can show.
+  // The overlay markup must be in the SSR output so the CSS auto-dismiss
+  // animation can play even if the JS layer never reaches the page.
+  const response = await page.request.get('/en/about/');
+  const html = await response.text();
+  expect(html).toContain('data-about-intro');
+  expect(html).toContain('about-intro-hola');
+});
+
+test("/about/ — intro overlay survives child animation-end events, removes itself only on the overlay's own out-animation", async ({
+  page,
+}) => {
+  // This test catches the bug where a `{ once: true }` `animationend`
+  // listener picked up the inner hola fade-in bubbling up at ~900 ms and
+  // tore the whole overlay down before the overlay's own out-animation
+  // could play. The intro must still be in the DOM well past 900 ms.
+  await page.context().clearCookies();
+  await page.goto('/en/about/');
+  await page.evaluate(() => sessionStorage.removeItem('about-intro-seen'));
+  await page.reload();
+  // At ~1200 ms — past the inner hola-in (~900 ms), before the overlay
+  // out finishes (~2600 ms).
+  await page.waitForTimeout(1200);
+  await expect(page.locator('[data-about-intro]')).toBeAttached();
+  // After the full out-animation + buffer, the overlay must be gone
+  // (animationend on `about-intro-out` triggers DOM removal).
+  await page.waitForTimeout(2400);
+  await expect(page.locator('[data-about-intro]')).toHaveCount(0);
+});
+
 test('works filter toggles cards via data-kind matching', async ({ page }) => {
   await page.goto('/en/works/');
   // Wait for the inline script to have wired the toolbar — without this,

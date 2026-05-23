@@ -21,6 +21,14 @@
     --speed-standard: 320ms cubic-bezier(0.2, 0.7, 0.2, 1);
     --speed-page: 520ms cubic-bezier(0.2, 0.7, 0.2, 1);
 
+    /* z-index scale. Chrome lives at 5; the foot-rail also at 5
+       (it's a fixed sibling on mobile). Overlays — anything that
+       blocks the whole viewport, like the about-intro — go above
+       both. Bumping this in one place beats sprinkling magic
+       numbers across components. */
+    --z-chrome: 5;
+    --z-overlay: 100;
+
     /* Terminal palette — used by the home page's "code" bench vignette.
        Same in Día + Noche because terminals are dark in both. Picked to
        evoke a familiar dev-shell without coupling to either site theme. */
