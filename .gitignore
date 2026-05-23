@@ -31,3 +31,8 @@ test-results/
 
 # Claude Code session state (harness scratch — never commit)
 .claude/
+
+# Playwright MCP scratch screenshots from interactive debugging
+.playwright-mcp/
+/notes-*.png
+/page-*.png
