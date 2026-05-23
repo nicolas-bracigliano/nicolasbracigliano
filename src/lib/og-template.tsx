@@ -4,7 +4,7 @@
 
 export interface OgProps {
   title: string;
-  lede?: string;
+  lede?: string | undefined;
   locale: 'en' | 'es';
   kind: 'note' | 'work' | 'essay' | 'page';
 }

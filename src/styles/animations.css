@@ -254,18 +254,6 @@
         opacity var(--speed-standard);
     }
 
-    .entry-list a {
-      transition:
-        transform var(--speed-standard),
-        color var(--speed-micro);
-    }
-    .entry-list a:hover {
-      transform: translateX(4px);
-    }
-    .entry-list a:hover .title {
-      color: var(--accent);
-    }
-
     /* ─── Home: bench vignettes (animate-once-on-mount, DS §15) ──────────
        Bench vignettes used to loop forever, which the DS calls out as an
        anti-pattern: "animate into existence, then rest". Now they play
@@ -390,8 +378,7 @@
     }
 
     /* Latest entries: paper background + small inset shift + arrow lift
-       + title goes accent. Mirrors entry-list hover from indexes but
-       tuned to the 4-col grid spacing. */
+       + title goes accent, tuned to the 4-col grid spacing. */
     .latest-link {
       transition:
         background-color var(--speed-micro),

@@ -8,14 +8,15 @@ import { ROUTES, type Locale } from '@lib/routes';
 
 export interface Props {
   title: string;
-  description?: string;
+  /** Optional; callers commonly pass `entry.data.lede` which is `string | undefined`. */
+  description?: string | undefined;
   locale: Locale;
   /** Current page path (e.g. "/en/notes/hello/") */
   path: string;
   /** Sibling path in the other locale, or null if there is no published translation */
   siblingPath: string | null;
   /** Optional override for OG image (absolute URL or path under site origin) */
-  ogImage?: string;
+  ogImage?: string | undefined;
 }
 
 const { title, description, locale, path, siblingPath, ogImage } = Astro.props;
