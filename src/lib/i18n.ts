@@ -47,3 +47,15 @@ export async function getSibling<E extends AnyEntry>(entry: E): Promise<E | null
   const all = (await getCollection(entry.collection)) as readonly E[];
   return findSiblingIn(entry, all);
 }
+
+/** Slug portion of the OG image route, e.g. "en-hello". Single source of
+ *  truth — both the OG route's `getStaticPaths` and the layouts emit URLs
+ *  derived from this. */
+export function ogSlugFor(entry: AnyEntry): string {
+  return `${entry.data.lang}-${entry.data.slug}`;
+}
+
+/** Full OG image URL ("/og/notes/en-hello.png") for use in `<meta og:image>`. */
+export function ogImageUrlFor(entry: AnyEntry): string {
+  return `/og/${entry.collection}/${ogSlugFor(entry)}.png`;
+}

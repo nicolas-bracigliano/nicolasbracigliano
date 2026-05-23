@@ -1,20 +1,24 @@
 ---
 import type { CollectionEntry } from 'astro:content';
 import type { Locale } from '@lib/routes';
+import { entryRouteFor } from '@lib/i18n';
 import { readingTimeMinutes } from '@lib/reading-time';
 import MarginNote from './MarginNote.astro';
 
 export interface Props {
   entry: CollectionEntry<'notes'>;
   locale: Locale;
-  permalink: string;
   /** If true, this is the first note in a list — gets a star margin-mark instead of arrow. */
   isFirst?: boolean;
 }
 
-const { entry, locale, permalink, isFirst = false } = Astro.props;
-const { date, tags, glyph, title, lede, aside } = entry.data;
-const minutes = readingTimeMinutes(entry.body ?? '');
+const { entry, locale, isFirst = false } = Astro.props;
+const { date, tags, glyph, title, lede, aside, minutes: minutesOverride } = entry.data;
+const permalink = entryRouteFor(entry);
+// Manual override wins; else compute from raw markdown. `entry.body` is
+// `string | undefined` per Astro's CollectionEntry type — if absent (loader
+// edge case), we hide the read-time span rather than report a fake "1 min".
+const minutes = minutesOverride ?? (entry.body ? readingTimeMinutes(entry.body) : null);
 
 const dateFormatter = new Intl.DateTimeFormat(locale === 'es' ? 'es-AR' : 'en-AU', {
   year: 'numeric',
@@ -114,8 +118,16 @@ const glyphKind = glyphMap[glyph] ?? 'none';
       <slot />
     </div>
     <div class="note-foot">
-      <span>{readTimeLabel} · {minutes} {minLabel}</span>
-      <span class="sep">·</span>
+      {
+        minutes !== null && (
+          <>
+            <span>
+              {readTimeLabel} · {minutes} {minLabel}
+            </span>
+            <span class="sep">·</span>
+          </>
+        )
+      }
       <a href={permalink}>{permalinkLabel}</a>
     </div>
   </article>

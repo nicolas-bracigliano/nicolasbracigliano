@@ -4,27 +4,29 @@ import '@styles/tokens.css';
 import '@styles/base.css';
 import '@styles/animations.css';
 import { ClientRouter } from 'astro:transitions';
-import { ROUTES, type Locale } from '@lib/routes';
+import { ROUTES, buildHreflangAlternates, type Locale } from '@lib/routes';
 
 export interface Props {
   title: string;
-  /** Optional; callers commonly pass `entry.data.lede` which is `string | undefined`. */
-  description?: string | undefined;
+  /** When the source is `entry.data.lede` (which is `string | undefined`),
+   *  callers must conditionally spread: `{...(lede && { description: lede })}`.
+   *  Keeps `exactOptionalPropertyTypes` honest — present vs absent stays
+   *  distinct from present-with-undefined. */
+  description?: string;
   locale: Locale;
   /** Current page path (e.g. "/en/notes/hello/") */
   path: string;
   /** Sibling path in the other locale, or null if there is no published translation */
   siblingPath: string | null;
   /** Optional override for OG image (absolute URL or path under site origin) */
-  ogImage?: string | undefined;
+  ogImage?: string;
 }
 
 const { title, description, locale, path, siblingPath, ogImage } = Astro.props;
 const site = Astro.site?.toString() ?? 'https://nicolasbracigliano.com';
 const origin = site.replace(/\/$/, '');
 
-const enHref = locale === 'en' ? path : (siblingPath ?? path);
-const esHref = locale === 'es' ? path : (siblingPath ?? path);
+const hreflangs = buildHreflangAlternates(origin, { locale, path }, siblingPath);
 
 const toggleDisabled = siblingPath === null;
 
@@ -61,9 +63,7 @@ function isActive(key: keyof typeof ROUTES, currentPath: string): boolean {
     {description && <meta name="description" content={description} />}
 
     <link rel="canonical" href={`${origin}${path}`} />
-    <link rel="alternate" hreflang="en" href={`${origin}${enHref}`} />
-    <link rel="alternate" hreflang="es" href={`${origin}${esHref}`} />
-    <link rel="alternate" hreflang="x-default" href={`${origin}${enHref}`} />
+    {hreflangs.map((h) => <link rel="alternate" hreflang={h.hreflang} href={h.href} />)}
 
     <meta property="og:type" content="website" />
     <meta property="og:title" content={title} />

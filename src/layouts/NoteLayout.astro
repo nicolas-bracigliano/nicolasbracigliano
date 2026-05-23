@@ -3,6 +3,7 @@ import BaseLayout from './BaseLayout.astro';
 import NoteEntry from '@components/NoteEntry.astro';
 import type { CollectionEntry } from 'astro:content';
 import { ROUTES, type Locale } from '@lib/routes';
+import { ogImageUrlFor } from '@lib/i18n';
 
 export interface Props {
   entry: CollectionEntry<'notes'>;
@@ -11,24 +12,24 @@ export interface Props {
 }
 
 const { entry, path, siblingPath } = Astro.props;
-const { title, lede, lang, slug } = entry.data;
+const { title, lede, lang } = entry.data;
 const locale = lang as Locale;
 const indexHref = ROUTES.notes[locale];
 const indexLabel = locale === 'es' ? '↩ todas las notas' : '↩ all notes';
-const ogImage = `/og/notes/${lang}-${slug}.png`;
+const ogImage = ogImageUrlFor(entry);
 ---
 
 <BaseLayout
   title={title}
-  description={lede}
   locale={locale}
   path={path}
   siblingPath={siblingPath}
   ogImage={ogImage}
+  {...lede && { description: lede }}
 >
   <section class="notes wrap notes--single">
     <ol class="notes-list">
-      <NoteEntry entry={entry} locale={locale} permalink={path} isFirst={true}>
+      <NoteEntry entry={entry} locale={locale} isFirst={true}>
         <slot />
       </NoteEntry>
     </ol>

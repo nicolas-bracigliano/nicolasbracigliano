@@ -17,3 +17,26 @@ export const ROUTES = {
 export function otherLocale(locale: Locale): Locale {
   return locale === 'en' ? 'es' : 'en';
 }
+
+export type LangAlternate = {
+  hreflang: 'en' | 'es' | 'x-default';
+  href: string;
+};
+
+/** Single source of truth for hreflang alternates. Falls back to the
+ *  current path for the missing-sibling case so each page always emits
+ *  three `<link rel="alternate">` tags. Future consumers (sitemap, RSS,
+ *  OG metadata) should call this rather than re-deriving. */
+export function buildHreflangAlternates(
+  siteOrigin: string,
+  current: { locale: Locale; path: string },
+  siblingPath: string | null,
+): LangAlternate[] {
+  const enPath = current.locale === 'en' ? current.path : (siblingPath ?? current.path);
+  const esPath = current.locale === 'es' ? current.path : (siblingPath ?? current.path);
+  return [
+    { hreflang: 'en', href: `${siteOrigin}${enPath}` },
+    { hreflang: 'es', href: `${siteOrigin}${esPath}` },
+    { hreflang: 'x-default', href: `${siteOrigin}${enPath}` },
+  ];
+}

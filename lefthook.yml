@@ -26,19 +26,27 @@ pre-commit:
 pre-push:
   commands:
     signed-commits:
+      # The git pre-push protocol streams refs on stdin (`local_ref local_sha
+      # remote_ref remote_sha`). Lefthook does NOT forward stdin to the script
+      # — the old `while read` form here ran zero iterations and silently
+      # passed, which is how every commit in this repo's history is unsigned.
+      # Compute the range from the upstream-tracking branch instead.
+      #
+      # Only enforce when commit signing is configured. Contributors without
+      # signing set up get a no-op so initial setup doesn't block them; once
+      # they enable `commit.gpgsign`, the check becomes hard-blocking.
       run: |
-        remote="$1"; url="$2"
-        while read -r local_ref local_sha remote_ref remote_sha; do
-          if [ "$local_sha" = "0000000000000000000000000000000000000000" ]; then continue; fi
-          if [ "$remote_sha" = "0000000000000000000000000000000000000000" ]; then
-            range="$local_sha"
-          else
-            range="${remote_sha}..${local_sha}"
-          fi
-          unsigned=$(git log --format='%H %G?' "$range" | awk '$2 != "G" && $2 != "U" {print $1}')
-          if [ -n "$unsigned" ]; then
-            echo "ERROR: unsigned commits in push range:"; echo "$unsigned"
-            echo "Enable SSH commit signing: git config --global gpg.format ssh && git config --global commit.gpgsign true"
-            exit 1
-          fi
-        done
+        if [ "$(git config --get commit.gpgsign 2>/dev/null)" != "true" ]; then
+          exit 0
+        fi
+        branch=$(git symbolic-ref --short HEAD 2>/dev/null) || exit 0
+        upstream=$(git rev-parse --abbrev-ref "${branch}@{upstream}" 2>/dev/null) || upstream=""
+        range="${upstream:+${upstream}..}HEAD"
+        unsigned=$(git log --format='%H %G?' "$range" 2>/dev/null | awk '$2 != "G" && $2 != "U" {print $1}')
+        if [ -n "$unsigned" ]; then
+          echo "ERROR: unsigned commits in push range (commit.gpgsign=true but signature missing):"
+          echo "$unsigned"
+          echo ""
+          echo "Likely causes: signing key passphrase not entered, key not loaded in ssh-agent, or --no-gpg-sign used."
+          exit 1
+        fi

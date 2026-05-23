@@ -14,6 +14,7 @@ When in doubt about whether a decision rates an ADR, ask: **would I want to know
 | [0004](./0004-renovate-internal-automerge.md)      | Accepted | Renovate uses internal merger, not `platformAutomerge` |
 | [0005](./0005-theme-state-auto-override-retire.md) | Accepted | Theme state model — auto + override + silent retire    |
 | [0006](./0006-no-first-paint-animation.md)         | Accepted | No first-paint animation (axe + animation timing)      |
+| [0007](./0007-tsconfig-strictness-flipped.md)      | Accepted | Tighten TypeScript strictness flags (post-bootstrap)   |
 
 ## ADR format
 
