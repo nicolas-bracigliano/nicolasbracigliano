@@ -1,0 +1,91 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import type { Locale } from '@lib/routes';
+
+export interface Props {
+  entries: readonly CollectionEntry<'works'>[];
+  locale: Locale;
+}
+
+const { entries, locale } = Astro.props;
+
+const KINDS = ['code', 'print', 'music', 'garden'] as const;
+type Kind = (typeof KINDS)[number];
+
+const counts: Record<Kind | 'all', number> = {
+  all: entries.length,
+  code: 0,
+  print: 0,
+  music: 0,
+  garden: 0,
+};
+for (const e of entries) counts[e.data.kind] += 1;
+
+const labels = {
+  en: { all: 'everything', code: 'code', print: '3D prints', music: 'music', garden: 'garden' },
+  es: { all: 'todo', code: 'código', print: 'impresiones 3D', music: 'música', garden: 'huerta' },
+} as const;
+
+const t = labels[locale];
+const buttons = [
+  { key: 'all' as const, label: t.all },
+  { key: 'code' as const, label: t.code },
+  { key: 'print' as const, label: t.print },
+  { key: 'music' as const, label: t.music },
+  { key: 'garden' as const, label: t.garden },
+];
+
+const ariaLabel = locale === 'es' ? 'Filtros' : 'Filters';
+---
+
+{
+  /* Filters are show/hide toggles, not tabs (no separate panels), so
+    `<button aria-pressed>` inside a `<div role="toolbar">` is the right
+    semantic — not the prototype's `<nav role="tablist">` mixed pattern. */
+}
+<div class="works-filters" role="toolbar" aria-label={ariaLabel}>
+  {
+    buttons.map((b, i) => (
+      <button
+        type="button"
+        class={`filter${i === 0 ? ' on' : ''}`}
+        aria-pressed={i === 0 ? 'true' : 'false'}
+        data-filter={b.key}
+      >
+        <span class="filter-key">{b.key}</span>
+        <span class="filter-label">{b.label}</span>
+        <span class="filter-count">{counts[b.key]}</span>
+      </button>
+    ))
+  }
+</div>
+
+<script>
+  // ~600 B minified. Click delegation on the filters nav: set the
+  // `data-active-filter` on the grid, mirror on each button's `.on` +
+  // `aria-selected`, then walk the grid items and toggle `.hidden`
+  // by matching `data-kind`. Survives ClientRouter swaps via
+  // astro:page-load.
+  function wireFilters(): void {
+    const nav = document.querySelector<HTMLElement>('.works-filters');
+    const grid = document.querySelector<HTMLElement>('.works-grid');
+    if (!nav || !grid) return;
+
+    nav.addEventListener('click', (event) => {
+      const btn = (event.target as Element | null)?.closest<HTMLButtonElement>('.filter');
+      if (!btn) return;
+      const filter = btn.dataset['filter'] ?? 'all';
+      grid.dataset['activeFilter'] = filter;
+      nav.querySelectorAll<HTMLButtonElement>('.filter').forEach((b) => {
+        const on = b === btn;
+        b.classList.toggle('on', on);
+        b.setAttribute('aria-pressed', on ? 'true' : 'false');
+      });
+      grid.querySelectorAll<HTMLElement>('.work-card').forEach((card) => {
+        const kind = card.dataset['kind'] ?? '';
+        card.hidden = filter !== 'all' && kind !== filter;
+      });
+    });
+  }
+  document.addEventListener('astro:page-load', wireFilters);
+</script>

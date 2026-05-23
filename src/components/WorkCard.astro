@@ -1,0 +1,61 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import type { Locale } from '@lib/routes';
+import { entryRouteFor } from '@lib/i18n';
+import WorkArt from './WorkArt.astro';
+
+export interface Props {
+  entry: CollectionEntry<'works'>;
+  locale: Locale;
+}
+
+const { entry, locale } = Astro.props;
+const { title, lede, kind, lifecycle, number, specs, date } = entry.data;
+const permalink = entryRouteFor(entry);
+const specEntries = Object.entries(specs);
+
+// "2026 · apr" / "2026 · abr" — short month, lowercase, matches the
+// prototype's `2026 · apr` foot date.
+const dateFormatter = new Intl.DateTimeFormat(locale === 'es' ? 'es-AR' : 'en-AU', {
+  year: 'numeric',
+  month: 'short',
+  timeZone: 'Australia/Melbourne',
+});
+const dateDisplay = dateFormatter.format(date).toLowerCase().replace(/\s+/g, ' · ');
+---
+
+{/* `data-kind` is read by WorkFilters' inline script to toggle visibility. */}
+<li class="work-card" data-kind={kind}>
+  <a class="work-card-inner" href={permalink} data-astro-prefetch>
+    <WorkArt kind={kind} />
+
+    <div class="work-card-meta">
+      <span class="work-card-no">{number ? `№ ${number}` : ''}</span>
+      <span class="work-card-kind">{kind}</span>
+    </div>
+
+    <h3 class="work-card-title">{title}</h3>
+    {lede && <p class="work-card-desc">{lede}</p>}
+
+    {
+      specEntries.length > 0 && (
+        <dl class="work-card-specs">
+          {specEntries.map(([k, v]) => (
+            <>
+              <dt>{k}</dt>
+              <dd>{v}</dd>
+            </>
+          ))}
+        </dl>
+      )
+    }
+
+    <div class="work-card-foot">
+      <span class="work-card-lifecycle">
+        <span class={`status-dot status-dot--${lifecycle}`} aria-hidden="true"></span>
+        {lifecycle}
+      </span>
+      <span class="work-card-date">{dateDisplay}</span>
+    </div>
+  </a>
+</li>

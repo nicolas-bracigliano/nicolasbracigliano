@@ -1,7 +1,8 @@
 ---
 import BaseLayout from './BaseLayout.astro';
+import WorkArt from '@components/WorkArt.astro';
 import type { CollectionEntry } from 'astro:content';
-import type { Locale } from '@lib/routes';
+import { ROUTES, type Locale } from '@lib/routes';
 import { ogImageUrlFor } from '@lib/i18n';
 
 export interface Props {
@@ -11,45 +12,73 @@ export interface Props {
 }
 
 const { entry, path, siblingPath } = Astro.props;
-const { title, date, lede, tags, lang, specs, status } = entry.data;
+const { title, date, lede, lang, kind, lifecycle, number, specs } = entry.data;
+const locale = lang as Locale;
 const specEntries = Object.entries(specs);
 const ogImage = ogImageUrlFor(entry);
+
+const indexHref = ROUTES.works[locale];
+const indexLabel = locale === 'es' ? '↩ todas las obras' : '↩ all works';
+
+const dateFormatter = new Intl.DateTimeFormat(locale === 'es' ? 'es-AR' : 'en-AU', {
+  year: 'numeric',
+  month: 'long',
+  day: 'numeric',
+  timeZone: 'Australia/Melbourne',
+});
+const dateDisplay = dateFormatter.format(date).toLowerCase();
 ---
 
 <BaseLayout
   title={title}
-  locale={lang as Locale}
+  locale={locale}
   path={path}
   siblingPath={siblingPath}
   ogImage={ogImage}
   {...lede && { description: lede }}
 >
-  <article class="work">
-    <header class="work-head">
-      <p class="meta">
-        <time datetime={date.toISOString().slice(0, 10)}>
-          {date.toISOString().slice(0, 10)}
-        </time>
-        <span class={`status status--${status}`}>{status}</span>
-      </p>
-      <h1>{title}</h1>
-      {lede && <p class="lede">{lede}</p>}
-      {tags.length > 0 && <p class="tags">{tags.join(' · ')}</p>}
-    </header>
-    {
-      specEntries.length > 0 && (
-        <dl class="specs">
-          {specEntries.map(([k, v]) => (
-            <>
-              <dt>{k}</dt>
-              <dd>{v}</dd>
-            </>
-          ))}
-        </dl>
-      )
-    }
-    <div class="prose">
-      <slot />
-    </div>
-  </article>
+  <section class="works wrap work-detail">
+    <article class="work-detail-card">
+      <WorkArt kind={kind} />
+
+      <div class="work-card-meta">
+        <span class="work-card-no">{number ? `№ ${number}` : ''}</span>
+        <span class="work-card-kind">{kind}</span>
+      </div>
+
+      <header class="work-detail-head">
+        <h1 class="work-detail-title">{title}</h1>
+        {lede && <p class="work-detail-lede">{lede}</p>}
+        <p class="work-detail-meta">
+          <span class="work-card-lifecycle">
+            <span class={`status-dot status-dot--${lifecycle}`} aria-hidden="true"></span>
+            {lifecycle}
+          </span>
+          <span class="sep" aria-hidden="true">·</span>
+          <time datetime={date.toISOString().slice(0, 10)}>{dateDisplay}</time>
+        </p>
+      </header>
+
+      {
+        specEntries.length > 0 && (
+          <dl class="work-card-specs work-detail-specs">
+            {specEntries.map(([k, v]) => (
+              <>
+                <dt>{k}</dt>
+                <dd>{v}</dd>
+              </>
+            ))}
+          </dl>
+        )
+      }
+
+      <div class="work-detail-prose">
+        <slot />
+      </div>
+    </article>
+
+    <footer class="works-foot">
+      <a class="back-link" href={indexHref} data-astro-prefetch>{indexLabel}</a>
+    </footer>
+  </section>
 </BaseLayout>

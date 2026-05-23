@@ -42,6 +42,16 @@ const works = defineCollection({
     base.extend({
       repo: z.url().optional(),
       specs: z.record(z.string(), z.string()).default({}),
+      /** Medium category — drives both the works-page filter buttons and the
+       *  WorkCard art vignette. Subset of `tags` semantically but a single
+       *  string so filter logic stays simple. */
+      kind: z.enum(['code', 'print', 'music', 'garden']).default('code'),
+      /** Work lifecycle — distinct from `status` (publish-state). Renders as
+       *  a coloured dot + label in the WorkCard foot. */
+      lifecycle: z.enum(['shipping', 'ongoing', 'draft', 'archived']).default('shipping'),
+      /** Display number (e.g. "07") used in the card meta row. Keeps the
+       *  catalog flavour — "№ 07" reads like an entry in a hand-kept ledger. */
+      number: z.string().optional(),
       hero: image().optional(),
       ogOverride: image().optional(),
     }),

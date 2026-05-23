@@ -891,85 +891,22 @@
     max-width: none;
   }
 
-  .card-list {
-    list-style: none;
-    padding: 0;
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
-    gap: 1.5rem;
-  }
-  .card a {
-    display: block;
-    padding: 1.25rem;
-    background: var(--paper);
-    border: 1px solid var(--rule);
-    text-decoration: none;
-    color: var(--ink);
-    transition: transform var(--speed-standard);
-  }
-  .card a:hover {
-    transform: translateY(-2px);
-  }
-
-  .work,
+  /* `.page` + `.page-head` are the article-width wrappers used by
+     PageLayout (about / now etc). `.lede` is the italic intro paragraph
+     used by PageLayout and the 404. Other former occupants of this
+     block (`.work`, `.work-head`, `.meta`, `.specs`, `.status`,
+     `.card-list`, `.card`) were removed when WorkLayout and the works
+     index were re-skinned to the Index-card catalog vocabulary; see
+     `.work-card-*` / `.work-detail-*` further down. */
   .page {
     max-width: var(--measure);
   }
-  .work-head,
   .page-head {
     margin-block-end: 1.5rem;
-  }
-  .meta {
-    color: var(--ink-3);
-    font-size: 0.85rem;
-    display: flex;
-    gap: 1rem;
-    align-items: baseline;
-  }
-  .meta .tags {
-    color: var(--mate);
   }
   .lede {
     color: var(--ink-2);
     margin-block-start: 0.5rem;
-  }
-
-  .specs {
-    display: grid;
-    grid-template-columns: max-content 1fr;
-    gap: 0.5rem 1.5rem;
-    margin: 1.5rem 0;
-    padding: 1rem;
-    background: var(--bg-2);
-    border-inline-start: 2px solid var(--accent);
-  }
-  .specs dt {
-    color: var(--ink-3);
-    font-size: 0.85rem;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-  }
-  .specs dd {
-    margin: 0;
-    color: var(--ink);
-  }
-
-  .status {
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-    font-size: 0.7rem;
-    padding: 0.1rem 0.4rem;
-    border: 1px solid var(--rule);
-  }
-  .status--published {
-    color: var(--mate);
-  }
-  .status--draft {
-    color: var(--ink-3);
-  }
-  .status--retired {
-    color: var(--ink-3);
-    text-decoration: line-through;
   }
 
   .prose p {
@@ -1426,6 +1363,334 @@
     font-size: 0.6875rem;
     color: var(--ink-3);
     letter-spacing: 0.04em;
+  }
+
+  /* ─── Works: Index-card catalog (design system §3) ─────────────────────
+     A masthead + filter row + responsive auto-fill grid of work cards.
+     Each card is a vignette art header + meta row + title + lede +
+     specs <dl> + foot (lifecycle dot + short date). Filter buttons
+     toggle `data-active-filter` on the grid; the inline script in
+     WorksFilters hides cards whose `data-kind` doesn't match.
+     Audit note: this block deliberately uses `.work-card-*`,
+     `.works-grid`, `.works-filters` to avoid colliding with the
+     legacy `.work` / `.work-head` (now used only by `.page`). */
+
+  .works.wrap {
+    max-width: 1100px;
+    margin-inline: auto;
+    padding-inline: var(--gutter);
+  }
+
+  .works-head {
+    padding-block-start: clamp(2.5rem, 6vw, 5rem);
+    margin-block-end: 3rem;
+    max-width: 720px;
+  }
+  .works-h1 {
+    font-family: var(--font-display);
+    font-weight: 400;
+    font-size: clamp(2.5rem, 5.6vw, 4.75rem);
+    line-height: 1.04;
+    letter-spacing: -0.02em;
+    margin: 0.75rem 0 1rem;
+  }
+  .works-h1 .serif-italic {
+    font-style: italic;
+  }
+  .works-sub {
+    font-size: 0.875rem;
+    color: var(--ink-2);
+    max-width: 50ch;
+    line-height: 1.6;
+  }
+
+  .works-filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    border-block: 1px dashed var(--rule);
+    padding-block: 1rem;
+    margin-block-end: 2rem;
+  }
+  .filter {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 0.5rem;
+    padding: 0.375rem 0.75rem;
+    border: 1px solid var(--rule);
+    border-radius: 999px;
+    background: var(--paper);
+    color: var(--ink-2);
+    font-family: var(--font-body);
+    font-size: 0.6875rem;
+    letter-spacing: 0.06em;
+    cursor: pointer;
+    transition:
+      background-color var(--speed-micro),
+      border-color var(--speed-micro),
+      color var(--speed-micro);
+  }
+  .filter:hover {
+    color: var(--ink);
+    border-color: var(--ink-3);
+  }
+  .filter.on {
+    background: var(--ink);
+    color: var(--bg);
+    border-color: var(--ink);
+  }
+  /* No `opacity` on the inner spans — fading text-on-bg drops contrast
+     below AA per ADR 0006. Hierarchy comes from font-size + letter-
+     spacing alone; the spans inherit `.filter`'s `--ink-2` color. */
+  .filter-key {
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    font-size: 0.625rem;
+  }
+  .filter-count {
+    font-variant-numeric: tabular-nums;
+    font-size: 0.625rem;
+    padding-inline-start: 0.5rem;
+    border-inline-start: 1px solid currentColor;
+  }
+
+  .works-grid {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(17.5rem, 1fr));
+    gap: 1.5rem;
+  }
+
+  .work-card {
+    position: relative;
+    transition: transform var(--speed-standard);
+  }
+  /* Hidden via the `hidden` attribute toggled by the filter script. The
+     attribute alone handles screen-reader semantics; this rule just
+     enforces the visual effect (some UAs let `display` override `hidden`). */
+  .work-card[hidden] {
+    display: none;
+  }
+  /* "Card behind the card" hover effect — a paper-coloured layer offset
+     slightly that reveals when the foreground card lifts. */
+  .work-card::before {
+    content: '';
+    position: absolute;
+    inset: 0.375rem -0.375rem -0.375rem 0.375rem;
+    background: var(--paper);
+    border: 1px solid var(--rule);
+    z-index: 0;
+    opacity: 0;
+    transition:
+      transform var(--speed-standard),
+      opacity var(--speed-micro);
+    pointer-events: none;
+  }
+  .work-card:hover {
+    transform: translate(-4px, -4px) rotate(-0.4deg);
+  }
+  .work-card:hover::before {
+    opacity: 1;
+    transform: translate(8px, 8px) rotate(0.8deg);
+  }
+
+  .work-card-inner {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    gap: 0.625rem;
+    padding: 1.125rem;
+    background: var(--paper);
+    border: 1px solid var(--rule);
+    color: var(--ink);
+    text-decoration: none;
+  }
+  .work-card-inner:hover,
+  .work-card-inner:focus-visible {
+    text-decoration: none;
+  }
+
+  .work-art {
+    block-size: 8.75rem;
+    background: var(--bg-2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    color: var(--ink);
+  }
+  .work-art svg {
+    inline-size: 100%;
+    block-size: 100%;
+  }
+  .work-art--code {
+    background: var(--terminal-bg);
+    color: var(--terminal-fg);
+  }
+  .work-art--print {
+    background: color-mix(in oklab, var(--ink-blue) 8%, var(--bg-2));
+    color: var(--ink-blue);
+  }
+  .work-art--music {
+    background: color-mix(in oklab, var(--accent) 14%, var(--bg-2));
+    color: var(--accent-aa);
+  }
+  .work-art--garden {
+    background: color-mix(in oklab, var(--mate) 14%, var(--bg-2));
+    color: var(--mate);
+  }
+  .work-art-terminal {
+    font-family: var(--font-body);
+    color: var(--terminal-fg);
+    font-size: 0.625rem;
+    line-height: 1.55;
+    white-space: pre;
+    margin: 0;
+    padding: 0.875rem;
+    inline-size: 100%;
+  }
+
+  .work-card-meta {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.625rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+  }
+  .work-card-no {
+    font-variant-numeric: tabular-nums;
+  }
+  .work-card-title {
+    font-family: var(--font-display);
+    font-weight: 400;
+    font-size: 1.375rem;
+    letter-spacing: -0.01em;
+    margin: 0.25rem 0 0;
+    color: var(--ink);
+  }
+  .work-card-desc {
+    font-size: 0.78rem;
+    color: var(--ink-2);
+    line-height: 1.55;
+    margin: 0;
+    max-width: none;
+  }
+  .work-card-specs {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    column-gap: 0.875rem;
+    row-gap: 0.125rem;
+    font-size: 0.6875rem;
+    border-block-start: 1px dashed var(--rule);
+    padding-block-start: 0.5rem;
+    margin: 0.375rem 0 0;
+  }
+  .work-card-specs dt {
+    /* `--ink-2` for AA at this size (10px). The dashed-bordered
+       background can dip --ink-3 below 4.5:1 on light theme. */
+    color: var(--ink-2);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    font-size: 0.625rem;
+    margin: 0;
+  }
+  .work-card-specs dd {
+    margin: 0;
+    color: var(--ink-2);
+  }
+
+  .work-card-foot {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.625rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+    border-block-start: 1px solid var(--rule);
+    padding-block-start: 0.5rem;
+    margin-block-start: 0.125rem;
+  }
+  .status-dot {
+    display: inline-block;
+    inline-size: 0.375rem;
+    block-size: 0.375rem;
+    border-radius: 50%;
+    margin-inline-end: 0.375rem;
+    vertical-align: 1px;
+  }
+  .status-dot--shipping {
+    background: var(--mate);
+  }
+  .status-dot--ongoing {
+    background: var(--ink-blue);
+  }
+  .status-dot--draft {
+    background: var(--accent);
+  }
+  .status-dot--archived {
+    background: var(--ink-3);
+  }
+
+  /* Single-work detail (WorkLayout) — the card's vocabulary at a larger
+     scale: art header + meta + larger title + lede + specs + prose. */
+  .work-detail .work-detail-card {
+    max-width: 56rem;
+    margin-inline: auto;
+    padding-block-start: clamp(2.5rem, 6vw, 5rem);
+    display: grid;
+    gap: 1.25rem;
+  }
+  .work-detail .work-art {
+    block-size: clamp(10rem, 28vw, 16rem);
+  }
+  .work-detail-title {
+    font-family: var(--font-display);
+    font-weight: 400;
+    font-size: clamp(2rem, 4vw + 0.5rem, 3rem);
+    line-height: 1.04;
+    letter-spacing: -0.02em;
+    margin: 0;
+    color: var(--ink);
+  }
+  .work-detail-lede {
+    font-family: var(--font-display);
+    font-style: italic;
+    font-size: 1.125rem;
+    color: var(--ink-2);
+    margin: 0;
+    line-height: 1.5;
+    max-width: 56ch;
+  }
+  .work-detail-meta {
+    font-size: 0.6875rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .work-detail-meta .sep {
+    opacity: 0.5;
+  }
+  .work-detail-prose {
+    max-width: 56ch;
+    margin-block-start: 0.5rem;
+  }
+  .work-detail-prose p {
+    font-size: 0.9063rem;
+    line-height: 1.7;
+    color: var(--ink);
+    text-wrap: pretty;
+    margin: 0 0 1rem;
+  }
+  .work-detail-specs {
+    margin-block-start: 0.5rem;
   }
 
   .notfound {

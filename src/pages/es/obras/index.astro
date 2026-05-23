@@ -1,8 +1,10 @@
 ---
 import { getCollection } from 'astro:content';
 import BaseLayout from '@layouts/BaseLayout.astro';
+import WorksMasthead from '@components/WorksMasthead.astro';
+import WorksFilters from '@components/WorksFilters.astro';
+import WorkCard from '@components/WorkCard.astro';
 import { ROUTES } from '@lib/routes';
-import { entryRouteFor } from '@lib/i18n';
 
 const works = (
   await getCollection('works', (e) => e.data.lang === 'es' && e.data.status === 'published')
@@ -14,24 +16,17 @@ const siblingPath = ROUTES.works.en;
 
 <BaseLayout
   title="Obras"
-  description="Proyectos — digitales y físicos."
+  description="Un catálogo de cosas hechas — digitales y físicas, terminadas y en proceso."
   locale="es"
   path={path}
   siblingPath={siblingPath}
 >
-  <section class="index">
-    <h1>Obras</h1>
-    <ul class="card-list">
-      {
-        works.map((w) => (
-          <li class="card">
-            <a href={entryRouteFor(w)} data-astro-prefetch>
-              <h2>{w.data.title}</h2>
-              {w.data.lede && <p>{w.data.lede}</p>}
-            </a>
-          </li>
-        ))
-      }
+  <section class="works wrap">
+    <WorksMasthead locale="es" />
+    <WorksFilters entries={works} locale="es" />
+
+    <ul class="works-grid" data-active-filter="all">
+      {works.map((w) => <WorkCard entry={w} locale="es" />)}
     </ul>
   </section>
 </BaseLayout>
