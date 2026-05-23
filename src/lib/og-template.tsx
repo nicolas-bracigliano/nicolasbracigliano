@@ -4,7 +4,9 @@
 
 export interface OgProps {
   title: string;
-  lede?: string | undefined;
+  /** Callers must conditionally spread `{...(lede && { lede })}` —
+   *  see BaseLayout's `description` prop for the same pattern. */
+  lede?: string;
   locale: 'en' | 'es';
   kind: 'note' | 'work' | 'essay' | 'page';
 }

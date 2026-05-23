@@ -52,3 +52,24 @@ test('language toggle persists choice to localStorage', async ({ page }) => {
   const stored = await page.evaluate(() => localStorage.getItem('lang'));
   expect(stored).toBe('es');
 });
+
+// Wire-up integration checks. The pieces these cover are easy to silently
+// disconnect in a future refactor (e.g. someone drops `ogImage` from
+// BaseLayout's prop pass-through) — these tests fail loudly when that
+// happens, instead of waiting on a manual visual check.
+test('note entry pages emit og:image meta pointing at the generated PNG', async ({ page }) => {
+  await page.goto('/en/notes/hello/');
+  const ogImage = page.locator('meta[property="og:image"]');
+  await expect(ogImage).toHaveAttribute('content', /\/og\/notes\/en-hello\.png$/);
+});
+
+test('work entry pages emit og:image meta pointing at the generated PNG', async ({ page }) => {
+  await page.goto('/en/works/this-site/');
+  const ogImage = page.locator('meta[property="og:image"]');
+  await expect(ogImage).toHaveAttribute('content', /\/og\/works\/en-this-site\.png$/);
+});
+
+test('note entries render an auto-computed read-time in the footer', async ({ page }) => {
+  await page.goto('/en/notes/hello/');
+  await expect(page.locator('.note-foot')).toContainText(/read time · \d+ min/);
+});

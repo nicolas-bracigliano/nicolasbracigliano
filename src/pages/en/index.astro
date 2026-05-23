@@ -84,10 +84,10 @@ const reading = [
 
 <BaseLayout
   title={title}
-  description={lede}
   locale="en"
   path={ROUTES.home.en}
   siblingPath={sibling ? entryRouteFor(sibling) : null}
+  {...lede && { description: lede }}
 >
   <article class="home">
     <Masthead portraitCaption="retrato · pendiente">

@@ -4,7 +4,6 @@ import BaseLayout from '@layouts/BaseLayout.astro';
 import NotesMasthead from '@components/NotesMasthead.astro';
 import NoteEntry from '@components/NoteEntry.astro';
 import { ROUTES } from '@lib/routes';
-import { entryRouteFor } from '@lib/i18n';
 
 const notes = (
   await getCollection('notes', (e) => e.data.lang === 'en' && e.data.status === 'published')
@@ -16,7 +15,6 @@ const rendered = await Promise.all(
   notes.map(async (entry) => ({
     entry,
     Content: (await render(entry)).Content,
-    permalink: entryRouteFor(entry),
   })),
 );
 
@@ -36,8 +34,8 @@ const siblingPath = ROUTES.notes.es;
 
     <ol class="notes-list">
       {
-        rendered.map(({ entry, Content, permalink }, i) => (
-          <NoteEntry entry={entry} locale="en" permalink={permalink} isFirst={i === 0}>
+        rendered.map(({ entry, Content }, i) => (
+          <NoteEntry entry={entry} locale="en" isFirst={i === 0}>
             <Content />
           </NoteEntry>
         ))

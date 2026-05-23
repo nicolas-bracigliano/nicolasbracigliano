@@ -28,6 +28,8 @@ const notes = defineCollection({
   schema: ({ image }) =>
     base.extend({
       glyph: z.enum(['garden', 'code', 'guitar', 'coffee', 'none']).default('none'),
+      /** Manual override; if omitted, NoteEntry computes from `entry.body`. */
+      minutes: z.number().int().positive().optional(),
       aside: z.string().optional(),
       hero: image().optional(),
       ogOverride: image().optional(),

@@ -2,6 +2,7 @@
 import BaseLayout from './BaseLayout.astro';
 import type { CollectionEntry } from 'astro:content';
 import type { Locale } from '@lib/routes';
+import { ogImageUrlFor } from '@lib/i18n';
 
 export interface Props {
   entry: CollectionEntry<'works'>;
@@ -10,18 +11,18 @@ export interface Props {
 }
 
 const { entry, path, siblingPath } = Astro.props;
-const { title, date, lede, tags, lang, slug, specs, status } = entry.data;
+const { title, date, lede, tags, lang, specs, status } = entry.data;
 const specEntries = Object.entries(specs);
-const ogImage = `/og/works/${lang}-${slug}.png`;
+const ogImage = ogImageUrlFor(entry);
 ---
 
 <BaseLayout
   title={title}
-  description={lede}
   locale={lang as Locale}
   path={path}
   siblingPath={siblingPath}
   ogImage={ogImage}
+  {...lede && { description: lede }}
 >
   <article class="work">
     <header class="work-head">

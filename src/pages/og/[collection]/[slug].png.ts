@@ -3,6 +3,7 @@ import { getCollection, type CollectionEntry } from 'astro:content';
 import { readFile } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
 import { resolve } from 'node:path';
+import { ogSlugFor } from '@lib/i18n';
 
 // Satori + Resvg integration. Requires `public/fonts/og-newsreader.ttf` —
 // run `pnpm run subset-fonts` to produce it. Until then, the endpoint
@@ -23,7 +24,7 @@ export async function getStaticPaths() {
   const allOgs = grouped.flat().filter(({ entry }) => entry.data.status === 'published');
 
   return allOgs.map(({ collection, entry }) => ({
-    params: { collection, slug: `${entry.data.lang}-${entry.data.slug}` },
+    params: { collection, slug: ogSlugFor(entry) },
     props: { entry, collection },
   }));
 }
@@ -45,9 +46,9 @@ export const GET: APIRoute<Props> = async ({ props }) => {
       const svg = await satori(
         OgCard({
           title: entry.data.title,
-          lede: entry.data.lede,
           locale: entry.data.lang,
           kind,
+          ...(entry.data.lede && { lede: entry.data.lede }),
         }) as never,
         {
           width: 1200,
