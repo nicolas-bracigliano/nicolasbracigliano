@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.1](https://github.com/nicolas-bracigliano/nicolasbracigliano/compare/v1.2.0...v1.2.1) (2026-05-23)
+
+
+### Bug Fixes
+
+* **notes:** note-body width collapse + mobile date wrap ([#8](https://github.com/nicolas-bracigliano/nicolasbracigliano/issues/8)) ([74996f8](https://github.com/nicolas-bracigliano/nicolasbracigliano/commit/74996f82400659f3a6355987a8d244ba5a76170a))
+
 ## [1.2.0](https://github.com/nicolas-bracigliano/nicolasbracigliano/compare/v1.1.0...v1.2.0) (2026-05-23)
 
 
