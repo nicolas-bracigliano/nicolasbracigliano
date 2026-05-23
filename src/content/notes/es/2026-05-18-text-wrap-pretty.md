@@ -7,7 +7,6 @@ date: 2026-05-18
 status: published
 tags: [til, css]
 glyph: code
-minutes: 1
 aside: 'probado · chromium 124 · firefox 126 · safari 17.4. todos contentos.'
 lede: 'Una propiedad CSS que vale mil <br>.'
 ---

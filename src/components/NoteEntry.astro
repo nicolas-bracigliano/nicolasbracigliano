@@ -1,6 +1,7 @@
 ---
 import type { CollectionEntry } from 'astro:content';
 import type { Locale } from '@lib/routes';
+import { readingTimeMinutes } from '@lib/reading-time';
 import MarginNote from './MarginNote.astro';
 
 export interface Props {
@@ -12,7 +13,8 @@ export interface Props {
 }
 
 const { entry, locale, permalink, isFirst = false } = Astro.props;
-const { date, tags, glyph, title, lede, minutes, aside } = entry.data;
+const { date, tags, glyph, title, lede, aside } = entry.data;
+const minutes = readingTimeMinutes(entry.body ?? '');
 
 const dateFormatter = new Intl.DateTimeFormat(locale === 'es' ? 'es-AR' : 'en-AU', {
   year: 'numeric',
@@ -112,14 +114,8 @@ const glyphKind = glyphMap[glyph] ?? 'none';
       <slot />
     </div>
     <div class="note-foot">
-      {
-        minutes && (
-          <span>
-            {readTimeLabel} · {minutes} {minLabel}
-          </span>
-        )
-      }
-      {minutes && <span class="sep">·</span>}
+      <span>{readTimeLabel} · {minutes} {minLabel}</span>
+      <span class="sep">·</span>
       <a href={permalink}>{permalinkLabel}</a>
     </div>
   </article>
