@@ -90,12 +90,14 @@ function isActive(key: keyof typeof ROUTES, currentPath: string): boolean {
     <a href="#main" class="skip-link">Skip to content</a>
 
     <header class="chrome" transition:animate="none">
-      <a
-        href={ROUTES.home[locale]}
-        class="mark"
-        aria-label={locale === 'en' ? 'Home' : 'Inicio'}
-        transition:name="mark"
-      >
+      {
+        /* No `transition:name="mark"` on purpose — the 3D cube (perspective +
+          preserve-3d + backface-visibility) doesn't snapshot reliably for
+          the View Transitions cross-fade, so we keep the mark static across
+          navigations (the chrome's `transition:animate="none"` already does
+          this for everything else inside the header). */
+      }
+      <a href={ROUTES.home[locale]} class="mark" aria-label={locale === 'en' ? 'Home' : 'Inicio'}>
         <span class="mark-cube" aria-hidden="true">
           <span class="cube-face cube-face--front">NB</span>
           <span class="cube-face cube-face--back">NB</span>
@@ -309,15 +311,6 @@ function isActive(key: keyof typeof ROUTES, currentPath: string): boolean {
       document.addEventListener('astro:page-load', () => {
         lastScrollY = window.scrollY;
         document.querySelector<HTMLElement>('.foot-rail')?.classList.remove('is-hidden');
-      });
-
-      // Neutralise the cube's hover rotation during view-transition
-      // snapshots — 3D perspective interpolates oddly otherwise.
-      document.addEventListener('astro:before-swap', () => {
-        document.querySelector('.mark')?.setAttribute('data-vt-active', '');
-      });
-      document.addEventListener('astro:after-swap', () => {
-        document.querySelector('.mark')?.removeAttribute('data-vt-active');
       });
 
       // ClientRouter replaces <html> attributes on swap; without this,

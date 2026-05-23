@@ -162,18 +162,5 @@
       animation-duration: var(--speed-page);
       animation-timing-function: cubic-bezier(0.2, 0.7, 0.2, 1);
     }
-
-    ::view-transition-old(mark),
-    ::view-transition-new(mark) {
-      animation-duration: var(--speed-standard);
-    }
-
-    /* Suppress the cube's hover rotation during the view-transition
-       snapshot — the 3D perspective interpolates oddly otherwise. The
-       data-vt-active attr is toggled by BaseLayout's astro:before-swap /
-       astro:after-swap listeners. */
-    .mark[data-vt-active] .mark-cube {
-      transform: none;
-    }
   }
 }
