@@ -5,9 +5,6 @@
     --paper: #fbfaf6;
     --ink: #1a1814;
     --ink-2: #3e3a34;
-    /* Darkened from #8a8377 (3.41:1 against --bg, failed AA) → #736b5e
-       (5.19:1, AA pass at any size). Same warm-grey hue, just nudged
-       deeper. Noche --ink-3 stays #807a6e (already AA on the dark bg). */
     --ink-3: #736b5e;
     --rule: #d4cfc2;
     --accent: #b8512a;
@@ -23,6 +20,9 @@
     --speed-micro: 240ms ease;
     --speed-standard: 320ms cubic-bezier(0.2, 0.7, 0.2, 1);
     --speed-page: 520ms cubic-bezier(0.2, 0.7, 0.2, 1);
+
+    /* AA-safe accent for small text — raw --accent is 4.49:1 on --bg. */
+    --accent-aa: color-mix(in oklab, var(--accent) 88%, var(--ink) 12%);
   }
 
   [data-theme='noche'] {
@@ -31,9 +31,6 @@
     --paper: #1a1915;
     --ink: #f0ebde;
     --ink-2: #c6c0b1;
-    /* Lightened from #807a6e (4.36:1 on --bg, 4.00:1 on --bg-2 — both
-       failed AA) → #8c8678 (5.19:1 / 4.75:1). Same warm-grey character,
-       a touch brighter on the dark palette. */
     --ink-3: #8c8678;
     --rule: #2c2a24;
     --accent: #d8a07e;

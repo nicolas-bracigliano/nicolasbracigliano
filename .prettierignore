@@ -7,3 +7,6 @@ public/_pagefind/
 coverage/
 playwright-report/
 test-results/
+
+# release-please owns CHANGELOG.md — don't let prettier diff it.
+CHANGELOG.md

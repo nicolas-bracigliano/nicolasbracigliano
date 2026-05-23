@@ -1,18 +1,9 @@
 /*
- * Motion vocabulary. Pulls speed tokens from `tokens.css` (--speed-micro,
- * --speed-standard, --speed-page) and applies them as the design system
- * §10 prescribes: "animate into existence, then rest" — no infinite loops,
- * no decoration in motion.
- *
- * Cascade-wise, this layer sits AFTER `routes` in `base.css`'s @layer
- * declaration, so motion rules win over layout rules on the same element.
- *
- * `@keyframes` are defined unconditionally so any future caller that
- * references `animation-name: fade-up` resolves cleanly. *Usage* is
- * gated behind `prefers-reduced-motion: no-preference`. The global
- * `@layer reset` rule in `reset.css` clamps every animation/transition
- * to 0.01ms when the OS preference flips, so users opting in mid-session
- * get stillness on the next paint without us having to re-emit CSS.
+ * Motion vocabulary. Implements design system §10 — "animate into existence,
+ * then rest". Keyframes defined unconditionally; usage gated behind
+ * prefers-reduced-motion: no-preference. reset.css clamps any animation/
+ * transition to 0.01 ms when the OS preference flips, so users opting in
+ * mid-session get stillness on the next paint with no CSS re-emit.
  */
 
 @layer animations {
@@ -39,19 +30,32 @@
   }
 
   @media (prefers-reduced-motion: no-preference) {
-    /* No page-load `main` fade — tried it and axe-core saw the partial-
-     * opacity mid-animation colours and flagged them as failing contrast,
-     * making e2e timing-flaky. The motion vocabulary still kicks in on
-     * hover / scroll / page transitions; first-paint just lands as-is. */
+    /* No page-load main fade — axe-core flags partial-opacity mid-animation
+     * colours as failing contrast, making e2e timing-flaky. */
 
-    /* ─── Chrome: Mark + nav + lang/day-night toggles ───────────────── */
+    .mark-cube {
+      transition: transform var(--speed-page);
+    }
+    .mark:hover .mark-cube,
+    .mark:focus-visible .mark-cube {
+      transform: rotateY(180deg);
+    }
 
-    .mark,
+    .mark-given,
+    .mark-family {
+      transition: color var(--speed-standard);
+    }
+    .mark:hover .mark-given,
+    .mark:focus-visible .mark-given {
+      color: var(--accent-aa);
+    }
+    .mark:hover .mark-family,
+    .mark:focus-visible .mark-family {
+      color: var(--ink);
+    }
+
     .footer a {
       transition: color var(--speed-micro);
-    }
-    .mark:hover {
-      color: var(--accent);
     }
     .footer a:hover {
       color: var(--ink);
@@ -71,9 +75,7 @@
       background-size: 100% 1px;
     }
     .nav a[aria-current='page'] {
-      /* Active route already underlined via reset.css — clear the gradient
-         strip so the underline doesn't double up. */
-      background-image: none;
+      background-size: 100% 1px;
     }
 
     .lang-toggle .lang {
@@ -85,21 +87,11 @@
       color: var(--ink);
     }
 
-    /* Day/night icon: sun-rays fade + retract while moon-mask slides in
-       from the right to carve the crescent. Positioning per state is in
-       base.css; this just controls the timing of the transition.
-       — sun-rays animate at standard speed for opacity, page speed for
-         the scale+rotate retraction (subtle, not abrupt).
-       — moon-mask uses the same pair so both layers feel like one motion.
-       — the whole SVG rotates 28° on hover at page speed, a small
-         "winding-up" gesture toward the click. */
     #theme-toggle svg {
       transition: transform var(--speed-page);
     }
-    /* Hover rotation only on devices that genuinely support hover.
-       On touch devices the simulated-hover-on-tap would otherwise rotate
-       the icon while the rays/mask are animating — three things at once,
-       too busy. Pointer users still get the "winding up" cue. */
+    /* `hover: hover` so simulated-tap hover doesn't rotate while the
+       sun→moon mask transition is already animating. */
     @media (hover: hover) {
       #theme-toggle:hover svg {
         transform: rotate(28deg);
@@ -117,8 +109,6 @@
         opacity var(--speed-standard);
     }
 
-    /* ─── Entry list (notes/works/essays indexes): slide right on hover ── */
-
     .entry-list a {
       transition:
         transform var(--speed-standard),
@@ -131,13 +121,10 @@
       color: var(--accent);
     }
 
-    /* ─── Work cards: paper stacks behind on hover ──────────────────── */
-
     .card a {
       position: relative;
-      /* Required: the ::before paper-stack sits at z-index: -1; without
-         a local stacking context it would slip behind the parent's parent
-         (and disappear under the page background). */
+      /* Local stacking context — without it the z-index:-1 ::before slips
+         behind the parent's parent and disappears under the page bg. */
       isolation: isolate;
     }
     .card a::before {
@@ -154,8 +141,6 @@
       transform: translate(6px, 6px);
     }
 
-    /* ─── Prose: link underline-draw on hover ───────────────────────── */
-
     .prose a {
       background-image: linear-gradient(var(--accent), var(--accent));
       background-repeat: no-repeat;
@@ -168,32 +153,14 @@
       background-size: 100% 2px;
     }
 
-    /* Scroll-driven `view-timeline` reveals were tried (and removed). The
-     * issue: at first paint, the timeline hasn't computed scroll position
-     * yet, so items above the fold render at partial opacity for a frame
-     * or two — long enough for axe-core to flag them as failing colour
-     * contrast (it sees the alpha-blended pixel, not the design-token
-     * colour). The page-load `main { animation: fade-up }` above already
-     * gives the "fade in" feel; per-item scroll-driven animation isn't
-     * worth the a11y noise. Re-introduce when browser timing across the
-     * scroll-timeline init and the first paint is more reliable. */
-
-    /* ─── View Transitions API ───────────────────────────────────────
-     * Astro's <ClientRouter /> uses the native View Transitions API for
-     * cross-page navigation. Pseudo-elements like ::view-transition-old/new
-     * are styleable; we map them to our three speed tokens. */
+    /* Scroll-driven view-timeline reveals were removed — axe-core sees
+     * the alpha-blended pixel before the timeline computes scroll position
+     * and flags it as failing contrast. */
 
     ::view-transition-old(root),
     ::view-transition-new(root) {
       animation-duration: var(--speed-page);
       animation-timing-function: cubic-bezier(0.2, 0.7, 0.2, 1);
-    }
-
-    /* Mark (NB logo) morphs continuously across navigations rather than
-       fading in/out — feels like the chrome stays put. */
-    ::view-transition-old(mark),
-    ::view-transition-new(mark) {
-      animation-duration: var(--speed-standard);
     }
   }
 }

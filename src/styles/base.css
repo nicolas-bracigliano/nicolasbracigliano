@@ -89,13 +89,62 @@
   }
 
   .mark {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
     font-family: var(--font-body);
-    font-weight: 700;
-    letter-spacing: 0.05em;
+    font-weight: 600;
     color: var(--ink);
     text-decoration: none;
+    perspective: 240px;
+  }
+  .mark:hover,
+  .mark:focus-visible {
+    text-decoration: none;
+  }
+  .mark-cube {
+    position: relative;
+    display: inline-block;
+    width: 2rem;
+    height: 2rem;
+    flex-shrink: 0;
+    transform-style: preserve-3d;
+  }
+  .cube-face {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 3px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    backface-visibility: hidden;
+  }
+  .cube-face--front {
+    background: var(--ink);
+    color: var(--bg);
+  }
+  .cube-face--back {
+    background: var(--accent-aa);
+    color: var(--bg);
+    /* Pre-rotated so it's facing the viewer when the cube hits rotateY(180deg). */
+    transform: rotateY(180deg);
+  }
+  .mark-word {
+    font-size: 0.85rem;
+    letter-spacing: 0.01em;
+    white-space: nowrap;
+  }
+  .mark-given {
+    color: var(--ink);
+  }
+  .mark-family {
+    color: var(--accent-aa);
   }
 
+  /* ─── Top nav (desktop) ───────────────────────────────────────────── */
   .nav ul {
     display: flex;
     gap: 1.25rem;
@@ -107,11 +156,16 @@
     color: var(--ink-2);
     text-decoration: none;
     text-transform: lowercase;
+    padding-block-end: 6px;
   }
-  .nav a[aria-current='page'] {
-    color: var(--ink);
-    text-decoration: underline;
-    text-underline-offset: 4px;
+  .nav a::before {
+    content: '/';
+    color: var(--ink-3);
+    margin-inline-end: 2px;
+  }
+  .nav a[aria-current='page'],
+  .nav a[aria-current='page']::before {
+    color: var(--accent-aa);
   }
 
   .chrome-end {
@@ -122,23 +176,43 @@
 
   .lang-toggle {
     display: inline-flex;
-    align-items: baseline;
-    gap: 0.35rem;
-    font-size: 0.85rem;
+    align-items: center;
+    gap: 0.2rem;
+    font-size: 0.7rem;
+    font-variant: small-caps;
+    letter-spacing: 0.08em;
   }
+  /* Outer <a> is the tap target; the visible bordered chip is the inner
+     <span class="lang-chip">. Splitting lets the tap area grow without
+     elongating the border. */
   .lang-toggle .lang {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     color: var(--ink-3);
     text-decoration: none;
+    line-height: 1;
   }
   .lang-toggle .lang.on {
     color: var(--ink);
-    text-decoration: underline;
-    text-underline-offset: 3px;
   }
   .lang-toggle .lang[aria-disabled='true'] {
     color: var(--ink-3);
     opacity: 0.45;
     pointer-events: none;
+  }
+  .lang-chip {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 1.5rem;
+    min-height: 1.4rem;
+    padding: 0 0.4rem;
+    border: 1px solid transparent;
+    border-radius: 3px;
+  }
+  .lang-toggle .lang.on .lang-chip {
+    border-color: var(--rule);
   }
   .only-note {
     margin-inline-start: 0.5rem;
@@ -150,26 +224,46 @@
   #theme-toggle {
     display: inline-flex;
     align-items: center;
-    justify-content: center;
-    width: 2rem;
-    height: 2rem;
-    border-radius: 50%;
+    gap: 0.5rem;
+    padding: 0.25rem 0.65rem 0.25rem 0.4rem;
     border: 1px solid var(--rule);
+    border-radius: 999px;
     background: var(--paper);
-    color: var(--accent); /* SVG children pick this up via `currentColor` */
+    color: var(--accent);
+    font-family: var(--font-body);
+    font-size: 0.7rem;
+    font-variant: small-caps;
+    letter-spacing: 0.08em;
+    text-transform: lowercase;
     transition:
       background-color var(--speed-micro),
-      border-color var(--speed-micro);
+      border-color var(--speed-micro),
+      color var(--speed-micro);
   }
   #theme-toggle:hover {
     border-color: var(--ink-3);
+    color: var(--ink);
   }
-  /* Default (Día): rays visible at full opacity, mask hidden off to the right.
-     [data-theme="noche"] overrides set rays invisible and slide the mask
-     into the disc to carve a crescent. Transitions are in animations.css. */
-  /* `.moon-mask` lives inside <defs><mask> in the SVG. CSS still applies
-     (defs are non-rendering but still styleable) — the opacity + transform
-     animate the mask geometry, which animates the disc's carved shape. */
+  /* Label content is data-driven from <html lang> + <html data-theme>
+     so the text stays in sync with the live state via pure CSS. */
+  .theme-toggle-label {
+    color: var(--ink-2);
+    letter-spacing: 0.1em;
+  }
+  .theme-toggle-label::before {
+    content: 'day';
+  }
+  :root[data-theme='noche'] .theme-toggle-label::before {
+    content: 'night';
+  }
+  :root[lang='es']:not([data-theme='noche']) .theme-toggle-label::before {
+    content: 'día';
+  }
+  :root[lang='es'][data-theme='noche'] .theme-toggle-label::before {
+    content: 'noche';
+  }
+  /* `.moon-mask` lives inside <defs><mask> in the SVG. Styles still apply
+     — animating the mask geometry animates the disc's carved shape. */
   #theme-toggle .moon-mask {
     opacity: 0;
     transform: translateX(8px);
@@ -198,13 +292,143 @@
     color: var(--ink-3);
     font-size: 0.85rem;
   }
-  /* Footer link uses --ink-2 instead of inheriting --accent: --accent on
-     --bg measured 4.49:1 (just under AA's 4.5:1 for small text). --ink-2
-     passes comfortably; the underline keeps it readable as a link. */
+  /* --ink-2, not inherited --accent: raw --accent is 4.49:1 on --bg (under AA). */
   .footer a {
     color: var(--ink-2);
     text-decoration: underline;
     text-underline-offset: 2px;
+  }
+
+  /* ─── Foot-rail (mobile only) ───────────────────────────────────────
+     Sibling of .chrome so `position: fixed` isn't subject to the chrome's
+     `backdrop-filter` containing-block trap. Hidden by default. */
+  .foot-rail {
+    display: none;
+  }
+
+  @media (max-width: 720px) {
+    .chrome {
+      gap: 0.5rem;
+      padding: 0.65rem var(--gutter);
+      /* Desktop grid `auto 1fr auto` puts chrome-end in the middle 1fr
+         column once .nav is display:none (auto-placement skips hidden
+         children). Flex keeps mark + chrome-end at the row's edges. */
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .chrome .nav {
+      display: none;
+    }
+    .mark {
+      gap: 0.4rem;
+    }
+    .mark-cube {
+      width: 1.5rem;
+      height: 1.5rem;
+    }
+    .cube-face {
+      font-size: 0.7rem;
+    }
+    .mark-word {
+      font-size: 0.7rem;
+      letter-spacing: 0;
+    }
+    .chrome-end {
+      gap: 0.5rem;
+    }
+    .theme-toggle-label {
+      display: none;
+    }
+    #theme-toggle {
+      padding: 0.2rem;
+    }
+    .lang-toggle {
+      gap: 0.1rem;
+    }
+    /* 44 px tap target on the outer <a>; visible .lang-chip stays compact. */
+    .lang-toggle .lang {
+      min-width: 2.75rem;
+      min-height: 2.75rem;
+    }
+
+    .foot-rail {
+      display: block;
+      position: fixed;
+      inset-inline: 0;
+      inset-block-end: 0;
+      z-index: 5;
+      background: var(--bg);
+      border-block-start: 1px dashed var(--rule);
+      padding-block-end: env(safe-area-inset-bottom, 0);
+      transition: transform var(--speed-page);
+    }
+    .foot-rail.is-hidden {
+      transform: translateY(100%);
+    }
+    .foot-rail ul {
+      display: flex;
+      justify-content: space-around;
+      align-items: stretch;
+      gap: 0;
+      margin: 0;
+      padding: 0 0.5rem;
+      list-style: none;
+    }
+    .foot-rail li {
+      display: flex;
+      flex: 1;
+    }
+    .foot-rail a {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex: 1;
+      min-height: 44px;
+      padding: 0 0.25rem;
+      color: var(--ink-2);
+      text-decoration: none;
+      text-transform: lowercase;
+      font-size: 0.85rem;
+      position: relative;
+    }
+    .foot-rail a[aria-current='page'] {
+      color: var(--accent-aa);
+    }
+    /* Tick is a line decoration, not text — raw --accent is fine here. */
+    .foot-rail a[aria-current='page']::before {
+      content: '';
+      position: absolute;
+      inset-block-start: 6px;
+      inset-inline-start: 50%;
+      transform: translateX(-50%);
+      width: 1.5rem;
+      height: 2px;
+      background: var(--accent);
+    }
+
+    body {
+      padding-block-end: calc(44px + env(safe-area-inset-bottom, 0));
+    }
+  }
+
+  /* Día ↔ Noche transitions across chrome surfaces. Reset.css clamps these
+     to 0.01 ms under prefers-reduced-motion. */
+  .chrome,
+  .cube-face,
+  .nav a,
+  .nav a::before,
+  .foot-rail,
+  .foot-rail a,
+  #theme-toggle,
+  .theme-toggle-label,
+  .lang-toggle .lang,
+  .lang-chip {
+    transition:
+      background-color 480ms cubic-bezier(0.2, 0.7, 0.2, 1),
+      color 380ms cubic-bezier(0.2, 0.7, 0.2, 1),
+      border-color 380ms cubic-bezier(0.2, 0.7, 0.2, 1),
+      text-decoration-color 380ms cubic-bezier(0.2, 0.7, 0.2, 1);
   }
 }
 
