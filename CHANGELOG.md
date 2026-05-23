@@ -1,5 +1,23 @@
 # Changelog
 
+## [1.3.0](https://github.com/nicolas-bracigliano/nicolasbracigliano/compare/v1.2.1...v1.3.0) (2026-05-23)
+
+
+### Features
+
+* **colophon:** full prototype-parity Typewriter credits roll ([#14](https://github.com/nicolas-bracigliano/nicolasbracigliano/issues/14)) ([3dc0e65](https://github.com/nicolas-bracigliano/nicolasbracigliano/commit/3dc0e6546be04b6f1afb0573b8f31292ede03c99))
+* **meta:** wire OG cards and auto reading-time ([#11](https://github.com/nicolas-bracigliano/nicolasbracigliano/issues/11)) ([b192859](https://github.com/nicolas-bracigliano/nicolasbracigliano/commit/b1928591de03cf097ff76bd75780eb1fd92a5e05))
+* **works:** full prototype-parity Index-card catalog ([#17](https://github.com/nicolas-bracigliano/nicolasbracigliano/issues/17)) ([3a757ff](https://github.com/nicolas-bracigliano/nicolasbracigliano/commit/3a757ffcf99344162d851dfe703548152b2447fd))
+
+
+### Bug Fixes
+
+* **colophon:** self-critique follow-ups (6 items) ([#15](https://github.com/nicolas-bracigliano/nicolasbracigliano/issues/15)) ([e3eb35b](https://github.com/nicolas-bracigliano/nicolasbracigliano/commit/e3eb35b8d7138a2c18c59014e997bf980c88a6c0))
+* **meta:** staff-critique follow-ups (11 items) ([#13](https://github.com/nicolas-bracigliano/nicolasbracigliano/issues/13)) ([e86dc02](https://github.com/nicolas-bracigliano/nicolasbracigliano/commit/e86dc023a0e5d95fc099eaf16c59d697e5310bca))
+* **notes:** drop dead glyphMap + extract NoteGlyph + structural tests ([#16](https://github.com/nicolas-bracigliano/nicolasbracigliano/issues/16)) ([5633a38](https://github.com/nicolas-bracigliano/nicolasbracigliano/commit/5633a3846fe48b5810588866452caabe38129c65))
+* **works:** self-critique follow-ups (5 items) ([#18](https://github.com/nicolas-bracigliano/nicolasbracigliano/issues/18)) ([8af1ecc](https://github.com/nicolas-bracigliano/nicolasbracigliano/commit/8af1ecc5a416a52ba24100f067d096a3c0f32e2b))
+* **works:** self-critique follow-ups + per-work art (7 items) ([#19](https://github.com/nicolas-bracigliano/nicolasbracigliano/issues/19)) ([e3ac966](https://github.com/nicolas-bracigliano/nicolasbracigliano/commit/e3ac966f01b6969b074e332cfc442d6a71e7c572))
+
 ## [1.2.1](https://github.com/nicolas-bracigliano/nicolasbracigliano/compare/v1.2.0...v1.2.1) (2026-05-23)
 
 
