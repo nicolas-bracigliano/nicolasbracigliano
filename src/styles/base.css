@@ -96,15 +96,8 @@
     font-weight: 600;
     color: var(--ink);
     text-decoration: none;
-    /* `perspective` on the parent gives the .mark-cube child its 3D
-       foreshortening as it rotateY's. 240px reads as a moderate depth
-       for a 32px cube — enough to feel dimensional without theatrics. */
     perspective: 240px;
   }
-  /* Mark is a link; the global `a:hover { text-decoration: underline }`
-     would draw a line under the whole "[cube] Nicolás Bracigliano" row.
-     Suppress it so the cube + name read as a brand mark, not as text
-     content. */
   .mark:hover,
   .mark:focus-visible {
     text-decoration: none;
@@ -127,8 +120,6 @@
     font-size: 0.85rem;
     font-weight: 700;
     letter-spacing: 0.04em;
-    /* Hide whichever face is currently turned away so the two glyphs
-       never overlap mid-rotation. */
     backface-visibility: hidden;
   }
   .cube-face--front {
@@ -136,14 +127,9 @@
     color: var(--bg);
   }
   .cube-face--back {
-    /* --bg on raw --accent is the same 4.49:1 trap as accent text on bg
-       — light + raw accent fails AA either direction. Use the same
-       darkened accent the family name uses; visually almost identical
-       (88% accent / 12% ink in oklab) but now passes 4.5:1. */
     background: var(--accent-aa);
     color: var(--bg);
-    /* Pre-rotated 180° so when the cube reaches rotateY(180deg) on
-       hover, this face is facing the viewer. */
+    /* Pre-rotated so it's facing the viewer when the cube hits rotateY(180deg). */
     transform: rotateY(180deg);
   }
   .mark-word {
@@ -155,10 +141,6 @@
     color: var(--ink);
   }
   .mark-family {
-    /* --accent (#b8512a) measures 4.49:1 against --bg — just under AA's
-       4.5:1 floor for small text. Nudging ~12% toward --ink lifts it
-       past 4.5:1 while staying visually a terracotta read. Same
-       trade-off the .footer a rule documented. */
     color: var(--accent-aa);
   }
 
@@ -174,24 +156,13 @@
     color: var(--ink-2);
     text-decoration: none;
     text-transform: lowercase;
-    /* Padding below the label pushes the gradient underline (drawn at
-       `background-position: 0 100%` in animations.css) down from the
-       baseline. Without it the line sat flush against the descenders. */
     padding-block-end: 6px;
   }
-  /* `/` glyph before each nav label — a quiet hint that these are
-     URL paths. Pseudo-element instead of an inline <span> so the
-     markup stays clean and prettier doesn't insert stray whitespace
-     between the glyph and the label. */
   .nav a::before {
     content: '/';
     color: var(--ink-3);
     margin-inline-end: 2px;
   }
-  /* Active route: accent colour for both label and slash glyph.
-     Persistent underline comes from animations.css (keeps the
-     gradient at `background-size: 100% 1px` so it sits at the same
-     offset as hover). */
   .nav a[aria-current='page'],
   .nav a[aria-current='page']::before {
     color: var(--accent-aa);
@@ -211,10 +182,9 @@
     font-variant: small-caps;
     letter-spacing: 0.08em;
   }
-  /* Outer <a class="lang"> is the tap target only — no visible border.
-     The visible chip is the inner <span class="lang-chip">, so we can
-     grow the tap area (e.g. to 44 px on mobile) without elongating the
-     border around the text. */
+  /* Outer <a> is the tap target; the visible bordered chip is the inner
+     <span class="lang-chip">. Splitting lets the tap area grow without
+     elongating the border. */
   .lang-toggle .lang {
     display: inline-flex;
     align-items: center;
@@ -231,9 +201,6 @@
     opacity: 0.45;
     pointer-events: none;
   }
-  /* Visible chip — kept compact regardless of how big the parent tap
-     area is. The bordered "on" treatment goes here so it stays tight
-     around the text. */
   .lang-chip {
     display: inline-flex;
     align-items: center;
@@ -254,10 +221,6 @@
     font-style: italic;
   }
 
-  /* Theme toggle is a pill-shaped button: sun/moon SVG + small-caps text
-     label ("day" / "night" / "día" / "noche", set via ::before below).
-     The 32-px circular variant is the compact-mode fallback under
-     720 px (label hides, padding tightens). */
   #theme-toggle {
     display: inline-flex;
     align-items: center;
@@ -266,7 +229,7 @@
     border: 1px solid var(--rule);
     border-radius: 999px;
     background: var(--paper);
-    color: var(--accent); /* SVG children inherit via `currentColor` */
+    color: var(--accent);
     font-family: var(--font-body);
     font-size: 0.7rem;
     font-variant: small-caps;
@@ -281,9 +244,8 @@
     border-color: var(--ink-3);
     color: var(--ink);
   }
-  /* Label content is data-driven via attribute selectors on <html>:
-     `lang` (en/es) + `data-theme` (set by the theme JS). Pure CSS
-     keeps the label in sync without an extra JS write per toggle. */
+  /* Label content is data-driven from <html lang> + <html data-theme>
+     so the text stays in sync with the live state via pure CSS. */
   .theme-toggle-label {
     color: var(--ink-2);
     letter-spacing: 0.1em;
@@ -300,12 +262,8 @@
   :root[lang='es'][data-theme='noche'] .theme-toggle-label::before {
     content: 'noche';
   }
-  /* Default (Día): rays visible at full opacity, mask hidden off to the right.
-     [data-theme="noche"] overrides set rays invisible and slide the mask
-     into the disc to carve a crescent. Transitions are in animations.css. */
-  /* `.moon-mask` lives inside <defs><mask> in the SVG. CSS still applies
-     (defs are non-rendering but still styleable) — the opacity + transform
-     animate the mask geometry, which animates the disc's carved shape. */
+  /* `.moon-mask` lives inside <defs><mask> in the SVG. Styles still apply
+     — animating the mask geometry animates the disc's carved shape. */
   #theme-toggle .moon-mask {
     opacity: 0;
     transform: translateX(8px);
@@ -334,9 +292,7 @@
     color: var(--ink-3);
     font-size: 0.85rem;
   }
-  /* Footer link uses --ink-2 instead of inheriting --accent: --accent on
-     --bg measured 4.49:1 (just under AA's 4.5:1 for small text). --ink-2
-     passes comfortably; the underline keeps it readable as a link. */
+  /* --ink-2, not inherited --accent: raw --accent is 4.49:1 on --bg (under AA). */
   .footer a {
     color: var(--ink-2);
     text-decoration: underline;
@@ -344,31 +300,19 @@
   }
 
   /* ─── Foot-rail (mobile only) ───────────────────────────────────────
-     Sibling of .chrome (not a child), so it's not subject to the
-     chrome's `backdrop-filter` containing-block trap that pinned
-     `position: fixed` descendants to the chrome's bottom edge in the
-     earlier attempt. Hidden by default; the mobile @media block
-     below flips it on and styles the bar itself. JS toggles
-     `.is-hidden` (transform: translateY(100%)) on scroll-down past
-     the hide threshold; slides back on scroll-up or near-top. */
+     Sibling of .chrome so `position: fixed` isn't subject to the chrome's
+     `backdrop-filter` containing-block trap. Hidden by default. */
   .foot-rail {
     display: none;
   }
 
-  /* ─── Chrome: compact mode under 720px ─────────────────────────────
-     Top chrome on mobile keeps the full kit — cube + wordmark + lang
-     toggle + theme toggle — just compressed so it fits a 360–400 px
-     viewport on one line. The center .nav hides; the .foot-rail
-     sibling shows below the viewport. */
   @media (max-width: 720px) {
-    /* —— Chrome container —— */
     .chrome {
       gap: 0.5rem;
       padding: 0.65rem var(--gutter);
-      /* Grid `auto 1fr auto` puts chrome-end in the middle 1fr column
-         when the nav is `display: none`, since auto-placement skips
-         hidden children. Flex with space-between flushes mark left
-         and chrome-end right unconditionally. */
+      /* Desktop grid `auto 1fr auto` puts chrome-end in the middle 1fr
+         column once .nav is display:none (auto-placement skips hidden
+         children). Flex keeps mark + chrome-end at the row's edges. */
       display: flex;
       justify-content: space-between;
       align-items: center;
@@ -376,7 +320,6 @@
     .chrome .nav {
       display: none;
     }
-    /* —— Mark (cube + wordmark) compress —— */
     .mark {
       gap: 0.4rem;
     }
@@ -391,7 +334,6 @@
       font-size: 0.7rem;
       letter-spacing: 0;
     }
-    /* —— Chrome-end controls compress —— */
     .chrome-end {
       gap: 0.5rem;
     }
@@ -404,17 +346,12 @@
     .lang-toggle {
       gap: 0.1rem;
     }
-    /* The OUTER `<a>` grows to 44 px on mobile (iOS HIG / WCAG 2.5.5
-       tap-target floor). The INNER `.lang-chip` keeps its compact
-       1.4 rem height so the active border stays tight to the glyph
-       instead of stretching to the full tap area. Empty space between
-       chip and tap-area boundary is invisible tap padding. */
+    /* 44 px tap target on the outer <a>; visible .lang-chip stays compact. */
     .lang-toggle .lang {
       min-width: 2.75rem;
       min-height: 2.75rem;
     }
 
-    /* —— Foot-rail (visible) —— */
     .foot-rail {
       display: block;
       position: fixed;
@@ -458,9 +395,7 @@
     .foot-rail a[aria-current='page'] {
       color: var(--accent-aa);
     }
-    /* 2 px terracotta tick above the active label. Pure `--accent`
-       (not the AA-darkened variant) — line decoration, not text, so
-       the contrast rule doesn't apply. */
+    /* Tick is a line decoration, not text — raw --accent is fine here. */
     .foot-rail a[aria-current='page']::before {
       content: '';
       position: absolute;
@@ -472,17 +407,13 @@
       background: var(--accent);
     }
 
-    /* —— Page padding so content clears the foot-rail —— */
     body {
       padding-block-end: calc(44px + env(safe-area-inset-bottom, 0));
     }
   }
 
-  /* ─── Palette transitions ────────────────────────────────────────────
-     Día ↔ Noche switching sweeps the chrome surfaces, not just the
-     <body>. Lives outside the prefers-reduced-motion gate because the
-     reset clamps transitions to 0.01 ms under reduced-motion, snapping
-     to the new palette without a slow colour shift. */
+  /* Día ↔ Noche transitions across chrome surfaces. Reset.css clamps these
+     to 0.01 ms under prefers-reduced-motion. */
   .chrome,
   .cube-face,
   .nav a,

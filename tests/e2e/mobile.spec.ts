@@ -1,11 +1,7 @@
 import { test, expect } from '@playwright/test';
 
-// Mobile-viewport smoke. Playwright defaults to a desktop viewport, so
-// none of the @media (max-width: 720px) chrome work is exercised by
-// smoke.spec.ts. Three bugs in PR #4 (foot-rail at top of page,
-// trapped by backdrop-filter, chrome-end in middle column) would have
-// been caught by these assertions; pinning them here so future
-// changes can't regress silently.
+// Mobile-viewport smoke — smoke.spec.ts runs at desktop and doesn't
+// exercise the chrome's @media (max-width: 720px) behaviour.
 
 const MOBILE_VIEWPORT = { width: 375, height: 667 } as const;
 
@@ -21,27 +17,18 @@ test.describe('mobile foot-rail', () => {
     expect(box, 'foot-rail must have a bounding box').not.toBeNull();
     if (!box) return;
 
-    // Bottom edge of the rail should be within 1 px of the viewport
-    // bottom (rounding/sub-pixel). If the chrome's backdrop-filter
-    // ever traps the rail again the box.bottom will land somewhere
-    // near 50 px and this fails immediately.
     const bottom = box.y + box.height;
     expect(bottom).toBeGreaterThanOrEqual(MOBILE_VIEWPORT.height - 1);
   });
 
   test('top chrome nav is hidden on mobile', async ({ page }) => {
     await page.goto('/en/');
-    // The top .chrome .nav is `display: none` under 720 px; the
-    // foot-rail nav takes over below.
     await expect(page.locator('.chrome .nav')).toBeHidden();
     await expect(page.locator('.foot-rail')).toBeVisible();
   });
 
   test('chrome wordmark + lang + theme stay visible on mobile', async ({ page }) => {
     await page.goto('/en/');
-    // Top chrome on mobile is wordmark + lang + theme; spec'd
-    // explicitly so a future "hide everything on mobile" refactor
-    // doesn't quietly drop the wordmark or lang switcher.
     await expect(page.locator('.mark-cube')).toBeVisible();
     await expect(page.locator('.mark-word')).toBeVisible();
     await expect(page.locator('.lang-toggle')).toBeVisible();
@@ -59,10 +46,6 @@ test.describe('mobile foot-rail', () => {
 
   test('foot-rail active route has the accent tick', async ({ page }) => {
     await page.goto('/en/');
-    // Home is current; the ::before tick on the active link should be
-    // visible. We can't query ::before directly, but we can check that
-    // `aria-current="page"` is set on the right link and that the link
-    // is in the rail.
     const home = page.locator('.foot-rail a[aria-current="page"]');
     await expect(home).toHaveCount(1);
     await expect(home).toContainText('home');
