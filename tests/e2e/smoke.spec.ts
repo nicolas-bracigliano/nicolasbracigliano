@@ -126,3 +126,23 @@ test('note glyphs render an SVG keyed to each kind', async ({ page }) => {
   await expect(page.locator('.note-glyph.g-code svg')).not.toHaveCount(0);
   await expect(page.locator('.note-glyph.g-guitar svg')).toHaveCount(1);
 });
+
+test('works filter toggles cards via data-kind matching', async ({ page }) => {
+  await page.goto('/en/works/');
+  // Initial state: all cards visible.
+  const all = page.locator('.work-card');
+  await expect(all).toHaveCount(4);
+  for (let i = 0; i < 4; i++) {
+    await expect(all.nth(i)).toBeVisible();
+  }
+  // Click "code" filter → only the one `data-kind="code"` card stays.
+  await page.locator('.filter[data-filter="code"]').click();
+  await expect(page.locator('.filter.on')).toHaveAttribute('data-filter', 'code');
+  await expect(page.locator('.filter[data-filter="code"]')).toHaveAttribute('aria-pressed', 'true');
+  const visibleAfter = page.locator('.work-card:not([hidden])');
+  await expect(visibleAfter).toHaveCount(1);
+  await expect(visibleAfter).toHaveAttribute('data-kind', 'code');
+  // Click "all" → everything returns.
+  await page.locator('.filter[data-filter="all"]').click();
+  await expect(page.locator('.work-card:not([hidden])')).toHaveCount(4);
+});
