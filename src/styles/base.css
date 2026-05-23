@@ -437,37 +437,6 @@
     margin-block-end: 1.5rem;
   }
 
-  .entry-list {
-    list-style: none;
-    padding: 0;
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-  }
-  .entry-list a {
-    display: grid;
-    grid-template-columns: 8rem 1fr;
-    gap: 1rem;
-    padding: 0.75rem 0;
-    border-block-end: 1px dotted var(--rule);
-    text-decoration: none;
-    color: var(--ink);
-  }
-  .entry-list a:hover .title {
-    text-decoration: underline;
-  }
-  .entry-list time {
-    color: var(--ink-3);
-    font-feature-settings: 'tnum';
-  }
-  .entry-list .lede {
-    display: block;
-    color: var(--ink-3);
-    font-style: italic;
-    font-size: 0.9rem;
-    margin-block-start: 0.25rem;
-  }
-
   /* ─── Home: Workshop bench (design system §3) ──────────────────────────
      The home page composes four sections — masthead, bench, latest
      entries, field notes — inside one <main>. `.home { gap }` stacks
