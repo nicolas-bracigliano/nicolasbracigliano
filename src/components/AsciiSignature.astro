@@ -16,19 +16,23 @@ const formatter = new Intl.DateTimeFormat(locale === 'es' ? 'es-AR' : 'en-AU', {
 const today = formatter.format(new Date()).toLowerCase();
 const yearTwoDigit = new Date().getFullYear().toString().slice(-2);
 
-const ariaLabel = locale === 'es' ? 'firma' : 'signature';
+const givenName = locale === 'es' ? 'Nicolás' : 'Nicolas';
 const setInTypeOn = locale === 'es' ? 'compuesto el' : 'set in type on';
 ---
 
 <p class="colofon-sig">
-  <span class="serif-italic">— Nicolas</span>
+  <span class="serif-italic">— {givenName}</span>
   <span class="muted"> · Melbourne · {setInTypeOn} {today}</span>
 </p>
 
+{
+  /* `aria-hidden`: the byline `<p>` above already conveys the same info
+    in prose. The ASCII block is decoration — read by sighted users,
+    skipped by screen readers. */
+}
 <pre
   class="ascii-sig"
-  role="img"
-  aria-label={ariaLabel}>
+  aria-hidden="true">
 {`  ╭───────────────────╮
   │   N  ·  B  ·  '${yearTwoDigit} │
   ╰───────────────────╯`}

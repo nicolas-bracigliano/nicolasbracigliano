@@ -1,0 +1,11 @@
+---
+export interface Props {
+  dt: string;
+}
+const { dt } = Astro.props;
+---
+
+<div class="colofon-row">
+  <dt>{dt}</dt>
+  <dd><slot /></dd>
+</div>
