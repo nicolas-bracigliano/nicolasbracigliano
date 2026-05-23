@@ -76,7 +76,7 @@
     }
     .mark:hover .mark-given,
     .mark:focus-visible .mark-given {
-      color: color-mix(in oklab, var(--accent) 88%, var(--ink) 12%);
+      color: var(--accent-aa);
     }
     .mark:hover .mark-family,
     .mark:focus-visible .mark-family {
@@ -224,17 +224,25 @@
       animation-timing-function: cubic-bezier(0.2, 0.7, 0.2, 1);
     }
 
-    /* Mark no longer carries `view-transition-name: mark` (see BaseLayout
-       comment) — the chrome's `transition:animate="none"` keeps it static
-       across navigations, which avoids the 3D-cube perspective glitch
-       that happened when the user clicked the lang toggle mid-rotation.
-       Rule kept commented out so the choice is documented at the
-       call-site. */
-    /*
+    /* Mark (NB cube + wordmark) morphs continuously across navigations
+       rather than fading in/out — feels like the chrome stays put.
+       Paired with a JS safeguard (BaseLayout `astro:before-swap`) that
+       sets `data-vt-active` on `.mark` so the cube's hover rotation
+       gets neutralised during the snapshot — without it, the 3D
+       perspective interpolates oddly. */
     ::view-transition-old(mark),
     ::view-transition-new(mark) {
       animation-duration: var(--speed-standard);
     }
-    */
+
+    /* Cube safeguard during view-transition snapshot. Specificity
+       (0,3,0) beats `.mark:hover .mark-cube` (0,2,0) so the rotation
+       is suppressed mid-swap without `!important`. The attribute is
+       added on `astro:before-swap` and removed on `astro:after-swap`,
+       so the cube returns to its normal hover behaviour the moment
+       the navigation completes. */
+    .mark[data-vt-active] .mark-cube {
+      transform: none;
+    }
   }
 }

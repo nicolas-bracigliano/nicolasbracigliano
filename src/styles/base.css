@@ -140,7 +140,7 @@
        — light + raw accent fails AA either direction. Use the same
        darkened accent the family name uses; visually almost identical
        (88% accent / 12% ink in oklab) but now passes 4.5:1. */
-    background: color-mix(in oklab, var(--accent) 88%, var(--ink) 12%);
+    background: var(--accent-aa);
     color: var(--bg);
     /* Pre-rotated 180° so when the cube reaches rotateY(180deg) on
        hover, this face is facing the viewer. */
@@ -159,9 +159,10 @@
        4.5:1 floor for small text. Nudging ~12% toward --ink lifts it
        past 4.5:1 while staying visually a terracotta read. Same
        trade-off the .footer a rule documented. */
-    color: color-mix(in oklab, var(--accent) 88%, var(--ink) 12%);
+    color: var(--accent-aa);
   }
 
+  /* ─── Top nav (desktop) ───────────────────────────────────────────── */
   .nav ul {
     display: flex;
     gap: 1.25rem;
@@ -179,23 +180,21 @@
     padding-block-end: 6px;
   }
   /* `/` glyph before each nav label — a quiet hint that these are
-     URL paths. Lower-contrast than the label so it reads as ornamental
-     punctuation, not as part of the word. */
-  .nav a .nav-key {
+     URL paths. Pseudo-element instead of an inline <span> so the
+     markup stays clean and prettier doesn't insert stray whitespace
+     between the glyph and the label. */
+  .nav a::before {
+    content: '/';
     color: var(--ink-3);
     margin-inline-end: 2px;
   }
-  /* Active route: accent colour for both label and slash glyph. The
-     persistent underline comes from animations.css (keeping the
-     background-size: 100% 1px from the hover gradient permanently
-     drawn) so it sits at the same offset as the hover underline.
-     `--accent` straight against `--bg` is 4.49:1 — one hundredth under
-     AA — so this uses the same darkened accent the family name uses. */
-  .nav a[aria-current='page'] {
-    color: color-mix(in oklab, var(--accent) 88%, var(--ink) 12%);
-  }
-  .nav a[aria-current='page'] .nav-key {
-    color: color-mix(in oklab, var(--accent) 88%, var(--ink) 12%);
+  /* Active route: accent colour for both label and slash glyph.
+     Persistent underline comes from animations.css (keeps the
+     gradient at `background-size: 100% 1px` so it sits at the same
+     offset as hover). */
+  .nav a[aria-current='page'],
+  .nav a[aria-current='page']::before {
+    color: var(--accent-aa);
   }
 
   .chrome-end {
@@ -335,39 +334,40 @@
     text-underline-offset: 2px;
   }
 
+  /* ─── Foot-rail (mobile only) ───────────────────────────────────────
+     Sibling of .chrome (not a child), so it's not subject to the
+     chrome's `backdrop-filter` containing-block trap that pinned
+     `position: fixed` descendants to the chrome's bottom edge in the
+     earlier attempt. Hidden by default; the mobile @media block
+     below flips it on and styles the bar itself. JS toggles
+     `.is-hidden` (transform: translateY(100%)) on scroll-down past
+     the hide threshold; slides back on scroll-up or near-top. */
+  .foot-rail {
+    display: none;
+  }
+
   /* ─── Chrome: compact mode under 720px ─────────────────────────────
      Top chrome on mobile keeps the full kit — cube + wordmark + lang
      toggle + theme toggle — just compressed so it fits a 360–400 px
-     viewport on one line. The center nav moves to the foot-rail
-     below; nothing else hides. */
+     viewport on one line. The center .nav hides; the .foot-rail
+     sibling shows below the viewport. */
   @media (max-width: 720px) {
+    /* —— Chrome container —— */
     .chrome {
       gap: 0.5rem;
       padding: 0.65rem var(--gutter);
-      /* CRITICAL: drop `backdrop-filter` and `position: sticky` on
-         mobile. `backdrop-filter` (any non-`none` value) establishes a
-         containing block for fixed-positioned descendants, which was
-         trapping `.chrome .nav { position: fixed; bottom: 0 }` inside
-         the chrome and pinning the foot-rail to the bottom of the
-         (short) chrome element — visually next to the top of the
-         page. Removing both restores the viewport as the containing
-         block. The mobile chrome doesn't need to stick — the foot-
-         rail is the always-visible nav anchor instead. */
-      backdrop-filter: none;
-      position: relative;
-      /* Switch from the desktop `grid-template-columns: auto 1fr auto`
-         to a flex row with `space-between`. The desktop grid puts the
-         nav in the middle 1fr column, but mobile fixes-positions the
-         nav out of flow; the grid's "second child" (chrome-end) then
-         lands in the middle column instead of the right edge. Flex
-         with space-between flushes mark left and chrome-end right
-         regardless of whether the nav is in-flow. */
+      /* Grid `auto 1fr auto` puts chrome-end in the middle 1fr column
+         when the nav is `display: none`, since auto-placement skips
+         hidden children. Flex with space-between flushes mark left
+         and chrome-end right unconditionally. */
       display: flex;
       justify-content: space-between;
       align-items: center;
     }
-    /* Compress the wordmark stack so cube + "Nicolás Bracigliano" fits
-       alongside lang + theme. */
+    .chrome .nav {
+      display: none;
+    }
+    /* —— Mark (cube + wordmark) compress —— */
     .mark {
       gap: 0.4rem;
     }
@@ -382,39 +382,32 @@
       font-size: 0.7rem;
       letter-spacing: 0;
     }
-    .nav ul {
-      gap: 0.75rem;
-    }
+    /* —— Chrome-end controls compress —— */
     .chrome-end {
       gap: 0.5rem;
     }
-    /* Theme-toggle label hides; pill collapses to a compact icon button. */
     .theme-toggle-label {
       display: none;
     }
     #theme-toggle {
       padding: 0.2rem;
     }
-    /* Tighter lang chip — small-caps "en · es" with the same bordered
-       active treatment, just compressed for mobile. */
     .lang-toggle {
       gap: 0.1rem;
     }
+    /* Lang chip meets iOS HIG / WCAG 2.5.5 minimum 44 px tap target.
+       Visual chip border stays tight to text — `min-height: 2.75rem`
+       expands the click area, `align-items: center` (already set in
+       base) keeps the glyph optically centred. */
     .lang-toggle .lang {
-      min-width: 1.25rem;
-      min-height: 1.2rem;
-      padding: 0 0.3rem;
+      min-width: 1.5rem;
+      min-height: 2.75rem;
+      padding: 0 0.4rem;
     }
 
-    /* ─── Mobile foot-rail nav ───────────────────────────────────────
-       The top-chrome nav moves to a fixed bottom bar so thumbs can
-       reach it. 44 px tall, dashed top rule, five labels evenly
-       spaced, active route gets a 2 px terracotta tick above its
-       label. Hides on scroll-down past ~120 px and slides back up on
-       scroll-up — the toggle is driven by JS adding/removing
-       `.is-hidden` (transform: translateY(100%)). `env()` safe-area
-       padding gives the iOS home-indicator some breathing room. */
-    .chrome .nav {
+    /* —— Foot-rail (visible) —— */
+    .foot-rail {
+      display: block;
       position: fixed;
       inset-inline: 0;
       inset-block-end: 0;
@@ -424,47 +417,42 @@
       padding-block-end: env(safe-area-inset-bottom, 0);
       transition: transform var(--speed-page);
     }
-    .chrome .nav.is-hidden {
+    .foot-rail.is-hidden {
       transform: translateY(100%);
     }
-    .chrome .nav ul {
+    .foot-rail ul {
       display: flex;
       justify-content: space-around;
       align-items: stretch;
       gap: 0;
       margin: 0;
       padding: 0 0.5rem;
+      list-style: none;
     }
-    .chrome .nav li {
+    .foot-rail li {
       display: flex;
       flex: 1;
     }
-    .chrome .nav a {
+    .foot-rail a {
       display: inline-flex;
       align-items: center;
       justify-content: center;
       flex: 1;
       min-height: 44px;
       padding: 0 0.25rem;
-      /* Foot-rail labels don't use the gradient underline — the active
-         tick (::before) carries the active state instead. */
-      padding-block-end: 0;
-      background-image: none;
-    }
-    /* `/` slash hides in the foot-rail — five labels evenly spread
-       already feel busy enough, and the slash is a desktop-URL hint
-       that doesn't translate to a thumb-tappable bar. */
-    .chrome .nav a .nav-key {
-      display: none;
-    }
-    .chrome .nav a[aria-current='page'] {
-      background-image: none;
+      color: var(--ink-2);
+      text-decoration: none;
+      text-transform: lowercase;
+      font-size: 0.85rem;
       position: relative;
     }
-    /* 2 px terracotta tick above the active label. Uses pure
-       `--accent` (not the AA-darkened variant) — it's a 2 px line
-       decoration, not text, so the contrast rule doesn't apply. */
-    .chrome .nav a[aria-current='page']::before {
+    .foot-rail a[aria-current='page'] {
+      color: var(--accent-aa);
+    }
+    /* 2 px terracotta tick above the active label. Pure `--accent`
+       (not the AA-darkened variant) — line decoration, not text, so
+       the contrast rule doesn't apply. */
+    .foot-rail a[aria-current='page']::before {
       content: '';
       position: absolute;
       inset-block-start: 6px;
@@ -475,7 +463,7 @@
       background: var(--accent);
     }
 
-    /* Page content needs room for the foot-rail. */
+    /* —— Page padding so content clears the foot-rail —— */
     body {
       padding-block-end: calc(44px + env(safe-area-inset-bottom, 0));
     }
@@ -489,7 +477,9 @@
   .chrome,
   .cube-face,
   .nav a,
-  .nav a .nav-key,
+  .nav a::before,
+  .foot-rail,
+  .foot-rail a,
   #theme-toggle,
   .theme-toggle-label,
   .lang-toggle .lang {

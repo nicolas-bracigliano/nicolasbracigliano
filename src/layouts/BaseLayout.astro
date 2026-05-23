@@ -120,14 +120,23 @@ function isActive(key: keyof typeof ROUTES, currentPath: string): boolean {
            so screen readers don't double-announce. */
       }
       {
-        /* No `transition:name="mark"` here on purpose. The chrome's
-           `transition:animate="none"` keeps the whole header static
-           across navigations; giving the mark its own view-transition
-           name would opt it back IN, and the 3D cube + perspective
-           interpolate weirdly when the user clicks the lang toggle
-           mid-rotation. Static reads cleanly. */
+        /* `transition:name="mark"` makes the mark morph continuously
+           across navigations instead of being part of the page swap.
+           The 3D cube hover state has to be neutralised during the
+           snapshot, though — otherwise the rotated cube + perspective
+           interpolates oddly when the user clicks the lang toggle
+           mid-hover. The astro:before-swap listener below sets
+           `data-vt-active` on the mark; a CSS rule with specificity
+           (0,3,0) — `.mark[data-vt-active] .mark-cube { transform: none }`
+           — overrides the hover rotation while the snapshot is taken,
+           and astro:after-swap removes it. */
       }
-      <a href={ROUTES.home[locale]} class="mark" aria-label={locale === 'en' ? 'Home' : 'Inicio'}>
+      <a
+        href={ROUTES.home[locale]}
+        class="mark"
+        aria-label={locale === 'en' ? 'Home' : 'Inicio'}
+        transition:name="mark"
+      >
         <span class="mark-cube" aria-hidden="true">
           <span class="cube-face cube-face--front">NB</span>
           <span class="cube-face cube-face--back">NB</span>
@@ -143,8 +152,13 @@ function isActive(key: keyof typeof ROUTES, currentPath: string): boolean {
           {
             navItems.map(({ key, label }) => (
               <li>
-                {/* prettier-ignore */}
-                <a href={ROUTES[key][locale]} aria-current={isActive(key, path) ? 'page' : undefined} data-astro-prefetch><span class="nav-key" aria-hidden="true">/</span>{label}</a>
+                <a
+                  href={ROUTES[key][locale]}
+                  aria-current={isActive(key, path) ? 'page' : undefined}
+                  data-astro-prefetch
+                >
+                  {label}
+                </a>
               </li>
             ))
           }
@@ -250,6 +264,33 @@ function isActive(key: keyof typeof ROUTES, currentPath: string): boolean {
       </div>
     </header>
 
+    {
+      /* Mobile foot-rail. Separate `<nav>` instead of CSS-repositioning
+         the top nav: a position:fixed inside `.chrome` got trapped by
+         the chrome's `backdrop-filter` containing block, and the grid
+         layout fork that followed was a maintenance smell. Two navs is
+         honest. Each viewport sees exactly one via `display: none` on
+         the other (so screen-readers also see one navigation landmark
+         at a time, not two). DOM cost: 5 duplicated <a>s. */
+    }
+    <nav class="foot-rail" aria-label={locale === 'en' ? 'Primary' : 'Principal'}>
+      <ul>
+        {
+          navItems.map(({ key, label }) => (
+            <li>
+              <a
+                href={ROUTES[key][locale]}
+                aria-current={isActive(key, path) ? 'page' : undefined}
+                data-astro-prefetch
+              >
+                {label}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+
     <main id="main">
       <slot />
     </main>
@@ -304,27 +345,27 @@ function isActive(key: keyof typeof ROUTES, currentPath: string): boolean {
       // listener covers both code paths.
       document.addEventListener('astro:page-load', syncTheme);
 
-      // Mobile foot-rail nav: slide it out of view on scroll-down past
-      // ~120 px, slide it back when the user scrolls up. CSS handles the
-      // transform; this script just toggles `.is-hidden` on `.nav`.
-      // The window listener is attached once and persists across
-      // ClientRouter swaps — the nav element is found fresh each time
-      // because the chrome doesn't view-transition (animate="none").
-      // A 5 px dy threshold debounces tiny inertial wobbles on iOS.
+      // Mobile foot-rail: slide off on scroll-down past HIDE_AT_SCROLL_PX,
+      // slide back on scroll-up or near-top. Listener attached once at the
+      // window level and reset on each ClientRouter swap.
+      const HIDE_AT_SCROLL_PX = 120; // start hiding only after content begins
+      const ALWAYS_SHOW_BELOW_PX = 60; // top of page: always show foot-rail
+      const DY_DEBOUNCE_PX = 5; // ignore tiny inertial wobbles (iOS)
+
       let lastScrollY = window.scrollY;
       let scrollTicking = false;
-      function updateNavVisibility(): void {
-        const nav = document.querySelector<HTMLElement>('.chrome .nav');
-        if (!nav) {
+      function updateFootRailVisibility(): void {
+        const rail = document.querySelector<HTMLElement>('.foot-rail');
+        if (!rail) {
           scrollTicking = false;
           return;
         }
         const y = window.scrollY;
         const dy = y - lastScrollY;
-        if (y > 120 && dy > 5) {
-          nav.classList.add('is-hidden');
-        } else if (dy < -5 || y <= 60) {
-          nav.classList.remove('is-hidden');
+        if (y > HIDE_AT_SCROLL_PX && dy > DY_DEBOUNCE_PX) {
+          rail.classList.add('is-hidden');
+        } else if (dy < -DY_DEBOUNCE_PX || y <= ALWAYS_SHOW_BELOW_PX) {
+          rail.classList.remove('is-hidden');
         }
         lastScrollY = y;
         scrollTicking = false;
@@ -333,17 +374,29 @@ function isActive(key: keyof typeof ROUTES, currentPath: string): boolean {
         'scroll',
         () => {
           if (!scrollTicking) {
-            requestAnimationFrame(updateNavVisibility);
+            requestAnimationFrame(updateFootRailVisibility);
             scrollTicking = true;
           }
         },
         { passive: true },
       );
-      // Reset the scroll-direction baseline after each page swap so we
-      // don't carry stale `lastScrollY` from the previous route.
+      // Reset baseline + show foot-rail after each page swap.
       document.addEventListener('astro:page-load', () => {
         lastScrollY = window.scrollY;
-        document.querySelector<HTMLElement>('.chrome .nav')?.classList.remove('is-hidden');
+        document.querySelector<HTMLElement>('.foot-rail')?.classList.remove('is-hidden');
+      });
+
+      // Mark cube morph safeguard. When a view-transition kicks off
+      // (e.g. clicking the lang toggle), neutralise the cube's hover
+      // rotation so the snapshot captures it in the default state —
+      // otherwise the 3D perspective interpolates oddly across the
+      // morph. CSS rule `.mark[data-vt-active] .mark-cube` overrides
+      // the hover transform via specificity, not !important.
+      document.addEventListener('astro:before-swap', () => {
+        document.querySelector('.mark')?.setAttribute('data-vt-active', '');
+      });
+      document.addEventListener('astro:after-swap', () => {
+        document.querySelector('.mark')?.removeAttribute('data-vt-active');
       });
 
       // FOUC prevention across ClientRouter navigations.
