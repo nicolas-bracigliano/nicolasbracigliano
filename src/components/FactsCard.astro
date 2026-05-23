@@ -1,0 +1,14 @@
+---
+export interface Props {
+  title: string;
+}
+const { title } = Astro.props;
+---
+
+<section class="facts-card">
+  <h3 class="facts-title">{title}</h3>
+  <dl>
+    <slot />
+  </dl>
+  <slot name="footer" />
+</section>
