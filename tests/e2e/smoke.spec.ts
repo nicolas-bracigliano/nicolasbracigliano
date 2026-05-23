@@ -177,10 +177,24 @@ test('/about/ — "full bench tour" footer link points at the right /now route p
 test('/en/about/ — byline contains the current month name', async ({ page }) => {
   await page.goto('/en/about/');
   // `en-AU` month: long → "may", "june", etc. Lowercased in template.
+  // Known low-likelihood flake: if the test runs exactly at the
+  // Australia/Melbourne month boundary, the page may have been
+  // rendered under one month and this assertion computed under the
+  // next. Re-run; the window is < 1 s of wall-clock per month.
   const currentMonth = new Intl.DateTimeFormat('en-AU', { month: 'long' })
     .format(new Date())
     .toLowerCase();
   await expect(page.locator('.about-out')).toContainText(currentMonth);
+});
+
+test('/en/about/ — masthead carries the accent-coloured `.about-h1-dot`', async ({ page }) => {
+  await page.goto('/en/about/');
+  // The accent dot on the masthead `<h1>` (`Hola.`) visually rhymes
+  // with the intro overlay's `.about-intro-dot`. CSS rules in
+  // `base.css` colour both via the same selector list. If a future
+  // markup refactor drops the `<span class="about-h1-dot">`, the
+  // rhyme silently dies — this test catches that.
+  await expect(page.locator('.about-h1 .about-h1-dot')).toHaveCount(1);
 });
 
 test('/about/ — intro overlay markup is in the SSR response', async ({ page }) => {

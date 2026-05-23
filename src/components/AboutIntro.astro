@@ -4,12 +4,18 @@
 // no pulse — just opacity + filter:blur(). See the History block
 // at the bottom of this comment for the variants tried and dropped.
 //
-// Architecture: CSS drives the auto-dismiss (a `@keyframes
-// about-intro-out` on `.about-intro` with `animation-fill-mode:
-// forwards`); JS owns sessionStorage + click/Esc early-dismiss + DOM
-// cleanup on `animationend`. The overlay markup ships in static HTML —
-// if JS never runs, the CSS animation still fades it out, so the
-// intro never traps a visitor behind it.
+// Architecture: JS owns the whole lifecycle — sessionStorage gate,
+// `.is-active` class to start the animation, click/Esc early-dismiss,
+// DOM cleanup on `animationend`. The base `.about-intro` rule is
+// `display: none`; only `.about-intro.is-active` paints. That keeps
+// repeat visits via ClientRouter from flashing one frame of the
+// `--bg` overlay before JS removes the node.
+//
+// Trade-off: with JS disabled the intro never plays. Accepted —
+// without JS the page renders without the delight overlay, which is
+// strictly better than the previous CSS-only design (overlay
+// animated to opacity 0 + filter:blur but stayed pinned to the
+// viewport, silently swallowing clicks for the rest of the visit).
 //
 // **Note: not extracted as a reusable `<IntroOverlay>`** — the
 // timing curve, the `hola.` copy, and the morph all couple tightly
@@ -47,7 +53,9 @@
     if (!intro) return;
 
     // Once-per-tab: if the visitor has already seen the overlay this
-    // session, skip the animation and remove the node before paint.
+    // session, remove the node and bail. The base CSS rule is
+    // `display: none`, so the overlay never paints regardless — but
+    // removing the node is tidier (no orphan in the DOM).
     try {
       if (sessionStorage.getItem('about-intro-seen') === 'true') {
         intro.remove();
@@ -57,6 +65,9 @@
     } catch {
       /* sessionStorage unavailable — fall through and play the intro */
     }
+
+    // First visit: flip on `.is-active` so the CSS animation engages.
+    intro.classList.add('is-active');
 
     const dismiss = (): void => {
       if (intro.classList.contains('is-dismissed')) return;
