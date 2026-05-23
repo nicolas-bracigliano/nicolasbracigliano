@@ -32,6 +32,10 @@ test-results/
 # Claude Code session state (harness scratch — never commit)
 .claude/
 
-# Playwright MCP scratch screenshots from interactive debugging
+# Playwright MCP scratch screenshots from interactive debugging.
+# Explicit prefixes only — `/*.png` would silently hide any legit
+# root-level PNG (logo, OG override, etc).
 .playwright-mcp/
-/*.png
+/notes-*.png
+/page-*.png
+/colophon-*.png

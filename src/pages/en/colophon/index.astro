@@ -2,7 +2,8 @@
 import { getEntry } from 'astro:content';
 import BaseLayout from '@layouts/BaseLayout.astro';
 import ColophonMasthead from '@components/ColophonMasthead.astro';
-import ColophonSection, { type Row } from '@components/ColophonSection.astro';
+import ColophonSection from '@components/ColophonSection.astro';
+import ColophonRow from '@components/ColophonRow.astro';
 import AsciiSignature from '@components/AsciiSignature.astro';
 import { ROUTES } from '@lib/routes';
 import { getSibling, entryRouteFor } from '@lib/i18n';
@@ -11,80 +12,6 @@ const entry = await getEntry('pages', 'en/colophon');
 if (!entry) throw new Error('Missing pages/en/colophon');
 const sibling = await getSibling(entry);
 const { title, lede } = entry.data;
-
-interface ColophonBlock {
-  tag: string;
-  title: string;
-  rows: readonly Row[];
-  accent?: boolean;
-}
-
-const blocks: readonly ColophonBlock[] = [
-  {
-    tag: '01',
-    title: 'Built with',
-    rows: [
-      { dt: 'language', dd: 'html · css · typescript (no framework on the page)' },
-      { dt: 'generator', dd: 'astro 6 · static output · ~6 KB JS per page' },
-      { dt: 'editor', dd: 'neovim · helix on tuesdays' },
-      { dt: 'browsers', dd: 'tested in chromium 124 · firefox 126 · safari 17.4' },
-    ],
-  },
-  {
-    tag: '02',
-    title: 'Set in',
-    rows: [
-      { dt: 'headline', dd: 'Newsreader · variable, 200–800' },
-      { dt: 'body', dd: 'JetBrains Mono · weight 400' },
-      { dt: 'fallbacks', dd: 'iowan old style, georgia, monospace' },
-      { dt: 'a11y', dd: 'min 15 px body · 1.55 line height · contrast AA+' },
-    ],
-  },
-  {
-    tag: '03',
-    title: 'Hosted on',
-    rows: [
-      { dt: 'pages', dd: 'cloudflare pages · brisbane edge' },
-      { dt: 'assets', dd: 'self-hosted fonts · no third-party scripts' },
-      { dt: 'analytics', dd: 'cloudflare web analytics, server-side · no JS embed' },
-      { dt: 'dns', dd: 'porkbun · DNSSEC on' },
-    ],
-  },
-  {
-    tag: '04',
-    title: 'Workflow',
-    rows: [
-      { dt: 'write', dd: 'markdown in /src/content, typed via Zod' },
-      { dt: 'preview', dd: 'astro dev · livereload on save' },
-      { dt: 'publish', dd: 'git push → cf pages → cdn in ~12 s' },
-      { dt: 'draft', dd: 'stays in /drafts forever, or until it doesn’t' },
-    ],
-  },
-  {
-    tag: '05',
-    title: 'Principles',
-    accent: true,
-    rows: [
-      { dt: 'hecho a mano', dd: 'every page shows craft. nothing is templated.' },
-      { dt: 'one maker, many crafts', dd: 'code, guitar, garden, 3D — facets of one person.' },
-      { dt: 'tools are visible', dd: 'this page exists for that reason.' },
-      { dt: 'en público, en proceso', dd: 'drafts welcome. seedlings tended openly.' },
-      { dt: 'curiosity over conclusion', dd: 'titles can be questions.' },
-      { dt: 'perf, a11y, security', dd: 'as aesthetics, not as checkboxes.' },
-    ],
-  },
-  {
-    tag: '06',
-    title: 'The desk',
-    rows: [
-      { dt: 'keyboard', dd: 'kbd67 mk-ii · alpacas · pbt' },
-      { dt: 'machine', dd: 'framework 13 · arch · sway' },
-      { dt: 'espresso', dd: 'lelit anna · 1zpresso jx' },
-      { dt: 'guitar', dd: 'alhambra 4P · nylon, classical' },
-      { dt: 'light', dd: 'north-facing window, mostly' },
-    ],
-  },
-];
 
 const path = ROUTES.colophon.en;
 const siblingPath = sibling ? entryRouteFor(sibling) : null;
@@ -99,7 +26,62 @@ const siblingPath = sibling ? entryRouteFor(sibling) : null;
 >
   <section class="colofon wrap">
     <ColophonMasthead locale="en" />
-    {blocks.map((b) => <ColophonSection {...b} />)}
+
+    <ColophonSection tag="01" title="Built with">
+      <ColophonRow dt="language">html · css · typescript (no framework on the page)</ColophonRow>
+      <ColophonRow dt="generator">
+        <a href="/en/works/this-site/">astro 6</a> · static output · ~6 KB JS per page
+      </ColophonRow>
+      <ColophonRow dt="editor">neovim · helix on tuesdays</ColophonRow>
+      <ColophonRow dt="browsers">tested in chromium 124 · firefox 126 · safari 17.4</ColophonRow>
+    </ColophonSection>
+
+    <ColophonSection tag="02" title="Set in">
+      <ColophonRow dt="headline">
+        <span class="serif">Newsreader</span> · variable, 200–800
+      </ColophonRow>
+      <ColophonRow dt="body">
+        <span class="mono-display">JetBrains Mono</span> · weight 400
+      </ColophonRow>
+      <ColophonRow dt="fallbacks">iowan old style, georgia, monospace</ColophonRow>
+      <ColophonRow dt="a11y">min 15 px body · 1.55 line height · contrast AA+</ColophonRow>
+    </ColophonSection>
+
+    <ColophonSection tag="03" title="Hosted on">
+      <ColophonRow dt="pages">cloudflare pages · brisbane edge</ColophonRow>
+      <ColophonRow dt="assets">self-hosted fonts · no third-party scripts</ColophonRow>
+      <ColophonRow dt="analytics">cloudflare web analytics, server-side · no JS embed</ColophonRow>
+      <ColophonRow dt="dns">porkbun · DNSSEC on</ColophonRow>
+    </ColophonSection>
+
+    <ColophonSection tag="04" title="Workflow">
+      <ColophonRow dt="write">markdown in /src/content, typed via Zod</ColophonRow>
+      <ColophonRow dt="preview">astro dev · livereload on save</ColophonRow>
+      <ColophonRow dt="publish">git push → cf pages → cdn in ~12 s</ColophonRow>
+      <ColophonRow dt="draft">stays in /drafts forever, or until it doesn’t</ColophonRow>
+    </ColophonSection>
+
+    <ColophonSection tag="05" title="Principles" accent>
+      <ColophonRow dt="hecho a mano">every page shows craft. nothing is templated.</ColophonRow>
+      <ColophonRow dt="one maker, many crafts">
+        code, guitar, garden, 3D — facets of one person.
+      </ColophonRow>
+      <ColophonRow dt="tools are visible">this page exists for that reason.</ColophonRow>
+      <ColophonRow dt="en público, en proceso">
+        drafts welcome. seedlings tended openly.
+      </ColophonRow>
+      <ColophonRow dt="curiosity over conclusion">titles can be questions.</ColophonRow>
+      <ColophonRow dt="perf, a11y, security">as aesthetics, not as checkboxes.</ColophonRow>
+    </ColophonSection>
+
+    <ColophonSection tag="06" title="The desk">
+      <ColophonRow dt="keyboard">kbd67 mk-ii · alpacas · pbt</ColophonRow>
+      <ColophonRow dt="machine">framework 13 · arch · sway</ColophonRow>
+      <ColophonRow dt="espresso">lelit anna · 1zpresso jx</ColophonRow>
+      <ColophonRow dt="guitar">alhambra 4P · nylon, classical</ColophonRow>
+      <ColophonRow dt="light">north-facing window, mostly</ColophonRow>
+    </ColophonSection>
+
     <AsciiSignature locale="en" />
   </section>
 </BaseLayout>

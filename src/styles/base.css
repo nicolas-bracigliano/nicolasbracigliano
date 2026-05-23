@@ -1364,6 +1364,26 @@
     color: var(--ink);
     line-height: 1.55;
   }
+  /* In-row typographic samples — names of fonts rendered in their own
+     typeface. Scoped to .colofon-row dd to avoid leaking the generic
+     `.serif` / `.mono-display` names into the global namespace. */
+  .colofon-row dd .serif {
+    font-family: var(--font-display);
+    font-style: italic;
+  }
+  .colofon-row dd .mono-display {
+    font-family: var(--font-body);
+    font-weight: 500;
+  }
+  .colofon-row dd a {
+    color: var(--accent-aa);
+    text-decoration: none;
+    border-block-end: 1px dashed currentColor;
+  }
+  .colofon-row dd a:hover,
+  .colofon-row dd a:focus-visible {
+    border-block-end-style: solid;
+  }
 
   @media (max-width: 640px) {
     .colofon-block-head {

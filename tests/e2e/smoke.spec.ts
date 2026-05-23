@@ -73,3 +73,27 @@ test('note entries render an auto-computed read-time in the footer', async ({ pa
   await page.goto('/en/notes/hello/');
   await expect(page.locator('.note-foot')).toContainText(/read time · \d+ min/);
 });
+
+test('colophon Principles section carries the .is-accent modifier', async ({ page }) => {
+  await page.goto('/en/colophon/');
+  // The Principles section is the one styled with the warm-tint <dl>.
+  // We assert structurally rather than by index so reordering blocks
+  // doesn't break the test.
+  const principles = page.locator('.colofon-block.is-accent');
+  await expect(principles).toHaveCount(1);
+  await expect(principles).toContainText('Principles');
+});
+
+test('colophon /es/ Principios section carries the .is-accent modifier', async ({ page }) => {
+  await page.goto('/es/colofón/');
+  const principios = page.locator('.colofon-block.is-accent');
+  await expect(principios).toHaveCount(1);
+  await expect(principios).toContainText('Principios');
+});
+
+test('ASCII signature renders with the current two-digit year', async ({ page }) => {
+  await page.goto('/en/colophon/');
+  const yearTwoDigit = new Date().getFullYear().toString().slice(-2);
+  // The block reads `│   N  ·  B  ·  'NN │` — assert the year segment.
+  await expect(page.locator('.ascii-sig')).toContainText(`'${yearTwoDigit}`);
+});

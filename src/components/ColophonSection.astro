@@ -1,22 +1,13 @@
 ---
-export interface Row {
-  dt: string;
-  /** `dd` is a string so the page-level data tables stay JSON-friendly. If
-   *  a row needs inline emphasis or a link, use the `<dd>` slot pattern by
-   *  passing markdown via the parent's body (future). For now, plain text. */
-  dd: string;
-}
-
 export interface Props {
   tag: string;
   title: string;
-  rows: readonly Row[];
   /** Tints the row-stack background a faint accent — used to highlight the
    *  "Principles" section, per design system §3. */
   accent?: boolean;
 }
 
-const { tag, title, rows, accent = false } = Astro.props;
+const { tag, title, accent = false } = Astro.props;
 ---
 
 <section class={`colofon-block${accent ? ' is-accent' : ''}`}>
@@ -26,13 +17,6 @@ const { tag, title, rows, accent = false } = Astro.props;
     <span class="block-line" aria-hidden="true"></span>
   </header>
   <dl class="colofon-rows">
-    {
-      rows.map((row) => (
-        <div class="colofon-row">
-          <dt>{row.dt}</dt>
-          <dd>{row.dd}</dd>
-        </div>
-      ))
-    }
+    <slot />
   </dl>
 </section>

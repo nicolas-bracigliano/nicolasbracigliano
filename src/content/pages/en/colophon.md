@@ -5,21 +5,13 @@ lang: en
 translationKey: colophon
 date: 2026-05-21
 status: published
-lede: 'Stack, fonts, hosting, workflow.'
+lede: 'What this site is made of — stack, fonts, hosting, workflow, principles.'
 ---
 
-## Stack
-
-- **Framework** — Astro 6 (static output, no SSR adapter).
-- **Hosting** — Cloudflare Pages + one Pages Function for the `/` Accept-Language redirect.
-- **Content** — Markdown in repo, typed via Zod content collections.
-- **Type** — Newsreader (display, variable). JetBrains Mono (body, mono, variable).
-- **Build** — Node 24 LTS, pnpm via Corepack, SHA-pinned GitHub Actions.
-
-## Principles
-
-- Performance, accessibility, security as aesthetics. Lighthouse ≥ 95 on every page.
-- No third-party scripts.
-- En público, en proceso.
-
-`╭─ NB · '26 ─╮`
+<!--
+  Body intentionally empty. The colophon is rendered inline by
+  `src/pages/en/colophon/index.astro` (the Typewriter credits roll
+  treatment), so any text written here would never reach the rendered
+  page. This frontmatter exists only so `getSibling()` can resolve the
+  /es/colofón/ sibling via the `translationKey` field.
+-->
