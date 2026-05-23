@@ -41,7 +41,10 @@ const ariaLabel = locale === 'es' ? 'Filtros' : 'Filters';
 {
   /* Filters are show/hide toggles, not tabs (no separate panels), so
     `<button aria-pressed>` inside a `<div role="toolbar">` is the right
-    semantic — not the prototype's `<nav role="tablist">` mixed pattern. */
+    semantic — not the prototype's `<nav role="tablist">` mixed pattern.
+    Tap-area vs visible-chip split mirrors the chrome lang-toggle: the
+    outer `<button>` is the 44 px WCAG 2.5.5 floor with no visible
+    border; the inner `.filter-chip` keeps the prototype's tight pill. */
 }
 <div class="works-filters" role="toolbar" aria-label={ariaLabel}>
   {
@@ -52,9 +55,11 @@ const ariaLabel = locale === 'es' ? 'Filtros' : 'Filters';
         aria-pressed={i === 0 ? 'true' : 'false'}
         data-filter={b.key}
       >
-        <span class="filter-key">{b.key}</span>
-        <span class="filter-label">{b.label}</span>
-        <span class="filter-count">{counts[b.key]}</span>
+        <span class="filter-chip">
+          <span class="filter-key">{b.key}</span>
+          <span class="filter-label">{b.label}</span>
+          <span class="filter-count">{counts[b.key]}</span>
+        </span>
       </button>
     ))
   }
