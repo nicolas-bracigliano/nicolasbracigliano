@@ -596,10 +596,13 @@
   }
   .inline-vignette .vignette-label {
     color: inherit;
+    position: relative;
+    top: 3px;
   }
   .vignette--mate,
   .vignette--mate.inline-vignette em {
     color: var(--mate);
+    top: 1px;
   }
 
   /* Bench section — "Currently on the bench" + 2×2 dashed-rule grid */

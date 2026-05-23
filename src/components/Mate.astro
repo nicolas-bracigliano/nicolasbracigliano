@@ -14,13 +14,39 @@ const { label = 'mate' } = Astro.props;
 ---
 
 <span class="inline-vignette vignette--mate">
-  <svg viewBox="0 0 30 30" width="20" height="20" aria-hidden="true" class="icon-mate">
-    <g fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round">
-      <ellipse cx="15" cy="18" rx="8" ry="9"></ellipse>
-      <path d="M19 9 L 24 4"></path>
-      <path d="M22 7 L 26 7"></path>
-      <path d="M9 14 L 21 14"></path>
-    </g>
+  <svg viewBox="10 5 145 205" width="16" height="20" aria-hidden="true" class="icon-mate">
+    <!-- Straw -->
+    <path
+      d="M92 85 C106 55, 123 27, 148 10"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="5"
+      stroke-linecap="round"></path>
+
+    <!-- Straw bead -->
+    <circle cx="114" cy="43" r="7" fill="currentColor"></circle>
+
+    <!-- Top rim -->
+    <path d="M45 87 H112 L124 106 H32 Z" fill="currentColor"></path>
+
+    <!-- Cut line between rim and body — drawn in the page background
+         colour so the rim and body read as two separate filled shapes.
+         `var(--bg)` follows the active theme (cream in día / near-black
+         in noche), so the cut "erases" cleanly in both. -->
+    <path d="M32 111 H132" stroke="var(--bg)" stroke-width="5" stroke-linecap="round"></path>
+
+    <!-- Gourd body -->
+    <path
+      d="
+        M31 111
+        C22 127, 16 143, 17 159
+        C19 192, 41 205, 75 205
+        C110 205, 132 192, 135 160
+        C137 143, 131 127, 122 111
+        Z
+      "
+      fill="currentColor"></path>
   </svg>
+
   {label && <span class="vignette-label">{label}</span>}
 </span>
