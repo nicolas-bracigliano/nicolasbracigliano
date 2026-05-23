@@ -1,0 +1,12 @@
+---
+export interface Props {
+  text: string;
+  mark?: string;
+}
+const { text, mark = '↳' } = Astro.props;
+---
+
+<div class="margin-note">
+  <span class="margin-mark" aria-hidden="true">{mark}</span>
+  <p>{text}</p>
+</div>
