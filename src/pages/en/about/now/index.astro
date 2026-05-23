@@ -3,7 +3,7 @@ import { getEntry } from 'astro:content';
 import BaseLayout from '@layouts/BaseLayout.astro';
 import NowMasthead from '@components/NowMasthead.astro';
 import NowItem from '@components/NowItem.astro';
-import type { NowItemKind } from '@components/NowItem.astro';
+import type { NowPageItem } from '@components/NowItem.astro';
 import { ROUTES } from '@lib/routes';
 import { getSibling, entryRouteFor } from '@lib/i18n';
 
@@ -19,13 +19,12 @@ const siblingPath = sibling ? entryRouteFor(sibling) : null;
 // what's actually open, what was last touched, what's next. If the
 // content drifts more than weekly, the byline ("last updated this
 // week") on `NowMasthead` lies; refresh both together.
-const items: Array<{
-  kind: NowItemKind;
-  where: string;
-  title: string;
-  prose: string;
-  detail: Array<{ dt: string; dd: string }>;
-}> = [
+//
+// Future: migrate this array into a content collection (Zod-
+// validated frontmatter on the now.md entries, or a new now-items
+// collection) so a content refresh isn't a code edit. Tracked in
+// the launch plan under "outstanding follow-ups".
+const items: NowPageItem[] = [
   {
     kind: 'code',
     where: 'on the bench · code',
@@ -125,9 +124,5 @@ const items: Array<{
         ))
       }
     </ol>
-
-    <footer class="now-foot">
-      <span class="eyebrow">↺ previous «nows» in the archive</span>
-    </footer>
   </section>
 </BaseLayout>

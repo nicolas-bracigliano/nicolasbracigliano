@@ -2202,7 +2202,7 @@
   }
   .now-detail dt {
     color: var(--ink-3);
-    font-size: 0.6563rem;
+    font-size: 0.625rem;
     letter-spacing: 0.12em;
     text-transform: uppercase;
   }
@@ -2222,15 +2222,13 @@
   .now-read .now-num {
     color: var(--mate);
   }
+  /* Guitar + coffee deliberately inherit the default `.now-num`
+     accent. This rule is functionally a no-op but stays as
+     documented intent: don't let a future "consolidate dead CSS"
+     refactor wipe it out and lose the per-kind palette story. */
   .now-guitar .now-num,
   .now-coffee .now-num {
     color: var(--accent-aa);
-  }
-
-  .now-foot {
-    margin: 3.75rem 0 2.5rem;
-    text-align: center;
-    color: var(--ink-3);
   }
 
   @media (max-width: 40rem) {

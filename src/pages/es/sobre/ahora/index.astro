@@ -3,7 +3,7 @@ import { getEntry } from 'astro:content';
 import BaseLayout from '@layouts/BaseLayout.astro';
 import NowMasthead from '@components/NowMasthead.astro';
 import NowItem from '@components/NowItem.astro';
-import type { NowItemKind } from '@components/NowItem.astro';
+import type { NowPageItem } from '@components/NowItem.astro';
 import { ROUTES } from '@lib/routes';
 import { getSibling, entryRouteFor } from '@lib/i18n';
 
@@ -20,13 +20,13 @@ const siblingPath = sibling ? entryRouteFor(sibling) : null;
 // viene. Si el contenido cambia con menos de una semana de
 // frecuencia, la fecha del masthead ("última actualización esta
 // semana") miente; actualizar ambas cosas juntas.
-const items: Array<{
-  kind: NowItemKind;
-  where: string;
-  title: string;
-  prose: string;
-  detail: Array<{ dt: string; dd: string }>;
-}> = [
+//
+// A futuro: migrar este array a una content collection (frontmatter
+// validado por Zod en las entradas now.md, o una colección
+// now-items aparte) para que una actualización de contenido no sea
+// también una edición de código. Tracking en el plan de lanzamiento
+// bajo "outstanding follow-ups".
+const items: NowPageItem[] = [
   {
     kind: 'code',
     where: 'sobre la mesa · código',
@@ -126,9 +126,5 @@ const items: Array<{
         ))
       }
     </ol>
-
-    <footer class="now-foot">
-      <span class="eyebrow">↺ «ahoras» anteriores en el archivo</span>
-    </footer>
   </section>
 </BaseLayout>

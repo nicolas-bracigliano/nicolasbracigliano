@@ -13,13 +13,19 @@ export interface NowItemDetailRow {
   dd: string;
 }
 
-export interface Props {
-  index: number;
+/** Shape of one bench-tour entry as authored by the page. The page
+ *  assigns `index` at map-time, so it isn't part of the authored
+ *  shape — see {@link Props} for the full component contract. */
+export interface NowPageItem {
   kind: NowItemKind;
   where: string;
   title: string;
   prose: string;
   detail: NowItemDetailRow[];
+}
+
+export interface Props extends NowPageItem {
+  index: number;
 }
 
 const { index, kind, where, title, prose, detail } = Astro.props;
@@ -33,7 +39,12 @@ const num = `№ ${String(index).padStart(2, '0')}`;
   <div class="now-num">{num}</div>
   <div class="now-body">
     <span class="now-where">{where}</span>
-    <h3 class="now-title">{title}</h3>
+    {
+      /* h2, not h3 — each item is a sibling-level section to the
+        masthead h1's intro, with no intermediate level. The
+        prototype skipped from h1 to h3; we don't inherit that. */
+    }
+    <h2 class="now-title">{title}</h2>
     <p class="now-prose">{prose}</p>
     <dl class="now-detail">
       {
