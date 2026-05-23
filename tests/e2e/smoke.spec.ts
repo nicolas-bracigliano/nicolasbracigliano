@@ -10,6 +10,8 @@ const ROUTES = [
   { path: '/es/obras/', lang: 'es' },
   { path: '/en/about/', lang: 'en' },
   { path: '/es/sobre/', lang: 'es' },
+  { path: '/en/about/now/', lang: 'en' },
+  { path: '/es/sobre/ahora/', lang: 'es' },
   { path: '/en/colophon/', lang: 'en' },
   { path: '/es/colofón/', lang: 'es' },
 ] as const;
@@ -248,6 +250,64 @@ test("/about/ — intro overlay survives child animation-end events, removes its
   // removal, the overlay must be gone.
   await page.waitForTimeout(INTRO_TOTAL_MS - INTRO_INNER_FADE_END_MS + INTRO_WAIT_BUFFER_MS);
   await expect(page.locator('[data-about-intro]')).toHaveCount(0);
+});
+
+// `/now/` smoke tests. Same naming convention as `/about/` tests
+// above: `/en/about/now/` or `/es/sobre/ahora/` for single-locale,
+// `/now/` for both-locale assertions.
+
+test('/about/now/ — renders 6 numbered items in both locales', async ({ page }) => {
+  for (const path of ['/en/about/now/', '/es/sobre/ahora/']) {
+    await page.goto(path);
+    await expect(page.locator('.now-list .now-item')).toHaveCount(6);
+    // The № rail uses tabular-nums; we just assert the content shape.
+    await expect(page.locator('.now-num').first()).toContainText('№ 01');
+    await expect(page.locator('.now-num').last()).toContainText('№ 06');
+  }
+});
+
+test('/about/now/ — all six per-kind classes are present and unique', async ({ page }) => {
+  await page.goto('/en/about/now/');
+  // The CSS keys the № tint off these — if a future refactor drops
+  // a kind from the page, the visual rhythm breaks silently. Assert
+  // structurally rather than visually.
+  const kinds = ['code', 'guitar', 'garden', 'print', 'coffee', 'read'] as const;
+  for (const kind of kinds) {
+    await expect(page.locator(`.now-item.now-${kind}`)).toHaveCount(1);
+  }
+});
+
+test('/en/about/now/ — masthead carries the current weekday name', async ({ page }) => {
+  await page.goto('/en/about/now/');
+  // The masthead date is `en-AU` long-form: "friday, 23 may 2026",
+  // lowercased in the template. Asserting the weekday — a less-flaky
+  // anchor than the day-number (which we'd have to time-freeze) and
+  // a stronger signal than "any date string" (the eyebrow lives
+  // next to it). Known flake window: < 1 s/day at Australia/Melbourne
+  // midnight, when render and assert can straddle the boundary.
+  const weekday = new Intl.DateTimeFormat('en-AU', {
+    weekday: 'long',
+    timeZone: 'Australia/Melbourne',
+  })
+    .format(new Date())
+    .toLowerCase();
+  await expect(page.locator('.now-date')).toContainText(weekday);
+});
+
+test('/en/about/now/ — each item has a detail <dl> with at least one dt/dd pair', async ({
+  page,
+}) => {
+  await page.goto('/en/about/now/');
+  // We don't assert the exact dt count because the seed content can
+  // grow per item; just guarantee the structural contract that every
+  // item has a <dl> with content. Catches a regression where
+  // NowItem's slot stops rendering the detail array.
+  const details = page.locator('.now-item .now-detail');
+  await expect(details).toHaveCount(6);
+  for (let i = 0; i < 6; i++) {
+    await expect(details.nth(i).locator('dt').first()).not.toBeEmpty();
+    await expect(details.nth(i).locator('dd').first()).not.toBeEmpty();
+  }
 });
 
 test('works filter toggles cards via data-kind matching', async ({ page }) => {

@@ -1,0 +1,56 @@
+---
+import type { Locale } from '@lib/routes';
+
+export interface Props {
+  locale: Locale;
+}
+const { locale } = Astro.props;
+
+const copy = {
+  en: {
+    eyebrow: '/ about / now',
+    h1Lead: "What I'm doing",
+    h1Italic: 'right now.',
+    dateLocale: 'en-AU',
+    updated: 'last updated this week',
+    sub: 'A "now" page, in the spirit of <em>nownownow.com</em> — present tense, dated, honest. Not a portfolio. A bench&nbsp;tour.',
+  },
+  es: {
+    eyebrow: '/ sobre / ahora',
+    h1Lead: 'Qué estoy haciendo',
+    h1Italic: 'ahora mismo.',
+    dateLocale: 'es-AR',
+    updated: 'última actualización esta semana',
+    sub: 'Una página "ahora", en el espíritu de <em>nownownow.com</em> — tiempo presente, fechada, honesta. No es un portfolio. Es un recorrido por la&nbsp;mesa.',
+  },
+} as const;
+
+const t = copy[locale];
+
+// Long-form local date, tied to Australia/Melbourne so the byline
+// matches what's actually on the bench from Nicolas's chair. Locale-
+// formatted: "Friday, 23 May 2026" (en-AU) / "viernes, 23 de mayo de
+// 2026" (es-AR). Lowercased to match the page's quiet voice.
+const dateLong = new Intl.DateTimeFormat(t.dateLocale, {
+  weekday: 'long',
+  day: 'numeric',
+  month: 'long',
+  year: 'numeric',
+  timeZone: 'Australia/Melbourne',
+})
+  .format(new Date())
+  .toLowerCase();
+---
+
+<header class="now-head">
+  <span class="eyebrow">{t.eyebrow}</span>
+  <h1 class="now-h1">
+    {t.h1Lead}
+    <br />
+    <span class="serif-italic">{t.h1Italic}</span>
+  </h1>
+  <p class="now-date">
+    {dateLong} · <span class="muted">{t.updated}</span>
+  </p>
+  <p class="now-sub" set:html={t.sub} />
+</header>

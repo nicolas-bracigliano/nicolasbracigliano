@@ -1,0 +1,49 @@
+---
+// One row of the numbered bench tour. Two-column grid: the
+// monospaced № on the left, the body (where / title / prose /
+// detail <dl>) on the right. The `kind` prop becomes a class on the
+// `<li>` (`.now-code`, `.now-garden`, …) which paints the № in a
+// kind-appropriate hue without splitting the rest of the row's
+// styling per kind.
+
+export type NowItemKind = 'code' | 'guitar' | 'garden' | 'print' | 'coffee' | 'read';
+
+export interface NowItemDetailRow {
+  dt: string;
+  dd: string;
+}
+
+export interface Props {
+  index: number;
+  kind: NowItemKind;
+  where: string;
+  title: string;
+  prose: string;
+  detail: NowItemDetailRow[];
+}
+
+const { index, kind, where, title, prose, detail } = Astro.props;
+
+// `№ 01`, `№ 02`, …. Tabular-nums in CSS keeps the rail straight even
+// once the list crosses ten items.
+const num = `№ ${String(index).padStart(2, '0')}`;
+---
+
+<li class={`now-item now-${kind}`}>
+  <div class="now-num">{num}</div>
+  <div class="now-body">
+    <span class="now-where">{where}</span>
+    <h3 class="now-title">{title}</h3>
+    <p class="now-prose">{prose}</p>
+    <dl class="now-detail">
+      {
+        detail.map((row) => (
+          <>
+            <dt>{row.dt}</dt>
+            <dd>{row.dd}</dd>
+          </>
+        ))
+      }
+    </dl>
+  </div>
+</li>
