@@ -34,5 +34,4 @@ test-results/
 
 # Playwright MCP scratch screenshots from interactive debugging
 .playwright-mcp/
-/notes-*.png
-/page-*.png
+/*.png

@@ -1,19 +1,108 @@
 ---
-import { getEntry, render } from 'astro:content';
-import PageLayout from '@layouts/PageLayout.astro';
+import { getEntry } from 'astro:content';
+import BaseLayout from '@layouts/BaseLayout.astro';
+import ColophonMasthead from '@components/ColophonMasthead.astro';
+import ColophonSection, { type Row } from '@components/ColophonSection.astro';
+import AsciiSignature from '@components/AsciiSignature.astro';
 import { ROUTES } from '@lib/routes';
 import { getSibling, entryRouteFor } from '@lib/i18n';
 
 const entry = await getEntry('pages', 'es/colophon');
 if (!entry) throw new Error('Missing pages/es/colophon');
 const sibling = await getSibling(entry);
-const { Content } = await render(entry);
+const { title, lede } = entry.data;
+
+interface ColophonBlock {
+  tag: string;
+  title: string;
+  rows: readonly Row[];
+  accent?: boolean;
+}
+
+const blocks: readonly ColophonBlock[] = [
+  {
+    tag: '01',
+    title: 'Hecho con',
+    rows: [
+      { dt: 'lenguaje', dd: 'html · css · typescript (sin framework en la página)' },
+      { dt: 'generador', dd: 'astro 6 · salida estática · ~6 KB de JS por página' },
+      { dt: 'editor', dd: 'neovim · helix los martes' },
+      { dt: 'navegadores', dd: 'probado en chromium 124 · firefox 126 · safari 17.4' },
+    ],
+  },
+  {
+    tag: '02',
+    title: 'Compuesto en',
+    rows: [
+      { dt: 'titular', dd: 'Newsreader · variable, 200–800' },
+      { dt: 'cuerpo', dd: 'JetBrains Mono · peso 400' },
+      { dt: 'alternativas', dd: 'iowan old style, georgia, monospace' },
+      { dt: 'a11y', dd: 'mín. 15 px en cuerpo · interlínea 1.55 · contraste AA+' },
+    ],
+  },
+  {
+    tag: '03',
+    title: 'Alojado en',
+    rows: [
+      { dt: 'pages', dd: 'cloudflare pages · edge de brisbane' },
+      { dt: 'recursos', dd: 'fuentes propias · sin scripts de terceros' },
+      { dt: 'analítica', dd: 'cloudflare web analytics, del lado del servidor · sin JS' },
+      { dt: 'dns', dd: 'porkbun · DNSSEC activado' },
+    ],
+  },
+  {
+    tag: '04',
+    title: 'Flujo',
+    rows: [
+      { dt: 'escribir', dd: 'markdown en /src/content, tipado con Zod' },
+      { dt: 'vista previa', dd: 'astro dev · recarga en vivo al guardar' },
+      { dt: 'publicar', dd: 'git push → cf pages → cdn en ~12 s' },
+      { dt: 'borrador', dd: 'queda en /drafts hasta que deje de hacerlo' },
+    ],
+  },
+  {
+    tag: '05',
+    title: 'Principios',
+    accent: true,
+    rows: [
+      { dt: 'hecho a mano', dd: 'cada página muestra el oficio. nada se replica.' },
+      {
+        dt: 'un hacedor, muchos oficios',
+        dd: 'código, guitarra, huerta, 3D — caras de una sola persona.',
+      },
+      { dt: 'las herramientas se ven', dd: 'esta página existe por esa razón.' },
+      { dt: 'en público, en proceso', dd: 'borradores bienvenidos. semillas cuidadas a la vista.' },
+      { dt: 'curiosidad antes que conclusión', dd: 'los títulos pueden ser preguntas.' },
+      { dt: 'perf, a11y, seguridad', dd: 'como estética, no como casilleros.' },
+    ],
+  },
+  {
+    tag: '06',
+    title: 'El escritorio',
+    rows: [
+      { dt: 'teclado', dd: 'kbd67 mk-ii · alpacas · pbt' },
+      { dt: 'máquina', dd: 'framework 13 · arch · sway' },
+      { dt: 'espresso', dd: 'lelit anna · 1zpresso jx' },
+      { dt: 'guitarra', dd: 'alhambra 4P · cuerda de nylon, clásica' },
+      { dt: 'luz', dd: 'ventana al norte, casi siempre' },
+    ],
+  },
+];
+
+const path = ROUTES.colophon.es;
+const siblingPath = sibling ? entryRouteFor(sibling) : null;
 ---
 
-<PageLayout
-  entry={entry}
-  path={ROUTES.colophon.es}
-  siblingPath={sibling ? entryRouteFor(sibling) : null}
+<BaseLayout
+  title={title}
+  locale="es"
+  path={path}
+  siblingPath={siblingPath}
+  {...lede && { description: lede }}
 >
-  <Content />
-</PageLayout>
+  <section class="colofon wrap">
+    <ColophonMasthead locale="es" />
+    {blocks.map((b) => <ColophonSection {...b} />)}
+    <AsciiSignature locale="es" />
+  </section>
+</BaseLayout>

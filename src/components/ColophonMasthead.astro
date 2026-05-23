@@ -1,0 +1,35 @@
+---
+import type { Locale } from '@lib/routes';
+
+export interface Props {
+  locale: Locale;
+}
+const { locale } = Astro.props;
+
+const copy = {
+  en: {
+    eyebrow: '——— Colophon',
+    h1Lead: 'What this site',
+    h1Italic: 'is made of.',
+    sub: 'A colophon, in the old sense — the small mark at the back of a book that names the type, the paper, the press. Updated whenever the stack moves.',
+  },
+  es: {
+    eyebrow: '——— Colofón',
+    h1Lead: 'De qué está hecho',
+    h1Italic: 'este sitio.',
+    sub: 'Un colofón, en el sentido antiguo — la pequeña marca al final de un libro que nombra los tipos, el papel, la prensa. Se actualiza cuando se mueve la pila.',
+  },
+} as const;
+
+const t = copy[locale];
+---
+
+<header class="colofon-head">
+  <span class="eyebrow">{t.eyebrow}</span>
+  <h1 class="colofon-h1">
+    {t.h1Lead}
+    <br />
+    <span class="serif-italic">{t.h1Italic}</span>
+  </h1>
+  <p class="colofon-sub">{t.sub}</p>
+</header>
