@@ -1,12 +1,24 @@
 ---
-import { getCollection } from 'astro:content';
+import { getCollection, render } from 'astro:content';
 import BaseLayout from '@layouts/BaseLayout.astro';
+import NotesMasthead from '@components/NotesMasthead.astro';
+import NoteEntry from '@components/NoteEntry.astro';
 import { ROUTES } from '@lib/routes';
 import { entryRouteFor } from '@lib/i18n';
 
 const notes = (
   await getCollection('notes', (e) => e.data.lang === 'en' && e.data.status === 'published')
 ).sort((a, b) => +b.data.date - +a.data.date);
+
+// Render each note's MDX content alongside its frontmatter so the index
+// reads like a field notebook, not a stack of "read more" stubs.
+const rendered = await Promise.all(
+  notes.map(async (entry) => ({
+    entry,
+    Content: (await render(entry)).Content,
+    permalink: entryRouteFor(entry),
+  })),
+);
 
 const path = ROUTES.notes.en;
 const siblingPath = ROUTES.notes.es;
@@ -19,22 +31,21 @@ const siblingPath = ROUTES.notes.es;
   path={path}
   siblingPath={siblingPath}
 >
-  <section class="index">
-    <h1>Notes</h1>
-    <ul class="entry-list">
+  <section class="notes wrap">
+    <NotesMasthead locale="en" />
+
+    <ol class="notes-list">
       {
-        notes.map((n) => (
-          <li>
-            <a href={entryRouteFor(n)} data-astro-prefetch>
-              <time datetime={n.data.date.toISOString().slice(0, 10)}>
-                {n.data.date.toISOString().slice(0, 10)}
-              </time>
-              <span class="title">{n.data.title}</span>
-              {n.data.lede && <span class="lede">{n.data.lede}</span>}
-            </a>
-          </li>
+        rendered.map(({ entry, Content, permalink }, i) => (
+          <NoteEntry entry={entry} locale="en" permalink={permalink} isFirst={i === 0}>
+            <Content />
+          </NoteEntry>
         ))
       }
-    </ul>
+    </ol>
+
+    <footer class="notes-foot">
+      <span class="eyebrow">↺ &nbsp;older notes in the drawer</span>
+    </footer>
   </section>
 </BaseLayout>

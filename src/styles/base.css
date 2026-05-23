@@ -1029,6 +1029,238 @@
     border-inline-start: 2px solid var(--accent);
   }
 
+  /* ─── Notes: Marginalia notebook (design system §3) ────────────────────
+     Three-column grid per note: left rail holds date + tags + glyph
+     (each glyph tinted by --ink-blue / --accent / --mate / --accent),
+     centre column holds prose, right rail holds a sticky tilted
+     margin-note. Collapses to one column under 880 px; left rail
+     becomes a narrow date strip and right rail vanishes. */
+
+  .notes.wrap {
+    max-width: 1100px;
+    margin-inline: auto;
+    padding-inline: var(--gutter);
+  }
+
+  .notes-head {
+    padding-block-start: clamp(2.5rem, 6vw, 5rem);
+    margin-block-end: 3rem;
+    max-width: 720px;
+  }
+  .notes-h1 {
+    font-family: var(--font-display);
+    font-weight: 400;
+    font-size: clamp(2.5rem, 5.6vw, 4.75rem);
+    line-height: 1.04;
+    letter-spacing: -0.02em;
+    margin: 0.75rem 0 1rem;
+  }
+  .notes-h1 .serif-italic {
+    font-style: italic;
+  }
+  .notes-sub {
+    font-size: 0.875rem;
+    color: var(--ink-2);
+    max-width: 50ch;
+    line-height: 1.6;
+  }
+
+  .notes-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .note {
+    display: grid;
+    grid-template-columns: 180px minmax(0, 1fr) 200px;
+    gap: 2.25rem;
+    padding-block: 2.25rem;
+    border-block-start: 1px solid var(--rule);
+    position: relative;
+  }
+  .note:first-child {
+    border-block-start: 0;
+    padding-block-start: 0;
+  }
+
+  .note-left {
+    text-align: end;
+    font-size: 0.6875rem;
+    color: var(--ink-3);
+  }
+  .note-date {
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.04em;
+  }
+  .note-tags {
+    margin-block-start: 0.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.125rem;
+    align-items: flex-end;
+  }
+  .note-tag {
+    font-size: 0.625rem;
+    letter-spacing: 0.06em;
+  }
+  .note-glyph {
+    margin-block-start: 0.875rem;
+    display: inline-block;
+    color: var(--ink-2);
+    opacity: 0.75;
+    transition: opacity var(--speed-micro);
+  }
+  .note-glyph.g-code {
+    color: var(--ink-blue);
+  }
+  .note-glyph.g-guitar {
+    color: var(--accent-aa);
+  }
+  .note-glyph.g-garden {
+    color: var(--mate);
+  }
+  .note-glyph.g-coffee {
+    color: var(--accent-aa);
+  }
+  .note:hover .note-glyph {
+    opacity: 1;
+  }
+
+  .note-body {
+    max-width: 56ch;
+    min-inline-size: 0;
+  }
+  .note-title {
+    font-family: var(--font-display);
+    font-weight: 400;
+    font-size: 1.75rem;
+    letter-spacing: -0.01em;
+    line-height: 1.15;
+    margin: 0 0 0.5rem;
+  }
+  .note-title a {
+    color: var(--ink);
+    text-decoration: none;
+    border: 0;
+    transition: color var(--speed-micro);
+  }
+  .note-title a:hover,
+  .note-title a:focus-visible {
+    color: var(--accent-aa);
+  }
+  .note-lede {
+    font-family: var(--font-display);
+    font-style: italic;
+    font-size: 1.0625rem;
+    color: var(--ink-2);
+    margin: 0 0 1.125rem;
+    line-height: 1.5;
+  }
+  .note-prose p {
+    font-size: 0.9063rem;
+    line-height: 1.7;
+    color: var(--ink);
+    margin: 0 0 0.875rem;
+    text-wrap: pretty;
+  }
+  /* The prototype's "rule" body marker maps to markdown's --- which
+     renders as <hr>. Style it as a dotted-radial ornament inside notes. */
+  .note-prose hr {
+    border: 0;
+    margin: 1.5rem auto;
+    height: 0.75rem;
+    width: 5rem;
+    background-image: radial-gradient(circle, var(--accent-aa) 1.5px, transparent 1.8px);
+    background-size: 1rem 0.75rem;
+    background-repeat: repeat-x;
+    opacity: 0.7;
+  }
+  .note-foot {
+    margin-block-start: 0.75rem;
+    font-size: 0.6875rem;
+    letter-spacing: 0.06em;
+    color: var(--ink-3);
+    display: flex;
+    gap: 0.625rem;
+    align-items: center;
+  }
+  .note-foot a {
+    color: var(--ink-2);
+    border: 0;
+    text-decoration: none;
+    transition: color var(--speed-micro);
+  }
+  .note-foot a:hover,
+  .note-foot a:focus-visible {
+    color: var(--accent-aa);
+    text-decoration: underline;
+  }
+  .note-foot .sep {
+    opacity: 0.5;
+  }
+
+  .note-right {
+    position: relative;
+  }
+  .margin-note {
+    font-size: 0.75rem;
+    color: var(--ink-2);
+    font-style: italic;
+    font-family: var(--font-display);
+    padding: 0.5rem 0.75rem;
+    border-inline-start: 1px solid var(--accent-aa);
+    background: color-mix(in oklab, var(--accent) 4%, transparent);
+    position: sticky;
+    inset-block-start: 5.5rem;
+    transform: rotate(-0.4deg);
+    line-height: 1.5;
+  }
+  .margin-note p {
+    margin: 0;
+  }
+  .margin-mark {
+    display: block;
+    color: var(--accent-aa);
+    font-size: 0.875rem;
+    margin-block-end: 0.25rem;
+  }
+
+  .notes-foot {
+    text-align: center;
+    margin-block-start: 3.75rem;
+    color: var(--ink-3);
+    font-size: 0.75rem;
+  }
+  .notes-foot .back-link {
+    color: var(--ink-2);
+    border: 0;
+    text-decoration: none;
+    letter-spacing: 0.04em;
+    transition: color var(--speed-micro);
+  }
+  .notes-foot .back-link:hover,
+  .notes-foot .back-link:focus-visible {
+    color: var(--accent-aa);
+  }
+
+  .notes--single .notes-list {
+    padding-block-start: clamp(2.5rem, 6vw, 5rem);
+  }
+
+  @media (max-width: 880px) {
+    .note {
+      grid-template-columns: 6.25rem 1fr;
+      gap: 1.125rem;
+    }
+    .note-right {
+      display: none;
+    }
+    .note-glyph {
+      display: none;
+    }
+  }
+
   .notfound {
     text-align: center;
     padding-block: 4rem;
