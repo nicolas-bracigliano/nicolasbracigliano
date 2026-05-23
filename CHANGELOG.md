@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.5.0](https://github.com/nicolas-bracigliano/nicolasbracigliano/compare/v1.4.0...v1.5.0) (2026-05-23)
+
+
+### Features
+
+* **now:** full prototype-parity Numbered bench tour ([#23](https://github.com/nicolas-bracigliano/nicolasbracigliano/issues/23)) ([b4999fc](https://github.com/nicolas-bracigliano/nicolasbracigliano/commit/b4999fcdb81b937da929a93404a0c33ff1f80220))
+
 ## [1.4.0](https://github.com/nicolas-bracigliano/nicolasbracigliano/compare/v1.3.0...v1.4.0) (2026-05-23)
 
 
