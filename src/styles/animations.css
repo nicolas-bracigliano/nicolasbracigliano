@@ -29,6 +29,151 @@
     }
   }
 
+  /* ─── Home: workshop-bench vignette loops ─────────────────────────────
+     The design system §10 rule "animate into existence, then rest" applies
+     to chrome and prose decoration. The bench section is the documented
+     exception: the vignettes ARE the metaphor — a blinking caret, a
+     plucking string, a growing stem, a printer head laying layers, steam
+     rising from coffee. Without motion these collapse to static icons and
+     lose their meaning. Loops are bounded to short, gentle durations and
+     all retire to a stable frame under prefers-reduced-motion via the
+     reset.css clamp. Same logic applies to the masthead's pulsing
+     presence dot. */
+
+  @keyframes pulse {
+    0%,
+    100% {
+      transform: scale(1);
+      opacity: 1;
+    }
+    50% {
+      transform: scale(1.4);
+      opacity: 0.6;
+    }
+  }
+
+  @keyframes blink {
+    50% {
+      opacity: 0;
+    }
+  }
+
+  @keyframes pluck {
+    0%,
+    92%,
+    100% {
+      transform: translateY(0);
+    }
+    94% {
+      transform: translateY(-1.4px);
+    }
+    96% {
+      transform: translateY(1.4px);
+    }
+    98% {
+      transform: translateY(-0.6px);
+    }
+  }
+
+  @keyframes grow {
+    from {
+      stroke-dashoffset: 80;
+    }
+    to {
+      stroke-dashoffset: 0;
+    }
+  }
+
+  @keyframes leaf-pop {
+    0% {
+      opacity: 0;
+      transform: scale(0.7);
+    }
+    60% {
+      opacity: 1;
+      transform: scale(1.05);
+    }
+    100% {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  @keyframes head-move {
+    0% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(50px);
+    }
+    100% {
+      transform: translateY(100px);
+    }
+  }
+
+  @keyframes layer-fade {
+    0%,
+    100% {
+      opacity: 0.1;
+    }
+    50% {
+      opacity: 0.45;
+    }
+  }
+
+  @keyframes steam-rise {
+    0% {
+      opacity: 0;
+      transform: translateY(2px);
+    }
+    30% {
+      opacity: 1;
+    }
+    100% {
+      opacity: 0;
+      transform: translateY(-4px);
+    }
+  }
+
+  /* ─── Bench vignettes: pre-animation initial states ───────────────────
+     These sit OUTSIDE the prefers-reduced-motion gate because they're not
+     motion — they're the "before" appearance that the bench animations
+     transition away from. Without them, the @keyframes have nothing to
+     animate FROM and the elements paint at their default SVG attributes
+     (stem fully drawn, leaves fully opaque) before any motion kicks in,
+     producing a visible "snap to start, then animate" flash. */
+
+  .seedling-vig .stem {
+    stroke-dasharray: 80;
+    stroke-dashoffset: 80;
+  }
+  .seedling-vig .leaf {
+    transform-origin: 100px 70px;
+    opacity: 0;
+  }
+  .guitar-vig .string {
+    transform-origin: center;
+  }
+
+  /* Reduced-motion: skip the staging entirely. Set the end-states so a
+     user with motion sensitivity sees fully-rendered vignettes
+     immediately, with no IntersectionObserver dependency. The masthead's
+     looping pulse + steam are clamped to 0.01ms × 1 iteration by
+     reset.css under the same media query — they appear once-instantly
+     and rest. */
+
+  @media (prefers-reduced-motion: reduce) {
+    .seedling-vig .stem {
+      stroke-dashoffset: 0;
+    }
+    .seedling-vig .leaf {
+      opacity: 1;
+    }
+    .print-vig .head {
+      transform: translateY(100px);
+    }
+  }
+
   @media (prefers-reduced-motion: no-preference) {
     /* No page-load main fade — axe-core flags partial-opacity mid-animation
      * colours as failing contrast, making e2e timing-flaky. */
@@ -118,6 +263,157 @@
       transform: translateX(4px);
     }
     .entry-list a:hover .title {
+      color: var(--accent);
+    }
+
+    /* ─── Home: bench vignettes (animate-once-on-mount, DS §15) ──────────
+       Bench vignettes used to loop forever, which the DS calls out as an
+       anti-pattern: "animate into existence, then rest". Now they play
+       exactly once when their card scrolls into view — a small JS shim on
+       the home page adds `.in-view` to each `.bench-card` via
+       IntersectionObserver, and these rules trigger off that class.
+       `animation-fill-mode: forwards` holds the end frame so the stem,
+       leaves, and print head don't snap back to their pre-animation
+       state. The masthead presence dot + coffee steam keep their
+       loops — they're "alive" indicators in the chrome of the page, not
+       bench decoration, and reset.css still clamps them under
+       prefers-reduced-motion. */
+
+    /* Mate presence dot in the eyebrow row — a quiet 2.4s pulse. */
+    .dot.mate {
+      animation: pulse 2400ms ease-in-out infinite;
+    }
+
+    /* Coffee steam — two strokes offset by 500ms so they read as
+       independent puffs, not synchronized waves. */
+    .inline-vignette .steam {
+      animation: steam-rise 1800ms ease-in-out infinite;
+      transform-origin: bottom;
+    }
+    .inline-vignette .steam-2 {
+      animation-delay: 500ms;
+    }
+
+    /* Terminal caret: even-step blink so it reads as a CRT cursor.
+       Eight blinks (~8.8s) then settles at opacity 1, so the caret
+       reads as a terminal cursor in the moment but doesn't twitch
+       forever. */
+    .bench-card.in-view .terminal-vig .caret {
+      animation: blink 1100ms steps(2, end) 8;
+    }
+
+    /* Guitar strings: stagger plucks across the six lines so they look
+       like a hand passing over the strings instead of a single chord. */
+    .bench-card.in-view .guitar-vig .string {
+      animation: pluck 4400ms ease-in-out 1;
+    }
+    .bench-card.in-view .guitar-vig .s0 {
+      animation-delay: 0ms;
+    }
+    .bench-card.in-view .guitar-vig .s1 {
+      animation-delay: 220ms;
+    }
+    .bench-card.in-view .guitar-vig .s2 {
+      animation-delay: 440ms;
+    }
+    .bench-card.in-view .guitar-vig .s3 {
+      animation-delay: 660ms;
+    }
+    .bench-card.in-view .guitar-vig .s4 {
+      animation-delay: 880ms;
+    }
+    .bench-card.in-view .guitar-vig .s5 {
+      animation-delay: 1100ms;
+    }
+
+    /* Seedling: the stem grows via stroke-dashoffset and the three
+       leaves pop in on staggered delays. `forwards` keeps them settled
+       once played. */
+    .bench-card.in-view .seedling-vig .stem {
+      animation: grow 3200ms cubic-bezier(0.2, 0.7, 0.2, 1) forwards;
+    }
+    .bench-card.in-view .seedling-vig .leaf {
+      animation: leaf-pop 3200ms cubic-bezier(0.2, 0.7, 0.2, 1) forwards;
+    }
+    .bench-card.in-view .seedling-vig .l1 {
+      animation-delay: 600ms;
+    }
+    .bench-card.in-view .seedling-vig .l2 {
+      animation-delay: 1100ms;
+    }
+    .bench-card.in-view .seedling-vig .l3 {
+      animation-delay: 1600ms;
+    }
+
+    /* 3D print: head sweeps down once (laying the print) and rests at
+       the bottom; layer lines fade through a triangular wave then
+       settle at their static SVG opacity. */
+    .bench-card.in-view .print-vig .head {
+      animation: head-move 3800ms cubic-bezier(0.4, 0, 0.6, 1) forwards;
+    }
+    .bench-card.in-view .print-vig .layer {
+      animation: layer-fade 3800ms ease-in-out 1;
+    }
+    .bench-card.in-view .print-vig .l1 {
+      animation-delay: 120ms;
+    }
+    .bench-card.in-view .print-vig .l2 {
+      animation-delay: 240ms;
+    }
+    .bench-card.in-view .print-vig .l3 {
+      animation-delay: 360ms;
+    }
+    .bench-card.in-view .print-vig .l4 {
+      animation-delay: 480ms;
+    }
+    .bench-card.in-view .print-vig .l5 {
+      animation-delay: 600ms;
+    }
+    .bench-card.in-view .print-vig .l6 {
+      animation-delay: 720ms;
+    }
+
+    /* Bench card hover: paper-background swap + small accent dot fade-in
+       at the top-right corner. Standard speed so it feels intentional
+       without being slow. */
+    .bench-card {
+      transition: background-color var(--speed-standard);
+    }
+    .bench-card:hover {
+      background: var(--paper);
+    }
+    .bench-card::before {
+      transition: opacity var(--speed-micro);
+    }
+    .bench-card:hover::before {
+      opacity: 1;
+    }
+
+    /* Latest entries: paper background + small inset shift + arrow lift
+       + title goes accent. Mirrors entry-list hover from indexes but
+       tuned to the 4-col grid spacing. */
+    .latest-link {
+      transition:
+        background-color var(--speed-micro),
+        padding-inline-start var(--speed-standard);
+    }
+    .latest-link:hover {
+      background: var(--paper);
+      padding-inline-start: 1.1rem;
+    }
+    .latest-arrow {
+      transition:
+        transform var(--speed-standard),
+        color var(--speed-micro);
+    }
+    .latest-link:hover .latest-arrow {
+      transform: translate(2px, -2px);
+      color: var(--accent);
+    }
+    .latest-title {
+      transition: color var(--speed-micro);
+    }
+    .latest-link:hover .latest-title {
       color: var(--accent);
     }
 

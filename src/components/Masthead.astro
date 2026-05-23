@@ -1,0 +1,59 @@
+---
+// Home-page masthead (design system §3 — Workshop bench). Two columns
+// on desktop: line-art portrait + caption on the left, big serif h1
+// + bio + meta on the right. Single column under 720px.
+//
+// Eyebrow, h1, bio and meta are slots so the page can compose locale-
+// specific copy with inline <Coffee /> + <Mate /> vignettes. The
+// portrait stays a styled monogram placeholder until the real avatar
+// lands (Phase 3); the markup wrapping it stays stable so swapping
+// the inner SVG for an <Image /> is a one-line change.
+
+export interface Props {
+  /** Caption beneath the portrait (e.g. "retrato · pendiente"). */
+  portraitCaption: string;
+}
+
+const { portraitCaption } = Astro.props;
+---
+
+<section class="masthead">
+  <div class="masthead-grid">
+    <aside class="masthead-portrait" aria-hidden="true">
+      {
+        /* Placeholder monogram — replaced by a real ink-line portrait in Phase 3.
+          Outer <aside> + caption are the launch-ready shell. */
+      }
+      <svg viewBox="0 0 220 220" width="220" height="220" class="portrait-mono">
+        <rect
+          x="0.5"
+          y="0.5"
+          width="219"
+          height="219"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1"
+          stroke-dasharray="3 4"
+          opacity="0.55"></rect>
+        <text
+          x="110"
+          y="138"
+          text-anchor="middle"
+          font-family="var(--font-display)"
+          font-size="120"
+          font-weight="400"
+          fill="currentColor"
+          letter-spacing="-4">NB</text
+        >
+      </svg>
+      <p class="portrait-caption">{portraitCaption}</p>
+    </aside>
+
+    <div class="masthead-text">
+      <p class="eyebrow"><slot name="eyebrow" /></p>
+      <slot name="h1" />
+      <p class="masthead-bio"><slot name="bio" /></p>
+      <p class="masthead-meta"><slot name="meta" /></p>
+    </div>
+  </div>
+</section>

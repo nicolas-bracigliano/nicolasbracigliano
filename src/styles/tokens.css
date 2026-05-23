@@ -8,7 +8,7 @@
     --ink-3: #736b5e;
     --rule: #d4cfc2;
     --accent: #b8512a;
-    --olive: #5a6a3a;
+    --mate: #5a6a3a;
     --ink-blue: #2d4a7a;
 
     --font-display: 'Newsreader', 'Iowan Old Style', Georgia, serif;
@@ -20,6 +20,12 @@
     --speed-micro: 240ms ease;
     --speed-standard: 320ms cubic-bezier(0.2, 0.7, 0.2, 1);
     --speed-page: 520ms cubic-bezier(0.2, 0.7, 0.2, 1);
+
+    /* Terminal palette — used by the home page's "code" bench vignette.
+       Same in Día + Noche because terminals are dark in both. Picked to
+       evoke a familiar dev-shell without coupling to either site theme. */
+    --terminal-bg: #14181c;
+    --terminal-fg: #c9d1d9;
 
     /* AA-safe accent for small text — raw --accent is 4.49:1 on --bg. */
     --accent-aa: color-mix(in oklab, var(--accent) 88%, var(--ink) 12%);
@@ -34,7 +40,7 @@
     --ink-3: #8c8678;
     --rule: #2c2a24;
     --accent: #d8a07e;
-    --olive: #8a9a6a;
+    --mate: #8a9a6a;
     --ink-blue: #6b88b5;
   }
 }

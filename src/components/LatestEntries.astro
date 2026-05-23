@@ -1,0 +1,62 @@
+---
+// Home-page "Latest entries" section (design system §3 + §11). Mixes
+// notes and works in one chronological list, with a kind-pill prefix
+// so the reader can scan the type at a glance.
+//
+// Row shape per prototype: `[pill] [date] [title] [arrow]` — 4-column
+// grid that collapses to 3 columns below 640px (date drops, pill keeps
+// its place for scanability).
+
+import type { CollectionEntry } from 'astro:content';
+import { entryRouteFor } from '@lib/i18n';
+
+export type LatestKind = 'note' | 'work' | 'essay';
+
+export type LatestItem = {
+  entry: CollectionEntry<'notes'> | CollectionEntry<'works'> | CollectionEntry<'essays'>;
+  kind: LatestKind;
+};
+
+export interface Props {
+  items: LatestItem[];
+  /** Section eyebrow — e.g. "Latest entries" / "Últimas entradas". */
+  eyebrow: string;
+  /** Right-aligned link label — e.g. "all entries →". */
+  allEntriesLabel: string;
+  /** Right-aligned link href (typically the /notes index). */
+  allEntriesHref: string;
+  /** Localized labels rendered inside the kind pill. */
+  kindLabels: Record<LatestKind, string>;
+}
+
+const { items, eyebrow, allEntriesLabel, allEntriesHref, kindLabels } = Astro.props;
+---
+
+<section class="home-latest" aria-labelledby="latest-h">
+  <header class="latest-head">
+    <span class="eyebrow" id="latest-h">{eyebrow}</span>
+    <a href={allEntriesHref} class="latest-all" data-astro-prefetch>{allEntriesLabel}</a>
+  </header>
+
+  <ul class="latest-list">
+    {
+      items.map(({ entry, kind }) => {
+        const iso = entry.data.date.toISOString().slice(0, 10);
+        return (
+          <li class="latest-row">
+            <a href={entryRouteFor(entry)} class="latest-link" data-astro-prefetch>
+              <span class={`kind-pill k-${kind}`}>{kindLabels[kind]}</span>
+              <time class="latest-date" datetime={iso}>
+                {iso}
+              </time>
+              <span class="latest-title">{entry.data.title}</span>
+              <span class="latest-arrow" aria-hidden="true">
+                ↗
+              </span>
+            </a>
+          </li>
+        );
+      })
+    }
+  </ul>
+</section>

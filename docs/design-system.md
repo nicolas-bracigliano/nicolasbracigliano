@@ -166,7 +166,7 @@ Two palettes, switched by the day/night toggle. The other two palettes from earl
 | `--ink-3`    | `#736b5e` | Tertiary text, labels (5.19:1 on `--bg`, AA)   |
 | `--rule`     | `#d4cfc2` | Dividers                                       |
 | `--accent`   | `#b8512a` | Links, hover, dots, micro-accents (terracotta) |
-| `--olive`    | `#5a6a3a` | Garden moments                                 |
+| `--mate `    | `#5a6a3a` | Garden moments                                 |
 | `--ink-blue` | `#2d4a7a` | Code/engineering moments                       |
 
 ### Noche (dark)
@@ -178,9 +178,9 @@ Two swaps worth knowing: `--accent` softens from `#b8512a` to `#d8a07e` because 
 These exist as trade-offs, not commandments. Break them when the trade is worth it.
 
 - **`--accent` on large flat surfaces.** If you use it as a card background, links inside that card lose their distinguishing color. You either re-tint the links (more code) or accept that interactivity is invisible (worse UX). The trade is rarely worth it. So we don't.
-- **`--olive` outside garden moments.** If you use it on a code vignette, it stops marking garden. Olive becomes meaningless. The trade is _cheaper visual variety now, less semantic legibility forever_. Usually not worth it.
-- **`--ink-blue` outside code moments.** Same trade as olive.
-- **Two accents on the same page.** Sometimes you need both `--accent` (a CTA) and `--olive` (a status). Fine. Three accents on one page is the tell that the page is doing too much.
+- **`--mate` outside garden moments.** If you use it on a code vignette, it stops marking garden. Mate becomes meaningless. The trade is _cheaper visual variety now, less semantic legibility forever_. Usually not worth it.
+- **`--ink-blue` outside code moments.** Same trade as mate.
+- **Two accents on the same page.** Sometimes you need both `--accent` (a CTA) and `--mate` (a status). Fine. Three accents on one page is the tell that the page is doing too much.
 
 ## 9 · Type
 
