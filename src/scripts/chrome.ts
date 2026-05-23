@@ -1,11 +1,11 @@
 // Chrome client behaviour: theme state machine, foot-rail scroll-direction
 // listener, FOUC prevention, cross-tab sync, click delegation. Imported
 // once from BaseLayout's <script> tag; all handlers are window/document-
-// level so they survive ClientRouter body swaps.
+// level so they survive ClientRouter body swaps. Pure state helpers
+// live in `./theme.ts` so they're unit-testable without a DOM.
 
 import type { TransitionBeforeSwapEvent } from 'astro:transitions/client';
-
-type Theme = 'dia' | 'noche';
+import { decideOnOsChange, parseStoredTheme, pickTheme, type Theme } from './theme';
 
 const MOBILE_BREAKPOINT = '(max-width: 720px)';
 const HIDE_AT_SCROLL_PX = 120;
@@ -16,17 +16,16 @@ const root = document.documentElement;
 
 function readStoredTheme(): Theme | null {
   try {
-    const stored = localStorage.getItem('theme');
-    return stored === 'dia' || stored === 'noche' ? stored : null;
+    return parseStoredTheme(localStorage.getItem('theme'));
   } catch {
     return null;
   }
 }
 
 function resolveTheme(): Theme {
-  return (
-    readStoredTheme() ??
-    (window.matchMedia?.('(prefers-color-scheme: dark)').matches ? 'noche' : 'dia')
+  return pickTheme(
+    readStoredTheme(),
+    window.matchMedia?.('(prefers-color-scheme: dark)').matches ?? false,
   );
 }
 
@@ -116,23 +115,18 @@ window.addEventListener('storage', (event) => {
   }
 });
 
-// Retire-on-match: when the OS theme catches up to the user's override,
-// drop the override so future OS toggles are followed automatically.
-// Override that disagrees with the OS is kept.
 const colorSchemeMql = window.matchMedia?.('(prefers-color-scheme: dark)');
 colorSchemeMql?.addEventListener('change', (event) => {
   const osTheme: Theme = event.matches ? 'noche' : 'dia';
-  const stored = readStoredTheme();
-  if (stored === null) {
-    applyTheme(osTheme);
-  } else if (stored === osTheme) {
+  const decision = decideOnOsChange(readStoredTheme(), osTheme);
+  if (decision.retire) {
     try {
       localStorage.removeItem('theme');
     } catch {
       /* localStorage unavailable */
     }
-    applyTheme(osTheme);
   }
+  if (decision.apply) applyTheme(decision.apply);
 });
 
 document.addEventListener('click', (event) => {
