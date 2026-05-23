@@ -2241,20 +2241,124 @@
     }
   }
 
-  .notfound {
+  /* ─── 404: Misplaced letter (design system §3) ──────────────────────────
+     Bilingual fallback that catches any unmatched URL. Two columns
+     on desktop: a small broken-N SVG illustration on the left, a
+     prose column on the right with the visitor's requested path,
+     ways back to both locales, and a mailto for broken-link reports.
+     Collapses to single column below 45 rem. */
+
+  .notfound.wrap {
+    max-width: 880px;
+    margin-inline: auto;
+    padding-inline: var(--gutter);
+  }
+
+  .notfound-grid {
+    display: grid;
+    grid-template-columns: 13.75rem minmax(0, 1fr);
+    gap: clamp(2rem, 6vw, 4.5rem);
+    align-items: start;
+    min-height: 60vh;
+    padding-block: clamp(2.5rem, 6vw, 5rem);
+  }
+  @media (max-width: 45rem) {
+    .notfound-grid {
+      grid-template-columns: 1fr;
+    }
+    .notfound-art {
+      text-align: center;
+    }
+  }
+
+  .broken-n {
+    display: block;
+    margin: 0 auto;
+    color: var(--ink);
+  }
+  .notfound-caption {
     text-align: center;
-    padding-block: 4rem;
-  }
-  .notfound h1 {
-    font-size: clamp(4rem, 12vw, 8rem);
+    font-size: 0.75rem;
     color: var(--ink-3);
+    margin-block-start: 0.5rem;
   }
-  .flag-links {
+
+  .notfound-h1 {
+    font-family: var(--font-display);
+    font-weight: 400;
+    font-size: clamp(2.5rem, 5.6vw, 4.75rem);
+    line-height: 1.04;
+    letter-spacing: -0.02em;
+    margin: 0.75rem 0 1.5rem;
+    text-wrap: pretty;
+  }
+
+  .notfound-prose {
+    font-size: 0.9375rem;
+    line-height: 1.7;
+    color: var(--ink-2);
+    margin: 0 0 0.875rem;
+    max-width: 56ch;
+    text-wrap: pretty;
+  }
+  .notfound-url {
+    /* Requested path, filled by the inline script. Reads visually
+       as a code-style token — distinguishes the broken-URL from
+       prose. Accent applied via --accent-aa for AA contrast on the
+       small mono type. */
+    font-family: var(--font-body);
+    font-size: 0.8125rem;
+    padding: 0.0625rem 0.375rem;
+    background: var(--bg-2);
+    border: 1px solid var(--rule);
+    border-radius: 2px;
+    color: var(--accent-aa);
+    word-break: break-all;
+  }
+
+  .notfound-links {
     list-style: none;
     padding: 0;
+    margin: 1.125rem 0 1.75rem;
     display: flex;
-    gap: 2rem;
-    justify-content: center;
+    flex-direction: column;
+    gap: 0.625rem;
+  }
+  .notfound-links li {
+    font-size: 0.875rem;
+    display: flex;
+    align-items: baseline;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
+  .notfound-links a {
+    font-family: var(--font-display);
+    font-style: italic;
+    font-size: 1.125rem;
+    color: var(--ink);
+  }
+  .notfound-links a:hover {
+    color: var(--accent-aa);
+  }
+  .notfound-links-pair a {
+    font-size: 1rem;
+  }
+  .notfound-links-note {
+    color: var(--ink-3);
+    font-size: 0.7813rem;
+  }
+
+  .notfound-foot {
     margin-block-start: 2rem;
+    padding-block-start: 1rem;
+    border-block-start: 1px dashed var(--rule);
+    font-size: 0.8125rem;
+    color: var(--ink-3);
+  }
+  .notfound-foot a {
+    /* AA-safe accent on small body text — the global `a` rule
+       paints `--accent`, which is 4.49 contrast at 13 px and trips
+       axe-core. Same fix as the about-page CTA + now-page sub-em. */
+    color: var(--accent-aa);
   }
 }

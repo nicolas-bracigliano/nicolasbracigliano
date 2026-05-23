@@ -316,6 +316,65 @@ test('/en/about/now/ — each item has a detail <dl> with at least one dt/dd pai
   }
 });
 
+// `/404` smoke tests. The page catches any unmatched URL and is
+// served by Astro's preview server (and by Cloudflare Pages in
+// production) with HTTP 404 status. We navigate via deliberately-
+// unmatched paths rather than `/404` directly — Astro's
+// `trailingSlash: always` redirects intercept `/404` before the
+// 404 handler runs.
+
+test('/404 — broken-N illustration + bilingual masthead are in the SSR response', async ({
+  page,
+}) => {
+  await page.goto('/this-route-is-not-real/');
+  // The illustration is a single inline SVG with the broken-N
+  // class; the masthead has both English and `lang="es"` spans
+  // ("No encontré" + "what you were looking for").
+  await expect(page.locator('svg.broken-n')).toHaveCount(1);
+  await expect(page.locator('.notfound-h1 [lang="es"]')).toContainText('No encontré');
+  await expect(page.locator('.notfound-h1')).toContainText('what you were looking');
+});
+
+test('/404 — offers paths back in both locales', async ({ page }) => {
+  await page.goto('/some-other-broken-path/');
+  // Four EN routes (→ home / notes / works / about) + four ES
+  // mirrors (inicio / notas / obras / sobre). Asserting via the
+  // `[lang="es"]` markers — they're how screen readers know to
+  // switch pronunciation, and the smoke test reuses them as a
+  // structural marker.
+  const enLinks = page.locator('.notfound-links li > a[href^="/en/"]');
+  const esLinks = page.locator('.notfound-links li [lang="es"]');
+  await expect(enLinks).toHaveCount(4);
+  await expect(esLinks).toHaveCount(4);
+  await expect(page.locator('.notfound-foot a[href^="mailto:"]')).toHaveCount(1);
+});
+
+test('/404 has no serious axe violations', async ({ page }) => {
+  // Mirrors the main `ROUTES` loop's a11y check but for the 404
+  // fallback, which can't be added to that loop because Astro's
+  // `trailingSlash: always` redirect intercepts a direct `/404`
+  // visit before the 404 handler runs.
+  await page.goto('/another-broken-path/');
+  const results = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa']).analyze();
+  const serious = results.violations.filter(
+    (v) => v.impact === 'serious' || v.impact === 'critical',
+  );
+  expect(serious).toEqual([]);
+});
+
+test('/404 — fallback returns HTTP 404 and the inline script fills the requested path', async ({
+  page,
+}) => {
+  // A path that resolves to nothing: Astro's preview server (and
+  // Cloudflare Pages in production) serves `404.html` with status
+  // 404. The inline script reads `window.location.pathname` and
+  // writes it into `#notfound-url`.
+  const bogus = '/this-path-does-not-exist-xyz/';
+  const response = await page.goto(bogus);
+  expect(response?.status()).toBe(404);
+  await expect(page.locator('#notfound-url')).toHaveText(bogus);
+});
+
 test('works filter toggles cards via data-kind matching', async ({ page }) => {
   await page.goto('/en/works/');
   // Wait for the inline script to have wired the toolbar — without this,
