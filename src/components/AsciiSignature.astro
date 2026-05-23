@@ -1,0 +1,36 @@
+---
+import type { Locale } from '@lib/routes';
+
+export interface Props {
+  locale: Locale;
+}
+const { locale } = Astro.props;
+
+// "21 may 2026" / "21 de mayo de 2026" — lowercase to match the prototype.
+const formatter = new Intl.DateTimeFormat(locale === 'es' ? 'es-AR' : 'en-AU', {
+  day: 'numeric',
+  month: 'long',
+  year: 'numeric',
+  timeZone: 'Australia/Melbourne',
+});
+const today = formatter.format(new Date()).toLowerCase();
+const yearTwoDigit = new Date().getFullYear().toString().slice(-2);
+
+const ariaLabel = locale === 'es' ? 'firma' : 'signature';
+const setInTypeOn = locale === 'es' ? 'compuesto el' : 'set in type on';
+---
+
+<p class="colofon-sig">
+  <span class="serif-italic">— Nicolas</span>
+  <span class="muted"> · Melbourne · {setInTypeOn} {today}</span>
+</p>
+
+<pre
+  class="ascii-sig"
+  role="img"
+  aria-label={ariaLabel}>
+{`  ╭───────────────────╮
+  │   N  ·  B  ·  '${yearTwoDigit} │
+  ╰───────────────────╯`}
+</pre>
+<span class="ascii-sig-meta">— {setInTypeOn} {today} · hecho a mano —</span>

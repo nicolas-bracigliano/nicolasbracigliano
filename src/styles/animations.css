@@ -9,6 +9,19 @@
 @layer animations {
   /* ─── Keyframes (always defined, gated usage below) ─────────────── */
 
+  /* Transform-only entrance. ADR 0006 keeps opacity out of any
+     keyframes that might run during axe's contrast pass — fading
+     pixels read as "low contrast" mid-animation. Use this instead of
+     `fade-up` for any new entrance animation. */
+  @keyframes slide-in-up {
+    from {
+      transform: translateY(6px);
+    }
+    to {
+      transform: none;
+    }
+  }
+
   @keyframes fade-up {
     from {
       opacity: 0;
