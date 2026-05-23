@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.0](https://github.com/nicolas-bracigliano/nicolasbracigliano/compare/v1.1.0...v1.2.0) (2026-05-23)
+
+
+### Features
+
+* **notes:** full prototype-parity Marginalia notebook ([#6](https://github.com/nicolas-bracigliano/nicolasbracigliano/issues/6)) ([20ca9b4](https://github.com/nicolas-bracigliano/nicolasbracigliano/commit/20ca9b4052091a4f944bea9914def548e2d233cf))
+
 ## [1.1.0](https://github.com/nicolas-bracigliano/nicolasbracigliano/compare/v1.0.0...v1.1.0) (2026-05-23)
 
 
