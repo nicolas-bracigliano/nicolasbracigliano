@@ -18,8 +18,34 @@
 // and then it's gone. No motion exposure.
 ---
 
+{
+  /* Off-DOM SVG filter — feTurbulence-driven displacement that ramps up
+    during the morph so the word reads as "breaking apart into particles"
+    while it translates up toward the masthead. SMIL `<animate>` drives
+    the scale; the same timing as `about-intro-hola-morph`. Gated by
+    `@media not (prefers-reduced-motion: reduce)` in CSS — the filter
+    isn't applied for reduced-motion users (the global reset already
+    clamps CSS animation-duration, but SMIL needs its own opt-out). */
+}
+<svg class="about-intro-defs" width="0" height="0" aria-hidden="true" focusable="false">
+  <defs>
+    <filter id="about-intro-dissolve" x="-50%" y="-50%" width="200%" height="200%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.04" numOctaves="2" seed="3"></feTurbulence>
+      <feDisplacementMap in="SourceGraphic">
+        <animate
+          attributeName="scale"
+          values="0; 0; 90"
+          keyTimes="0; 0.55; 1"
+          dur="2400ms"
+          begin="200ms"
+          fill="freeze"></animate>
+      </feDisplacementMap>
+    </filter>
+  </defs>
+</svg>
+
 <div class="about-intro" role="presentation" aria-hidden="true" data-about-intro>
-  <span class="about-intro-hola serif-italic">hola.</span>
+  <span class="about-intro-hola serif-italic">hola<span class="about-intro-dot">.</span></span>
 </div>
 
 <script>

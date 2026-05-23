@@ -149,6 +149,10 @@ test('work-card stretched-link covers the whole card', async ({ page }) => {
 
 test('works filter toggles cards via data-kind matching', async ({ page }) => {
   await page.goto('/en/works/');
+  // Wait for the inline script to have wired the toolbar — without this,
+  // a fast `goto`/`click` can race the `astro:page-load` listener that
+  // attaches the click handler, and the click silently no-ops.
+  await page.locator('.works-filters[data-wired="true"]').waitFor();
   // Initial state: all cards visible.
   const all = page.locator('.work-card');
   await expect(all).toHaveCount(4);

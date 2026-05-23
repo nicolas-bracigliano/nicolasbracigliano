@@ -64,7 +64,10 @@
       filter: blur(0);
       pointer-events: auto;
     }
-    40% {
+    /* Hold the overlay opaque until the hola starts morphing
+       (1.3 s into the 2.4 s timeline = ~55 %). After that the
+       overlay fades in lock-step with the hola morph. */
+    55% {
       opacity: 1;
       filter: blur(0);
     }
@@ -73,6 +76,21 @@
       filter: blur(8px);
       pointer-events: none;
       visibility: hidden;
+    }
+  }
+  /* Morph-out: the word translates up-and-left toward where the
+     masthead's `Hola.` will be and shrinks toward its size, while
+     also fading. The translate values are viewport-relative so
+     they read sensibly across breakpoints without trying to be
+     pixel-perfect against the masthead's actual position. */
+  @keyframes about-intro-hola-morph {
+    0% {
+      transform: translate(0, 0) scale(1);
+      opacity: 1;
+    }
+    100% {
+      transform: translate(-20vw, -28vh) scale(0.55);
+      opacity: 0;
     }
   }
   @keyframes about-intro-dismiss {
