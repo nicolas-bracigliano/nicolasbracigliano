@@ -211,32 +211,41 @@
     font-variant: small-caps;
     letter-spacing: 0.08em;
   }
+  /* Outer <a class="lang"> is the tap target only — no visible border.
+     The visible chip is the inner <span class="lang-chip">, so we can
+     grow the tap area (e.g. to 44 px on mobile) without elongating the
+     border around the text. */
   .lang-toggle .lang {
-    /* inline-flex + centred alignment keeps "en"/"es" optically vertically
-       centred inside the chip — small-caps glyphs have asymmetric metrics
-       that read off-centre with padding alone. */
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    min-width: 1.5rem;
-    min-height: 1.4rem;
     color: var(--ink-3);
     text-decoration: none;
-    padding: 0 0.4rem;
-    border: 1px solid transparent;
-    border-radius: 3px;
     line-height: 1;
   }
-  /* Active locale: bordered chip rather than an underline. Reads as
-     a discrete toggle state. */
   .lang-toggle .lang.on {
     color: var(--ink);
-    border-color: var(--rule);
   }
   .lang-toggle .lang[aria-disabled='true'] {
     color: var(--ink-3);
     opacity: 0.45;
     pointer-events: none;
+  }
+  /* Visible chip — kept compact regardless of how big the parent tap
+     area is. The bordered "on" treatment goes here so it stays tight
+     around the text. */
+  .lang-chip {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 1.5rem;
+    min-height: 1.4rem;
+    padding: 0 0.4rem;
+    border: 1px solid transparent;
+    border-radius: 3px;
+  }
+  .lang-toggle .lang.on .lang-chip {
+    border-color: var(--rule);
   }
   .only-note {
     margin-inline-start: 0.5rem;
@@ -395,14 +404,14 @@
     .lang-toggle {
       gap: 0.1rem;
     }
-    /* Lang chip meets iOS HIG / WCAG 2.5.5 minimum 44 px tap target.
-       Visual chip border stays tight to text — `min-height: 2.75rem`
-       expands the click area, `align-items: center` (already set in
-       base) keeps the glyph optically centred. */
+    /* The OUTER `<a>` grows to 44 px on mobile (iOS HIG / WCAG 2.5.5
+       tap-target floor). The INNER `.lang-chip` keeps its compact
+       1.4 rem height so the active border stays tight to the glyph
+       instead of stretching to the full tap area. Empty space between
+       chip and tap-area boundary is invisible tap padding. */
     .lang-toggle .lang {
-      min-width: 1.5rem;
+      min-width: 2.75rem;
       min-height: 2.75rem;
-      padding: 0 0.4rem;
     }
 
     /* —— Foot-rail (visible) —— */
@@ -482,7 +491,8 @@
   .foot-rail a,
   #theme-toggle,
   .theme-toggle-label,
-  .lang-toggle .lang {
+  .lang-toggle .lang,
+  .lang-chip {
     transition:
       background-color 480ms cubic-bezier(0.2, 0.7, 0.2, 1),
       color 380ms cubic-bezier(0.2, 0.7, 0.2, 1),

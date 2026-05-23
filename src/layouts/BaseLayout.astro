@@ -171,6 +171,12 @@ function isActive(key: keyof typeof ROUTES, currentPath: string): boolean {
         aria-label={locale === 'en' ? 'Preferences' : 'Preferencias'}
       >
         <div class="lang-toggle">
+          {
+            /* The outer <a> is the tap target — 44 px tall on mobile to
+               meet iOS HIG / WCAG 2.5.5. The inner <span class="lang-chip">
+               is the visible bordered chip (~1.4 rem tall) so the active
+               border doesn't visually elongate with the tap area. */
+          }
           <a
             class={`lang ${locale === 'en' ? 'on' : ''}`}
             href={locale === 'en' ? path : (siblingPath ?? path)}
@@ -178,7 +184,7 @@ function isActive(key: keyof typeof ROUTES, currentPath: string): boolean {
             aria-disabled={locale === 'es' && toggleDisabled ? 'true' : undefined}
             data-lang="en"
           >
-            en
+            <span class="lang-chip">en</span>
           </a>
           <span aria-hidden="true">·</span>
           <a
@@ -188,7 +194,7 @@ function isActive(key: keyof typeof ROUTES, currentPath: string): boolean {
             aria-disabled={locale === 'en' && toggleDisabled ? 'true' : undefined}
             data-lang="es"
           >
-            es
+            <span class="lang-chip">es</span>
           </a>
           {
             toggleDisabled && (
