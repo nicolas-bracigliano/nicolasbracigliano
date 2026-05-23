@@ -581,7 +581,11 @@
     align-items: center;
     gap: 0.25em;
     white-space: nowrap;
-    color: var(--accent);
+    /* `--accent-aa`, not raw `--accent`: the inline vignette puts an
+       accent-coloured label next to the icon at body font-size, and
+       `#b8512a` measures 4.49:1 on `--bg` (one hundredth under WCAG AA).
+       The AA-safe variant nudges the hue slightly toward `--ink`. */
+    color: var(--accent-aa);
     position: relative;
   }
   .inline-vignette svg {
@@ -590,16 +594,22 @@
     height: 1.3em;
   }
   .inline-vignette.inline-vignette em {
-    color: var(--accent);
+    color: var(--accent-aa);
     font-style: italic;
     font-family: var(--font-display);
   }
   .inline-vignette .vignette-label {
     color: inherit;
+    position: relative;
+    top: 3px;
   }
-  .vignette--mate,
-  .vignette--mate.inline-vignette em {
-    color: var(--mate);
+  /* Mate inherits `.inline-vignette`'s default `--accent` colour
+     (matching Coffee) — the gourd-and-bombilla SVG reads warm enough
+     that the olive `--mate` it used to carry felt mismatched against
+     the surrounding accent treatment. `top: 1px` keeps the taller
+     Mate SVG aligned on the surrounding text baseline. */
+  .vignette--mate {
+    top: 1px;
   }
 
   /* Bench section — "Currently on the bench" + 2×2 dashed-rule grid */
