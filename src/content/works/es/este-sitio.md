@@ -7,6 +7,7 @@ date: 2026-05-21
 status: published
 tags: [code]
 kind: code
+art: font-specimen
 lifecycle: ongoing
 number: '07'
 lede: 'El colofón que estás leyendo.'

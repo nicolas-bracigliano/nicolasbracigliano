@@ -127,6 +127,26 @@ test('note glyphs render an SVG keyed to each kind', async ({ page }) => {
   await expect(page.locator('.note-glyph.g-guitar svg')).toHaveCount(1);
 });
 
+test('work-card stretched-link covers the whole card', async ({ page }) => {
+  await page.goto('/en/works/');
+  // At the centre of the card-foot bounding box, `elementFromPoint`
+  // should resolve to the title's `<a class="work-card-link">` — its
+  // `::before { inset: 0 }` extends the hit area over the whole card.
+  // We assert via DOM rather than a click because Playwright's pointer-
+  // stability check (correctly) refuses to click `.work-card-foot` when
+  // the pseudo intercepts pointer events — which is the behaviour we're
+  // testing in the first place.
+  const foot = page.locator('.work-card').first().locator('.work-card-foot');
+  await foot.scrollIntoViewIfNeeded();
+  const hit = await foot.evaluate((el) => {
+    const r = el.getBoundingClientRect();
+    const target = document.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2);
+    return target ? { tag: target.tagName, cls: target.className } : null;
+  });
+  expect(hit?.tag).toBe('A');
+  expect(hit?.cls).toContain('work-card-link');
+});
+
 test('works filter toggles cards via data-kind matching', async ({ page }) => {
   await page.goto('/en/works/');
   // Initial state: all cards visible.

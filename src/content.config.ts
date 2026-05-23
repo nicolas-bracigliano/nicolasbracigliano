@@ -42,10 +42,15 @@ const works = defineCollection({
     base.extend({
       repo: z.url().optional(),
       specs: z.record(z.string(), z.string()).default({}),
-      /** Medium category — drives both the works-page filter buttons and the
-       *  WorkCard art vignette. Subset of `tags` semantically but a single
-       *  string so filter logic stays simple. */
+      /** Medium category — drives both the works-page filter buttons and
+       *  the *default* WorkCard art vignette when `art` is unset. */
       kind: z.enum(['code', 'print', 'music', 'garden']).default('code'),
+      /** Specific art vignette for this work. When unset, WorkArt falls
+       *  back to the kind-default. Adding a new variant: extend this enum
+       *  and add a matching block in `src/components/WorkArt.astro`. */
+      art: z
+        .enum(['terminal', 'font-specimen', 'tray', 'capo', 'knob', 'waveform', 'garden-plot'])
+        .optional(),
       /** Work lifecycle — distinct from `status` (publish-state). Renders as
        *  a coloured dot + label in the WorkCard foot. */
       lifecycle: z.enum(['shipping', 'ongoing', 'draft', 'archived']).default('shipping'),

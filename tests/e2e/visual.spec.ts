@@ -52,12 +52,19 @@ test.describe('chrome visual', () => {
     await page.setViewportSize(MOBILE_VIEWPORT);
     await page.goto('/en/');
     await page.waitForLoadState('networkidle');
-    // Playwright's mobile chromium emulation injects a simulated iOS
-    // home-indicator overlay that intermittently lands within the
-    // element-screenshot bounds even when we target `.foot-rail ul`.
-    // Bumping `maxDiffPixelRatio` to 0.20 absorbs that rendering noise
-    // while still catching genuine layout/colour regressions in the
-    // visible nav content.
+    // KNOWN LIMITATION: Playwright's mobile chromium emulation
+    // intermittently includes a simulated iOS home-indicator overlay in
+    // the element-screenshot bounds, even when we target `.foot-rail ul`
+    // (not the outer `<nav>` which has the safe-area-inset padding).
+    // Bumping `maxDiffPixelRatio` to 0.20 is a band-aid that absorbs the
+    // overlay flake at the cost of test sensitivity. A real regression
+    // affecting just the nav-labels area (~half the captured pixels)
+    // could still pass. TODO: replace with a viewport-clipped page
+    // screenshot that excludes the safe-area band entirely, OR investigate
+    // why the overlay leaks into the `<ul>` bounding box and fix at the
+    // source. Until then the test is a smoke check, not a tight gate.
+    // (Visual snapshots are local-only — `test.skip(!!process.env.CI)`
+    // above — so this never blocks CI.)
     await expect(page.locator('.foot-rail ul')).toHaveScreenshot('foot-rail-mobile.png', {
       maxDiffPixelRatio: 0.2,
     });
