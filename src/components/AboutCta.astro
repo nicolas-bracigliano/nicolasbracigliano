@@ -1,0 +1,38 @@
+---
+import type { Locale } from '@lib/routes';
+
+export interface Props {
+  locale: Locale;
+  email: string;
+}
+
+const { locale, email } = Astro.props;
+
+const copy = {
+  en: {
+    title: 'Say hi',
+    note: 'I read everything. The smaller and more specific the message, the faster I reply.',
+  },
+  es: {
+    title: 'Escribime',
+    note: 'Leo todo. Cuanto más corto y específico el mensaje, más rápido contesto.',
+  },
+} as const;
+
+const t = copy[locale];
+---
+
+{
+  /* Sibling of FactsCard in the sidebar — same paper card frame + tint
+    + facts-title, but the body is a custom email link + note, not a
+    `<dl>` of rows. Keeping it separate from FactsCard avoids putting
+    `<a>` and `<p>` directly inside a `<dl>` (which html-validate's
+    `element-permitted-content` rule rightly rejects). */
+}
+<section class="facts-card facts-card--cta">
+  <h3 class="facts-title">{t.title}</h3>
+  <a class="about-cta-link" href={`mailto:${email}`}>
+    {email}&nbsp;↗
+  </a>
+  <p class="about-cta-note">{t.note}</p>
+</section>

@@ -1,0 +1,41 @@
+---
+import type { Locale } from '@lib/routes';
+
+export interface Props {
+  locale: Locale;
+}
+const { locale } = Astro.props;
+
+const copy = {
+  en: {
+    eyebrow: '——— About',
+    h1Italic: 'Hola',
+    h1Rest: "I'm Nicolas.",
+    lede: 'Twenty years of software engineering, mostly in the quieter corners — back-end systems, developer tooling, the kinds of products other engineers use. Most useful when the surface is calm and the inside is honest.',
+  },
+  es: {
+    eyebrow: '——— Sobre',
+    h1Italic: 'Hola',
+    h1Rest: 'Soy Nicolás.',
+    lede: 'Veinte años de ingeniería de software, sobre todo en los rincones más silenciosos — sistemas back-end, herramientas para developers, los productos que usan otros ingenieros. Sirvo más cuando la superficie está calma y el interior es honesto.',
+  },
+} as const;
+
+const t = copy[locale];
+---
+
+<header class="about-head">
+  <span class="eyebrow">{t.eyebrow}</span>
+  <h1 class="about-h1">
+    {
+      /* `Hola.` — the dot is its own span so it can carry `--accent`
+        and visually rhyme with the intro's `.about-intro-dot` (the
+        word the intro overlay dissolves IS this exact phrase, with
+        the same coloured punctuation). */
+    }
+    <span class="serif-italic">{t.h1Italic}<span class="about-h1-dot">.</span></span>
+    <br />
+    {t.h1Rest}
+  </h1>
+  <p class="about-lede">{t.lede}</p>
+</header>

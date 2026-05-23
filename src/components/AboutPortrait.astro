@@ -1,0 +1,36 @@
+---
+import type { Locale } from '@lib/routes';
+
+export interface Props {
+  locale: Locale;
+}
+const { locale } = Astro.props;
+
+const caption = locale === 'es' ? 'un autorretrato, más o menos' : 'a self-portrait, more or less';
+---
+
+{
+  /* Placeholder portrait: an NB monogram in a bordered paper card.
+    Mirrors Masthead's portrait pattern but namespaced as
+    `.about-portrait-*` to avoid coupling. Swap the inner SVG for the
+    real avatar (Phase 3 / docs/design-system.md §17) when it lands;
+    the surrounding `<figure>` markup is launch-ready. */
+}
+<figure class="about-portrait">
+  <svg class="about-portrait-mono" viewBox="0 0 200 200" aria-hidden="true">
+    <rect x="0" y="0" width="200" height="200" fill="var(--bg-2)"></rect>
+    <text
+      x="100"
+      y="118"
+      text-anchor="middle"
+      font-family="var(--font-display)"
+      font-size="92"
+      font-weight="500"
+      fill="var(--ink)"
+      letter-spacing="0.02em"
+    >
+      NB
+    </text>
+  </svg>
+  <figcaption class="about-portrait-caption serif-italic">{caption}</figcaption>
+</figure>

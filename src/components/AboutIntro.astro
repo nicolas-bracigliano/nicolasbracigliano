@@ -1,0 +1,99 @@
+---
+// First-visit overlay on /about/ — a single italic "hola." that
+// fades out with a soft blur into the page below. No transform,
+// no pulse — just opacity + filter:blur(). See the History block
+// at the bottom of this comment for the variants tried and dropped.
+//
+// Architecture: JS owns the whole lifecycle — sessionStorage gate,
+// `.is-active` class to start the animation, click/Esc early-dismiss,
+// DOM cleanup on `animationend`. The base `.about-intro` rule is
+// `display: none`; only `.about-intro.is-active` paints. That keeps
+// repeat visits via ClientRouter from flashing one frame of the
+// `--bg` overlay before JS removes the node.
+//
+// Trade-off: with JS disabled the intro never plays. Accepted —
+// without JS the page renders without the delight overlay, which is
+// strictly better than the previous CSS-only design (overlay
+// animated to opacity 0 + filter:blur but stayed pinned to the
+// viewport, silently swallowing clicks for the rest of the visit).
+//
+// **Note: not extracted as a reusable `<IntroOverlay>`** — the
+// timing curve, the `hola.` copy, and the morph all couple tightly
+// to the about page's masthead identity. If a similar effect ever
+// lands on another route, this is the file to copy + adapt, not a
+// shared component to parameterise.
+//
+// A11y:
+// - `role="presentation"` + `aria-hidden="true"` — screen readers
+//   skip the overlay entirely; the actual "Hola." that drives the
+//   page is the masthead `<h1>` below.
+// - The global `prefers-reduced-motion: reduce` clamp in reset.css
+//   drops the animation-duration to 0.01 ms, so reduced-motion users
+//   see the overlay for one frame and it's gone. No motion exposure.
+//
+// History: an earlier version translated the word up-and-left toward
+// the masthead AND used an SVG turbulence + displacement filter for a
+// particle dissolve. Both were dropped:
+// - Translate was abandoned because the masthead-position target
+//   only worked at desktop viewport sizes (translate values were
+//   viewport-relative magic numbers tuned to 1280×900).
+// - SVG filter was dropped because (a) SMIL is officially deprecated
+//   and (b) the GPU cost of feTurbulence + feDisplacementMap stutters
+//   on lower-end devices. CSS `filter: blur()` reads as a soft
+//   dissolve at much lower cost and is fully spec-stable.
+---
+
+<div class="about-intro" role="presentation" aria-hidden="true" data-about-intro>
+  <span class="about-intro-hola serif-italic">hola<span class="about-intro-dot">.</span></span>
+</div>
+
+<script>
+  function wireIntro(): void {
+    const intro = document.querySelector<HTMLElement>('[data-about-intro]');
+    if (!intro) return;
+
+    // Once-per-tab: if the visitor has already seen the overlay this
+    // session, remove the node and bail. The base CSS rule is
+    // `display: none`, so the overlay never paints regardless — but
+    // removing the node is tidier (no orphan in the DOM).
+    try {
+      if (sessionStorage.getItem('about-intro-seen') === 'true') {
+        intro.remove();
+        return;
+      }
+      sessionStorage.setItem('about-intro-seen', 'true');
+    } catch {
+      /* sessionStorage unavailable — fall through and play the intro */
+    }
+
+    // First visit: flip on `.is-active` so the CSS animation engages.
+    intro.classList.add('is-active');
+
+    const dismiss = (): void => {
+      if (intro.classList.contains('is-dismissed')) return;
+      intro.classList.add('is-dismissed');
+    };
+
+    // Clean up after the OVERLAY'S OWN out-animation completes — not
+    // when a child animation (hola fade-in / morph) bubbles up. We
+    // can't use `{ once: true }` because the first bubbled animationend
+    // would be `about-intro-hola-in` at ~900 ms, tearing down the
+    // intro long before the overlay finishes dissolving.
+    intro.addEventListener('animationend', (event) => {
+      const name = (event as AnimationEvent).animationName;
+      if (name === 'about-intro-out' || name === 'about-intro-dismiss') {
+        intro.remove();
+      }
+    });
+
+    intro.addEventListener('click', dismiss);
+    const onKey = (e: KeyboardEvent): void => {
+      if (e.key === 'Escape') {
+        dismiss();
+        window.removeEventListener('keydown', onKey);
+      }
+    };
+    window.addEventListener('keydown', onKey);
+  }
+  document.addEventListener('astro:page-load', wireIntro);
+</script>

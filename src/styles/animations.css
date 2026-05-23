@@ -42,6 +42,68 @@
     }
   }
 
+  /* About-intro overlay: the word "hola." fades in, holds, then the
+     whole overlay dissolves with a small blur. Opacity here is OK
+     under ADR 0006: the overlay sits over the body bg (same colour
+     on both themes), so mid-animation pixels read as bg-on-bg —
+     axe sees high-contrast end-state once the animation completes
+     and the node is removed from the DOM. */
+  @keyframes about-intro-hola-in {
+    from {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+  @keyframes about-intro-out {
+    0% {
+      opacity: 1;
+      filter: blur(0);
+      pointer-events: auto;
+    }
+    /* Hold the overlay opaque until the hola starts morphing
+       (1.3 s into the 2.4 s timeline = ~55 %). After that the
+       overlay fades in lock-step with the hola morph. */
+    55% {
+      opacity: 1;
+      filter: blur(0);
+    }
+    100% {
+      opacity: 0;
+      filter: blur(8px);
+      pointer-events: none;
+      visibility: hidden;
+    }
+  }
+  /* Morph-out: clean blur-dissolve in place. Opacity fades from 1
+     to 0 while the word blurs out. No transform — earlier
+     iterations with a scale-pulse or translate-up read as fussy
+     against the rest of the page's quieter motion vocabulary. */
+  @keyframes about-intro-hola-out {
+    0% {
+      opacity: 1;
+      filter: blur(0);
+    }
+    100% {
+      opacity: 0;
+      filter: blur(14px);
+    }
+  }
+  @keyframes about-intro-dismiss {
+    from {
+      opacity: 1;
+      filter: blur(0);
+    }
+    to {
+      opacity: 0;
+      filter: blur(8px);
+      visibility: hidden;
+    }
+  }
+
   /* ─── Home: workshop-bench vignette loops ─────────────────────────────
      The design system §10 rule "animate into existence, then rest" applies
      to chrome and prose decoration. The bench section is the documented

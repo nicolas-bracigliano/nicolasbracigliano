@@ -1,0 +1,12 @@
+---
+export interface Props {
+  /** Small uppercase tracked-out label on the left. */
+  dt: string;
+}
+const { dt } = Astro.props;
+---
+
+<div class="facts-row">
+  <dt>{dt}</dt>
+  <dd><slot /></dd>
+</div>
