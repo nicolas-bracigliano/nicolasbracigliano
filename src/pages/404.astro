@@ -4,9 +4,13 @@ import { ROUTES, SITE_EMAIL } from '@lib/routes';
 
 // 404 — Misplaced letter (design system §3). One bilingual page that
 // catches any unmatched URL. Cloudflare Pages serves the built
-// `/404.html` with HTTP 404 for any path that doesn't resolve, so
-// search engines treat the page correctly without an explicit
-// noindex meta.
+// `/404.html` with HTTP 404 for any path that doesn't resolve.
+//
+// `noindex` belt-and-suspenders: HTTP 404 is the primary signal
+// search engines respect, but the meta tag plus the omitted
+// `<link rel="canonical">` (BaseLayout drops both when noindex
+// is true) keep crawlers from picking up bogus URLs as canonical
+// versions of the 404.
 //
 // `locale="en"` for the chrome (the lost visitor's language is
 // unknown; English is the default). Spanish copy threaded inline is
@@ -25,6 +29,7 @@ const siblingPath = null;
   locale="en"
   path={path}
   siblingPath={siblingPath}
+  noindex
 >
   <section class="notfound wrap">
     <div class="notfound-grid">
@@ -107,44 +112,42 @@ const siblingPath = null;
           the start.
         </p>
 
-        <p class="notfound-prose">
-          Here's the map back<span class="muted">: </span>
+        <p class="notfound-prose">Here's the map back<span class="muted">:</span></p>
 
-          <ul class="notfound-links">
-            <li>
-              <a href={ROUTES.home.en}>→ home</a>
-              <span class="muted notfound-links-pair">
-                · <a href={ROUTES.home.es} lang="es">inicio</a></span
-              >
-              <span class="muted notfound-links-note"> start over from the workbench </span>
-            </li>
-            <li>
-              <a href={ROUTES.notes.en}>→ notes</a>
-              <span class="muted notfound-links-pair">
-                · <a href={ROUTES.notes.es} lang="es">notas</a></span
-              >
-              <span class="muted notfound-links-note"> short entries, dated </span>
-            </li>
-            <li>
-              <a href={ROUTES.works.en}>→ works</a>
-              <span class="muted notfound-links-pair">
-                · <a href={ROUTES.works.es} lang="es">obras</a></span
-              >
-              <span class="muted notfound-links-note"> the catalog of made things </span>
-            </li>
-            <li>
-              <a href={ROUTES.about.en}>→ about</a>
-              <span class="muted notfound-links-pair">
-                · <a href={ROUTES.about.es} lang="es">sobre</a></span
-              >
-              <span class="muted notfound-links-note"> who's on the other end of this </span>
-            </li>
-          </ul>
+        <ul class="notfound-links">
+          <li>
+            <a href={ROUTES.home.en}>→ home</a>
+            <span class="muted notfound-links-pair">
+              · <a href={ROUTES.home.es} lang="es">inicio</a></span
+            >
+            <span class="muted notfound-links-note"> start over from the workbench </span>
+          </li>
+          <li>
+            <a href={ROUTES.notes.en}>→ notes</a>
+            <span class="muted notfound-links-pair">
+              · <a href={ROUTES.notes.es} lang="es">notas</a></span
+            >
+            <span class="muted notfound-links-note"> short entries, dated </span>
+          </li>
+          <li>
+            <a href={ROUTES.works.en}>→ works</a>
+            <span class="muted notfound-links-pair">
+              · <a href={ROUTES.works.es} lang="es">obras</a></span
+            >
+            <span class="muted notfound-links-note"> the catalog of made things </span>
+          </li>
+          <li>
+            <a href={ROUTES.about.en}>→ about</a>
+            <span class="muted notfound-links-pair">
+              · <a href={ROUTES.about.es} lang="es">sobre</a></span
+            >
+            <span class="muted notfound-links-note"> who's on the other end of this </span>
+          </li>
+        </ul>
 
-          <p class="notfound-foot">
-            If you got here from a link of mine,{' '}
-            <a href={`mailto:${SITE_EMAIL}`}>tell me</a> and I'll fix it.
-          </p>
+        <p class="notfound-foot">
+          If you got here from a link of mine,{' '}
+          <a href={`mailto:${SITE_EMAIL}`}>tell me</a> and I'll fix it.
         </p>
       </div>
     </div>

@@ -919,6 +919,20 @@
     margin-block-start: 0.5rem;
   }
 
+  /* Global tone-down utility. The codebase has been using
+     `<span class="muted">…</span>` for dimmed inline text (date
+     trailers, link suffixes, bilingual separators) since the
+     prototype days, but the rule itself had only ever been
+     defined scoped — `.now-date .muted`, `.field-col .muted`, …
+     Bare `.muted` did nothing, so the home page's cup-list
+     trailers and the 404's bilingual separators all rendered in
+     body ink. Promoted to a global rule. Scoped overrides (e.g.
+     `.work-art--code .work-art-type-list .muted` for the dark
+     terminal background) still win on specificity. */
+  .muted {
+    color: var(--ink-3);
+  }
+
   .prose p {
     margin-block-start: 1rem;
   }

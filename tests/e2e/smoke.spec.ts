@@ -316,23 +316,35 @@ test('/en/about/now/ — each item has a detail <dl> with at least one dt/dd pai
   }
 });
 
-// `/404` smoke tests. The page catches any unmatched URL and is
-// served by Astro's preview server (and by Cloudflare Pages in
-// production) with HTTP 404 status. We navigate via deliberately-
-// unmatched paths rather than `/404` directly — Astro's
-// `trailingSlash: always` redirects intercept `/404` before the
-// 404 handler runs.
+// `/404` smoke tests. The page catches any unmatched URL.
+//
+// All four tests navigate via unmatched paths that end in `/`.
+// Reason: `astro preview` (the server backing this suite) only
+// serves the custom `dist/404.html` when an unmatched URL has a
+// trailing slash — `curl /foo/` returns our page, `curl /foo`
+// returns Astro's built-in "404: Not Found" page. The preview
+// server reads `trailingSlash: 'always'` as "only canonical-slash
+// URLs are mine to handle." Cloudflare Pages in production
+// doesn't read Astro's config and serves `404.html` via standard
+// static-file lookup for any unmatched URL regardless of slash,
+// so the suffix-`/` constraint applies only to this test
+// environment, not to real visitors.
 
-test('/404 — broken-N illustration + bilingual masthead are in the SSR response', async ({
-  page,
-}) => {
+test('/404 — broken-N illustration + masthead are in the SSR response', async ({ page }) => {
   await page.goto('/this-route-is-not-real/');
   // The illustration is a single inline SVG with the broken-N
-  // class; the masthead has both English and `lang="es"` spans
-  // ("No encontré" + "what you were looking for").
+  // class; the masthead h1 reads "I couldn't find / what you were
+  // looking for." Bilingual identity is asserted separately by
+  // the next test via the caption + ES route names.
   await expect(page.locator('svg.broken-n')).toHaveCount(1);
-  await expect(page.locator('.notfound-h1 [lang="es"]')).toContainText('No encontré');
+  await expect(page.locator('.notfound-h1')).toContainText("I couldn't find");
   await expect(page.locator('.notfound-h1')).toContainText('what you were looking');
+  // The caption ("a misplaced letter · una letra fuera de lugar")
+  // is where the page first signals it's bilingual — assert the
+  // ES half exists so a refactor that drops it fails loudly.
+  await expect(page.locator('.notfound-caption [lang="es"]')).toContainText(
+    'una letra fuera de lugar',
+  );
 });
 
 test('/404 — offers paths back in both locales', async ({ page }) => {
@@ -347,6 +359,19 @@ test('/404 — offers paths back in both locales', async ({ page }) => {
   await expect(enLinks).toHaveCount(4);
   await expect(esLinks).toHaveCount(4);
   await expect(page.locator('.notfound-foot a[href^="mailto:"]')).toHaveCount(1);
+});
+
+test('/404 — emits noindex and drops canonical / hreflang / og:url', async ({ page }) => {
+  // The HTTP 404 status is the primary signal, but the meta-level
+  // belt-and-suspenders matters too: a crawler that lands on a
+  // bogus URL shouldn't index it as the canonical version of
+  // anything. BaseLayout's `noindex` prop gates the indexing
+  // signals together — noindex on, canonical/hreflang/og:url off.
+  await page.goto('/yet-another-broken-path/');
+  await expect(page.locator('meta[name="robots"][content="noindex"]')).toHaveCount(1);
+  await expect(page.locator('link[rel="canonical"]')).toHaveCount(0);
+  await expect(page.locator('link[rel="alternate"][hreflang]')).toHaveCount(0);
+  await expect(page.locator('meta[property="og:url"]')).toHaveCount(0);
 });
 
 test('/404 has no serious axe violations', async ({ page }) => {
