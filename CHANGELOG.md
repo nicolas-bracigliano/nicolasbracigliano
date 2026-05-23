@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.4.0](https://github.com/nicolas-bracigliano/nicolasbracigliano/compare/v1.3.0...v1.4.0) (2026-05-23)
+
+
+### Features
+
+* **about:** full prototype-parity Editorial layout ([#22](https://github.com/nicolas-bracigliano/nicolasbracigliano/issues/22)) ([9d02a62](https://github.com/nicolas-bracigliano/nicolasbracigliano/commit/9d02a62c32190c565978ee10225ccfc270b6bb76))
+* **mate:** redesigned gourd-and-bombilla vignette + bio rewording ([#20](https://github.com/nicolas-bracigliano/nicolasbracigliano/issues/20)) ([364848b](https://github.com/nicolas-bracigliano/nicolasbracigliano/commit/364848b19d093ebee085c2a323aa70204973b93e))
+
 ## [1.3.0](https://github.com/nicolas-bracigliano/nicolasbracigliano/compare/v1.2.1...v1.3.0) (2026-05-23)
 
 
