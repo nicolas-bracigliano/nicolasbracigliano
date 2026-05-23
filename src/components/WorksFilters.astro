@@ -61,15 +61,19 @@ const ariaLabel = locale === 'es' ? 'Filtros' : 'Filters';
 </div>
 
 <script>
-  // ~600 B minified. Click delegation on the filters nav: set the
-  // `data-active-filter` on the grid, mirror on each button's `.on` +
-  // `aria-selected`, then walk the grid items and toggle `.hidden`
-  // by matching `data-kind`. Survives ClientRouter swaps via
-  // astro:page-load.
+  // ~600 B minified. Click delegation on the toolbar: set the
+  // `data-active-filter` on the grid, mirror `.on` + `aria-pressed` on
+  // every button, then walk the grid items and toggle `hidden` by
+  // matching `data-kind`.
+  //
+  // `astro:page-load` fires on every ClientRouter navigation, so without
+  // a guard each visit to `/works/` would stack another click listener.
+  // The `data-wired` attribute marks an instance as already attached.
   function wireFilters(): void {
     const nav = document.querySelector<HTMLElement>('.works-filters');
     const grid = document.querySelector<HTMLElement>('.works-grid');
-    if (!nav || !grid) return;
+    if (!nav || !grid || nav.dataset['wired'] === 'true') return;
+    nav.dataset['wired'] = 'true';
 
     nav.addEventListener('click', (event) => {
       const btn = (event.target as Element | null)?.closest<HTMLButtonElement>('.filter');
