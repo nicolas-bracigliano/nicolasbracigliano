@@ -30,8 +30,9 @@
 <svg class="about-intro-defs" width="0" height="0" aria-hidden="true" focusable="false">
   <defs>
     <filter id="about-intro-dissolve" x="-50%" y="-50%" width="200%" height="200%">
-      <feTurbulence type="fractalNoise" baseFrequency="0.04" numOctaves="2" seed="3"></feTurbulence>
-      <feDisplacementMap in="SourceGraphic">
+      <feTurbulence type="fractalNoise" baseFrequency="0.04" numOctaves="2" seed="3" result="noise"
+      ></feTurbulence>
+      <feDisplacementMap in="SourceGraphic" in2="noise">
         <animate
           attributeName="scale"
           values="0; 0; 90"
@@ -70,15 +71,17 @@
       intro.classList.add('is-dismissed');
     };
 
-    // Clean up after the CSS animation completes (either auto-fade or
-    // is-dismissed). Listen for both so the click/Esc path also clears.
-    intro.addEventListener(
-      'animationend',
-      () => {
+    // Clean up after the OVERLAY'S OWN out-animation completes — not
+    // when a child animation (hola fade-in / morph) bubbles up. We
+    // can't use `{ once: true }` because the first bubbled animationend
+    // would be `about-intro-hola-in` at ~900 ms, tearing down the
+    // intro long before the overlay finishes dissolving.
+    intro.addEventListener('animationend', (event) => {
+      const name = (event as AnimationEvent).animationName;
+      if (name === 'about-intro-out' || name === 'about-intro-dismiss') {
         intro.remove();
-      },
-      { once: true },
-    );
+      }
+    });
 
     intro.addEventListener('click', dismiss);
     const onKey = (e: KeyboardEvent): void => {
