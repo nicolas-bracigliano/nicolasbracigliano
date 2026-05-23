@@ -7,7 +7,7 @@ import AboutCta from '@components/AboutCta.astro';
 import AboutIntro from '@components/AboutIntro.astro';
 import FactsCard from '@components/FactsCard.astro';
 import FactsRow from '@components/FactsRow.astro';
-import { ROUTES } from '@lib/routes';
+import { ROUTES, SITE_EMAIL } from '@lib/routes';
 import { getSibling, entryRouteFor } from '@lib/i18n';
 
 const entry = await getEntry('pages', 'en/about');
@@ -82,10 +82,9 @@ const today = new Intl.DateTimeFormat('en-AU', {
 
         <h2>Get in touch</h2>
         <p>
-          The best way is email: <a href="mailto:hola@nicolasbracigliano.com"
-            >hola@nicolasbracigliano.com</a
-          >. I read everything, reply to most things, and respond fastest to short, specific
-          messages. If you're writing about one of the projects on this site, mention which one.
+          The best way is email: <a href={`mailto:${SITE_EMAIL}`}>{SITE_EMAIL}</a>. I read
+          everything, reply to most things, and respond fastest to short, specific messages. If
+          you're writing about one of the projects on this site, mention which one.
         </p>
         <p class="about-out">
           <span class="serif-italic">— Nicolás</span> · Melbourne · {today}
@@ -124,7 +123,7 @@ const today = new Intl.DateTimeFormat('en-AU', {
           </FactsRow>
         </FactsCard>
 
-        <AboutCta locale="en" email="hola@nicolasbracigliano.com" />
+        <AboutCta locale="en" email={SITE_EMAIL} />
       </aside>
     </div>
   </section>

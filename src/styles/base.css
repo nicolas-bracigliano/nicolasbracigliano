@@ -1822,13 +1822,13 @@
     letter-spacing: -0.02em;
     /* Two stacked animations:
        1. `about-intro-hola-in` — a 700 ms fade-in on mount.
-       2. `about-intro-hola-morph` — at 1.3 s the word blurs out
+       2. `about-intro-hola-out` — at 1.3 s the word blurs out
           and fades to 0 in place. The overlay's own out-animation
           runs in parallel (`about-intro-out`) so the page reveals
           as the word dissipates. */
     animation:
       about-intro-hola-in 700ms 200ms cubic-bezier(0.2, 0.7, 0.2, 1) both,
-      about-intro-hola-morph 1100ms 1300ms cubic-bezier(0.2, 0.7, 0.2, 1) forwards;
+      about-intro-hola-out 1100ms 1300ms cubic-bezier(0.2, 0.7, 0.2, 1) forwards;
   }
   /* Accent-coloured punctuation — gives the word a small visual
      hook that echoes the site's accent-dot motif (the masthead

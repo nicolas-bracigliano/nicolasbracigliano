@@ -4,6 +4,10 @@
 export type Locale = 'en' | 'es';
 export const DEFAULT_LOCALE: Locale = 'en';
 
+/** Contact email — single source of truth for the about-page CTA, the
+ *  RFC 9116 security.txt rotation, and any future "say hi" surfaces. */
+export const SITE_EMAIL = 'hola@nicolasbracigliano.com';
+
 export const ROUTES = {
   home: { en: '/en/', es: '/es/' },
   notes: { en: '/en/notes/', es: '/es/notas/' },

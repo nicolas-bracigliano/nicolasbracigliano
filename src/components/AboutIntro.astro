@@ -1,6 +1,8 @@
 ---
 // First-visit overlay on /about/ — a single italic "hola." that
-// softly pulses outward and dissolves into the page below.
+// fades out with a soft blur into the page below. No transform,
+// no pulse — just opacity + filter:blur(). See the History block
+// at the bottom of this comment for the variants tried and dropped.
 //
 // Architecture: CSS drives the auto-dismiss (a `@keyframes
 // about-intro-out` on `.about-intro` with `animation-fill-mode:

@@ -82,7 +82,7 @@
      to 0 while the word blurs out. No transform — earlier
      iterations with a scale-pulse or translate-up read as fussy
      against the rest of the page's quieter motion vocabulary. */
-  @keyframes about-intro-hola-morph {
+  @keyframes about-intro-hola-out {
     0% {
       opacity: 1;
       filter: blur(0);

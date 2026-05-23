@@ -147,6 +147,10 @@ test('work-card stretched-link covers the whole card', async ({ page }) => {
   expect(hit?.cls).toContain('work-card-link');
 });
 
+// `/about/` smoke tests. Naming convention: prefix with `/en/about/` or
+// `/es/sobre/` for single-locale tests; prefix with `/about/` when the
+// test exercises both locales inline.
+
 test('/en/about/ — sidebar carries 4 cards (3 FactsCard + 1 AboutCta with mailto)', async ({
   page,
 }) => {
@@ -170,7 +174,7 @@ test('/about/ — "full bench tour" footer link points at the right /now route p
   await expect(page.locator('.facts-foot-link')).toHaveAttribute('href', '/es/sobre/ahora/');
 });
 
-test('/about/ — byline contains the current month name', async ({ page }) => {
+test('/en/about/ — byline contains the current month name', async ({ page }) => {
   await page.goto('/en/about/');
   // `en-AU` month: long → "may", "june", etc. Lowercased in template.
   const currentMonth = new Intl.DateTimeFormat('en-AU', { month: 'long' })
@@ -179,34 +183,56 @@ test('/about/ — byline contains the current month name', async ({ page }) => {
   await expect(page.locator('.about-out')).toContainText(currentMonth);
 });
 
-test('/about/ — intro overlay ships in static HTML (renders before JS)', async ({ page }) => {
-  // Disable JS so the static HTML is the only thing the page can show.
-  // The overlay markup must be in the SSR output so the CSS auto-dismiss
-  // animation can play even if the JS layer never reaches the page.
+test('/about/ — intro overlay markup is in the SSR response', async ({ page }) => {
+  // The overlay markup must ship in the static HTML so the CSS
+  // auto-dismiss can play even if the JS layer never reaches the page.
+  // (Not a "renders without JS" assertion — that would need a fresh
+  // context with `javaScriptEnabled: false`; this just guarantees the
+  // markup isn't client-side-only-injected by a future refactor.)
   const response = await page.request.get('/en/about/');
   const html = await response.text();
   expect(html).toContain('data-about-intro');
   expect(html).toContain('about-intro-hola');
 });
 
+// Intro animation timing constants — keep these in sync with
+// `@keyframes about-intro-out` (2400 ms duration + 200 ms delay) and
+// `@keyframes about-intro-hola-in` (700 ms duration + 200 ms delay) in
+// `src/styles/animations.css` + the animation declarations in
+// `src/styles/base.css`. The lifecycle assertion below picks waits
+// that sit in the gaps between known animation events.
+const INTRO_INNER_FADE_END_MS = 900; // hola-in ends here; the original
+//                                       bug removed the overlay at this point
+const INTRO_TOTAL_MS = 2600; // overlay-out finishes here (200 ms delay
+//                              + 2400 ms duration)
+const INTRO_WAIT_BUFFER_MS = 250; // padding either side of timing edges
+
 test("/about/ — intro overlay survives child animation-end events, removes itself only on the overlay's own out-animation", async ({
+  context,
   page,
 }) => {
-  // This test catches the bug where a `{ once: true }` `animationend`
-  // listener picked up the inner hola fade-in bubbling up at ~900 ms and
-  // tore the whole overlay down before the overlay's own out-animation
-  // could play. The intro must still be in the DOM well past 900 ms.
-  await page.context().clearCookies();
+  // Clear sessionStorage via init script — runs before the page's own
+  // scripts, so wireIntro sees an empty `about-intro-seen` flag and
+  // plays the animation. Cleaner than the previous goto + evaluate +
+  // reload dance because we don't need a throwaway navigation just to
+  // get access to sessionStorage.
+  await context.addInitScript(() => {
+    try {
+      sessionStorage.removeItem('about-intro-seen');
+    } catch {
+      /* sessionStorage unavailable — fall through */
+    }
+  });
   await page.goto('/en/about/');
-  await page.evaluate(() => sessionStorage.removeItem('about-intro-seen'));
-  await page.reload();
-  // At ~1200 ms — past the inner hola-in (~900 ms), before the overlay
-  // out finishes (~2600 ms).
-  await page.waitForTimeout(1200);
+  // Past the inner hola-in but before overlay-out: the overlay must
+  // still be attached. Catches the original bug where a
+  // `{ once: true }` animationend listener picked up the bubbled
+  // child animation here and tore the intro down too early.
+  await page.waitForTimeout(INTRO_INNER_FADE_END_MS + INTRO_WAIT_BUFFER_MS);
   await expect(page.locator('[data-about-intro]')).toBeAttached();
-  // After the full out-animation + buffer, the overlay must be gone
-  // (animationend on `about-intro-out` triggers DOM removal).
-  await page.waitForTimeout(2400);
+  // After overlay-out completes + buffer for animationend + DOM
+  // removal, the overlay must be gone.
+  await page.waitForTimeout(INTRO_TOTAL_MS - INTRO_INNER_FADE_END_MS + INTRO_WAIT_BUFFER_MS);
   await expect(page.locator('[data-about-intro]')).toHaveCount(0);
 });
 
