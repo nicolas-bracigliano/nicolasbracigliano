@@ -10,8 +10,9 @@ export interface Props {
 }
 
 const { entry, path, siblingPath } = Astro.props;
-const { title, date, lede, tags, lang, specs, status } = entry.data;
+const { title, date, lede, tags, lang, slug, specs, status } = entry.data;
 const specEntries = Object.entries(specs);
+const ogImage = `/og/works/${lang}-${slug}.png`;
 ---
 
 <BaseLayout
@@ -20,6 +21,7 @@ const specEntries = Object.entries(specs);
   locale={lang as Locale}
   path={path}
   siblingPath={siblingPath}
+  ogImage={ogImage}
 >
   <article class="work">
     <header class="work-head">

@@ -28,7 +28,6 @@ const notes = defineCollection({
   schema: ({ image }) =>
     base.extend({
       glyph: z.enum(['garden', 'code', 'guitar', 'coffee', 'none']).default('none'),
-      minutes: z.number().int().positive().optional(),
       aside: z.string().optional(),
       hero: image().optional(),
       ogOverride: image().optional(),

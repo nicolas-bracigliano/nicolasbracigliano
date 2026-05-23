@@ -7,7 +7,6 @@ date: 2026-05-18
 status: published
 tags: [til, css]
 glyph: code
-minutes: 1
 aside: 'tested · chromium 124 · firefox 126 · safari 17.4. all happy.'
 lede: 'One CSS property worth a thousand <br>s.'
 ---
