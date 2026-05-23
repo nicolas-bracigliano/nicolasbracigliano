@@ -31,6 +31,15 @@ const t = copy[locale];
 // matches what's actually on the bench from Nicolas's chair. Locale-
 // formatted: "Friday, 23 May 2026" (en-AU) / "viernes, 23 de mayo de
 // 2026" (es-AR). Lowercased to match the page's quiet voice.
+//
+// Deliberately frozen at build time. A visitor landing two days
+// after the build sees the build date, not "right now". The
+// `t.updated` line ("last updated this week" / "última actualización
+// esta semana") is the explicit framing that handles this — the
+// page is a refreshed-weekly snapshot, not a live clock. Don't
+// "fix" the staleness by client-rendering the date: that adds JS to
+// a route the budget keeps at zero and conflicts with the same
+// rationale as the home page's wall-clock decisions.
 const dateLong = new Intl.DateTimeFormat(t.dateLocale, {
   weekday: 'long',
   day: 'numeric',

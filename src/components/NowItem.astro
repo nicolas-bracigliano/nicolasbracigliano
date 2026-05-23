@@ -25,14 +25,17 @@ export interface NowPageItem {
 }
 
 export interface Props extends NowPageItem {
-  index: number;
+  /** 1-based ordinal — `1` becomes "№ 01". Named `position` rather
+   *  than `index` so a future caller doesn't pass an array index by
+   *  reflex and silently shift every row down by one. */
+  position: number;
 }
 
-const { index, kind, where, title, prose, detail } = Astro.props;
+const { position, kind, where, title, prose, detail } = Astro.props;
 
 // `№ 01`, `№ 02`, …. Tabular-nums in CSS keeps the rail straight even
 // once the list crosses ten items.
-const num = `№ ${String(index).padStart(2, '0')}`;
+const num = `№ ${String(position).padStart(2, '0')}`;
 ---
 
 <li class={`now-item now-${kind}`}>

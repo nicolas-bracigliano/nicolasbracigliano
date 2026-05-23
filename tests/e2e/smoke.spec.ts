@@ -257,12 +257,18 @@ test("/about/ — intro overlay survives child animation-end events, removes its
 // `/now/` for both-locale assertions.
 
 test('/about/now/ — renders 6 numbered items in both locales', async ({ page }) => {
+  // The full sequence is asserted (not just first + last) so a bug
+  // that pins every item to the same number — e.g. dropping the
+  // map-index from the `position` prop — fails loudly instead of
+  // sliding past a count-and-endpoints check.
+  const expectedNums = ['№ 01', '№ 02', '№ 03', '№ 04', '№ 05', '№ 06'];
   for (const path of ['/en/about/now/', '/es/sobre/ahora/']) {
     await page.goto(path);
     await expect(page.locator('.now-list .now-item')).toHaveCount(6);
-    // The № rail uses tabular-nums; we just assert the content shape.
-    await expect(page.locator('.now-num').first()).toContainText('№ 01');
-    await expect(page.locator('.now-num').last()).toContainText('№ 06');
+    const nums = page.locator('.now-num');
+    for (let i = 0; i < expectedNums.length; i++) {
+      await expect(nums.nth(i)).toContainText(expectedNums[i]!);
+    }
   }
 });
 
