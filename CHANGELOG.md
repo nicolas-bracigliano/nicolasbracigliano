@@ -1,5 +1,33 @@
 # Changelog
 
+## [1.1.0](https://github.com/nicolas-bracigliano/nicolasbracigliano/compare/v1.0.0...v1.1.0) (2026-05-23)
+
+
+### Features
+
+* **chrome:** close remaining prototype-parity gaps ([1886e5f](https://github.com/nicolas-bracigliano/nicolasbracigliano/commit/1886e5ff5113ef7f1ff34fa7412e6796056ccfce))
+* **chrome:** cube mark + split-name + responsive compact mode ([14680af](https://github.com/nicolas-bracigliano/nicolasbracigliano/commit/14680af75708ff550908499d37b6bdc8c1596419))
+* **chrome:** cube mark with split-name + responsive compact mode ([dc282b9](https://github.com/nicolas-bracigliano/nicolasbracigliano/commit/dc282b9e4c239bdd1d708882ed58a960ebd4395a))
+* **chrome:** mobile foot-rail nav, scroll-aware ([ec9ed52](https://github.com/nicolas-bracigliano/nicolasbracigliano/commit/ec9ed526b4122cca23a6cce16f81252f739f4050))
+
+
+### Bug Fixes
+
+* **chrome:** distinct aria-label on foot-rail nav (html-validate) ([12f3dad](https://github.com/nicolas-bracigliano/nicolasbracigliano/commit/12f3dad96cb3192f5e7d8d03ed7a62eb220df72f))
+* **chrome:** drop mark view-transition — 3D cube flickers on lang change ([9334641](https://github.com/nicolas-bracigliano/nicolasbracigliano/commit/933464172ccad0659f581ff1271cefd40ab0d614))
+* **chrome:** foot-rail was trapped inside chrome by backdrop-filter ([bbd1c33](https://github.com/nicolas-bracigliano/nicolasbracigliano/commit/bbd1c332a11446bd18bfa2a452755bfc3bafbf71))
+* **chrome:** home in nav + underline gap + lang-chip centering + drop view-transition on mark ([5b063e0](https://github.com/nicolas-bracigliano/nicolasbracigliano/commit/5b063e0e15be507542c44312c5bb0532a076bdd9))
+* **chrome:** lang chip — split tap target from visible chip ([de69f20](https://github.com/nicolas-bracigliano/nicolasbracigliano/commit/de69f204894d3cf42b59036544aec229ab2b2c35))
+* **chrome:** restore wordmark + lang toggle on mobile, compress instead of hide ([e3e49dc](https://github.com/nicolas-bracigliano/nicolasbracigliano/commit/e3e49dcd40e46cda431eabb39fb8d6edfd44f3ce))
+* **chrome:** right-justify lang + theme toggles on mobile ([d47d80b](https://github.com/nicolas-bracigliano/nicolasbracigliano/commit/d47d80bd50a371bd0fa4383d4663fa619ae77960))
+
+
+### Refactors
+
+* **chrome:** 3D Y-rotation cube + name colour swap, no underline on hover ([ac4a25b](https://github.com/nicolas-bracigliano/nicolasbracigliano/commit/ac4a25b6dd8a8ef0bb3a831f6cde6fa02c0898fd))
+* **chrome:** extract JS to module, matchMedia-gate scroll, merge page-load, add visual snapshots ([6d048e8](https://github.com/nicolas-bracigliano/nicolasbracigliano/commit/6d048e868f2339f916d85ee361c10fe6e947503e))
+* **chrome:** staff-critique cleanup — 9 items ([7217884](https://github.com/nicolas-bracigliano/nicolasbracigliano/commit/7217884c45f5f74dca18740cb3c917d85f0a6726))
+
 ## 1.0.0 (2026-05-22)
 
 
