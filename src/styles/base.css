@@ -891,9 +891,6 @@
     color: var(--ink-2);
     text-decoration: none;
   }
-  .field-col .muted {
-    color: var(--ink-3);
-  }
   .cup {
     margin: 0.75rem 0 0.25rem;
     font-size: 0.82rem;
@@ -940,8 +937,10 @@
      never global. Effect: spans outside those scoped parents — the
      404 masthead's "I couldn't find", the 404 caption's "una letra
      fuera de lugar" — were rendering in roman, not italic.
-     Promoted alongside `.muted`. Scoped duplicates still work and
-     are redundant; cleanup tracked in the launch plan. */
+     Promoted alongside `.muted`. The handful of scoped rules that
+     remain (`.about-out .serif-italic`, `.colofon-sig .muted`,
+     `.work-art--code .work-art-type-list .muted`) are real
+     overrides that add layout or substitute colour, not duplicates. */
   .serif-italic {
     font-family: var(--font-display);
     font-style: italic;
@@ -996,9 +995,6 @@
     line-height: 1.04;
     letter-spacing: -0.02em;
     margin: 0.75rem 0 1rem;
-  }
-  .notes-h1 .serif-italic {
-    font-style: italic;
   }
   .notes-sub {
     font-size: 0.875rem;
@@ -1236,9 +1232,6 @@
     letter-spacing: -0.02em;
     margin: 0.75rem 0 1rem;
   }
-  .colofon-h1 .serif-italic {
-    font-style: italic;
-  }
   .colofon-sub {
     font-size: 0.875rem;
     color: var(--ink-2);
@@ -1431,9 +1424,6 @@
     line-height: 1.04;
     letter-spacing: -0.02em;
     margin: 0.75rem 0 1rem;
-  }
-  .works-h1 .serif-italic {
-    font-style: italic;
   }
   .works-sub {
     font-size: 0.875rem;
@@ -1663,9 +1653,6 @@
     font-family: var(--font-display);
     font-style: italic;
     color: var(--ink);
-  }
-  .work-art-type-list .muted {
-    color: var(--ink-3);
   }
   /* When `font-specimen` lands on a code-kind work the wrapper bg is the
      dark `--terminal-bg` from `.work-art--code`. Force light text so the
@@ -1900,9 +1887,6 @@
     letter-spacing: -0.02em;
     margin: 0.875rem 0 1.375rem;
   }
-  .about-h1 .serif-italic {
-    font-style: italic;
-  }
   .about-lede {
     font-family: var(--font-display);
     font-style: italic;
@@ -2078,10 +2062,6 @@
     color: var(--ink-2);
     text-decoration: none;
   }
-  .facts-foot-link .muted {
-    color: var(--ink-3);
-  }
-
   .about-cta-link {
     display: block;
     font-family: var(--font-display);
@@ -2145,9 +2125,6 @@
     color: var(--ink-2);
     margin: 0 0 1.125rem;
     text-transform: lowercase;
-  }
-  .now-date .muted {
-    color: var(--ink-3);
   }
   .now-sub {
     max-width: 56ch;
