@@ -933,6 +933,20 @@
     color: var(--ink-3);
   }
 
+  /* Same story for `.serif-italic`: a "switch this inline run to
+     the display serif in italic" utility used by mastheads,
+     captions, and the AsciiSignature. Was scoped per-route
+     (`.notes-h1 .serif-italic`, `.about-h1 .serif-italic`, …) but
+     never global. Effect: spans outside those scoped parents — the
+     404 masthead's "I couldn't find", the 404 caption's "una letra
+     fuera de lugar" — were rendering in roman, not italic.
+     Promoted alongside `.muted`. Scoped duplicates still work and
+     are redundant; cleanup tracked in the launch plan. */
+  .serif-italic {
+    font-family: var(--font-display);
+    font-style: italic;
+  }
+
   .prose p {
     margin-block-start: 1rem;
   }
