@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.6.7](https://github.com/nicolas-bracigliano/nicolasbracigliano/compare/v1.6.6...v1.6.7) (2026-05-24)
+
+
+### Bug Fixes
+
+* **lefthook:** origin/HEAD fallback for signed-commits range resolution ([#45](https://github.com/nicolas-bracigliano/nicolasbracigliano/issues/45)) ([495d2c4](https://github.com/nicolas-bracigliano/nicolasbracigliano/commit/495d2c4da2a5c2fb46a97f6f72c1465b10fe7e39))
+
 ## [1.6.6](https://github.com/nicolas-bracigliano/nicolasbracigliano/compare/v1.6.5...v1.6.6) (2026-05-24)
 
 
