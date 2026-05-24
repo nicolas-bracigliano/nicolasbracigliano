@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.7.1](https://github.com/nicolas-bracigliano/nicolasbracigliano/compare/v1.7.0...v1.7.1) (2026-05-24)
+
+
+### CI / Tooling
+
+* tier-B hardening — path filters, expanded smoke, security headers, preview comment, docs ([#51](https://github.com/nicolas-bracigliano/nicolasbracigliano/issues/51)) ([728cbba](https://github.com/nicolas-bracigliano/nicolasbracigliano/commit/728cbba4ab531d1f8a2827fb0c56e993b6d5a403))
+
 ## [1.7.0](https://github.com/nicolas-bracigliano/nicolasbracigliano/compare/v1.6.7...v1.7.0) (2026-05-24)
 
 
