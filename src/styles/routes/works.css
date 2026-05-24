@@ -1,0 +1,410 @@
+@layer routes {
+  /* ─── Works: Index-card catalog (design system §3) ─────────────────────
+     A masthead + filter row + responsive auto-fill grid of work cards.
+     Each card is a vignette art header + meta row + title + lede +
+     specs <dl> + foot (lifecycle dot + short date). Filter buttons
+     toggle `data-active-filter` on the grid; the inline script in
+     WorksFilters hides cards whose `data-kind` doesn't match.
+     Audit note: this block deliberately uses `.work-card-*`,
+     `.works-grid`, `.works-filters` to avoid colliding with the
+     legacy `.work` / `.work-head` (now used only by `.page`). */
+
+  .works.wrap {
+    max-width: 1100px;
+    margin-inline: auto;
+    padding-inline: var(--gutter);
+  }
+
+  .works-head {
+    padding-block-start: clamp(2.5rem, 6vw, 5rem);
+    margin-block-end: 3rem;
+    max-width: 720px;
+  }
+  .works-h1 {
+    font-family: var(--font-display);
+    font-weight: 400;
+    font-size: clamp(2.5rem, 5.6vw, 4.75rem);
+    line-height: 1.04;
+    letter-spacing: -0.02em;
+    margin: 0.75rem 0 1rem;
+  }
+  .works-sub {
+    font-size: 0.875rem;
+    color: var(--ink-2);
+    max-width: 50ch;
+    line-height: 1.6;
+  }
+
+  .works-filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    border-block: 1px dashed var(--rule);
+    padding-block: 1rem;
+    margin-block-end: 2rem;
+  }
+  /* `.filter` is the invisible 44 px tap target (WCAG 2.5.5 / iOS HIG).
+     `.filter-chip` is the prototype's tight visible pill, centred inside.
+     The split lets us keep the design's tight chip without sacrificing
+     touch ergonomics — same pattern as `.lang` / `.lang-chip` in chrome. */
+  .filter {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-block-size: 2.75rem;
+    min-inline-size: 2.75rem;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: var(--ink-2);
+    font-family: var(--font-body);
+    font-size: 0.6875rem;
+    letter-spacing: 0.06em;
+    cursor: pointer;
+  }
+  .filter-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.375rem 0.75rem;
+    border: 1px solid var(--rule);
+    border-radius: 999px;
+    background: var(--paper);
+    color: inherit;
+    transition:
+      background-color var(--speed-micro),
+      border-color var(--speed-micro),
+      color var(--speed-micro);
+  }
+  .filter:hover .filter-chip,
+  .filter:focus-visible .filter-chip {
+    color: var(--ink);
+    border-color: var(--ink-3);
+  }
+  .filter.on .filter-chip {
+    background: var(--ink);
+    color: var(--bg);
+    border-color: var(--ink);
+  }
+  /* Move the focus ring from the invisible 44 px button onto the visible
+     chip — otherwise the global `:focus-visible { outline: 2px solid
+     var(--accent); outline-offset: 3px }` reset draws a ring around the
+     full tap area, well outside the pill. */
+  .filter:focus-visible {
+    outline: none;
+  }
+  .filter:focus-visible .filter-chip {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+  /* No `opacity` on the inner spans — fading text-on-bg drops contrast
+     below AA per ADR 0006. Hierarchy comes from font-size + letter-
+     spacing alone; the spans inherit `.filter`'s `--ink-2` color. */
+  .filter-key {
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    font-size: 0.625rem;
+  }
+  .filter-count {
+    font-variant-numeric: tabular-nums;
+    font-size: 0.625rem;
+    padding-inline-start: 0.5rem;
+    border-inline-start: 1px solid currentColor;
+  }
+
+  .works-grid {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(17.5rem, 1fr));
+    gap: 1.5rem;
+  }
+
+  .work-card {
+    position: relative;
+    transition: transform var(--speed-standard);
+  }
+  /* Hidden via the `hidden` attribute toggled by the filter script. The
+     attribute alone handles screen-reader semantics; this rule just
+     enforces the visual effect (some UAs let `display` override `hidden`). */
+  .work-card[hidden] {
+    display: none;
+  }
+  /* "Card behind the card" hover effect — a paper-coloured layer offset
+     slightly that reveals when the foreground card lifts. */
+  .work-card::before {
+    content: '';
+    position: absolute;
+    inset: 0.375rem -0.375rem -0.375rem 0.375rem;
+    background: var(--paper);
+    border: 1px solid var(--rule);
+    z-index: 0;
+    opacity: 0;
+    transition:
+      transform var(--speed-standard),
+      opacity var(--speed-micro);
+    pointer-events: none;
+  }
+  /* `:focus-within` mirrors `:hover` so keyboard users see the same
+     "card lifts" feedback when Tab lands on the title link inside. */
+  .work-card:hover,
+  .work-card:focus-within {
+    transform: translate(-4px, -4px) rotate(-0.4deg);
+  }
+  .work-card:hover::before,
+  .work-card:focus-within::before {
+    opacity: 1;
+    transform: translate(8px, 8px) rotate(0.8deg);
+  }
+
+  .work-card-inner {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    gap: 0.625rem;
+    padding: 1.125rem;
+    background: var(--paper);
+    border: 1px solid var(--rule);
+    color: var(--ink);
+  }
+
+  /* Stretched-link: the `<a>` lives on the title only, but the
+     `::before` pseudo extends the click target to fill the whole card.
+     Screen readers get a clean link name (just the title), sighted
+     users get the giant click target. Trade-off: text selection inside
+     the card doesn't work (clicks always navigate). Accepted because
+     the card is short and the source pages link out anyway. */
+  .work-card-link {
+    color: inherit;
+    text-decoration: none;
+  }
+  .work-card-link::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+  }
+  .work-card-link:hover,
+  .work-card-link:focus-visible {
+    color: var(--accent-aa);
+  }
+
+  .work-art {
+    block-size: 8.75rem;
+    background: var(--bg-2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    color: var(--ink);
+  }
+  .work-art svg {
+    inline-size: 100%;
+    block-size: 100%;
+  }
+  .work-art--code {
+    background: var(--terminal-bg);
+    color: var(--terminal-fg);
+  }
+  .work-art--print {
+    background: color-mix(in oklab, var(--ink-blue) 8%, var(--bg-2));
+    color: var(--ink-blue);
+  }
+  .work-art--music {
+    background: color-mix(in oklab, var(--accent) 14%, var(--bg-2));
+    color: var(--accent-aa);
+  }
+  .work-art--garden {
+    background: color-mix(in oklab, var(--mate) 14%, var(--bg-2));
+    color: var(--mate);
+  }
+  .work-art-terminal {
+    font-family: var(--font-body);
+    color: var(--terminal-fg);
+    font-size: 0.625rem;
+    line-height: 1.55;
+    white-space: pre;
+    margin: 0;
+    padding: 0.875rem;
+    inline-size: 100%;
+  }
+  /* font-specimen art: big serif `Aa` plus a tiny list of glyph samples
+     + meta. Used by works that are about type, hand-written CSS, or
+     the site itself. Theme follows the work's kind (the wrapper's
+     `.work-art--${kind}` class colours the text). */
+  .work-art-type {
+    display: flex;
+    align-items: center;
+    gap: 0.875rem;
+    padding-inline: 1.125rem;
+    inline-size: 100%;
+  }
+  .work-art-type-big {
+    font-family: var(--font-display);
+    font-style: italic;
+    font-size: 4.25rem;
+    line-height: 1;
+    color: currentColor;
+  }
+  .work-art-type-list {
+    font-size: 0.625rem;
+    line-height: 1.6;
+    color: var(--ink-2);
+  }
+  .work-art-type-list em {
+    font-family: var(--font-display);
+    font-style: italic;
+    color: var(--ink);
+  }
+  /* When `font-specimen` lands on a code-kind work the wrapper bg is the
+     dark `--terminal-bg` from `.work-art--code`. Force light text so the
+     specimen reads. */
+  .work-art--code .work-art-type-list {
+    color: var(--terminal-fg);
+  }
+  .work-art--code .work-art-type-list em {
+    color: var(--terminal-fg);
+  }
+  .work-art--code .work-art-type-list .muted {
+    color: color-mix(in oklab, var(--terminal-fg) 60%, transparent);
+  }
+
+  .work-card-meta {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.625rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+  }
+  .work-card-no {
+    font-variant-numeric: tabular-nums;
+  }
+  .work-card-title {
+    font-family: var(--font-display);
+    font-weight: 400;
+    font-size: 1.375rem;
+    letter-spacing: -0.01em;
+    margin: 0.25rem 0 0;
+    color: var(--ink);
+  }
+  .work-card-desc {
+    font-size: 0.78rem;
+    color: var(--ink-2);
+    line-height: 1.55;
+    margin: 0;
+    max-width: none;
+  }
+  .work-card-specs {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    column-gap: 0.875rem;
+    row-gap: 0.125rem;
+    font-size: 0.6875rem;
+    border-block-start: 1px dashed var(--rule);
+    padding-block-start: 0.5rem;
+    margin: 0.375rem 0 0;
+  }
+  .work-card-specs dt {
+    /* `--ink-2` for AA at this size (10px). The dashed-bordered
+       background can dip --ink-3 below 4.5:1 on light theme. */
+    color: var(--ink-2);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    font-size: 0.625rem;
+    margin: 0;
+  }
+  .work-card-specs dd {
+    margin: 0;
+    color: var(--ink-2);
+  }
+
+  .work-card-foot {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.625rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+    border-block-start: 1px solid var(--rule);
+    padding-block-start: 0.5rem;
+    margin-block-start: 0.125rem;
+  }
+  .status-dot {
+    display: inline-block;
+    inline-size: 0.375rem;
+    block-size: 0.375rem;
+    border-radius: 50%;
+    margin-inline-end: 0.375rem;
+    vertical-align: 1px;
+  }
+  .status-dot--shipping {
+    background: var(--mate);
+  }
+  .status-dot--ongoing {
+    background: var(--ink-blue);
+  }
+  .status-dot--draft {
+    background: var(--accent);
+  }
+  .status-dot--archived {
+    background: var(--ink-3);
+  }
+
+  /* Single-work detail (WorkLayout) — the card's vocabulary at a larger
+     scale: art header + meta + larger title + lede + specs + prose. */
+  .work-detail .work-detail-card {
+    max-width: 56rem;
+    margin-inline: auto;
+    padding-block-start: clamp(2.5rem, 6vw, 5rem);
+    display: grid;
+    gap: 1.25rem;
+  }
+  .work-detail .work-art {
+    block-size: clamp(10rem, 28vw, 16rem);
+  }
+  .work-detail-title {
+    font-family: var(--font-display);
+    font-weight: 400;
+    font-size: clamp(2rem, 4vw + 0.5rem, 3rem);
+    line-height: 1.04;
+    letter-spacing: -0.02em;
+    margin: 0;
+    color: var(--ink);
+  }
+  .work-detail-lede {
+    font-family: var(--font-display);
+    font-style: italic;
+    font-size: 1.125rem;
+    color: var(--ink-2);
+    margin: 0;
+    line-height: 1.5;
+    max-width: 56ch;
+  }
+  .work-detail-meta {
+    font-size: 0.6875rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .work-detail-prose {
+    max-width: 56ch;
+    margin-block-start: 0.5rem;
+  }
+  .work-detail-prose p {
+    font-size: 0.9063rem;
+    line-height: 1.7;
+    color: var(--ink);
+    text-wrap: pretty;
+    margin: 0 0 1rem;
+  }
+  .work-detail-specs {
+    margin-block-start: 0.5rem;
+  }
+}
