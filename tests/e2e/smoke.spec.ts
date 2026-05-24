@@ -481,3 +481,99 @@ test('works filter toggles cards via data-kind matching', async ({ page }) => {
   await page.locator('.filter[data-filter="all"]').click();
   await expect(page.locator('.work-card:not([hidden])')).toHaveCount(4);
 });
+
+// CSP-compatibility contract. `public/_headers` ships
+// `script-src 'self'` — every emitted script must therefore be a
+// same-origin file, never an inline `<script>` block. Astro's
+// default behaviour inlines hoisted chunks under
+// `vite.build.assetsInlineLimit` (default 4096 B); ADR 0008
+// pins it to 0 to force externalisation. If a future config
+// change re-enables inlining (or a new page introduces an inline
+// `<script>` block that slips through `is:inline`), the
+// following user-visible features all silently break on the
+// deployed Worker while continuing to work in dev (which doesn't
+// enforce CSP):
+//
+//   - Home masthead wall-clock stops advancing past "—:—"
+//   - Bench-card scroll-driven vignettes never play
+//   - /about/ intro overlay never renders
+//   - Theme handover on `astro:page-load` stops; OS dark-mode
+//     pickup requires a refresh
+//   - /works/ filter buttons no-op
+//   - /404 page never fills the requested path
+//
+// Asserts on the script body, not just `[src]` absence — a tag
+// like `<script src="…">body</script>` would slip past
+// `:not([src])` but still trip CSP for its inline content.
+// Sweep every published route plus the 404 fallback so a new
+// route added without an inline-script audit fails the check.
+test.describe('CSP `script-src self` contract — zero inline scripts', () => {
+  const ROUTES = [
+    '/en/',
+    '/es/',
+    '/en/notes/',
+    '/es/notas/',
+    '/en/works/',
+    '/es/obras/',
+    '/en/about/',
+    '/es/sobre/',
+    '/en/about/now/',
+    '/es/sobre/ahora/',
+    '/en/colophon/',
+    '/es/colofón/',
+    '/404.html',
+  ] as const;
+
+  for (const path of ROUTES) {
+    test(`${path} ships zero inline <script> bodies`, async ({ page }) => {
+      await page.goto(path);
+      const inlineScripts = await page.evaluate(() =>
+        Array.from(document.querySelectorAll('script'))
+          .filter((s) => (s.textContent ?? '').trim().length > 0)
+          .map((s) => (s.textContent ?? '').trim().slice(0, 80)),
+      );
+      expect(inlineScripts).toEqual([]);
+    });
+  }
+});
+
+// Visual contract for the route-masthead hairline rule
+// (`.eyebrow--rule::before`). Without this assertion, removing
+// the modifier from a masthead, or accidentally setting
+// `letter-spacing: 0` on the global `.eyebrow` (which would
+// re-tempt someone to bring back the "———" text content), would
+// silently regress the prototype reading on four routes. The
+// rule must paint a non-empty box; we don't pin geometry beyond
+// that so harmless tweaks (width, colour) don't fail the test.
+test.describe('route-masthead eyebrow renders a hairline rule', () => {
+  const ROUTES = [
+    '/en/about/',
+    '/en/notes/',
+    '/en/works/',
+    '/en/colophon/',
+    '/es/sobre/',
+    '/es/notas/',
+    '/es/obras/',
+    '/es/colofón/',
+  ] as const;
+
+  for (const path of ROUTES) {
+    test(`${path} eyebrow ::before paints a non-empty box`, async ({ page }) => {
+      await page.goto(path);
+      const before = await page.evaluate(() => {
+        const el = document.querySelector('.eyebrow--rule');
+        if (!el) return null;
+        const cs = window.getComputedStyle(el, '::before');
+        return {
+          content: cs.content,
+          width: parseFloat(cs.width),
+          height: parseFloat(cs.height),
+        };
+      });
+      expect(before).not.toBeNull();
+      expect(before!.content).not.toBe('none');
+      expect(before!.width).toBeGreaterThan(0);
+      expect(before!.height).toBeGreaterThan(0);
+    });
+  }
+});

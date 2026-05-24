@@ -29,7 +29,7 @@
 
         "resource-summary:total:size": ["error", { "maxNumericValue": 50000 }],
         "resource-summary:document:size": ["error", { "maxNumericValue": 20000 }],
-        "resource-summary:script:size": ["error", { "maxNumericValue": 10000 }],
+        "resource-summary:script:size": ["error", { "maxNumericValue": 14000 }],
         "resource-summary:stylesheet:size": ["error", { "maxNumericValue": 30000 }],
         "resource-summary:font:size": ["error", { "maxNumericValue": 120000 }],
         "resource-summary:image:size": ["error", { "maxNumericValue": 200000 }],

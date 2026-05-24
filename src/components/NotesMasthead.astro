@@ -8,13 +8,13 @@ const { locale } = Astro.props;
 
 const copy = {
   en: {
-    eyebrow: '——— Notes',
+    eyebrow: 'Notes',
     h1Lead: 'Bitacora —',
     h1Italic: 'scribbled in public.',
     sub: "Short entries: things I learned, things I'm wondering about, small wins and small confusions. No polish promised.",
   },
   es: {
-    eyebrow: '——— Notas',
+    eyebrow: 'Notas',
     h1Lead: 'Bitacora —',
     h1Italic: 'garabateado en público.',
     sub: 'Entradas cortas: cosas que aprendí, cosas que me intrigan, pequeñas victorias y pequeñas dudas. Nada pulido, lo prometo.',
@@ -25,7 +25,7 @@ const t = copy[locale];
 ---
 
 <header class="notes-head">
-  <span class="eyebrow">{t.eyebrow}</span>
+  <span class="eyebrow eyebrow--rule">{t.eyebrow}</span>
   <h1 class="notes-h1">
     {t.h1Lead}
     <br />

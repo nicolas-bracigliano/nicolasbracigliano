@@ -1,3 +1,23 @@
+/* Viewport breakpoints in use across the codebase. Listed here for
+   discoverability — CSS custom properties don't work inside `@media`
+   queries (the feature is draft, not shipped), so each breakpoint
+   appears as a literal in the consumer file. Keep this list in sync
+   with reality; the inventory is the only place to scan all of them.
+
+     720 px  — mobile/desktop split. `.chrome .nav` hides; the
+               `.foot-rail` mobile-only nav appears. Defined as
+               `MOBILE_BREAKPOINT` in `src/scripts/chrome.ts` so the
+               scroll-direction listener attaches/detaches at the
+               same threshold. Multiple `@media (max-width: 720px)`
+               consumers in `base.css` and `routes/home.css`.
+
+     880 px  — `/about` grid collapses from two columns (prose +
+               sticky sidebar) to a single column. `routes/about.css`.
+
+     940 px  — `.nav a::before` "/" slash decoration hides. Bridges
+               the 721–940 px band where the top nav is visible but
+               cramped. `base.css`.
+ */
 @layer tokens {
   :root {
     /* Tell the browser to theme its own UI surfaces (native

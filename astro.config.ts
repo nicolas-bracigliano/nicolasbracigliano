@@ -27,6 +27,14 @@ export default defineConfig({
       redirectToDefaultLocale: false,
     },
   },
+  // Disable Astro's dev toolbar globally. The toolbar's audits (perf,
+  // a11y) duplicate what Lighthouse CI + `@axe-core/playwright` already
+  // cover, and as of Astro 6.3 the toolbar's bootstrap script is
+  // injected inline by `astro preview` too — which breaks the
+  // CSP-contract e2e test (ADR 0008) by making the preview server
+  // less production-faithful than the static dist it claims to serve.
+  // Switching this off is the surgical fix.
+  devToolbar: { enabled: false },
   // CSP is delivered exclusively via `public/_headers` (Cloudflare serves
   // it at the edge). We do not emit `<meta http-equiv>` CSP because:
   //
@@ -56,6 +64,15 @@ export default defineConfig({
     },
     build: {
       cssMinify: 'lightningcss',
+      // Force every hoisted `<script>` bundle to be emitted as an external
+      // `/_astro/*.js` file. Default `4096` lets Astro's plugin-scripts
+      // inline small chunks straight into the HTML; `public/_headers`
+      // CSP `script-src 'self'` then blocks every inline module on the
+      // deployed Worker. Dropping the threshold to 0 makes
+      // `shouldInlineAsset` always return false so chunks emit as
+      // same-origin files that `'self'` allows. Full rationale +
+      // alternatives in `docs/decisions/0008-externalize-hoisted-scripts-for-csp.md`.
+      assetsInlineLimit: 0,
     },
   },
 });
