@@ -505,16 +505,27 @@
   }
 
   /* Page-break behaviour: keep headings with the following
-     paragraph and clamp orphans / widows. Deliberately NOT
-     forcing `break-before: page` on h2 in the starter — the
-     About page (4 substantial sections) benefits from
-     per-section breaks but the Now page (6 short sections)
-     would waste paper. Phase-3 polish can add per-route page
-     break rules where they pay off. */
+     paragraph; new page at every h2 (per the plan: notes +
+     essays should print like typed letters with section
+     boundaries on fresh pages). Per-route tuning (e.g. drop
+     the h2 break on `/now` where the sections are short) is
+     deferred to Phase 3. */
   h1,
   h2,
   h3 {
     break-after: avoid-page;
+  }
+  h2 {
+    break-before: page;
+  }
+  /* First h2 in a prose block shouldn't insert a blank page
+     above. Targets the page-level heads of the long-form
+     routes — about prose, notes body, work detail body — so
+     the section starts at the top of page 1, not page 2. */
+  .about-prose h2:first-of-type,
+  .note-prose h2:first-of-type,
+  .work-detail-prose h2:first-of-type {
+    break-before: auto;
   }
   p,
   li,
