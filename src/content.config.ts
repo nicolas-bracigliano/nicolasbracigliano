@@ -72,12 +72,37 @@ const essays = defineCollection({
     }),
 });
 
+// Numbered bench-tour items for the /about/now (en) and /about/ahora
+// (es) page. Optional on the `pages` schema because only the now
+// entry uses it; the home / about / colophon entries leave it
+// unset. The shape mirrors `NowPageItem` in
+// `src/components/NowItem.astro` — kept structurally identical
+// so the inferred type drops straight into the existing rendering
+// path without a translation layer.
+const nowItemSchema = z.object({
+  kind: z.enum(['code', 'guitar', 'garden', 'print', 'coffee', 'read']),
+  where: z.string().min(1),
+  title: z.string().min(1),
+  prose: z.string().min(1),
+  detail: z
+    .array(
+      z.object({
+        dt: z.string().min(1),
+        dd: z.string().min(1),
+      }),
+    )
+    .min(1),
+});
+
 const pages = defineCollection({
   loader: glob({ pattern: '**/*.md', base: './src/content/pages', generateId: pathId }),
   schema: ({ image }) =>
     base.extend({
       hero: image().optional(),
       ogOverride: image().optional(),
+      /** Numbered bench-tour items for the /now route. Only the
+       *  now.md entries carry this; the other pages leave it unset. */
+      items: z.array(nowItemSchema).optional(),
     }),
 });
 
