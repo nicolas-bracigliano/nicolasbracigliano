@@ -1,26 +1,164 @@
 ---
-import '@styles/reset.css';
-import '@styles/tokens.css';
-import '@styles/base.css';
+import BaseLayout from '@layouts/BaseLayout.astro';
+import { ROUTES, SITE_EMAIL } from '@lib/routes';
+
+// 404 — Misplaced letter (design system §3). One bilingual page that
+// catches any unmatched URL. Cloudflare Pages serves the built
+// `/404.html` with HTTP 404 for any path that doesn't resolve.
+//
+// `noindex` belt-and-suspenders: HTTP 404 is the primary signal
+// search engines respect, but the meta tag plus the omitted
+// `<link rel="canonical">` (BaseLayout drops both when noindex
+// is true) keep crawlers from picking up bogus URLs as canonical
+// versions of the 404.
+//
+// `locale="en"` for the chrome (the lost visitor's language is
+// unknown; English is the default). Spanish copy threaded inline is
+// tagged `lang="es"` so screen readers switch pronunciation. The
+// language-toggle in the chrome disables itself when `siblingPath`
+// is null — appropriate here, since toggling to "/es/404/" isn't a
+// separate route.
+
+const path = '/404/';
+const siblingPath = null;
 ---
 
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>404 · Not found</title>
-    <meta name="description" content="Page not found. Choose a language to find your way back." />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-  </head>
-  <body>
-    <main id="main" class="notfound">
-      <h1>404</h1>
-      <p class="lede">A misplaced letter. Una carta extraviada.</p>
-      <ul class="flag-links">
-        <li><a href="/en/" hreflang="en">→ English</a></li>
-        <li><a href="/es/" hreflang="es">→ Español</a></li>
-      </ul>
-    </main>
-  </body>
-</html>
+<BaseLayout
+  title="404 · Not found"
+  description="A misplaced letter."
+  locale="en"
+  path={path}
+  siblingPath={siblingPath}
+  noindex
+>
+  <section class="notfound wrap">
+    <div class="notfound-grid">
+      <aside class="notfound-art">
+        <svg viewBox="0 0 200 240" width="180" height="216" aria-hidden="true" class="broken-n">
+          {
+            /* Rough-fractal displacement filter — applied once at
+              paint time, no animation, no SMIL. Cheap on every GPU. */
+          }
+          <defs>
+            <filter id="rough-404" x="-5%" y="-5%" width="110%" height="110%">
+              <feTurbulence type="fractalNoise" baseFrequency="1.4" numOctaves="2" seed="7"
+              ></feTurbulence>
+              <feDisplacementMap in="SourceGraphic" scale="0.7"></feDisplacementMap>
+            </filter>
+          </defs>
+
+          <g
+            filter="url('#rough-404')"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            {/* Letter N — left bar (intact). */}
+            <line x1="40" y1="40" x2="40" y2="200"></line>
+            {/* Diagonal — broken in the middle. */}
+            <line x1="40" y1="40" x2="92" y2="118"></line>
+            <line x1="118" y1="142" x2="160" y2="200"></line>
+            {/* Right bar — slightly crooked, as if it fell over. */}
+            <line x1="160" y1="35" x2="160" y2="200"></line>
+
+            {/* Loose pieces — the chunk that fell out. */}
+            <line x1="100" y1="148" x2="124" y2="172" stroke-width="1.6" opacity="0.7"></line>
+            <line x1="106" y1="154" x2="118" y2="168" stroke-width="1.6" opacity="0.5"></line>
+
+            {/* Dust ticks. */}
+            <circle cx="92" cy="130" r="1.5" fill="var(--ink-3)" stroke="none"></circle>
+            <circle cx="118" cy="140" r="1.2" fill="var(--ink-3)" stroke="none"></circle>
+            <circle cx="108" cy="160" r="1" fill="var(--ink-3)" stroke="none"></circle>
+
+            {/* A small terracotta cup, off-axis, watching. */}
+            <g transform="translate(155, 210)" stroke="var(--accent)" stroke-width="1.4">
+              <path d="M0 0 L 3 14 L 16 14 L 19 0 Z"></path>
+              <path d="M19 3 q 5 0 5 5 q 0 5 -5 5"></path>
+            </g>
+          </g>
+
+          <text
+            x="100"
+            y="232"
+            text-anchor="middle"
+            font-size="10"
+            fill="var(--ink-3)"
+            letter-spacing="1.5"
+          >
+            — 404 —
+          </text>
+        </svg>
+        <p class="notfound-caption">
+          <span class="serif-italic">a misplaced letter</span>
+          <span class="muted"> · </span>
+          <span class="serif-italic" lang="es">una letra fuera de lugar</span>
+        </p>
+      </aside>
+
+      <div class="notfound-body">
+        <span class="eyebrow">404 · page not found</span>
+
+        <h1 class="notfound-h1">
+          <span class="serif-italic">I couldn't find</span>
+          <br />
+          what you were looking&nbsp;for.
+        </h1>
+
+        <p class="notfound-prose">
+          The address <code class="notfound-url" id="notfound-url">/</code> doesn't point to anything
+          I've published. Maybe the page moved. Maybe I un-published it. Maybe the link was wrong from
+          the start.
+        </p>
+
+        <p class="notfound-prose">Here's the map back<span class="muted">:</span></p>
+
+        <ul class="notfound-links">
+          <li>
+            <a href={ROUTES.home.en}>→ home</a>
+            <span class="muted notfound-links-pair">
+              · <a href={ROUTES.home.es} lang="es">inicio</a></span
+            >
+            <span class="muted notfound-links-note"> start over from the workbench </span>
+          </li>
+          <li>
+            <a href={ROUTES.notes.en}>→ notes</a>
+            <span class="muted notfound-links-pair">
+              · <a href={ROUTES.notes.es} lang="es">notas</a></span
+            >
+            <span class="muted notfound-links-note"> short entries, dated </span>
+          </li>
+          <li>
+            <a href={ROUTES.works.en}>→ works</a>
+            <span class="muted notfound-links-pair">
+              · <a href={ROUTES.works.es} lang="es">obras</a></span
+            >
+            <span class="muted notfound-links-note"> the catalog of made things </span>
+          </li>
+          <li>
+            <a href={ROUTES.about.en}>→ about</a>
+            <span class="muted notfound-links-pair">
+              · <a href={ROUTES.about.es} lang="es">sobre</a></span
+            >
+            <span class="muted notfound-links-note"> who's on the other end of this </span>
+          </li>
+        </ul>
+
+        <p class="notfound-foot">
+          If you got here from a link of mine,{' '}
+          <a href={`mailto:${SITE_EMAIL}`}>tell me</a> and I'll fix it.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <script>
+    // Fill the requested path into the prose. SSG can't know it; the
+    // page runs on every unmatched URL. ~90 B inline, no astro:page-load
+    // dependency because the 404 isn't a ClientRouter destination —
+    // it's the fallback for paths that don't resolve.
+    const el = document.getElementById('notfound-url');
+    if (el) el.textContent = window.location.pathname || '/';
+  </script>
+</BaseLayout>

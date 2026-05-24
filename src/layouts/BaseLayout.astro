@@ -20,9 +20,14 @@ export interface Props {
   siblingPath: string | null;
   /** Optional override for OG image (absolute URL or path under site origin) */
   ogImage?: string;
+  /** Emit `<meta name="robots" content="noindex">` and skip the
+   *  canonical / og:url emission. Set on the 404 fallback and any
+   *  other route that shouldn't be indexed (draft pages, etc.).
+   *  Default `false`. */
+  noindex?: boolean;
 }
 
-const { title, description, locale, path, siblingPath, ogImage } = Astro.props;
+const { title, description, locale, path, siblingPath, ogImage, noindex = false } = Astro.props;
 const site = Astro.site?.toString() ?? 'https://nicolasbracigliano.com';
 const origin = site.replace(/\/$/, '');
 
@@ -62,13 +67,19 @@ function isActive(key: keyof typeof ROUTES, currentPath: string): boolean {
     <title>{title}</title>
     {description && <meta name="description" content={description} />}
 
-    <link rel="canonical" href={`${origin}${path}`} />
-    {hreflangs.map((h) => <link rel="alternate" hreflang={h.hreflang} href={h.href} />)}
+    {noindex && <meta name="robots" content="noindex" />}
+    {!noindex && <link rel="canonical" href={`${origin}${path}`} />}
+    {
+      /* Hreflang alternates are paired with the canonical: both
+         describe "this URL's role in the indexed graph." Noindex
+         pages aren't in that graph, so drop alternates too. */
+      !noindex && hreflangs.map((h) => <link rel="alternate" hreflang={h.hreflang} href={h.href} />)
+    }
 
     <meta property="og:type" content="website" />
     <meta property="og:title" content={title} />
     {description && <meta property="og:description" content={description} />}
-    <meta property="og:url" content={`${origin}${path}`} />
+    {!noindex && <meta property="og:url" content={`${origin}${path}`} />}
     <meta property="og:locale" content={locale === 'en' ? 'en_US' : 'es_AR'} />
     {
       ogImage && (
