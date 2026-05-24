@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.7.0](https://github.com/nicolas-bracigliano/nicolasbracigliano/compare/v1.6.7...v1.7.0) (2026-05-24)
+
+
+### Features
+
+* **ci:** migrate Cloudflare Pages → Workers Static Assets (Path A) ([#49](https://github.com/nicolas-bracigliano/nicolasbracigliano/issues/49)) ([e22f74f](https://github.com/nicolas-bracigliano/nicolasbracigliano/commit/e22f74f9489ec4397d1072bd0a311e45c1323669))
+
 ## [1.6.7](https://github.com/nicolas-bracigliano/nicolasbracigliano/compare/v1.6.6...v1.6.7) (2026-05-24)
 
 
