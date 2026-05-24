@@ -41,6 +41,19 @@ not_found_handling = "404-page"
 # binding name works.
 binding = "ASSETS"
 
+# Make the Worker run for every request, before any static asset
+# lookup. Without this, Cloudflare's assets layer intercepts `/`
+# (no `dist/index.html` matches → `not_found_handling = "404-page"`
+# serves `dist/404.html` directly) and the Worker is never invoked,
+# so `acceptLanguageRedirect` in `src/worker.ts` is dead code on
+# the deployed Worker. Observed: browser hits `/` returned the
+# 404 page (cf-cache-status: HIT on the cached 404), while curl
+# from a different edge / cache state reached origin and got the
+# 302. With `run_worker_first = true` the Worker handles `/`
+# consistently and delegates everything else to `env.ASSETS`
+# via the existing `worker.ts` code path.
+run_worker_first = true
+
 # `_headers` and `_redirects` from `public/` are copied into
 # `dist/` by Astro at build time. Cloudflare Workers Static
 # Assets reads both at deploy time — no extra config required.
