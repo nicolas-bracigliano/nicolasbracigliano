@@ -141,14 +141,19 @@
     text-decoration-style: dashed;
     text-underline-offset: 2px;
   }
-  .about-out {
-    margin-block-start: 1.75rem !important;
-    font-size: 0.8125rem !important;
-    color: var(--ink-3) !important;
+  /* `.about-prose .about-out` (specificity 020) cleanly beats the
+     surrounding `.about-prose p` rule (011) without `!important`.
+     Earlier passes used `.about-out` alone (010) and reached for
+     `!important` on every overridden declaration; the bumped
+     selector replaces all three. */
+  .about-prose .about-out {
+    margin-block-start: 1.75rem;
+    font-size: 0.8125rem;
+    color: var(--ink-3);
     border-block-start: 1px dashed var(--rule);
     padding-block-start: 1rem;
   }
-  .about-out .serif-italic {
+  .about-prose .about-out .serif-italic {
     font-size: 1.125rem;
     color: var(--ink);
   }

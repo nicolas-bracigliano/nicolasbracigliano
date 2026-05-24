@@ -64,6 +64,16 @@
     color: var(--ink-2);
   }
 
+  /* Bespoke text selection. Default browser blue clashes with the
+     warm Día palette and is invisible against Noche's `--accent`.
+     Painting with `--accent` over `--bg` keeps the contrast tied
+     to the same palette as the rest of the body text, in both
+     themes. */
+  ::selection {
+    background: var(--accent);
+    color: var(--bg);
+  }
+
   hr {
     border: 0;
     border-top: 1px solid var(--rule);
@@ -89,14 +99,14 @@
   }
   .skip-link:focus {
     inset-block-start: 0;
-    z-index: 10;
+    z-index: var(--z-skip-link);
   }
 
   /* chrome */
   .chrome {
     position: sticky;
     top: 0;
-    z-index: 5;
+    z-index: var(--z-chrome);
     display: grid;
     grid-template-columns: auto 1fr auto;
     align-items: center;
@@ -376,7 +386,7 @@
       position: fixed;
       inset-inline: 0;
       inset-block-end: 0;
-      z-index: 5;
+      z-index: var(--z-chrome);
       background: var(--bg);
       border-block-start: 1px dashed var(--rule);
       padding-block-end: env(safe-area-inset-bottom, 0);
@@ -448,5 +458,82 @@
       color 380ms cubic-bezier(0.2, 0.7, 0.2, 1),
       border-color 380ms cubic-bezier(0.2, 0.7, 0.2, 1),
       text-decoration-color 380ms cubic-bezier(0.2, 0.7, 0.2, 1);
+  }
+}
+
+/* ─── Print stylesheet (starter) ─────────────────────────────────────────
+   Lives outside `@layer base` so its declarations beat any layered
+   route rule on the cascade — print is a different output, not a
+   variation on the screen styles. Sits at the very end of base.css
+   because it's small and intentionally last.
+
+   Phase 1 floor: hide chrome / toggles / interactive UI, drop the
+   sticky positioning, full-bleed prose, page breaks at h2,
+   disable motion (browsers already do this for print but the
+   reset.css clamp is media-screen-only).
+
+   Phase 3 polish: expand `<a href>` URLs as a `::after` content,
+   add per-route tweaks (force notes to single-column, hide
+   facts-card portrait, etc.), tune page-break behaviour around
+   widows / orphans. Land when the first essay or notebook
+   actually gets printed.
+   --------------------------------------------------------------- */
+@media print {
+  /* Suppress chrome + interactive affordances. The reader has
+     the URL in the footer of the printed page already. */
+  .chrome,
+  .foot-rail,
+  .skip-link,
+  #theme-toggle,
+  .lang-toggle,
+  .about-intro {
+    display: none !important;
+  }
+
+  /* Full-bleed prose; no sticky positioning of any kind. */
+  main,
+  .page,
+  .wrap,
+  .about.wrap,
+  .now.wrap {
+    max-width: none;
+    padding-inline: 0;
+    margin-inline: 0;
+  }
+  * {
+    position: static !important;
+  }
+
+  /* Page-break behaviour: keep headings with the following
+     paragraph; break before h2s (each section starts on a new
+     page when the prose is long enough to warrant it). */
+  h1,
+  h2,
+  h3 {
+    break-after: avoid-page;
+  }
+  h2 {
+    break-before: page;
+  }
+  /* First h2 on a page shouldn't force a blank page above. */
+  main > section > article > h2:first-of-type,
+  .about-prose h2:first-of-type {
+    break-before: auto;
+  }
+  p,
+  li,
+  dd {
+    orphans: 3;
+    widows: 3;
+  }
+
+  /* Disable animations + transitions. Print rendering already
+     freezes a frame, but kill them explicitly so any animation
+     mid-fade doesn't get captured at a partial-opacity state. */
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
   }
 }
