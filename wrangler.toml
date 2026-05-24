@@ -46,3 +46,21 @@ binding = "ASSETS"
 # Assets reads both at deploy time — no extra config required.
 # The redirect for `/es/colofon` → `/es/colofón` and every
 # security header in `_headers` flow through automatically.
+
+# Collect logs and traces to debug your Worker, persist in
+# the dashboard or export to external providers
+[observability]
+enabled = false
+head_sampling_rate = 1
+
+[observability.logs]
+enabled = true
+head_sampling_rate = 1
+persist = true
+invocation_logs = true
+
+[observability.traces]
+enabled = true
+persist = true
+head_sampling_rate = 1
+
