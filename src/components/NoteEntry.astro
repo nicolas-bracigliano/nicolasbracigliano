@@ -11,9 +11,13 @@ export interface Props {
   locale: Locale;
   /** If true, this is the first note in a list — gets a star margin-mark instead of arrow. */
   isFirst?: boolean;
+  /** Single-entry page (NoteLayout) vs index-list context. When true,
+   *  the foot's "→ link" permalink is suppressed because the reader
+   *  is already on the entry. Read-time stays useful in both contexts. */
+  isStandalone?: boolean;
 }
 
-const { entry, locale, isFirst = false } = Astro.props;
+const { entry, locale, isFirst = false, isStandalone = false } = Astro.props;
 const { date, tags, glyph, title, lede, aside, minutes: minutesOverride } = entry.data;
 const permalink = entryRouteFor(entry);
 // Manual override wins; else compute from raw markdown. `entry.body` is
@@ -63,19 +67,26 @@ const permalinkLabel = locale === 'es' ? 'enlace' : 'link';
     <div class="note-prose">
       <slot />
     </div>
-    <div class="note-foot">
-      {
-        minutes !== null && (
-          <>
+    {
+      /* Render the foot only when it has something to say.
+         On the index, both halves apply (read-time + permalink).
+         On the single-entry page (`isStandalone`), only the
+         read-time remains — the permalink would point at the
+         page the reader is already on. If a note has no body
+         (so `minutes === null`) on the standalone view, the
+         foot collapses entirely. */
+      (minutes !== null || !isStandalone) && (
+        <div class="note-foot">
+          {minutes !== null && (
             <span>
               {readTimeLabel} · {minutes} {minLabel}
             </span>
-            <span class="sep">·</span>
-          </>
-        )
-      }
-      <a href={permalink}>{permalinkLabel}</a>
-    </div>
+          )}
+          {minutes !== null && !isStandalone && <span class="sep">·</span>}
+          {!isStandalone && <a href={permalink}>{permalinkLabel}</a>}
+        </div>
+      )
+    }
   </article>
 
   <div class="note-right">
