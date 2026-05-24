@@ -184,19 +184,34 @@ jobs:
         with:
           name: dist
           path: dist
+      # `cloudflare/wrangler-action@v4` (May 2026) bundles Wrangler
+      # v4 by default; the previous v3.14.1 shipped Wrangler 3.90.0
+      # which surfaced an "out-of-date, please update" warning on
+      # every deploy. Pinned to a commit SHA (not `@v4`) per repo
+      # security policy — every third-party action is SHA-pinned so
+      # an upstream tag move can't silently change what runs in CI.
       - name: Authenticate (wrangler whoami)
-        uses: cloudflare/wrangler-action@da0e0dfe58b7a431659754fdf3f186c529afbe65 # v3.14.1
+        uses: cloudflare/wrangler-action@ebbaa1584979971c8614a24965b4405ff95890e0 # v4.0.0
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           command: whoami
       - name: Deploy to Cloudflare Pages
         id: deploy
-        uses: cloudflare/wrangler-action@da0e0dfe58b7a431659754fdf3f186c529afbe65 # v3.14.1
+        uses: cloudflare/wrangler-action@ebbaa1584979971c8614a24965b4405ff95890e0 # v4.0.0
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          command: pages deploy dist --project-name=nicolas-bracigliano --branch=${{ github.head_ref || github.ref_name }}
+          # Project name comes from the `CLOUDFLARE_PAGES_PROJECT`
+          # GitHub repo Variable (Settings → Secrets and variables
+          # → Actions → Variables). Falls back to
+          # `nicolas-bracigliano` so the default path needs no
+          # configuration; only repos that named the Pages project
+          # differently set the variable. Project name isn't
+          # secret — using `vars.*` over `secrets.*` keeps the
+          # workflow log readable and lets a contributor see what
+          # project they're deploying to.
+          command: pages deploy dist --project-name=${{ vars.CLOUDFLARE_PAGES_PROJECT || 'nicolas-bracigliano' }} --branch=${{ github.head_ref || github.ref_name }}
       - name: Smoke test
         env:
           URL: ${{ steps.deploy.outputs.deployment-url }}

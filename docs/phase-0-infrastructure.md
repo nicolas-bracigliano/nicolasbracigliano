@@ -77,6 +77,25 @@ auto-deploy.
    it. Continue to Step 5 below to wire that up; for now, you just
    need the Pages project to _exist_.
 
+### If you named the project something other than `nicolas-bracigliano`
+
+The CI workflow defaults to deploying to a project named
+`nicolas-bracigliano`. If you picked a different name in
+Cloudflare (e.g. `nb-com` or `nicolasbracigliano-prod`), tell
+the workflow about it by setting a **GitHub repo variable**
+(not secret — project name isn't sensitive):
+
+1. GitHub repo → **Settings** → **Secrets and variables** →
+   **Actions** → **Variables** tab (NOT the Secrets tab).
+2. Click **New repository variable**.
+3. Name: `CLOUDFLARE_PAGES_PROJECT`
+4. Value: the exact project name from your Cloudflare dashboard.
+5. Save.
+
+The CI workflow reads `vars.CLOUDFLARE_PAGES_PROJECT` and falls
+back to `nicolas-bracigliano` if the variable is unset, so most
+setups need no configuration.
+
 ### Best practices
 
 - **Do not** enable the Cloudflare Pages "automatic deployments from
