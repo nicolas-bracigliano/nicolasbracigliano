@@ -1,3 +1,48 @@
+# Cloudflare Worker with Static Assets — hosts the Astro build at
+# `nicolas-bracigliano.<account>.workers.dev` and at the custom
+# domain `nicolasbracigliano.com` once Phase-0 DNS is wired.
+#
+# `name` MUST match the Worker on Cloudflare exactly. Renaming
+# here orphans the existing Worker and creates a new one
+# alongside; the Cloudflare dashboard shows the canonical name at
+# the top of the project page.
 name = "nicolas-bracigliano"
-compatibility_date = "2026-05-01"
-pages_build_output_dir = "./dist"
+
+# `compatibility_date` pins the Workers runtime semantics. Bump
+# every few months to pick up engine improvements. Each date's
+# behaviour changes are catalogued at
+# developers.cloudflare.com/workers/configuration/compatibility-dates.
+compatibility_date = "2026-05-24"
+
+# Worker entry point. Handles the one dynamic route on the site:
+# the `/` path does an Accept-Language redirect to `/en/` or
+# `/es/`. Everything else is served directly from the static-asset
+# binding below — the Worker is bypassed entirely for paths that
+# match an asset.
+main = "src/worker.ts"
+
+[assets]
+# Astro outputs the built site here. Uploaded as part of the
+# Worker deployment; static files (HTML, CSS, fonts, OG PNGs,
+# the Pagefind index) are served from Cloudflare's edge without
+# invoking the Worker. Default `run_worker_first = false` is
+# what we want — assets win for every path that has one.
+directory = "./dist"
+
+# When no asset matches a request, serve the built `dist/404.html`
+# with HTTP 404 status. Default (`none`) returns Cloudflare's
+# generic error page, which would discard the hand-crafted
+# Misplaced Letter 404 from PR #25.
+not_found_handling = "404-page"
+
+# Bind the assets fetcher into the Worker's `env` so the entry
+# in `src/worker.ts` can delegate non-`/` requests via
+# `env.ASSETS.fetch(request)`. `ASSETS` is the convention; any
+# binding name works.
+binding = "ASSETS"
+
+# `_headers` and `_redirects` from `public/` are copied into
+# `dist/` by Astro at build time. Cloudflare Workers Static
+# Assets reads both at deploy time — no extra config required.
+# The redirect for `/es/colofon` → `/es/colofón` and every
+# security header in `_headers` flow through automatically.

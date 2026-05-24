@@ -2,10 +2,10 @@
 
 This is the dashboard-clicking checklist that turns the green-on-`main`
 codebase into a real production deployment. The code side (CI deploy
-job, wrangler config, security workflows, `_headers`) is already
+job, `wrangler.toml`, security workflows, `_headers`) is already
 merged and waiting for secrets. Once you finish the steps below, the
 next push to any branch produces a working preview URL on Cloudflare
-Pages and `nicolasbracigliano.com` resolves to a real site.
+Workers and `nicolasbracigliano.com` resolves to a real site.
 
 **Estimated time**: ~3 hours, spread across one or two sittings.
 Several steps have wait windows (DNSSEC propagation, email-forwarding
@@ -46,54 +46,80 @@ Open these tabs and keep them open through the session:
 
 ---
 
-## Step 1 — Cloudflare account + Pages project
+## Step 1 — Cloudflare account + Worker (Static Assets)
 
-**Goal**: a Cloudflare Pages project named `nicolas-bracigliano`
-connected to this GitHub repo, so pushes from `main` (and PR branches)
-auto-deploy.
+**Goal**: a Cloudflare Worker named `nicolas-bracigliano` (matching
+the `name` in `wrangler.toml` at the repo root) hosting the Astro
+build via the **Workers Static Assets** binding. Pushes from `main`
+deploy to production; pushes from any other branch upload a preview
+version reachable at `preview-<worker>.<account>.workers.dev`.
+
+We use **Workers + Static Assets** (Cloudflare's unified hosting
+product) rather than the legacy Pages product. Both still work as
+of 2026, but Workers is where Cloudflare's roadmap points and what
+the dashboard onboarding now defaults to.
 
 1. Sign in to <https://dash.cloudflare.com/>. Create an account if
    needed — use an email you control long-term, not a vendor address.
-2. In the left sidebar: **Compute (Workers)** → **Workers & Pages**.
-   Click **Create application** → **Pages** → **Connect to Git**.
-3. Authorize Cloudflare to read the repo (`nicolas-bracigliano/nicolasbracigliano`).
-   Pick **"Only select repositories"** rather than "all repositories" —
-   minimum-privilege.
-4. Project name: **`nicolas-bracigliano`** (lowercase, hyphenated, no
-   underscores — Cloudflare uses this as the `*.pages.dev` subdomain).
-5. Build settings:
-   - **Framework preset**: Astro
-   - **Build command**: `pnpm build`
-   - **Build output directory**: `dist`
-   - **Root directory**: `/` (leave default)
-   - **Environment variables**: leave empty for now (none required).
-6. Build behaviour:
-   - Enable **"Build on push for all branches"** so PR branches also
-     produce preview URLs.
-7. Save & deploy. The first build will fail — that's expected,
-   because no GitHub-side secret is in place yet. We're using
-   Cloudflare's Pages integration for the deploy _target_, but the CI
-   workflow in `.github/workflows/ci.yml` is what actually triggers
-   it. Continue to Step 5 below to wire that up; for now, you just
-   need the Pages project to _exist_.
+2. Left sidebar → **Compute (Workers)** → **Workers & Pages** →
+   **Create** → **Worker**. (The dashboard may also offer "Import
+   a repository" or a framework picker; either path is fine — the
+   goal is "a Worker named `nicolas-bracigliano` exists on this
+   account".)
+3. **Worker name**: `nicolas-bracigliano` (lowercase, hyphenated,
+   no underscores — Cloudflare uses this as the
+   `*.<account>.workers.dev` subdomain).
+4. If the onboarding asks for a build command, build output, or
+   framework preset: **skip or pick the most minimal option**. The
+   real config lives in `wrangler.toml` in this repo, not on the
+   dashboard. The dashboard's build configuration is only used if
+   you let Cloudflare auto-build from Git — we don't (see step 5).
+5. **Disconnect Git integration** if the onboarding wired it up:
+   - Worker dashboard → **Settings** → **Build** → find the
+     **Git repository** row → click **Disconnect**.
+   - **Reason**: our CI workflow in `.github/workflows/ci.yml`
+     gates every deploy on typecheck / lint / vitest /
+     lighthouse / e2e all passing. Cloudflare's auto-build runs on
+     every push regardless of test status — the wrong default for
+     this project. Two parallel deploy paths also race each other.
+   - The Worker target stays; only the auto-build watcher goes.
+     Our CI pushes the built `dist/` to the same Worker via the
+     `wrangler deploy` API.
+
+### If your Worker has a different name
+
+The CI workflow reads the deploy target from `wrangler.toml`'s
+`name` field. If the Worker on Cloudflare is named anything other
+than `nicolas-bracigliano`, edit `wrangler.toml`:
+
+```toml
+name = "your-worker-name-here"
+```
+
+`wrangler.toml` is the **single source of truth** for the deploy
+target — no separate GitHub variable, no dashboard config to keep
+in sync.
 
 ### Best practices
 
-- **Do not** enable the Cloudflare Pages "automatic deployments from
-  GitHub" if it offers — we want the deploy to be driven by our
-  hand-tuned CI workflow, not Cloudflare's. (The choice depends on
-  the Pages onboarding flow at the time you do this; if you can pick
-  "manual / via API" do that. If only the GitHub auto-deploy option
-  is offered, accept it; the workflow still functions.)
+- **Disconnect Git integration on the Worker (step 5 above).** Two
+  deploy paths running in parallel waste compute and race on which
+  version wins, and Cloudflare's auto-build doesn't honour our
+  test gates.
+- **Don't add `wrangler.toml` overrides in the dashboard.** A few
+  Worker settings (compatibility date, assets directory) can be
+  set both in the repo's `wrangler.toml` and on the dashboard.
+  Always use the repo file — dashboard overrides drift silently.
 - **Account ID** — note the Account ID shown in the Cloudflare
-  dashboard's right sidebar. You'll need it for Step 5.
+  dashboard's right sidebar. You'll need it for Step 5 (GitHub
+  secrets).
 
 ---
 
 ## Step 2 — DNS + custom domain
 
 **Goal**: `nicolasbracigliano.com` and `www.nicolasbracigliano.com`
-both resolve to the Cloudflare Pages project.
+both resolve to the Cloudflare Worker.
 
 1. In the Cloudflare dashboard sidebar: **Websites** → **+ Add a
    site**. Enter `nicolasbracigliano.com`. Pick the **Free** plan.
@@ -101,8 +127,8 @@ both resolve to the Cloudflare Pages project.
    records. Accept whatever it finds (MX, TXT, etc. — they stay
    intact). Add or verify:
    - `A` record: `@` (apex) → `192.0.2.1` (placeholder; Cloudflare
-     will rewrite this when you attach the Pages project — actual IP
-     comes from CF's anycast pool). **Proxy status: Proxied (orange
+     will rewrite this when you attach the Worker — actual IP comes
+     from CF's anycast pool). **Proxy status: Proxied (orange
      cloud).**
    - `CNAME` record: `www` → `nicolasbracigliano.com`. Proxied.
 3. Cloudflare will give you two nameservers (something like
@@ -112,7 +138,9 @@ both resolve to the Cloudflare Pages project.
    the existing nameservers with the two Cloudflare names. Save.
    - Propagation usually takes 5-30 minutes but can take up to 24
      hours. Cloudflare emails you when it's confirmed.
-5. Back in Cloudflare: **Workers & Pages** → click `nicolas-bracigliano` → **Custom domains** → **Set up a custom domain**. Add both:
+5. Back in Cloudflare: **Workers & Pages** → click
+   `nicolas-bracigliano` → **Settings** → **Domains & Routes** →
+   **+ Add**. Add both:
    - `nicolasbracigliano.com`
    - `www.nicolasbracigliano.com`
    - Cloudflare automatically writes the CNAME / AAAA records — it'll
@@ -139,8 +167,8 @@ dig nicolasbracigliano.com A +short
 curl -I https://nicolasbracigliano.com/en/
 # Should return 200 OK with `server: cloudflare` and all 9
 # security headers (CSP, HSTS, X-Frame-Options, etc.) once the
-# Pages deploy lands. Until deploy works, expect a Pages-default
-# 404 page.
+# Worker deploys. Until deploy works, expect a Workers-default
+# error page or HTTP 522.
 ```
 
 ---
@@ -220,18 +248,21 @@ to the browser. Cloudflare counts requests at the edge.
 ## Step 5 — GitHub repo secrets
 
 **Goal**: CI's deploy job has the credentials it needs to push the
-built `dist/` to your Pages project.
+built `dist/` to the Worker.
 
 1. Generate a Cloudflare API token:
    - Cloudflare dashboard → **My Profile** (top right) → **API
      Tokens** → **Create Token**.
    - Use the **"Edit Cloudflare Workers"** template, then **edit
-     permissions** before creating:
-     - **Account → Cloudflare Pages → Edit** ← keep
-     - **Account → Workers Scripts → Edit** ← REMOVE (Pages doesn't
-       need it)
+     permissions** before creating. We're deploying a Worker with
+     Static Assets, so the Workers permissions are required;
+     Pages is not used by this project.
+     - **Account → Workers Scripts → Edit** ← keep
      - **Account → Account Settings → Read** ← keep
-     - **Zone → Workers Routes → Edit** ← REMOVE
+     - **Account → Cloudflare Pages → Edit** ← REMOVE (we use
+       Workers, not Pages)
+     - **Zone → Workers Routes → Edit** ← keep (needed once a
+       custom domain is attached to the Worker in Step 2)
    - **Account Resources**: Include → Specific account → your
      account.
    - **Zone Resources**: Include → All zones from an account → your
@@ -249,14 +280,14 @@ built `dist/` to your Pages project.
    - `CLOUDFLARE_API_TOKEN` ← the token from step 1
    - `CLOUDFLARE_ACCOUNT_ID` ← from step 2
 4. Push a small change (or re-run the latest workflow on `main`). The
-   **Deploy to Cloudflare Pages** step should flip from `SKIPPED` to
-   `SUCCESS`.
+   **Deploy to Cloudflare Workers** step should flip from `SKIPPED`
+   to `SUCCESS`.
 
 ### Best practices
 
-- **Scope the API token to Pages only.** The Cloudflare template
-  pre-selects Workers + Pages permissions; remove Workers if you
-  don't deploy Workers. Future-you wants the blast radius small.
+- **Scope the API token to Workers only.** The Cloudflare template
+  pre-selects Workers + Pages permissions; remove Pages (we don't
+  use it). Future-you wants the blast radius small.
 - **Set an expiry.** No-expiry tokens become forgotten ambient
   credentials.
 - **Don't put the token in `.env` files or `package.json`.** Only
@@ -272,11 +303,13 @@ gh secret list
 # Should show CLOUDFLARE_API_TOKEN and CLOUDFLARE_ACCOUNT_ID
 
 gh workflow run ci.yml --ref main
-# Watch the "Deploy to Cloudflare Pages" step succeed
+# Watch the "Deploy to Cloudflare Workers" step succeed
 ```
 
-After the deploy succeeds, you'll have a `*.pages.dev` URL plus the
-real `nicolasbracigliano.com` URL serving content.
+After the deploy succeeds, you'll have a `<worker-name>.<account>.workers.dev`
+URL plus the real `nicolasbracigliano.com` URL serving content.
+Non-`main` branches deploy as preview versions of the same Worker,
+reachable at `preview-<worker-name>.<account>.workers.dev`.
 
 ---
 
