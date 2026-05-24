@@ -6,15 +6,16 @@ When in doubt about whether a decision rates an ADR, ask: **would I want to know
 
 ## Index
 
-| ID                                                 | Status   | Title                                                  |
-| -------------------------------------------------- | -------- | ------------------------------------------------------ |
-| [0001](./0001-cloudflare-pages.md)                 | Accepted | Cloudflare Pages as host                               |
-| [0002](./0002-csp-style-src-unsafe-inline.md)      | Accepted | Loosen `style-src` to enable native View Transitions   |
-| [0003](./0003-mirrored-bilingual-routes.md)        | Accepted | Mirrored `/en` `/es` route trees with `ROUTES` map     |
-| [0004](./0004-renovate-internal-automerge.md)      | Accepted | Renovate uses internal merger, not `platformAutomerge` |
-| [0005](./0005-theme-state-auto-override-retire.md) | Accepted | Theme state model — auto + override + silent retire    |
-| [0006](./0006-no-first-paint-animation.md)         | Accepted | No first-paint animation (axe + animation timing)      |
-| [0007](./0007-tsconfig-strictness-flipped.md)      | Accepted | Tighten TypeScript strictness flags (post-bootstrap)   |
+| ID                                                    | Status   | Title                                                            |
+| ----------------------------------------------------- | -------- | ---------------------------------------------------------------- |
+| [0001](./0001-cloudflare-pages.md)                    | Accepted | Cloudflare Pages as host                                         |
+| [0002](./0002-csp-style-src-unsafe-inline.md)         | Accepted | Loosen `style-src` to enable native View Transitions             |
+| [0003](./0003-mirrored-bilingual-routes.md)           | Accepted | Mirrored `/en` `/es` route trees with `ROUTES` map               |
+| [0004](./0004-renovate-internal-automerge.md)         | Accepted | Renovate uses internal merger, not `platformAutomerge`           |
+| [0005](./0005-theme-state-auto-override-retire.md)    | Accepted | Theme state model — auto + override + silent retire              |
+| [0006](./0006-no-first-paint-animation.md)            | Accepted | No first-paint animation (axe + animation timing)                |
+| [0007](./0007-tsconfig-strictness-flipped.md)         | Accepted | Tighten TypeScript strictness flags (post-bootstrap)             |
+| [0008](./0008-externalize-hoisted-scripts-for-csp.md) | Accepted | Externalize every hoisted `<script>` so production CSP allows it |
 
 ## ADR format
 

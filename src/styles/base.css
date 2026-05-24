@@ -192,6 +192,17 @@
     color: var(--ink-3);
     margin-inline-end: 2px;
   }
+  /* Drop the slash prefix on narrower viewports — between the 720 px
+     breakpoint (where the top nav hides entirely in favour of the
+     foot-rail) and ~940 px the chrome is already tight, and the slash
+     row reads as visual noise once the nav, language toggle, theme
+     toggle, and mark have to share one cramped header row. The labels
+     stay; only the decoration drops. */
+  @media (max-width: 940px) {
+    .nav a::before {
+      content: none;
+    }
+  }
   .nav a[aria-current='page'],
   .nav a[aria-current='page']::before {
     color: var(--accent-aa);
