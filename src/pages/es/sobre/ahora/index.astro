@@ -8,20 +8,25 @@ import { getSibling, entryRouteFor } from '@lib/i18n';
 
 const entry = await getEntry('pages', 'es/now');
 if (!entry) throw new Error('Missing pages/es/now');
+// El schema `pages` es una discriminated union por `slug`; la
+// variante `now` requiere `items`. La igualdad de abajo le da a
+// TS el hook para reducir `entry.data` a la variante now, de
+// forma que `items` queda tipado como `NowPageItem[]` (y
+// obligatorio). El throw nunca dispara en runtime — Zod ya
+// validó al build — pero produce un error claro si un futuro
+// contribuyente renombra el slug.
+if (entry.data.slug !== 'now') throw new Error('pages/es/now: expected slug="now"');
 const sibling = await getSibling(entry);
-const { title, lede, items = [] } = entry.data;
+const { title, lede, items } = entry.data;
 
 const path = ROUTES.now.es;
 const siblingPath = sibling ? entryRouteFor(sibling) : null;
 
-// Los seis ítems del bench tour viven en
-// `src/content/pages/es/now.md` como YAML frontmatter, validado
-// por el schema Zod de la colección `pages` en
-// `src/content.config.ts`. La actualización semanal es una
-// edición de markdown, no de código. El tipo inferido del schema
-// es estructuralmente idéntico al `NowPageItem` exportado por
-// `NowItem.astro`, así que el spread de abajo type-checkea sin
-// cast.
+// Los ítems viven en `src/content/pages/es/now.md` como YAML
+// frontmatter. La cantidad está locked a `NOW_ITEM_COUNT` en
+// `src/lib/now-items.ts` y se valida en build via la union Zod
+// discriminada de `pages`. Una edición que baje a cinco ítems
+// rompe el build — no se le rompe al lector silenciosamente.
 ---
 
 <BaseLayout

@@ -8,18 +8,25 @@ import { getSibling, entryRouteFor } from '@lib/i18n';
 
 const entry = await getEntry('pages', 'en/now');
 if (!entry) throw new Error('Missing pages/en/now');
+// The `pages` collection is a discriminated union on `slug`; the
+// now variant requires `items`. The equality check below narrows
+// `entry.data` to the now variant so `items` is typed as
+// `NowPageItem[]` (and required). The throw can never fire at
+// runtime — Zod's slug literal already enforced it at build time
+// — but the assertion gives TS the narrowing hook and produces a
+// useful error if a future contributor renames the markdown slug.
+if (entry.data.slug !== 'now') throw new Error('pages/en/now: expected slug="now"');
 const sibling = await getSibling(entry);
-const { title, lede, items = [] } = entry.data;
+const { title, lede, items } = entry.data;
 
 const path = ROUTES.now.en;
 const siblingPath = sibling ? entryRouteFor(sibling) : null;
 
-// The six bench-tour items live in `src/content/pages/en/now.md`
-// as YAML frontmatter, validated by the `pages` collection's Zod
-// schema in `src/content.config.ts`. Weekly content refresh is a
-// markdown edit, not a code change. The schema's inferred type
-// for each item is structurally identical to `NowPageItem` from
-// `NowItem.astro` so the spread below type-checks without a cast.
+// Items live in `src/content/pages/en/now.md` as YAML frontmatter.
+// Count is locked to `NOW_ITEM_COUNT` in `src/lib/now-items.ts`
+// and validated at build time by the discriminated `pages` Zod
+// schema. A content edit that drops to five items fails the
+// build, not silently the user.
 ---
 
 <BaseLayout
