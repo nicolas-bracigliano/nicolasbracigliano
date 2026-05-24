@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.6.5](https://github.com/nicolas-bracigliano/nicolasbracigliano/compare/v1.6.4...v1.6.5) (2026-05-24)
+
+
+### Bug Fixes
+
+* **notes:** hide the "→ link" permalink on the single-note-entry page ([#41](https://github.com/nicolas-bracigliano/nicolasbracigliano/issues/41)) ([7611c9f](https://github.com/nicolas-bracigliano/nicolasbracigliano/commit/7611c9f267e8ea23b3488da5a8d5911b796a0ab1))
+
 ## [1.6.4](https://github.com/nicolas-bracigliano/nicolasbracigliano/compare/v1.6.3...v1.6.4) (2026-05-24)
 
 
