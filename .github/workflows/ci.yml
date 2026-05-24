@@ -160,7 +160,7 @@ jobs:
           fi
 
   deploy:
-    name: Deploy to Cloudflare Pages
+    name: Deploy to Cloudflare Workers
     # Gated on every quality check (build, lighthouse perf budget, e2e a11y
     # + behaviour) plus the secrets presence. Lighthouse parallel with e2e
     # rather than inside build so wall-clock time isn't bottlenecked on it.
@@ -179,24 +179,42 @@ jobs:
       name: ${{ github.ref == 'refs/heads/main' && 'production' || 'preview' }}
       url: ${{ steps.deploy.outputs.deployment-url }}
     steps:
+      - name: Checkout (needed for wrangler.toml + src/worker.ts)
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
       - name: Download verified dist artifact
         uses: actions/download-artifact@018cc2cf5baa6db3ef3c5f8a56943fffe632ef53 # v6.0.0
         with:
           name: dist
           path: dist
+      # `cloudflare/wrangler-action@v4` (May 2026) bundles Wrangler v4
+      # by default. v4.21+ adds `--preview-alias` support for the
+      # `versions upload` command, which we use for non-`main` deploys.
+      # Action SHA-pinned per the repo's third-party-action policy.
       - name: Authenticate (wrangler whoami)
-        uses: cloudflare/wrangler-action@da0e0dfe58b7a431659754fdf3f186c529afbe65 # v3.14.1
+        uses: cloudflare/wrangler-action@ebbaa1584979971c8614a24965b4405ff95890e0 # v4.0.0
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          wranglerVersion: '^4.21'
           command: whoami
-      - name: Deploy to Cloudflare Pages
+      # Two deploy paths, one step. `main` pushes go to production
+      # (`wrangler deploy`, lands at the canonical Worker URL plus
+      # the custom domain). Non-`main` pushes upload a preview
+      # version with the shared `preview` alias, accessible at
+      # `preview-<worker>.<account>.workers.dev` — single shared
+      # preview URL rather than per-branch aliasing (the latter
+      # would need DNS-safe alias names + retention management).
+      # Both commands write a `deployment-url` step output via
+      # wrangler's WRANGLER_OUTPUT_DIR artifact, which the
+      # `environment.url` field above picks up.
+      - name: Deploy to Cloudflare Workers
         id: deploy
-        uses: cloudflare/wrangler-action@da0e0dfe58b7a431659754fdf3f186c529afbe65 # v3.14.1
+        uses: cloudflare/wrangler-action@ebbaa1584979971c8614a24965b4405ff95890e0 # v4.0.0
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          command: pages deploy dist --project-name=nicolas-bracigliano --branch=${{ github.head_ref || github.ref_name }}
+          wranglerVersion: '^4.21'
+          command: ${{ github.ref == 'refs/heads/main' && 'deploy' || 'versions upload --preview-alias=preview' }}
       - name: Smoke test
         env:
           URL: ${{ steps.deploy.outputs.deployment-url }}
@@ -206,7 +224,8 @@ jobs:
             exit 0
           fi
           echo "Smoke-testing $URL"
-          # Root path is a Pages Function that 302-redirects to /{locale}/.
+          # Root path is the Worker entry — it 302-redirects to
+          # /{locale}/ based on Accept-Language (see src/worker.ts).
           root_status=$(curl -sS -o /dev/null -w '%{http_code}' --max-time 15 --retry 3 --retry-delay 2 "$URL/")
           if [ "$root_status" != "302" ] && [ "$root_status" != "200" ]; then
             echo "::error::Expected 302 or 200 at /, got $root_status"; exit 1
