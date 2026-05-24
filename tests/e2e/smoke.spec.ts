@@ -276,16 +276,31 @@ test("/about/ — intro overlay survives child animation-end events, removes its
     }
   });
   await page.goto('/en/about/');
+
+  // Sync on `wireIntro` having added `.is-active`. Before this
+  // class is set the overlay is `display: none` and no animation
+  // ticks; timing everything from goto (the previous form) raced
+  // the JS load on slow runners — by the time we'd "waited past
+  // overlay-out", the animation hadn't actually started yet.
+  // Anchoring to `.is-active` makes the rest of the test
+  // self-consistent with the animation's wall-clock.
+  await page.locator('.about-intro.is-active').waitFor({ timeout: 5_000 });
+
   // Past the inner hola-in but before overlay-out: the overlay must
   // still be attached. Catches the original bug where a
   // `{ once: true }` animationend listener picked up the bubbled
   // child animation here and tore the intro down too early.
   await page.waitForTimeout(INTRO_INNER_FADE_END_MS + INTRO_WAIT_BUFFER_MS);
   await expect(page.locator('[data-about-intro]')).toBeAttached();
+
   // After overlay-out completes + buffer for animationend + DOM
-  // removal, the overlay must be gone.
-  await page.waitForTimeout(INTRO_TOTAL_MS - INTRO_INNER_FADE_END_MS + INTRO_WAIT_BUFFER_MS);
-  await expect(page.locator('[data-about-intro]')).toHaveCount(0);
+  // removal, the overlay must be gone. Generous `toHaveCount`
+  // timeout so a slow runner with dropped animation frames
+  // (animation stretches past INTRO_TOTAL_MS wall-clock) still
+  // converges before failing.
+  await expect(page.locator('[data-about-intro]')).toHaveCount(0, {
+    timeout: INTRO_TOTAL_MS - INTRO_INNER_FADE_END_MS + INTRO_WAIT_BUFFER_MS + 5_000,
+  });
 });
 
 // `/now/` smoke tests. Same naming convention as `/about/` tests
@@ -437,11 +452,18 @@ test('/404 — fallback returns HTTP 404 and the inline script fills the request
 });
 
 test('works filter toggles cards via data-kind matching', async ({ page }) => {
+  // Generous test budget. `astro:page-load` fires post-load and
+  // wireFilters runs synchronously inside that listener, but the
+  // ClientRouter bootstrap that emits `astro:page-load` can take
+  // a beat on cold preview-server hits where the script bundle
+  // hasn't been parsed yet — was flaking the default 30 s budget.
+  test.setTimeout(45_000);
+
   await page.goto('/en/works/');
   // Wait for the inline script to have wired the toolbar — without this,
   // a fast `goto`/`click` can race the `astro:page-load` listener that
   // attaches the click handler, and the click silently no-ops.
-  await page.locator('.works-filters[data-wired="true"]').waitFor();
+  await page.locator('.works-filters[data-wired="true"]').waitFor({ timeout: 15_000 });
   // Initial state: all cards visible.
   const all = page.locator('.work-card');
   await expect(all).toHaveCount(4);

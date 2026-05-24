@@ -3,6 +3,11 @@ import { glob } from 'astro/loaders';
 // Astro 6 deprecates the `z` re-export from `astro:content`; import from
 // `astro/zod` instead (Astro 6 ships zod v4).
 import { z } from 'astro/zod';
+// Shared schema for the /now route's bench-tour items. Defining it
+// in `./lib/now-items` (vs inline here) lets `NowItem.astro` import
+// the inferred TS types from the same source — no parallel
+// hand-written `NowPageItem` interface to drift.
+import { nowItemSchema, NOW_ITEM_COUNT } from './lib/now-items';
 
 const base = z.object({
   title: z.string().min(1).max(80),
@@ -72,13 +77,45 @@ const essays = defineCollection({
     }),
 });
 
+// `pages` collection: one Zod variant per known page slug, joined
+// by `z.discriminatedUnion('slug', …)`. Each variant locks `slug`
+// to a literal so TypeScript narrows `entry.data` based on a
+// slug check at the call site — that's how the /now page knows
+// `entry.data.items` is present without any optional fallback,
+// and how the home / about / colophon pages get a guarantee that
+// `items` ISN'T present (a stray `items:` accidentally added to
+// home.md fails Zod validation, loudly, at build time).
+//
+// Adding a new page (e.g. /essays) when the route gets its
+// treatment: append the slug to `PAGE_SLUGS` in `lib/routes.ts`,
+// add a matching variant below with `slug: z.literal('…')`, and
+// ship the markdown files in `src/content/pages/{en,es}/`. The
+// drift test in `tests/unit/page-slugs.test.ts` fails until all
+// three are in sync. Cross-cutting fields (title, lang, status,
+// …) live in `base` and extend automatically through `.extend()`.
 const pages = defineCollection({
   loader: glob({ pattern: '**/*.md', base: './src/content/pages', generateId: pathId }),
-  schema: ({ image }) =>
-    base.extend({
+  schema: ({ image }) => {
+    const common = {
       hero: image().optional(),
       ogOverride: image().optional(),
-    }),
+    };
+    return z.discriminatedUnion('slug', [
+      base.extend({ slug: z.literal('home'), ...common }),
+      base.extend({ slug: z.literal('about'), ...common }),
+      base.extend({ slug: z.literal('colophon'), ...common }),
+      base.extend({
+        slug: z.literal('now'),
+        ...common,
+        /** Required on the now variant — only the now page has
+         *  bench-tour items. Locked to `NOW_ITEM_COUNT` (6) so an
+         *  accidental row deletion fails Zod validation at build
+         *  time. Phase-2 content rewrites that intentionally
+         *  change the count update the constant + this line. */
+        items: z.array(nowItemSchema).length(NOW_ITEM_COUNT),
+      }),
+    ]);
+  },
 });
 
 export const collections = { notes, works, essays, pages };

@@ -5,24 +5,17 @@
 // `<li>` (`.now-code`, `.now-garden`, …) which paints the № in a
 // kind-appropriate hue without splitting the rest of the row's
 // styling per kind.
+//
+// Item shape and kind enum live in `src/lib/now-items.ts` as a Zod
+// schema + inferred TS types — single source of truth shared with
+// `src/content.config.ts`'s `pages` collection so the frontmatter
+// validator and the component prop types can't drift.
 
-export type NowItemKind = 'code' | 'guitar' | 'garden' | 'print' | 'coffee' | 'read';
-
-export interface NowItemDetailRow {
-  dt: string;
-  dd: string;
-}
-
-/** Shape of one bench-tour entry as authored by the page. The page
- *  assigns `index` at map-time, so it isn't part of the authored
- *  shape — see {@link Props} for the full component contract. */
-export interface NowPageItem {
-  kind: NowItemKind;
-  where: string;
-  title: string;
-  prose: string;
-  detail: NowItemDetailRow[];
-}
+import type { NowPageItem } from '@lib/now-items';
+// Re-exported for callers that already import these names from
+// this component. Future callers should import directly from
+// `@lib/now-items`; these re-exports exist for backward compat.
+export type { NowItemKind, NowItemDetailRow, NowPageItem } from '@lib/now-items';
 
 export interface Props extends NowPageItem {
   /** 1-based ordinal — `1` becomes "№ 01". Named `position` rather
