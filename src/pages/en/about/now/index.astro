@@ -5,17 +5,15 @@ import NowMasthead from '@components/NowMasthead.astro';
 import NowItem from '@components/NowItem.astro';
 import { ROUTES } from '@lib/routes';
 import { getSibling, entryRouteFor } from '@lib/i18n';
+import { assertNowEntry } from '@lib/now-items';
 
 const entry = await getEntry('pages', 'en/now');
 if (!entry) throw new Error('Missing pages/en/now');
-// The `pages` collection is a discriminated union on `slug`; the
-// now variant requires `items`. The equality check below narrows
-// `entry.data` to the now variant so `items` is typed as
-// `NowPageItem[]` (and required). The throw can never fire at
-// runtime — Zod's slug literal already enforced it at build time
-// — but the assertion gives TS the narrowing hook and produces a
-// useful error if a future contributor renames the markdown slug.
-if (entry.data.slug !== 'now') throw new Error('pages/en/now: expected slug="now"');
+// Narrow the discriminated `pages` union to the now variant so
+// `entry.data.items` is typed as required. See `assertNowEntry`
+// for why this can't fire at runtime (Zod's slug literal already
+// enforced it at build time).
+assertNowEntry(entry);
 const sibling = await getSibling(entry);
 const { title, lede, items } = entry.data;
 

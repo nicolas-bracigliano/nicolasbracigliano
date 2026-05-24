@@ -5,17 +5,15 @@ import NowMasthead from '@components/NowMasthead.astro';
 import NowItem from '@components/NowItem.astro';
 import { ROUTES } from '@lib/routes';
 import { getSibling, entryRouteFor } from '@lib/i18n';
+import { assertNowEntry } from '@lib/now-items';
 
 const entry = await getEntry('pages', 'es/now');
 if (!entry) throw new Error('Missing pages/es/now');
-// El schema `pages` es una discriminated union por `slug`; la
-// variante `now` requiere `items`. La igualdad de abajo le da a
-// TS el hook para reducir `entry.data` a la variante now, de
-// forma que `items` queda tipado como `NowPageItem[]` (y
-// obligatorio). El throw nunca dispara en runtime — Zod ya
-// validó al build — pero produce un error claro si un futuro
-// contribuyente renombra el slug.
-if (entry.data.slug !== 'now') throw new Error('pages/es/now: expected slug="now"');
+// Reduce la discriminated union `pages` a la variante `now`
+// para que `entry.data.items` quede tipado como obligatorio.
+// Ver `assertNowEntry` — el throw no puede disparar en runtime
+// porque Zod ya validó el literal del slug en build.
+assertNowEntry(entry);
 const sibling = await getSibling(entry);
 const { title, lede, items } = entry.data;
 

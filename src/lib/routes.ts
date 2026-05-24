@@ -18,6 +18,21 @@ export const ROUTES = {
   essays: { en: '/en/essays/', es: '/es/ensayos/' },
 } as const;
 
+/** The slugs that live in the `pages` content collection.
+ *  Single source of truth shared by:
+ *   - `src/content.config.ts` (the discriminated-union variants)
+ *   - `src/lib/i18n.ts` (the `isPageSlug` runtime type guard)
+ *   - `tests/unit/page-slugs.test.ts` (drift detection against
+ *     the actual `src/content/pages/{en,es}/*.md` files)
+ *
+ *  Adding a new page (e.g. when `/essays` gets its real
+ *  treatment): append the slug here, add a matching variant in
+ *  `content.config.ts`, and add the markdown files in
+ *  `src/content/pages/{en,es}/`. The drift test fails until all
+ *  three are in sync. */
+export const PAGE_SLUGS = ['home', 'about', 'colophon', 'now'] as const;
+export type PageSlug = (typeof PAGE_SLUGS)[number];
+
 export function otherLocale(locale: Locale): Locale {
   return locale === 'en' ? 'es' : 'en';
 }

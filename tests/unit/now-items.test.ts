@@ -5,11 +5,20 @@
 // of waiting for the e2e suite to render the page (~6 s) or
 // production traffic to show empty cards.
 //
-// We read the markdown files directly + parse the frontmatter
-// here rather than going through Astro's content layer, because
-// `astro:content` is a virtual module that needs the full build
-// graph. Plain `fs` + `yaml` is enough for what we want to test
-// (shape + count) without a heavy harness.
+// Why parse YAML directly instead of going through Astro's
+// content layer: `astro:content`'s `getCollection` is a virtual
+// module that needs the full Astro build graph (loaders, the
+// content store, image resolution). Pulling that into vitest
+// would either require a custom test environment or stubbing
+// the entire content runtime — both heavier than the 150 ms
+// payoff we're after.
+//
+// The `yaml` package is the cost of this choice: it's a
+// transitive dep already (via @astrojs/check → language-server
+// → yaml-language-server, pinned to ^2.8.3 by the
+// security-overrides PR), so promoting it to a direct devDep is
+// ~50 KB of node_modules and zero new transitives. The schema
+// itself stays Astro-free in `src/lib/now-items.ts`.
 
 import { readFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';

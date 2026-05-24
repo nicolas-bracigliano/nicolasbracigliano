@@ -3,7 +3,7 @@
 // that only need routing should import from `./routes`; callers that need to
 // resolve entries or siblings should import from here.
 import { getCollection, type CollectionEntry } from 'astro:content';
-import { ROUTES, otherLocale, type Locale } from './routes';
+import { ROUTES, otherLocale, PAGE_SLUGS, type Locale, type PageSlug } from './routes';
 
 export type AnyEntry =
   | CollectionEntry<'notes'>
@@ -11,11 +11,12 @@ export type AnyEntry =
   | CollectionEntry<'essays'>
   | CollectionEntry<'pages'>;
 
-const PAGE_ROUTE_KEYS = ['home', 'about', 'now', 'colophon'] as const;
-type PageSlug = (typeof PAGE_ROUTE_KEYS)[number];
-
+// Runtime guard around `PAGE_SLUGS` (the source of truth in `routes.ts`).
+// Shared with the discriminated `pages` Zod schema in
+// `src/content.config.ts` — both files reach into the same constant so
+// adding a new page slug is a one-line change in `routes.ts`.
 function isPageSlug(slug: string): slug is PageSlug {
-  return (PAGE_ROUTE_KEYS as readonly string[]).includes(slug);
+  return (PAGE_SLUGS as readonly string[]).includes(slug);
 }
 
 export function entryRouteFor<E extends AnyEntry>(entry: E): string {

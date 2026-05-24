@@ -87,9 +87,12 @@ const essays = defineCollection({
 // home.md fails Zod validation, loudly, at build time).
 //
 // Adding a new page (e.g. /essays) when the route gets its
-// treatment: add a new variant below with `slug: z.literal('…')`.
-// Cross-cutting fields (title, lang, status, …) live in `base`
-// and extend automatically through `.extend()`.
+// treatment: append the slug to `PAGE_SLUGS` in `lib/routes.ts`,
+// add a matching variant below with `slug: z.literal('…')`, and
+// ship the markdown files in `src/content/pages/{en,es}/`. The
+// drift test in `tests/unit/page-slugs.test.ts` fails until all
+// three are in sync. Cross-cutting fields (title, lang, status,
+// …) live in `base` and extend automatically through `.extend()`.
 const pages = defineCollection({
   loader: glob({ pattern: '**/*.md', base: './src/content/pages', generateId: pathId }),
   schema: ({ image }) => {
