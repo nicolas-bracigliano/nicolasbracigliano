@@ -4,6 +4,11 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
+overrides:
+  yaml: ^2.8.3
+  uuid: ^11.1.1
+  tmp: ^0.2.4
+
 importers:
 
   .:
@@ -29,7 +34,7 @@ importers:
         version: 4.11.3(playwright-core@1.60.0)
       '@cloudflare/vitest-pool-workers':
         specifier: 0.16.8
-        version: 0.16.8(@cloudflare/workers-types@4.20260521.1)(@vitest/runner@4.1.7)(@vitest/snapshot@4.1.7)(vitest@4.1.7(@types/node@25.9.1)(vite@7.3.3(@types/node@25.9.1)(lightningcss@1.32.0)(yaml@2.9.0)))
+        version: 0.16.8(@vitest/runner@4.1.7)(@vitest/snapshot@4.1.7)(vitest@4.1.7(@types/node@25.9.1)(vite@7.3.3(@types/node@25.9.1)(lightningcss@1.32.0)(yaml@2.9.0)))
       '@eslint/js':
         specifier: 10.0.1
         version: 10.0.1(eslint@10.4.0)
@@ -101,7 +106,7 @@ importers:
         version: 4.1.7(@types/node@25.9.1)(vite@7.3.3(@types/node@25.9.1)(lightningcss@1.32.0)(yaml@2.9.0))
       wrangler:
         specifier: 4.93.1
-        version: 4.93.1(@cloudflare/workers-types@4.20260521.1)
+        version: 4.93.1
 
 packages:
 
@@ -248,9 +253,6 @@ packages:
     engines: {node: '>=16'}
     cpu: [x64]
     os: [win32]
-
-  '@cloudflare/workers-types@4.20260521.1':
-    resolution: {integrity: sha512-cerUUdckXWiNm0x0XEIomBkr58xja5hn/1F9wzzDfJTE96L98L/Ra0ToTxKfzsXLklPflOagce8Vhg0vx8Ytgw==}
 
   '@cspotcode/source-map-support@0.8.1':
     resolution: {integrity: sha512-IchNf6dN4tHoMFIn/7OE8LWZ19Y6q/67Bmf6vnGREv8RSbBVb9LPJxEcnwrcwX6ixSvaiGoomAUvu4YSxXrVgw==}
@@ -3863,11 +3865,6 @@ packages:
     resolution: {integrity: sha512-g6QUff04oZpHs0eG5p83rFLhHeV00ug/Yf9nZM6fLeUrPguBTkTQOdpAWWspMh55TZfVQDPaN3NQJfbVRAxdIw==}
     engines: {iojs: '>=1.0.0', node: '>=0.10.0'}
 
-  rimraf@2.7.1:
-    resolution: {integrity: sha512-uWjbaKIK3T1OSVptzX7Nl6PvQ3qAGtKEtVRjRuazjfL3Bx5eI409VZSqgND+4UNnmzLVdPj9FqFJNPqBZFve4w==}
-    deprecated: Rimraf versions prior to v4 are no longer supported
-    hasBin: true
-
   rimraf@3.0.2:
     resolution: {integrity: sha512-JZkJMZkAGFFPP2YqXZXPbMlMBgsxzE8ILs4lMIX/2o0L9UBw9O/Y3o6wFw/i9YLapcUJWwqbi3kdxIPdC62TIA==}
     deprecated: Rimraf versions prior to v4 are no longer supported
@@ -4254,13 +4251,9 @@ packages:
   tldts-icann@6.1.86:
     resolution: {integrity: sha512-NFxmRT2lAEMcCOBgeZ0NuM0zsK/xgmNajnY6n4S1mwAKocft2s2ise1O3nQxrH3c+uY6hgHUV9GGNVp7tUE4Sg==}
 
-  tmp@0.0.33:
-    resolution: {integrity: sha512-jRCJlojKnZ3addtTOjdIqoRuPEKBvNXcGYqzO6zWZX8KfKEpnGY5jfggJQ3EjKuu8D4bJRr0y+cYJFmYbImXGw==}
-    engines: {node: '>=0.6.0'}
-
-  tmp@0.1.0:
-    resolution: {integrity: sha512-J7Z2K08jbGcdA1kkQpJSqLF6T0tdQqpR2pnSUXsIchbPdTI9v3e85cLW0d6WDhwuAleOV71j2xWs8qMPfK7nKw==}
-    engines: {node: '>=6'}
+  tmp@0.2.5:
+    resolution: {integrity: sha512-voyz6MApa1rQGUxT3E+BK7/ROe8itEx7vD8/HEvt4xwXucvQ5G5oeEiHkmHZJuBO21RpOf+YYm9MOivj709jow==}
+    engines: {node: '>=14.14'}
 
   to-regex-range@5.0.1:
     resolution: {integrity: sha512-65P7iz6X5yEr1cwcgvQxbbIw7Uk3gOy5dIdtZ4rDveLqhrdJP+Li/Hx6tyK0NEb+2GCyneCMJiGqrADCSNk8sQ==}
@@ -4489,9 +4482,8 @@ packages:
     resolution: {integrity: sha512-pMZTvIkT1d+TFGvDOqodOclx0QWkkgi6Tdoa8gC8ffGAAqz9pzPTZWAybbsHHoED/ztMtkv/VoYTYyShUn81hA==}
     engines: {node: '>= 0.4.0'}
 
-  uuid@8.3.2:
-    resolution: {integrity: sha512-+NYs2QeMWy+GWFOEm9xnn6HCDp0l7QBD7ml8zLUmJ+93Q5NF0NocErnwkTkXVFNiX3/fpC6afS8Dhb/gz7R7eg==}
-    deprecated: uuid@10 and below is no longer supported.  For ESM codebases, update to uuid@latest.  For CommonJS codebases, use uuid@11 (but be aware this version will likely be deprecated in 2028).
+  uuid@11.1.1:
+    resolution: {integrity: sha512-vIYxrBCC/N/K+Js3qSN88go7kIfNPssr/hHCesKCQNAjmgvYS2oqr69kIufEG+O4+PfezOH4EbIeHCfFov8ZgQ==}
     hasBin: true
 
   validate-npm-package-license@3.0.4:
@@ -4525,7 +4517,7 @@ packages:
       sugarss: ^5.0.0
       terser: ^5.16.0
       tsx: ^4.8.1
-      yaml: ^2.4.2
+      yaml: ^2.8.3
     peerDependenciesMeta:
       '@types/node':
         optional: true
@@ -4826,11 +4818,6 @@ packages:
     resolution: {integrity: sha512-qhjK/bzSRZ6HtTvgeFvjNPJGWdZ0+x5NREV/9XZWFjIGezew2b4r5JPy66IfOhd5OA7KeFwk1JfmEbnTvev0cA==}
     hasBin: true
 
-  yaml@2.7.1:
-    resolution: {integrity: sha512-10ULxpnOCQXxJvBgxsn9ptjq6uviG/htZKk9veJGhlqn3w/DxQ631zFF+nlQXLwmImeS5amR2dl2U8sg6U9jsQ==}
-    engines: {node: '>= 14'}
-    hasBin: true
-
   yaml@2.9.0:
     resolution: {integrity: sha512-2AvhNX3mb8zd6Zy7INTtSpl1F15HW6Wnqj0srWlkKLcpYl/gMIMJiyuGq2KeI2YFxUPjdlB+3Lc10seMLtL4cA==}
     engines: {node: '>= 14.6'}
@@ -5051,7 +5038,7 @@ snapshots:
     optionalDependencies:
       workerd: 1.20260520.1
 
-  '@cloudflare/vitest-pool-workers@0.16.8(@cloudflare/workers-types@4.20260521.1)(@vitest/runner@4.1.7)(@vitest/snapshot@4.1.7)(vitest@4.1.7(@types/node@25.9.1)(vite@7.3.3(@types/node@25.9.1)(lightningcss@1.32.0)(yaml@2.9.0)))':
+  '@cloudflare/vitest-pool-workers@0.16.8(@vitest/runner@4.1.7)(@vitest/snapshot@4.1.7)(vitest@4.1.7(@types/node@25.9.1)(vite@7.3.3(@types/node@25.9.1)(lightningcss@1.32.0)(yaml@2.9.0)))':
     dependencies:
       '@vitest/runner': 4.1.7
       '@vitest/snapshot': 4.1.7
@@ -5059,7 +5046,7 @@ snapshots:
       esbuild: 0.27.3
       miniflare: 4.20260520.0
       vitest: 4.1.7(@types/node@25.9.1)(vite@7.3.3(@types/node@25.9.1)(lightningcss@1.32.0)(yaml@2.9.0))
-      wrangler: 4.93.1(@cloudflare/workers-types@4.20260521.1)
+      wrangler: 4.93.1
       zod: 3.25.76
     transitivePeerDependencies:
       - '@cloudflare/workers-types'
@@ -5079,9 +5066,6 @@ snapshots:
     optional: true
 
   '@cloudflare/workerd-windows-64@1.20260520.1':
-    optional: true
-
-  '@cloudflare/workers-types@4.20260521.1':
     optional: true
 
   '@cspotcode/source-map-support@0.8.1':
@@ -5504,8 +5488,8 @@ snapshots:
       lighthouse-logger: 1.2.0
       open: 7.4.2
       proxy-agent: 6.5.0
-      tmp: 0.1.0
-      uuid: 8.3.2
+      tmp: 0.2.5
+      uuid: 11.1.1
       yargs: 15.4.1
       yargs-parser: 13.1.2
     transitivePeerDependencies:
@@ -7137,7 +7121,7 @@ snapshots:
     dependencies:
       chardet: 0.7.0
       iconv-lite: 0.4.24
-      tmp: 0.0.33
+      tmp: 0.2.5
 
   extract-zip@2.0.1:
     dependencies:
@@ -9006,10 +8990,6 @@ snapshots:
 
   reusify@1.1.0: {}
 
-  rimraf@2.7.1:
-    dependencies:
-      glob: 7.2.3
-
   rimraf@3.0.2:
     dependencies:
       glob: 7.2.3
@@ -9568,13 +9548,7 @@ snapshots:
     dependencies:
       tldts-core: 6.1.86
 
-  tmp@0.0.33:
-    dependencies:
-      os-tmpdir: 1.0.2
-
-  tmp@0.1.0:
-    dependencies:
-      rimraf: 2.7.1
+  tmp@0.2.5: {}
 
   to-regex-range@5.0.1:
     dependencies:
@@ -9771,7 +9745,7 @@ snapshots:
 
   utils-merge@1.0.1: {}
 
-  uuid@8.3.2: {}
+  uuid@11.1.1: {}
 
   validate-npm-package-license@3.0.4:
     dependencies:
@@ -10018,7 +9992,7 @@ snapshots:
       '@cloudflare/workerd-linux-arm64': 1.20260520.1
       '@cloudflare/workerd-windows-64': 1.20260520.1
 
-  wrangler@4.93.1(@cloudflare/workers-types@4.20260521.1):
+  wrangler@4.93.1:
     dependencies:
       '@cloudflare/kv-asset-handler': 0.5.0
       '@cloudflare/unenv-preset': 2.16.1(unenv@2.0.0-rc.24)(workerd@1.20260520.1)
@@ -10029,7 +10003,6 @@ snapshots:
       unenv: 2.0.0-rc.24
       workerd: 1.20260520.1
     optionalDependencies:
-      '@cloudflare/workers-types': 4.20260521.1
       fsevents: 2.3.3
     transitivePeerDependencies:
       - bufferutil
@@ -10086,9 +10059,7 @@ snapshots:
       vscode-languageserver-textdocument: 1.0.12
       vscode-languageserver-types: 3.17.5
       vscode-uri: 3.1.0
-      yaml: 2.7.1
-
-  yaml@2.7.1: {}
+      yaml: 2.9.0
 
   yaml@2.9.0: {}
 
