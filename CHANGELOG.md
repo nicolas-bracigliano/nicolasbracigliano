@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.7.2](https://github.com/nicolas-bracigliano/nicolasbracigliano/compare/v1.7.1...v1.7.2) (2026-05-24)
+
+
+### Bug Fixes
+
+* externalize hoisted scripts + route-chrome polish for CSP-served Worker ([#53](https://github.com/nicolas-bracigliano/nicolasbracigliano/issues/53)) ([96a80ac](https://github.com/nicolas-bracigliano/nicolasbracigliano/commit/96a80ac9a1db2d5a4d56801d1f507bc6c11ef4b4))
+* **worker:** run_worker_first so `/` redirect actually fires in production ([#54](https://github.com/nicolas-bracigliano/nicolasbracigliano/issues/54)) ([6b6b205](https://github.com/nicolas-bracigliano/nicolasbracigliano/commit/6b6b2057a17532db3c9136a3f1677527ae4e777a))
+
 ## [1.7.1](https://github.com/nicolas-bracigliano/nicolasbracigliano/compare/v1.7.0...v1.7.1) (2026-05-24)
 
 
