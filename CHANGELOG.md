@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.6.2](https://github.com/nicolas-bracigliano/nicolasbracigliano/compare/v1.6.1...v1.6.2) (2026-05-24)
+
+
+### Bug Fixes
+
+* **types:** tighten two cast sites on the OG route ([#31](https://github.com/nicolas-bracigliano/nicolasbracigliano/issues/31)) ([56e5686](https://github.com/nicolas-bracigliano/nicolasbracigliano/commit/56e5686397485a85ee28cd60ea37d29c64062707))
+
 ## [1.6.1](https://github.com/nicolas-bracigliano/nicolasbracigliano/compare/v1.6.0...v1.6.1) (2026-05-24)
 
 
