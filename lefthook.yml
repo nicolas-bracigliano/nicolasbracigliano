@@ -26,22 +26,52 @@ pre-commit:
 pre-push:
   commands:
     signed-commits:
-      # The git pre-push protocol streams refs on stdin (`local_ref local_sha
-      # remote_ref remote_sha`). Lefthook does NOT forward stdin to the script
-      # — the old `while read` form here ran zero iterations and silently
-      # passed, which is how every commit in this repo's history is unsigned.
-      # Compute the range from the upstream-tracking branch instead.
+      # The git pre-push hook protocol streams refs on stdin
+      # (`local_ref local_sha remote_ref remote_sha`). Lefthook
+      # only forwards stdin when `use_stdin: true` is set on the
+      # command — without that, a `while read` form gets zero
+      # iterations and silently passes. That's how this repo's
+      # pre-PR-13 history accumulated unsigned commits.
       #
-      # Only enforce when commit signing is configured. Contributors without
-      # signing set up get a no-op so initial setup doesn't block them; once
-      # they enable `commit.gpgsign`, the check becomes hard-blocking.
+      # Rather than opt into stdin and parse the wire format, we
+      # compute the push range from git refs directly. Robust,
+      # version-agnostic, and avoids the lefthook stdin-routing
+      # caveat ("only one of N commands with use_stdin gets the
+      # data" — easy to silently break with future hook additions).
+      #
+      # Range resolution, in order:
+      #   1. Branch's upstream-tracking ref (set after first
+      #      `git push -u`). Best signal — exact pushed range.
+      #   2. `origin/HEAD` (the remote's default branch, typically
+      #      origin/main). Fallback for first-push of a brand-new
+      #      branch where step 1 returns nothing.
+      #   3. Neither exists → skip silently. We're in a fresh
+      #      local-only repo or one without an `origin` remote;
+      #      no sensible lower bound exists. The previous form
+      #      fell back to `HEAD` (i.e. the whole history), which
+      #      tripped the unsigned-commits check on every pre-PR-13
+      #      ancestor and made the first push of every new branch
+      #      fail.
+      #
+      # Only enforce when `commit.gpgsign=true` is set locally.
+      # Contributors who haven't configured signing get a no-op so
+      # the hook doesn't block initial setup; flipping the config
+      # on switches enforcement to hard-blocking with no workflow
+      # change.
       run: |
         if [ "$(git config --get commit.gpgsign 2>/dev/null)" != "true" ]; then
           exit 0
         fi
         branch=$(git symbolic-ref --short HEAD 2>/dev/null) || exit 0
-        upstream=$(git rev-parse --abbrev-ref "${branch}@{upstream}" 2>/dev/null) || upstream=""
-        range="${upstream:+${upstream}..}HEAD"
+        upstream=$(git rev-parse --abbrev-ref "${branch}@{upstream}" 2>/dev/null || true)
+        if [ -z "$upstream" ]; then
+          upstream=$(git rev-parse --abbrev-ref origin/HEAD 2>/dev/null || true)
+        fi
+        if [ -z "$upstream" ]; then
+          echo "signed-commits: no upstream and no origin/HEAD; skipping unsigned-commit check."
+          exit 0
+        fi
+        range="${upstream}..HEAD"
         unsigned=$(git log --format='%H %G?' "$range" 2>/dev/null | awk '$2 != "G" && $2 != "U" {print $1}')
         if [ -n "$unsigned" ]; then
           echo "ERROR: unsigned commits in push range (commit.gpgsign=true but signature missing):"
