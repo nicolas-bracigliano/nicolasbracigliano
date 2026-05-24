@@ -90,6 +90,28 @@ test('note entries render an auto-computed read-time in the footer', async ({ pa
   await expect(page.locator('.note-foot')).toContainText(/read time · \d+ min/);
 });
 
+test('note entry page hides the "→ link" permalink (it would point at the current page)', async ({
+  page,
+}) => {
+  await page.goto('/en/notes/hello/');
+  // `.note-foot` shows just the read-time on the entry page; the
+  // permalink + the `·` separator are dropped because the reader
+  // is already on the entry. The matching foot on the notes index
+  // (one component, two contexts) keeps the link — covered below.
+  await expect(page.locator('.note-foot a')).toHaveCount(0);
+  await expect(page.locator('.note-foot .sep')).toHaveCount(0);
+});
+
+test('notes index renders the "→ link" permalink on each note', async ({ page }) => {
+  await page.goto('/en/notes/');
+  // Three seed notes (hello, text-wrap-pretty, right-hand-is-the-
+  // song), each with a `.note-foot` containing a permalink. The
+  // total `.note-foot a` count equals the visible note count.
+  const links = page.locator('.note-foot a');
+  await expect(links).not.toHaveCount(0);
+  await expect(links.first()).toHaveAttribute('href', /^\/en\/notes\/[a-z-]+\/$/);
+});
+
 test('colophon Principles section carries the .is-accent modifier', async ({ page }) => {
   await page.goto('/en/colophon/');
   // The Principles section is the one styled with the warm-tint <dl>.

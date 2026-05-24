@@ -29,7 +29,7 @@ const ogImage = ogImageUrlFor(entry);
 >
   <section class="notes wrap notes--single">
     <ol class="notes-list">
-      <NoteEntry entry={entry} locale={locale} isFirst={true}>
+      <NoteEntry entry={entry} locale={locale} isFirst={true} isStandalone={true}>
         <slot />
       </NoteEntry>
     </ol>
