@@ -78,6 +78,16 @@ Paths that DO trigger the heavy jobs (the "code" filter group):
 Override: set repo Variable `LHCI_FORCE=true` or `E2E_FORCE=true`
 to force the corresponding job to run even on docs-only changes.
 
+**Override is repo-wide, not per-PR.** Flipping `LHCI_FORCE=true`
+forces `lighthouse` on for every PR until you flip it back —
+there's no per-PR or per-branch override. If you need to force
+the checks for a single PR specifically, the right move is to
+push a tiny change that's in the `code` filter group (e.g.,
+touch `src/lib/routes.ts` with a trivial comment edit) rather
+than flipping the global variable. For per-run manual reruns,
+`gh workflow run ci.yml --ref <branch>` re-triggers the same
+filter logic — it doesn't bypass it.
+
 ## Status checks — required vs informational
 
 When **branch protection** lands on `main` (Phase-0 Step 8 in
@@ -99,18 +109,26 @@ fires again on the next push anyway.
 
 ## Local parity
 
-`pnpm verify` runs the same suite as the `build` + `lighthouse` +
-`e2e` jobs combined: typecheck → lint → prettier → vitest → astro
-build → html-validate → playwright → lhci. Use it before pushing
-to catch regressions in the same ~90 s the CI takes.
+`pnpm verify` runs the same suite of checks as the `build` +
+`lighthouse` + `e2e` CI jobs combined: typecheck → lint →
+prettier → vitest → astro build → html-validate → playwright →
+lhci. It's split into two sub-scripts so you can run the fast
+half during development:
 
 ```sh
-pnpm verify
+pnpm verify:fast   # typecheck + lint + prettier + vitest (~5s)
+pnpm verify:slow   # build + html-validate + playwright + lhci (~80s)
+pnpm verify        # both, in order
 ```
 
-If `pnpm verify` is green, every CI quality check will pass too.
-The deploy step is the only thing it can't simulate locally
-(no Cloudflare credentials in the dev shell, and we don't want
+Note that `pnpm verify` runs sequentially while CI runs
+`lighthouse` and `e2e` in parallel after `build`. So the local
+suite takes longer in wall-clock time than CI does — but it's
+exhaustive: if `pnpm verify` is green, every CI quality check
+will pass.
+
+The deploy step is the only thing local can't simulate (no
+Cloudflare credentials in the dev shell, and we don't want
 them).
 
 ## Deploy specifics
@@ -125,13 +143,27 @@ and in the inline comments above each step in
 versions upload --preview-alias=preview`. Both emit a
   `deployment-url` step output that `environment.url` picks up
   and that the smoke-test job verifies.
-- Two smoke tests run after every successful deploy:
+- Three smoke checks run after every successful deploy:
   - **Routes**: ten paths hit with `curl`, status codes checked
     (302 for `/`, 200 for `/en/`, `/es/`, route indexes, route
-    entries; 404 for a deliberately bogus path).
-  - **Security headers**: every header in `public/_headers` must
-    appear in the response for `/en/`, plus `server: cloudflare`
-    must be present (proves we went through the CDN).
+    entries; 404 for a deliberately bogus path). The hardcoded
+    path list lives in the workflow file; update it alongside
+    `src/lib/routes.ts` when adding a new route.
+  - **Body content**: `/en/` response must contain `<title>` and
+    the wordmark string `Bracigliano`. Catches an Astro build
+    that silently emitted empty pages.
+  - **Security headers** (presence-only, not value-level): every
+    header declared in `public/_headers` must appear in the
+    response for `/en/`, plus `server: cloudflare` must be
+    present. **Limitation**: this checks the header NAME, not
+    its value — a CSP set to `default-src 'unsafe-inline'`
+    would pass. The value-level audit lives at
+    [securityheaders.com](https://securityheaders.com/) and
+    should be re-run by hand after any change to `_headers`
+    or after a Cloudflare-side config change. For known
+    regressions: catches `_headers` failing to be copied by
+    Astro, a Cloudflare override stripping a header, or a
+    parse error breaking one of the entries.
 - Sticky comment on every PR with the preview URL — one comment,
   updated in place rather than accumulating.
 

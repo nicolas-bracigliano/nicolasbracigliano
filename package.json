@@ -24,7 +24,9 @@
     "lhci": "lhci autorun",
     "subset-fonts": "node scripts/subset-fonts.mjs",
     "postbuild": "pagefind --site dist --output-subdir _pagefind",
-    "verify": "pnpm typecheck && pnpm lint && pnpm format:check && pnpm test && pnpm build && pnpm exec html-validate \"dist/**/*.html\" && pnpm test:e2e && pnpm lhci"
+    "verify:fast": "pnpm typecheck && pnpm lint && pnpm format:check && pnpm test",
+    "verify:slow": "pnpm build && pnpm exec html-validate \"dist/**/*.html\" && pnpm test:e2e && pnpm lhci",
+    "verify": "pnpm verify:fast && pnpm verify:slow"
   },
   "dependencies": {
     "@astrojs/rss": "4.0.18",

@@ -54,7 +54,6 @@ jobs:
               - 'public/**'
               - 'tests/**'
               - 'scripts/**'
-              - 'functions/**'
               - 'astro.config.*'
               - 'wrangler.toml'
               - 'lighthouserc.json'
@@ -64,6 +63,13 @@ jobs:
               - '.github/workflows/**'
               - 'tsconfig.json'
               - 'playwright.config.ts'
+              - 'lefthook.yml'
+              - '.npmrc'
+              - '.nvmrc'
+              - 'stylelint.config.*'
+              - 'eslint.config.*'
+              - '.prettierrc*'
+              - '.prettierignore'
 
   build:
     name: Build & Verify
@@ -227,9 +233,18 @@ jobs:
     # them on docs-only PRs — we still want a preview deploy for
     # those, since the goal is "see the rendered docs change
     # before merging".
-    needs: [build, lighthouse, e2e, deploy-check]
+    needs: [changes, build, lighthouse, e2e, deploy-check]
+    # Default-deny posture for the deploy: every upstream job must
+    # have produced a clear signal. If `changes` (paths-filter)
+    # failed for a transient reason, `lighthouse`/`e2e` would
+    # skip with no real signal — allowing deploy in that case
+    # would ship code without the quality gates running. Require
+    # `changes` to have succeeded; allow `lighthouse`/`e2e` to
+    # be `'skipped'` only because the path-filter intentionally
+    # skipped them on a docs-only PR.
     if: |
       needs.deploy-check.outputs.ready == 'true'
+      && needs.changes.result == 'success'
       && needs.build.result == 'success'
       && (needs.lighthouse.result == 'success' || needs.lighthouse.result == 'skipped')
       && (needs.e2e.result == 'success' || needs.e2e.result == 'skipped')
@@ -350,6 +365,24 @@ jobs:
           # honoured at the Workers Static Assets layer.
           check /this-path-does-not-exist-12345/ 404 || exit 1
           echo "Smoke test passed (10 routes)"
+
+          # Body content sanity: status codes alone don't catch a
+          # broken Astro build that produces empty HTML. Fetch
+          # `/en/` and assert a known marker shows up — title tag
+          # AND the site's wordmark from the chrome. Cheap; would
+          # have caught a hypothetical "Astro emitted empty pages
+          # after a refactor" regression that ships 200s.
+          echo "Body content sanity at /en/"
+          body=$(curl -sS --max-time 15 --retry 3 --retry-delay 2 "$URL/en/")
+          if ! echo "$body" | grep -q '<title>'; then
+            echo "::error::/en/ response missing <title> — broken Astro build?"
+            exit 1
+          fi
+          if ! echo "$body" | grep -q 'Bracigliano'; then
+            echo "::error::/en/ response missing 'Bracigliano' — broken Astro build?"
+            exit 1
+          fi
+          echo "  body contains <title> + wordmark ✓"
       # Security headers verification: every header declared in
       # `public/_headers` must reach the browser. Catches the
       # `_headers` file silently dropping (Astro not copying it),
