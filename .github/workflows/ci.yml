@@ -4,6 +4,11 @@ on:
   push:
     branches: [main]
   pull_request:
+  # Manual trigger from the CLI (`gh workflow run ci.yml`) or
+  # the Actions tab. Useful for re-running against the latest
+  # main without pushing a no-op commit, e.g. after rotating
+  # secrets or upgrading runner-side dependencies.
+  workflow_dispatch:
 
 permissions: {}
 
