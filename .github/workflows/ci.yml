@@ -12,12 +12,59 @@ on:
 
 permissions: {}
 
+# Workflow-level env: disable Astro's anonymous telemetry on every
+# job. Builds stay deterministic, no upstream pings during CI, and
+# no need to repeat the same flag inside individual steps. Per
+# https://astro.build/config/#telemetry.
+env:
+  ASTRO_TELEMETRY_DISABLED: '1'
+
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   # Cancel superseded runs on PR branches; never cancel main (deploys must finish).
   cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
 
 jobs:
+  # Detect which paths a PR/push actually changes. Used to short-
+  # circuit the heavyweight `lighthouse` and `e2e` jobs when only
+  # docs are touched — the runnable build still goes through
+  # (catches an Astro/TS regression in a doc-adjacent file) but
+  # we skip ~3 minutes of perf + browser tests.
+  #
+  # `code` matches anything that could affect rendered output OR
+  # the CI behaviour itself; the negation list keeps pure-docs PRs
+  # from triggering the heavy jobs.
+  changes:
+    name: Detect changed paths
+    runs-on: ubuntu-latest
+    timeout-minutes: 1
+    permissions:
+      contents: read
+      pull-requests: read
+    outputs:
+      code: ${{ steps.filter.outputs.code }}
+    steps:
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+      - uses: dorny/paths-filter@fbd0ab8f3e69293af611ebaee6363fc25e6d187d # v4.0.1
+        id: filter
+        with:
+          filters: |
+            code:
+              - 'src/**'
+              - 'public/**'
+              - 'tests/**'
+              - 'scripts/**'
+              - 'functions/**'
+              - 'astro.config.*'
+              - 'wrangler.toml'
+              - 'lighthouserc.json'
+              - 'package.json'
+              - 'pnpm-lock.yaml'
+              - 'pnpm-workspace.yaml'
+              - '.github/workflows/**'
+              - 'tsconfig.json'
+              - 'playwright.config.ts'
+
   build:
     name: Build & Verify
     runs-on: ubuntu-latest
@@ -60,7 +107,12 @@ jobs:
 
   lighthouse:
     name: Lighthouse CI
-    needs: build
+    needs: [build, changes]
+    # Skip when only docs/config-comment changes — the build job
+    # still runs and verifies the site compiles, but we don't burn
+    # ~2 minutes running Lighthouse against output that didn't
+    # change. `vars.LHCI_FORCE` lets a maintainer override.
+    if: needs.changes.outputs.code == 'true' || vars.LHCI_FORCE == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 8
     permissions:
@@ -92,7 +144,11 @@ jobs:
 
   e2e:
     name: E2E tests (Playwright)
-    needs: build
+    needs: [build, changes]
+    # Same skip-on-docs-only as `lighthouse` above. The Playwright
+    # browser install + run is the most expensive job; docs PRs
+    # don't need it.
+    if: needs.changes.outputs.code == 'true' || vars.E2E_FORCE == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 10
     permissions:
@@ -161,11 +217,22 @@ jobs:
 
   deploy:
     name: Deploy to Cloudflare Workers
-    # Gated on every quality check (build, lighthouse perf budget, e2e a11y
-    # + behaviour) plus the secrets presence. Lighthouse parallel with e2e
-    # rather than inside build so wall-clock time isn't bottlenecked on it.
+    # Gated on every quality check (build, lighthouse perf budget,
+    # e2e a11y + behaviour) plus the secrets presence. Lighthouse
+    # parallel with e2e rather than inside build so wall-clock time
+    # isn't bottlenecked on it.
+    #
+    # `needs.lighthouse.result` and `needs.e2e.result` allow
+    # `'skipped'` because the path-filter `changes` job can skip
+    # them on docs-only PRs — we still want a preview deploy for
+    # those, since the goal is "see the rendered docs change
+    # before merging".
     needs: [build, lighthouse, e2e, deploy-check]
-    if: needs.deploy-check.outputs.ready == 'true'
+    if: |
+      needs.deploy-check.outputs.ready == 'true'
+      && needs.build.result == 'success'
+      && (needs.lighthouse.result == 'success' || needs.lighthouse.result == 'skipped')
+      && (needs.e2e.result == 'success' || needs.e2e.result == 'skipped')
     runs-on: ubuntu-latest
     timeout-minutes: 5
     permissions:
@@ -239,7 +306,12 @@ jobs:
           wranglerVersion: '^4.21'
           packageManager: pnpm
           command: ${{ github.ref == 'refs/heads/main' && 'deploy' || 'versions upload --preview-alias=preview' }}
-      - name: Smoke test
+      # Functional smoke test: assert every route that has to keep
+      # working in production returns the expected status. Catches
+      # a botched Astro build, a worker.ts regression, or a
+      # Cloudflare-side asset-binding hiccup before traffic hits
+      # the real domain.
+      - name: Smoke test (routes)
         env:
           URL: ${{ steps.deploy.outputs.deployment-url }}
         run: |
@@ -248,15 +320,97 @@ jobs:
             exit 0
           fi
           echo "Smoke-testing $URL"
-          # Root path is the Worker entry — it 302-redirects to
-          # /{locale}/ based on Accept-Language (see src/worker.ts).
-          root_status=$(curl -sS -o /dev/null -w '%{http_code}' --max-time 15 --retry 3 --retry-delay 2 "$URL/")
-          if [ "$root_status" != "302" ] && [ "$root_status" != "200" ]; then
-            echo "::error::Expected 302 or 200 at /, got $root_status"; exit 1
+          # Map of "path => expected status". The Worker handles `/`
+          # (Accept-Language 302); everything else falls through to
+          # the ASSETS binding with `not_found_handling = "404-page"`
+          # serving `dist/404.html` for unmatched paths.
+          check() {
+            local path="$1" expected="$2"
+            local got
+            got=$(curl -sS -o /dev/null -w '%{http_code}' --max-time 15 --retry 3 --retry-delay 2 "$URL$path")
+            if [ "$got" != "$expected" ]; then
+              echo "::error::$path expected $expected, got $got"
+              return 1
+            fi
+            echo "  $path → $got ✓"
+          }
+          # Worker-handled (redirect)
+          check /            302 || exit 1
+          # Static asset matches (route entries Astro built)
+          check /en/         200 || exit 1
+          check /es/         200 || exit 1
+          check /en/notes/   200 || exit 1
+          check /en/works/   200 || exit 1
+          check /en/about/   200 || exit 1
+          check /en/colophon/ 200 || exit 1
+          check /es/notas/   200 || exit 1
+          check /es/sobre/   200 || exit 1
+          # 404 fallback: unmatched path serves dist/404.html with
+          # HTTP 404. Confirms `not_found_handling = "404-page"` is
+          # honoured at the Workers Static Assets layer.
+          check /this-path-does-not-exist-12345/ 404 || exit 1
+          echo "Smoke test passed (10 routes)"
+      # Security headers verification: every header declared in
+      # `public/_headers` must reach the browser. Catches the
+      # `_headers` file silently dropping (Astro not copying it),
+      # Cloudflare overriding a value, or a typo breaking the
+      # parser. Runs against the `/en/` page so the top-level
+      # global rule (`/*`) is exercised.
+      - name: Smoke test (security headers)
+        env:
+          URL: ${{ steps.deploy.outputs.deployment-url }}
+        run: |
+          if [ -z "$URL" ]; then
+            echo "::warning::no deployment-url — skipping headers smoke test"
+            exit 0
           fi
-          # /en/ and /es/ should be 200 static HTML.
-          en_status=$(curl -sS -o /dev/null -w '%{http_code}' --max-time 15 --retry 3 --retry-delay 2 "$URL/en/")
-          es_status=$(curl -sS -o /dev/null -w '%{http_code}' --max-time 15 --retry 3 --retry-delay 2 "$URL/es/")
-          if [ "$en_status" != "200" ]; then echo "::error::Expected 200 at /en/, got $en_status"; exit 1; fi
-          if [ "$es_status" != "200" ]; then echo "::error::Expected 200 at /es/, got $es_status"; exit 1; fi
-          echo "Smoke test passed (/, /en/, /es/)"
+          echo "Verifying security headers at $URL/en/"
+          headers=$(curl -sSI --max-time 15 --retry 3 --retry-delay 2 "$URL/en/")
+          required=(
+            "content-security-policy"
+            "strict-transport-security"
+            "x-content-type-options"
+            "referrer-policy"
+            "permissions-policy"
+            "cross-origin-opener-policy"
+            "cross-origin-resource-policy"
+            "x-frame-options"
+          )
+          missing=()
+          for h in "${required[@]}"; do
+            if ! echo "$headers" | grep -iq "^$h:"; then
+              missing+=("$h")
+            fi
+          done
+          if [ ${#missing[@]} -gt 0 ]; then
+            echo "::error::Missing security headers on /en/:"
+            for h in "${missing[@]}"; do echo "  - $h"; done
+            echo ""
+            echo "Full response headers received:"
+            echo "$headers"
+            exit 1
+          fi
+          # Also assert `server: cloudflare` so we know we're
+          # hitting the CDN, not a misconfigured origin.
+          if ! echo "$headers" | grep -iq '^server: cloudflare'; then
+            echo "::error::Missing 'server: cloudflare' header — request didn't go through the CDN."
+            echo "$headers"
+            exit 1
+          fi
+          echo "All ${#required[@]} security headers present + server: cloudflare ✓"
+      # Sticky comment on the PR with the preview URL. `sticky-pull-
+      # request-comment` keeps a single comment updated rather than
+      # accumulating one per push. PRs that aren't on `main` (so
+      # `github.event.pull_request.number` is set) get the comment;
+      # main pushes skip it (no PR to comment on).
+      - name: Comment preview URL on PR
+        if: github.event_name == 'pull_request' && steps.deploy.outputs.deployment-url != ''
+        uses: marocchino/sticky-pull-request-comment@0ea0beb66eb9baf113663a64ec522f60e49231c0 # v3.0.4
+        with:
+          header: cf-preview
+          message: |
+            ### Cloudflare preview deploy
+
+            **${{ steps.deploy.outputs.deployment-url }}**
+
+            Updated on commit `${{ github.event.pull_request.head.sha }}` · single shared `preview` alias, so any subsequent push to any open PR replaces this URL with that branch's build.

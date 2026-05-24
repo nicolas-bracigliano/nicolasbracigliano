@@ -13,7 +13,7 @@
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
-    "dev:fn": "astro build && wrangler pages dev ./dist --compatibility-date=2026-05-01",
+    "dev:fn": "astro build && wrangler dev",
     "typecheck": "astro check",
     "lint": "eslint . && stylelint \"src/**/*.css\"",
     "format": "prettier --write .",
@@ -23,7 +23,8 @@
     "test:e2e": "playwright test",
     "lhci": "lhci autorun",
     "subset-fonts": "node scripts/subset-fonts.mjs",
-    "postbuild": "pagefind --site dist --output-subdir _pagefind"
+    "postbuild": "pagefind --site dist --output-subdir _pagefind",
+    "verify": "pnpm typecheck && pnpm lint && pnpm format:check && pnpm test && pnpm build && pnpm exec html-validate \"dist/**/*.html\" && pnpm test:e2e && pnpm lhci"
   },
   "dependencies": {
     "@astrojs/rss": "4.0.18",
