@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.6.1](https://github.com/nicolas-bracigliano/nicolasbracigliano/compare/v1.6.0...v1.6.1) (2026-05-24)
+
+
+### Bug Fixes
+
+* **css:** promote `.eyebrow` and `.sep` to global utilities ([#28](https://github.com/nicolas-bracigliano/nicolasbracigliano/issues/28)) ([5cb9cb8](https://github.com/nicolas-bracigliano/nicolasbracigliano/commit/5cb9cb8f79a8b33b07436fdb6c4583ed5cd0f73b))
+
 ## [1.6.0](https://github.com/nicolas-bracigliano/nicolasbracigliano/compare/v1.5.0...v1.6.0) (2026-05-24)
 
 
