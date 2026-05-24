@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.6.3](https://github.com/nicolas-bracigliano/nicolasbracigliano/compare/v1.6.2...v1.6.3) (2026-05-24)
+
+
+### Bug Fixes
+
+* **deps:** pin patched transitives for 4 advisories via pnpm overrides ([#33](https://github.com/nicolas-bracigliano/nicolasbracigliano/issues/33)) ([76f0ec1](https://github.com/nicolas-bracigliano/nicolasbracigliano/commit/76f0ec14ea88ca4dbc7697d499d8c4388bc6733e))
+
 ## [1.6.2](https://github.com/nicolas-bracigliano/nicolasbracigliano/compare/v1.6.1...v1.6.2) (2026-05-24)
 
 
