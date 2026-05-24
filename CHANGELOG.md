@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.6.4](https://github.com/nicolas-bracigliano/nicolasbracigliano/compare/v1.6.3...v1.6.4) (2026-05-24)
+
+
+### Bug Fixes
+
+* **css:** six best-practice cleanups (!important, z-tokens, color-scheme, ::selection, print) ([#40](https://github.com/nicolas-bracigliano/nicolasbracigliano/issues/40)) ([0d5b5b1](https://github.com/nicolas-bracigliano/nicolasbracigliano/commit/0d5b5b1b4fd8390c7e41c53afe93b761ad5cf6cd))
+
+
+### Refactors
+
+* **css:** split base.css per-route into src/styles/routes/ ([#37](https://github.com/nicolas-bracigliano/nicolasbracigliano/issues/37)) ([2f46282](https://github.com/nicolas-bracigliano/nicolasbracigliano/commit/2f4628298b56694bd45d9292be6d2f2a3fac96fd))
+
 ## [1.6.3](https://github.com/nicolas-bracigliano/nicolasbracigliano/compare/v1.6.2...v1.6.3) (2026-05-24)
 
 
