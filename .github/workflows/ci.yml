@@ -190,12 +190,20 @@ jobs:
       # by default. v4.21+ adds `--preview-alias` support for the
       # `versions upload` command, which we use for non-`main` deploys.
       # Action SHA-pinned per the repo's third-party-action policy.
+      #
+      # `packageManager: npm` overrides the action's lockfile-based
+      # auto-detect. Without it, the action sees `pnpm-lock.yaml`
+      # and tries to invoke `pnpm`, which isn't on PATH in this
+      # job (the deploy job doesn't `pnpm/action-setup` because
+      # it doesn't run project scripts — only wrangler). npm is
+      # universally available on GitHub-hosted runners.
       - name: Authenticate (wrangler whoami)
         uses: cloudflare/wrangler-action@ebbaa1584979971c8614a24965b4405ff95890e0 # v4.0.0
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           wranglerVersion: '^4.21'
+          packageManager: npm
           command: whoami
       # Two deploy paths, one step. `main` pushes go to production
       # (`wrangler deploy`, lands at the canonical Worker URL plus
@@ -214,6 +222,7 @@ jobs:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           wranglerVersion: '^4.21'
+          packageManager: npm
           command: ${{ github.ref == 'refs/heads/main' && 'deploy' || 'versions upload --preview-alias=preview' }}
       - name: Smoke test
         env:
