@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.6.0](https://github.com/nicolas-bracigliano/nicolasbracigliano/compare/v1.5.0...v1.6.0) (2026-05-24)
+
+
+### Features
+
+* **404:** full prototype-parity Misplaced letter ([#25](https://github.com/nicolas-bracigliano/nicolasbracigliano/issues/25)) ([9af42d7](https://github.com/nicolas-bracigliano/nicolasbracigliano/commit/9af42d7193d3365ee7d282a1d8de39efa6244901))
+
 ## [1.5.0](https://github.com/nicolas-bracigliano/nicolasbracigliano/compare/v1.4.0...v1.5.0) (2026-05-23)
 
 
