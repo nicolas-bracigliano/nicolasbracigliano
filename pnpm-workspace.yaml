@@ -1,0 +1,16 @@
+# pnpm 11+ moved the `onlyBuiltDependencies` allowlist out of
+# `package.json` and into this file as the `allowBuilds` map. The
+# four entries below are packages that have a meaningful build step
+# (esbuild's native binary, sharp's libvips bindings, lefthook's
+# native Git hook installer, workerd's Cloudflare Workers runtime
+# bindings) and need their lifecycle scripts to run during install.
+#
+# `true` = allow this package's `postinstall` / build scripts to
+# execute. Every other package's scripts stay sandboxed and skipped
+# by default — pnpm 11's hardened install behaviour.
+
+allowBuilds:
+  esbuild: true
+  lefthook: true
+  sharp: true
+  workerd: true
