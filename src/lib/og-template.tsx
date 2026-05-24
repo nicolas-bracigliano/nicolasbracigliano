@@ -11,7 +11,24 @@ export interface OgProps {
   kind: 'note' | 'work' | 'essay' | 'page';
 }
 
-export function OgCard({ title, lede, locale, kind }: OgProps) {
+/**
+ * Minimal shape of a Satori-compatible JSX-like node. Satori's
+ * TypeScript signature claims `ReactNode` from `react`, but at
+ * runtime it duck-types — any object with `type` + `props` shaped
+ * like JSX is accepted. We construct exactly that shape below to
+ * avoid pulling React into the dependency graph for a build-time-
+ * only OG image template. The cast back to React's `ReactNode`
+ * lives at the single Satori boundary in the route handler.
+ */
+export interface SatoriElement {
+  type: string;
+  props: {
+    style?: Record<string, unknown>;
+    children?: SatoriElement | string | null | Array<SatoriElement | string | null>;
+  };
+}
+
+export function OgCard({ title, lede, locale, kind }: OgProps): SatoriElement {
   return {
     type: 'div',
     props: {
