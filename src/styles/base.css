@@ -1,17 +1,23 @@
 @layer reset, tokens, base, routes, animations, utilities;
 
-/* Per-route CSS lives in `./routes/*.css`, one file per Phase 1 route.
-   Each file wraps its rules in `@layer routes { ... }`; the cascade
-   layer is declared once above and merged across all imports. The
-   order below is alphabetical for predictability; selectors do not
-   overlap between routes so source order is not load-bearing. */
-@import url('./routes/404.css');
-@import url('./routes/about.css');
-@import url('./routes/colophon.css');
+/* Per-route CSS lives in `./routes/*.css`, one file per route.
+   Each file wraps its rules in `@layer routes { ... }`; the
+   cascade layer is declared once above and merged across all
+   imports. Selectors do not overlap between routes (audited
+   empirically), so import order has no effect on cascade.
+   `essays.css` loads first because its single placeholder rule
+   was historically the first inside `@layer routes`; keeping it
+   there means the emitted bundle stays byte-identical to the
+   pre-split build. The rest follow visual hierarchy of the
+   site (home → notes → colophon → works → about → now → 404). */
+@import url('./routes/essays.css');
 @import url('./routes/home.css');
 @import url('./routes/notes.css');
-@import url('./routes/now.css');
+@import url('./routes/colophon.css');
 @import url('./routes/works.css');
+@import url('./routes/about.css');
+@import url('./routes/now.css');
+@import url('./routes/404.css');
 
 @layer base {
   html {
@@ -442,15 +448,5 @@
       color 380ms cubic-bezier(0.2, 0.7, 0.2, 1),
       border-color 380ms cubic-bezier(0.2, 0.7, 0.2, 1),
       text-decoration-color 380ms cubic-bezier(0.2, 0.7, 0.2, 1);
-  }
-}
-
-@layer routes {
-  /* Tiny shared rule for the placeholder essays index page (and
-     any future "list of entries" route that does not earn its own
-     `routes/*.css` file yet). When the essays page gets its real
-     treatment, this rule moves to `routes/essays.css`. */
-  .index h1 {
-    margin-block-end: 1.5rem;
   }
 }
