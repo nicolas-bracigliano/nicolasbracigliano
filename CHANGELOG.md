@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.6.6](https://github.com/nicolas-bracigliano/nicolasbracigliano/compare/v1.6.5...v1.6.6) (2026-05-24)
+
+
+### Refactors
+
+* **now:** migrate /now items from inline TS arrays to YAML frontmatter ([#44](https://github.com/nicolas-bracigliano/nicolasbracigliano/issues/44)) ([ab29d59](https://github.com/nicolas-bracigliano/nicolasbracigliano/commit/ab29d59939f863fb4f5327f329f9fc5813b8ebad))
+
+
+### Documentation
+
+* **phase-0:** add infrastructure setup checklist ([#43](https://github.com/nicolas-bracigliano/nicolasbracigliano/issues/43)) ([60510e4](https://github.com/nicolas-bracigliano/nicolasbracigliano/commit/60510e458d1f55417f5da86820828e123959ee24))
+
 ## [1.6.5](https://github.com/nicolas-bracigliano/nicolasbracigliano/compare/v1.6.4...v1.6.5) (2026-05-24)
 
 
