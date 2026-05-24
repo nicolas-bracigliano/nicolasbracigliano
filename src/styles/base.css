@@ -505,20 +505,16 @@
   }
 
   /* Page-break behaviour: keep headings with the following
-     paragraph; break before h2s (each section starts on a new
-     page when the prose is long enough to warrant it). */
+     paragraph and clamp orphans / widows. Deliberately NOT
+     forcing `break-before: page` on h2 in the starter — the
+     About page (4 substantial sections) benefits from
+     per-section breaks but the Now page (6 short sections)
+     would waste paper. Phase-3 polish can add per-route page
+     break rules where they pay off. */
   h1,
   h2,
   h3 {
     break-after: avoid-page;
-  }
-  h2 {
-    break-before: page;
-  }
-  /* First h2 on a page shouldn't force a blank page above. */
-  main > section > article > h2:first-of-type,
-  .about-prose h2:first-of-type {
-    break-before: auto;
   }
   p,
   li,

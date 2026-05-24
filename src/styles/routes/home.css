@@ -484,9 +484,10 @@
      404 masthead's "I couldn't find", the 404 caption's "una letra
      fuera de lugar" — were rendering in roman, not italic.
      Promoted alongside `.muted`. The handful of scoped rules that
-     remain (`.about-out .serif-italic`, `.colofon-sig .muted`,
-     `.work-art--code .work-art-type-list .muted`) are real
-     overrides that add layout or substitute colour, not duplicates. */
+     remain (`.about-prose .about-out .serif-italic`,
+     `.colofon-sig .muted`, `.work-art--code .work-art-type-list
+     .muted`) are real overrides that add layout or substitute
+     colour, not duplicates. */
   .serif-italic {
     font-family: var(--font-display);
     font-style: italic;
