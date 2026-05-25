@@ -31,6 +31,11 @@ export interface DiagramRailItem {
    *  `exactOptionalPropertyTypes: true`. Callers can pass either an
    *  omitted field or an explicit `undefined`. */
   caption?: string | undefined;
+  /** Inline-placement anchor slug, if any. DiagramRail doesn't act on
+   *  this — that's the eventual rehype plugin's job. The field is part
+   *  of the contract so callers can pass items through transparently.
+   *  See `PieceEntry.astro` for the fallback-to-top behaviour. */
+  after?: string | undefined;
 }
 
 export interface Props {

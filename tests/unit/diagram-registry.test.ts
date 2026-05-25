@@ -24,6 +24,9 @@ const DIAGRAMS_ROOT = join(__dirname, '..', '..', 'src', 'components', 'diagrams
 interface FrontmatterDiagram {
   key: string;
   place?: 'top' | 'bottom';
+  /** Heading-anchor slug for inline placement. The forward-direction
+   *  drift test ignores it (only `key` resolution matters). */
+  after?: string;
   caption?: string;
 }
 

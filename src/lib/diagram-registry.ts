@@ -22,6 +22,15 @@
 //   4. Per-kind tint in `src/styles/routes/pieces.css` if the default
 //      `--ink-2` colour doesn't fit. Use `--ink-blue` / `--accent-aa`
 //      / `--mate` for the existing palette vocabulary.
+//
+// ─── Placement modes (frontmatter) ───────────────────────────────
+//   - `place: 'top'`    — between lede and prose (default).
+//   - `place: 'bottom'` — between prose and foot.
+//   - `after: '<slug>'` — inline, after the heading whose anchor
+//     matches the slug. Reserved for the eventual rehype plugin
+//     (not yet wired). An `after`-marked diagram falls back to the
+//     top rail with a build-time warning until the plugin lands —
+//     see `PieceEntry.astro` for the fallback path.
 
 // `readonly [string, ...string[]]` constraint keeps TS aware that the
 // tuple is non-empty — `REGISTRY_KEYS[0]` is `string`, not `string |

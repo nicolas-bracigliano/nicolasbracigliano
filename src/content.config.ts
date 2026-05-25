@@ -97,19 +97,44 @@ const pieces = defineCollection({
         )
         .max(8)
         .default([]),
-      // Diagram placements. `place` distributes diagrams between the
-      // top-of-prose rail and a bottom-of-prose rail so a multi-diagram
-      // piece (the C4 essay has 5+) doesn't pile every SVG above the
-      // first paragraph. `top` is the establishing visual; `bottom` is
-      // detail/reference. `caption` is an optional figcaption rendered
-      // beneath the SVG.
+      // Diagram placements. Three rendering positions are supported:
+      //
+      //   `place: 'top'`     — between lede and prose (default; the
+      //                        establishing visual)
+      //   `place: 'bottom'`  — between prose and foot (detail/reference)
+      //   `after: '<slug>'`  — inline, immediately after a specific
+      //                        heading in the prose. The slug matches
+      //                        the heading's auto-generated anchor ID
+      //                        (Astro slugifies `## Why rings` to
+      //                        `why-rings`).
+      //
+      // The top/bottom split solves the "wall of SVG before any prose"
+      // failure mode for the average multi-diagram piece. `after` is
+      // the escape hatch for pieces that genuinely need a diagram
+      // interleaved between two specific paragraphs — kept off the
+      // hot path so the registry layer remains the simple case.
+      //
+      // `place` and `after` are mutually exclusive. Inline rendering
+      // (`after`) requires a rehype plugin that's NOT YET WIRED — the
+      // first piece that uses it ships the plugin alongside. Until
+      // then, an `after`-marked diagram falls back to top placement
+      // with a build-time warning so the author notices.
       diagrams: z
         .array(
-          z.object({
-            key: z.string(),
-            place: z.enum(['top', 'bottom']).default('top'),
-            caption: z.string().max(120).optional(),
-          }),
+          z
+            .object({
+              key: z.string(),
+              place: z.enum(['top', 'bottom']).default('top'),
+              after: z
+                .string()
+                .regex(/^[a-z0-9-]+$/, 'after must be a kebab-case heading anchor slug')
+                .optional(),
+              caption: z.string().max(120).optional(),
+            })
+            .refine((d) => !(d.after !== undefined && d.place !== 'top'), {
+              message:
+                'diagram entries may set `place` OR `after`, not both — `after` implies inline placement',
+            }),
         )
         .default([]),
       hero: image().optional(),

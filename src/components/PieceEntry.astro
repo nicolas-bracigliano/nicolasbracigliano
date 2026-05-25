@@ -39,13 +39,31 @@ const { date, tags, title, lede, marginNotes, diagrams, minutes: minutesOverride
 const permalink = entryRouteFor(entry);
 const minutes = minutesOverride ?? (entry.body ? readingTimeMinutes(entry.body) : null);
 
-// Split the diagrams by placement. `top` diagrams are establishing
-// visuals rendered between lede and prose; `bottom` diagrams are
-// detail/reference rendered between prose and foot. For multi-diagram
-// pieces (e.g. the C4 essay with 5 diagrams), this prevents the
-// wall-of-SVG-before-any-text failure mode flagged in the P2 review.
-const topDiagrams = diagrams.filter((d) => d.place !== 'bottom');
-const bottomDiagrams = diagrams.filter((d) => d.place === 'bottom');
+// Split the diagrams by placement. Three positions are supported by
+// the schema: `place: 'top'` (between lede and prose; default),
+// `place: 'bottom'` (between prose and foot), and `after: '<slug>'`
+// (inline, after a specific heading anchor). The top/bottom split
+// handles the average multi-diagram piece without clustering every
+// SVG above the first paragraph (the P2-review failure mode).
+//
+// Inline placement (`after`) is reserved as the escape hatch for
+// pieces that genuinely need a diagram between two specific
+// paragraphs. The rehype plugin that walks the AST and injects
+// at heading anchors is NOT YET WIRED — the first piece that needs
+// it ships the plugin alongside (P3 or later). Until then, an
+// `after`-marked diagram falls back to top placement with a
+// build-time warning so the author notices the gap.
+const inlineDiagrams = diagrams.filter((d) => d.after !== undefined);
+const topDiagrams = diagrams.filter((d) => d.after === undefined && d.place !== 'bottom');
+const bottomDiagrams = diagrams.filter((d) => d.after === undefined && d.place === 'bottom');
+if (inlineDiagrams.length > 0) {
+  console.warn(
+    `[PieceEntry] inline diagram placement (after: ...) is not yet wired ` +
+      `for "${title}"; ${inlineDiagrams.length} diagram(s) falling back to ` +
+      `the top rail. Add the rehype-inject-diagrams plugin to ship inline.`,
+  );
+}
+const effectiveTop = [...topDiagrams, ...inlineDiagrams];
 
 const dateFormatter = new Intl.DateTimeFormat(locale === 'es' ? 'es-AR' : 'en-AU', {
   year: 'numeric',
@@ -90,8 +108,12 @@ const TitleTag = isStandalone ? 'h1' : 'h3';
       <a href={permalink} data-astro-prefetch>{title}</a>
     </TitleTag>
     {lede && <p class="piece-lede">{lede}</p>}
-    {/* Top rail — establishing diagrams between lede and prose. */}
-    {topDiagrams.length > 0 && <DiagramRail items={topDiagrams} />}
+    {
+      /* Top rail — establishing diagrams between lede and prose.
+        Includes any `after`-marked diagrams that fall back here
+        until the inline rehype plugin is wired. */
+    }
+    {effectiveTop.length > 0 && <DiagramRail items={effectiveTop} />}
     <div class="piece-prose">
       <slot />
     </div>
