@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.7.5](https://github.com/nicolas-bracigliano/nicolasbracigliano/compare/v1.7.4...v1.7.5) (2026-05-25)
+
+
+### Documentation
+
+* **adr-0004:** postscript — Renovate is active via Mend portal ([#66](https://github.com/nicolas-bracigliano/nicolasbracigliano/issues/66)) ([43bd242](https://github.com/nicolas-bracigliano/nicolasbracigliano/commit/43bd242f01d2f1f8305ad7a88210c3f68371680c))
+
 ## [1.7.4](https://github.com/nicolas-bracigliano/nicolasbracigliano/compare/v1.7.3...v1.7.4) (2026-05-25)
 
 
