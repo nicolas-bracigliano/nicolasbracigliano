@@ -404,12 +404,10 @@ dig MX nicolasbracigliano.com +short
 
 ---
 
-## Step 8 (optional) — Branch protection
+## Step 8 — Branch protection
 
-**Status**: blocked on GitHub Pro for private repos. Skip if you're
-on the free tier.
-
-If you do upgrade to GitHub Pro (~$4/mo):
+**Status**: available — free since the repo went public on
+2026-05-25. Recommended once Step 6 (commit signing) is wired up.
 
 1. GitHub repo → **Settings** → **Branches** → **Add branch
    protection rule**.
@@ -417,7 +415,8 @@ If you do upgrade to GitHub Pro (~$4/mo):
 3. Enable:
    - **Require a pull request before merging** (yes)
    - **Require status checks to pass** — pick `Build & verify`,
-     `Lighthouse CI`, `E2E tests (Playwright)`. Mark them required.
+     `Lint workflow pins (ADR 0009)`, `Lighthouse CI`,
+     `E2E tests (Playwright)`. Mark them required.
    - **Require branches to be up to date before merging** (yes)
    - **Require signed commits** (yes — pairs with Step 6)
    - **Restrict who can push** → just you
@@ -426,6 +425,7 @@ If you do upgrade to GitHub Pro (~$4/mo):
 4. Save.
 5. Flip Renovate's `platformAutomerge: false` → `true` in
    `renovate.json` so it can self-merge patch bumps that pass CI.
+   See ADR 0004's postscript for the safe-rollout sequence.
 
 ### Best practices
 

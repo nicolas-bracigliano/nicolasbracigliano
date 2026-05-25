@@ -2,16 +2,17 @@
 
 > **Current state vs. target state.** Several sections below describe the
 > target configuration (DNSSEC, server-side analytics, commit signing,
-> branch protection). Those are **not all live yet** — they're either
-> pending account setup (Cloudflare Pages project not created yet) or
-> blocked on GitHub Pro for branch protection on this private repo.
-> The README's "Deferred items" list tracks what's outstanding.
+> branch protection). Some are not live yet — they're pending account
+> setup or pending branch-protection rule configuration on `main` (now
+> available since the repo went public on 2026-05-25; see ADR 0004
+> postscript for the Renovate revisit that depends on it).
 > Recipes below are how to wire each one up when you get there.
 
 ## Commit signing
 
-**Status**: local hook only. Server-side enforcement pending GitHub branch
-protection (which currently requires GitHub Pro for private repos).
+**Status**: local hook only. Server-side enforcement pending GitHub
+branch protection rule configuration on `main` (available since the
+repo went public on 2026-05-25).
 
 SSH commit signing is intended to be enforced server-side via branch
 protection on `main`. Until that lands, the `pre-push` hook in
@@ -35,9 +36,10 @@ on `main` — the branch protection rule rejects them.
 
 ## DNSSEC
 
-**Status**: pending Cloudflare Pages project setup.
+**Status**: pending Cloudflare zone setup (the Worker exists; the DNS
+zone for `nicolasbracigliano.com` is what activates DNSSEC).
 
-Once the Pages project exists, enable DNSSEC for `nicolasbracigliano.com`
+Once the zone is active, enable DNSSEC for `nicolasbracigliano.com`
 in the Cloudflare DNS dashboard. Cloudflare will produce a DS record
 (KSK). Copy that DS record to the registrar for the apex domain. The
 chain of trust is live once the registrar publishes the DS at the TLD
@@ -60,8 +62,8 @@ if `Expires` is < 30 days away.
 
 ## Analytics
 
-**Status**: configuration target; not enabled yet (pending Cloudflare Pages
-project + zone setup).
+**Status**: configuration target; not enabled yet (pending Cloudflare
+zone setup).
 
 Cloudflare Web Analytics will be enabled in **server-side mode** for the
 zone. Aggregates pageview / referrer / country stats from edge logs at
@@ -170,37 +172,39 @@ Transition group naming and animation. The accepted trade-off:
   selectors, `img-src 'self'` already blocks the `background-image:
 url(evil.com)` exfiltration vector).
 
-## Why Cloudflare Pages — lock-in surface and escape plan
+## Lock-in surface and escape plan
 
-Cloudflare Pages was chosen because:
+Cloudflare (originally Pages, now Workers Static Assets after PR #49 — see [ADR 0001 postscript](./decisions/0001-cloudflare-pages.md)) was chosen because:
 
 - Free tier covers a personal site indefinitely.
 - Server-side Web Analytics (zero JS, zero cookies) is unique to Cloudflare.
 - DNSSEC + HSTS preload + edge DDoS protection are first-class.
-- One Pages Function handles the `/` Accept-Language redirect — no SSR adapter,
-  no framework lock-in for the rest of the site.
+- A small Worker (`src/worker.ts`) handles the `/` Accept-Language
+  redirect — no SSR adapter, no framework lock-in for the rest of the site.
 - We deploy via `wrangler` from GitHub Actions, not the git integration, so the
   build artefact is auditable.
 
-The lock-in surface is **5 files**:
+The lock-in surface is **5 files** (post-PR-#49 — `functions/index.ts` was
+replaced by `src/worker.ts` when the deployment migrated to Workers Static
+Assets):
 
-| File                           | What's Cloudflare-specific                                                                                                            |
-| ------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------- |
-| `functions/index.ts`           | `PagesFunction` type + `onRequest` named export. The actual logic is in `src/lib/pick-locale.ts` as a platform-neutral `EdgeHandler`. |
-| `public/_headers`              | Cloudflare/Netlify syntax. See table above.                                                                                           |
-| `public/_redirects`            | Same syntax family.                                                                                                                   |
-| `wrangler.toml`                | Cloudflare CLI config.                                                                                                                |
-| `.github/workflows/deploy.yml` | Uses `cloudflare/wrangler-action`.                                                                                                    |
+| File                       | What's Cloudflare-specific                                                                                                                                                                           |
+| -------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `src/worker.ts`            | Default-export `fetch(request, env)` shape; `env.ASSETS.fetch()` is the Workers Static Assets binding. The redirect logic itself is in `src/lib/pick-locale.ts` as a platform-neutral `EdgeHandler`. |
+| `public/_headers`          | Cloudflare/Netlify syntax. See table above.                                                                                                                                                          |
+| `public/_redirects`        | Same syntax family.                                                                                                                                                                                  |
+| `wrangler.toml`            | Cloudflare CLI config (`[assets]` binding + `run_worker_first`).                                                                                                                                     |
+| `.github/workflows/ci.yml` | Uses `cloudflare/wrangler-action` in the deploy job.                                                                                                                                                 |
 
 ### Escape plan (half a day's work to port to another static host)
 
-1. **Delete** `functions/`, `public/_headers`, `public/_redirects`, `wrangler.toml`.
+1. **Delete** `src/worker.ts`, `public/_headers`, `public/_redirects`,
+   `wrangler.toml`.
 2. **Rewrite the redirect** against the new platform's edge runtime. Import
    `acceptLanguageRedirect` from `src/lib/pick-locale.ts` and write the
-   platform's 5-line adapter (Vercel Edge, Netlify Edge, Deno Deploy, Bun,
-   plain Worker — all speak `Request`/`Response`). If the new host has no
-   edge runtime, render a `<meta http-equiv="refresh">` shim at `/` or
-   default to `/en/`.
+   platform's small adapter (Vercel Edge, Netlify Edge, Deno Deploy, Bun
+   — all speak `Request`/`Response`). If the new host has no edge runtime,
+   render a `<meta http-equiv="refresh">` shim at `/` or default to `/en/`.
 3. **Translate headers** to the new host's syntax using the table above.
 4. **Swap the deploy workflow** to the host's GitHub Action (e.g.
    `actions/deploy-pages` for GitHub Pages, `amondnet/vercel-action` for
@@ -210,7 +214,7 @@ The lock-in surface is **5 files**:
 
 - You add SSR (`output: 'server'` or `'hybrid'`) — at that point the Astro
   adapter binds you to one host. Hold the line on `output: 'static'`.
-- Cloudflare reprices Pages Functions — the redirect falls back to a static
-  shim cheaply.
+- Cloudflare reprices the Workers free tier — the redirect falls back to a
+  static shim cheaply.
 - The site needs CDN-level personalisation (cookies, A/B) — that's when
   Cloudflare's lock-in starts being load-bearing instead of cosmetic.

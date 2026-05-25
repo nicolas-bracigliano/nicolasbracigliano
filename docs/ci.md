@@ -91,8 +91,9 @@ filter logic — it doesn't bypass it.
 ## Status checks — required vs informational
 
 When **branch protection** lands on `main` (Phase-0 Step 8 in
-`docs/phase-0-infrastructure.md` — requires GitHub Pro for private
-repos), these are the checks to mark as **required**:
+`docs/phase-0-infrastructure.md` — available since the repo went
+public on 2026-05-25), these are the checks to mark as
+**required**:
 
 | Check name                     | Required | Why                                                                                                                                                                                    |
 | ------------------------------ | -------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |

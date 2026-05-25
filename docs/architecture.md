@@ -55,15 +55,18 @@ inner layers never know about outer. In practice:
 
 ## The adapter pattern (one place we use it)
 
-The Cloudflare Pages Function at `functions/index.ts` is a 9-line adapter
-that wraps `src/lib/pick-locale.ts`'s `acceptLanguageRedirect`. The redirect
-logic itself is a platform-neutral `EdgeHandler` (`(req: Request) => Response`),
-the same shape any modern edge runtime speaks (Vercel Edge, Netlify Edge,
-Deno Deploy, Bun, plain Workers). To port the redirect, write a similar
-adapter on the new host — the logic doesn't move.
+The Cloudflare Worker at `src/worker.ts` is a small adapter that wraps
+`src/lib/pick-locale.ts`'s `acceptLanguageRedirect` and delegates every
+other path to the Workers Static Assets binding. The redirect logic
+itself is a platform-neutral `EdgeHandler`
+(`(req: Request) => Response`), the same shape any modern edge runtime
+speaks (Vercel Edge, Netlify Edge, Deno Deploy, Bun, and the older
+Cloudflare Pages Function shape we used pre-PR-#49). To port the
+redirect, write a similar adapter on the new host — the logic doesn't
+move.
 
-See `docs/security.md § Why Cloudflare Pages` for the full lock-in surface
-and escape plan.
+See `docs/security.md § Lock-in surface and escape plan` for the full
+Cloudflare lock-in surface and how to leave.
 
 ## Where to put new code
 
