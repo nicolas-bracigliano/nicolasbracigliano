@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.7.4](https://github.com/nicolas-bracigliano/nicolasbracigliano/compare/v1.7.3...v1.7.4) (2026-05-25)
+
+
+### Documentation
+
+* **readme:** rewrite for public release — architecture-first framing ([#61](https://github.com/nicolas-bracigliano/nicolasbracigliano/issues/61)) ([1c44d8c](https://github.com/nicolas-bracigliano/nicolasbracigliano/commit/1c44d8c382906976c3ddc8aa52ab2f5c9c75235a))
+
 ## [1.7.3](https://github.com/nicolas-bracigliano/nicolasbracigliano/compare/v1.7.2...v1.7.3) (2026-05-25)
 
 
