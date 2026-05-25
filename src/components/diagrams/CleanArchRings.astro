@@ -1,0 +1,60 @@
+---
+// Clean Architecture's four concentric rings — Entities (innermost),
+// Use Cases, Interface Adapters, Frameworks & Drivers (outermost).
+// The inward-pointing arrow is the Dependency Rule visualised: source
+// code dependencies point only inward.
+//
+// Pure SVG. Colour comes from the wrapping `<figure class="diagram
+// diagram--rings">` via CSS variable. No hardcoded hex.
+// `aria-hidden` by default; if `label` is provided, the figure becomes
+// `role="img"` with the label so screen readers announce the diagram.
+export interface Props {
+  /** Optional visible caption below the diagram. */
+  caption?: string;
+  /** Optional accessible label. When set, the diagram stops being
+   *  `aria-hidden` and announces itself to screen readers. */
+  label?: string;
+}
+const { caption, label } = Astro.props;
+const labelled = label !== undefined;
+---
+
+<figure
+  class="diagram diagram--rings"
+  {...labelled ? { role: 'img', 'aria-label': label } : { 'aria-hidden': 'true' }}
+>
+  <svg viewBox="0 0 240 240" width="100%" height="auto" preserveAspectRatio="xMidYMid meet">
+    <g fill="none" stroke="currentColor" stroke-width="1.2">
+      <circle cx="120" cy="120" r="108"></circle>
+      <circle cx="120" cy="120" r="80"></circle>
+      <circle cx="120" cy="120" r="52"></circle>
+      <circle cx="120" cy="120" r="24"></circle>
+    </g>
+    <g
+      fill="currentColor"
+      font-family="var(--font-display, serif)"
+      font-size="9"
+      text-anchor="middle"
+    >
+      <text x="120" y="123">Entities</text>
+      <text x="120" y="56">Use Cases</text>
+      <text x="120" y="28">Adapters</text>
+      <text x="120" y="6">Frameworks</text>
+    </g>
+    {/* Dependency-rule arrow: points inward, top → centre. */}
+    <g fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round">
+      <path d="M210 120 L 145 120"></path>
+      <path d="M152 114 L 145 120 L 152 126"></path>
+    </g>
+    <text
+      x="180"
+      y="113"
+      fill="currentColor"
+      font-family="var(--font-display, serif)"
+      font-style="italic"
+      font-size="8"
+      text-anchor="middle">dependencies →</text
+    >
+  </svg>
+  {caption && <figcaption>{caption}</figcaption>}
+</figure>

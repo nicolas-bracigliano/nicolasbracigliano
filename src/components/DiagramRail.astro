@@ -1,0 +1,58 @@
+---
+// DiagramRail — declarative registry that resolves the string keys
+// from a piece's `diagrams: string[]` frontmatter to the matching
+// SVG component. Why declarative (not MDX): keeps `.md` content
+// fully markup-free, avoids adding `@astrojs/mdx` and the hoisted-
+// script CSP risk it brings, and the registry is unit-testable as
+// pure data. See ADR 0010's "Related infrastructure" note + the
+// drift detector at `tests/unit/diagram-registry.test.ts`.
+//
+// The four `c4-*` keys all resolve to the parameterised `C4Level`
+// component with different `level` props — one component, four
+// concrete diagrams. The other entries are 1-to-1.
+
+import CleanArchRings from './diagrams/CleanArchRings.astro';
+import C4Wheel from './diagrams/C4Wheel.astro';
+import C4Level from './diagrams/C4Level.astro';
+import CprFramework from './diagrams/CprFramework.astro';
+import AgileRoadKnot from './diagrams/AgileRoadKnot.astro';
+import { isDiagramKey, type DiagramKey } from '@lib/diagram-registry';
+
+export interface Props {
+  /** Diagram keys to render in order. Unknown keys are skipped with a
+   *  build-time warning rather than failing the build — content authors
+   *  shouldn't have a 2-AM page-doesn't-build emergency over a typo. */
+  keys: readonly string[];
+}
+
+const { keys } = Astro.props;
+
+const resolved = keys
+  .filter((k) => {
+    const ok = isDiagramKey(k);
+    if (!ok) {
+      console.warn(`[DiagramRail] unknown diagram key: ${k}`);
+    }
+    return ok;
+  })
+  .map((k) => k as DiagramKey);
+---
+
+<div class="diagram-rail">
+  {
+    resolved.map((key) => {
+      if (key === 'clean-arch-rings') return <CleanArchRings />;
+      if (key === 'c4-wheel') return <C4Wheel />;
+      if (key === 'c4-context') return <C4Level level={1} />;
+      if (key === 'c4-containers') return <C4Level level={2} />;
+      if (key === 'c4-components') return <C4Level level={3} />;
+      if (key === 'c4-code') return <C4Level level={4} />;
+      if (key === 'cpr-framework') return <CprFramework />;
+      if (key === 'agile-road-knot') return <AgileRoadKnot />;
+      // Exhaustive — TS narrows `key` to `never` here. Throw at runtime
+      // so a future contributor adding a REGISTRY_KEYS entry without a
+      // case here doesn't ship a silent gap.
+      throw new Error(`Unreachable: unhandled diagram key ${key satisfies never}`);
+    })
+  }
+</div>

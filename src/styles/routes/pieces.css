@@ -222,6 +222,56 @@
     gap: 1.5rem;
   }
 
+  /* ─── Diagram components (PR P2) ──────────────────────────────────
+     The `<DiagramRail>` registry renders one `<figure class="diagram
+     diagram--<kind>">` per key. Colour comes through `currentColor`
+     so theme switching is free. The default tint here is `--ink-2`;
+     individual diagram kinds (e.g. `diagram--rings`) can override
+     via `.diagram--rings { color: var(--ink-blue) }` patterns if a
+     specific piece wants a kind-coded accent. */
+  .diagram-rail {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    margin: 1.5rem 0 2rem;
+  }
+  .diagram {
+    margin: 0;
+    color: var(--ink-2);
+    max-width: 100%;
+  }
+  .diagram svg {
+    display: block;
+    margin-inline: auto;
+    max-width: 32rem;
+  }
+  .diagram figcaption {
+    font-family: var(--font-display);
+    font-style: italic;
+    font-size: 0.8125rem;
+    color: var(--ink-3);
+    text-align: center;
+    margin-block-start: 0.5rem;
+    line-height: 1.45;
+  }
+  /* Per-kind tints — pick the palette token whose connotation matches
+     the diagram's content. Easy to retune per-piece by adding a class
+     to the wrapping figure or piece, but the defaults below cover the
+     known P3 diagrams without further work. */
+  .diagram--rings {
+    color: var(--ink-blue);
+  }
+  .diagram--c4-wheel,
+  .diagram--c4-level {
+    color: var(--ink-blue);
+  }
+  .diagram--cpr {
+    color: var(--accent-aa);
+  }
+  .diagram--road-knot {
+    color: var(--mate);
+  }
+
   .pieces-foot {
     text-align: center;
     margin-block-start: 4rem;

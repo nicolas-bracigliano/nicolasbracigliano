@@ -21,6 +21,7 @@ import type { Locale } from '@lib/routes';
 import { entryRouteFor } from '@lib/i18n';
 import { readingTimeMinutes } from '@lib/reading-time';
 import MarginNote from './MarginNote.astro';
+import DiagramRail from './DiagramRail.astro';
 
 export interface Props {
   entry: CollectionEntry<'pieces'>;
@@ -34,7 +35,7 @@ export interface Props {
 }
 
 const { entry, locale, isFirst = false, isStandalone = false } = Astro.props;
-const { date, tags, title, lede, marginNotes, minutes: minutesOverride } = entry.data;
+const { date, tags, title, lede, marginNotes, diagrams, minutes: minutesOverride } = entry.data;
 const permalink = entryRouteFor(entry);
 const minutes = minutesOverride ?? (entry.body ? readingTimeMinutes(entry.body) : null);
 
@@ -81,6 +82,12 @@ const TitleTag = isStandalone ? 'h1' : 'h3';
       <a href={permalink} data-astro-prefetch>{title}</a>
     </TitleTag>
     {lede && <p class="piece-lede">{lede}</p>}
+    {
+      /* Diagram rail renders between lede and prose so it acts as the
+        piece's establishing visual — the prose section can refer back
+        to it without scrolling. Empty `diagrams` array → no DOM at all. */
+    }
+    {diagrams.length > 0 && <DiagramRail keys={diagrams} />}
     <div class="piece-prose">
       <slot />
     </div>
