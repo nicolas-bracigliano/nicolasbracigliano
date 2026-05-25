@@ -1,75 +1,117 @@
 # nicolasbracigliano.com
 
-Nicolas's digital home.
+A bilingual personal site by Nicolás Bracigliano — colophon, not portfolio. Built as a small reference project for taste: typographic, architectural, and engineering.
+
+→ Live at **[nicolasbracigliano.com](https://nicolasbracigliano.com)** · en/es with full hreflang.
+
+The codebase is the colophon. Every consequential choice — strict `script-src 'self'` with native View Transitions, mirrored bilingual routes, per-route visual treatments is documented in [`docs/decisions/`](./docs/decisions/). Read those if you came for the architecture; jump to [**Local development**](#local-development) if you came to run it.
+
+---
+
+## What's interesting about it
+
+- **Strict CSP under View Transitions.** `default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'` over Astro's `<ClientRouter />`. The combination is non-obvious: ClientRouter injects runtime view-transition styles that can't be hashed at build time, and every hoisted `<script>` has to externalize for `script-src 'self'` to hold. See [ADR 0002](./docs/decisions/0002-csp-style-src-unsafe-inline.md) for the style-src trade-off and [ADR 0008](./docs/decisions/0008-externalize-hoisted-scripts-for-csp.md) for the script-side fix. CI enforces the contract, every route is asserted to ship zero inline `<script>` bodies on every PR.
+
+- **Cloudflare Workers Static Assets, one tiny Worker.** [`src/worker.ts`](./src/worker.ts) handles exactly one dynamic concern, an `Accept-Language` redirect at `/`, and delegates everything else to the asset binding. `run_worker_first = true` in [`wrangler.toml`](./wrangler.toml) keeps the redirect alive past Cloudflare's `not_found_handling = "404-page"` short-circuit (a real bug the test suite now catches; the [ADR 0001 postscript](./docs/decisions/0001-cloudflare-pages.md) tells the migration story).
+
+- **Bilingual mirrored routes.** Every page exists at `/en/<slug>` and `/es/<slug>` with localised URL segments (`/en/notes/` ↔ `/es/notas/`, `/en/works/` ↔ `/es/obras/`, `/en/colophon/` ↔ `/es/colofón/`). [`src/lib/routes.ts`](./src/lib/routes.ts) is the single source of truth, [ADR 0003](./docs/decisions/0003-mirrored-bilingual-routes.md) is the rationale, and a vitest drift detector enforces that the CI smoke list stays in sync with `ROUTES`.
+
+- **TypeScript strict, the real flags.** All four "the ones that actually catch bugs" flags are on: `exactOptionalPropertyTypes`, `noUnusedLocals`, `noUnusedParameters`, `noImplicitReturns`. [ADR 0007](./docs/decisions/0007-tsconfig-strictness-flipped.md) documents the post-bootstrap flip.
+
+- **ADRs as load-bearing documentation.** One file per consequential trade-off, with `Context / Decision / Alternatives / Consequences / When to revisit` sections and post-decision amendments when reality moves. [Index here](./docs/decisions/). Each ADR is meant to answer "why was this decided?" two years later, the test is whether a stranger reading the codebase cold can reconstruct the original constraint set.
+
+- **Performance budgets that bite.** Lighthouse perf/a11y/best-practices/SEO all ≥ 0.95, plus resource caps (script ≤ 14 KB, document ≤ 20 KB, total ≤ 50 KB) in [`lighthouserc.json`](./lighthouserc.json). CI fails on regression.
+
+- **A11y on every PR.** `@axe-core/playwright` runs against every route in the e2e suite. Serious or critical violations fail the build, not a manual sweep.
+
+- **Zero client analytics.** Cloudflare Web Analytics in server-side mode (no JS beacon, no cookies, no CSP loosening, no PII).
+
+---
 
 ## Stack
 
-- **Framework** — Astro 6 (static output, no SSR adapter)
-- **Runtime** — Node 24 LTS, pnpm via Corepack
+- **Framework** — Astro 6 (`output: 'static'`, no SSR adapter)
+- **Runtime** — Node 24 LTS, pnpm 11 via Corepack
 - **Content** — Markdown in repo, typed via Zod content collections
-- **Hosting** — Cloudflare Pages + one Pages Function for the `/` Accept-Language redirect
+- **Hosting** — Cloudflare Workers Static Assets, served from [`src/worker.ts`](./src/worker.ts) + [`wrangler.toml`](./wrangler.toml)
 - **Type** — Newsreader (variable, display) · JetBrains Mono (variable, body/mono)
-- **CI** — GitHub Actions, SHA-pinned (Renovate manages)
+- **CI** — GitHub Actions, every `uses:` ref pinned to a 40-char SHA; Renovate manages version drift
 
-## Docs
+---
 
-- [`docs/design-system.md`](./docs/design-system.md) — **canonical** design system. Read before changing color, copy, layout, or adding a route.
-- [`docs/architecture.md`](./docs/architecture.md) — layer map + dependency rule + where to put new code.
-- [`docs/security.md`](./docs/security.md) — commit signing, DNSSEC, host-neutral header directives, automation workflows, Cloudflare lock-in surface + escape plan.
-- [`docs/decisions/`](./docs/decisions/) — Architecture Decision Records. One file per consequential trade-off. Start here when you need to know _why_ something is the way it is.
+## Design notes
 
-## License
+The site treats each route as its own short essay with its own visual register. The per-route metaphors are the design spine:
 
-- Code: MIT — see [`LICENSE`](./LICENSE).
-- Content (markdown, images, OG cards): CC BY-NC-SA 4.0 — see [`CONTENT-LICENSE`](./CONTENT-LICENSE).
+- `/` — **Workshop bench**. A literal bench of "currently on the bench" cards (writing, guitar, garden, 3D print), animated once on scroll-into-view per [DS §15: animate into existence, then rest](./docs/design-system.md).
+- `/notes/` — **Marginalia notebook**. Three-column grid with date/tags rail · prose · sticky tilted margin-note. Ornament `<hr>` between paragraphs.
+- `/works/` — **Index-card catalog**. Vignette + `<dl>` of specs + status dot. Filter buttons gated to ~500 B of vanilla JS.
+- `/about/` — **Editorial + sidebar**. Two-column prose with sticky FactsCards. A first-visit `hola.` intro overlay that dissolves with `filter: blur()`.
+- `/about/now/` — **Numbered bench tour**. What's on my bench righ NOW.
+- `/colophon/` — **Typewriter credits roll**. Tags + `<dl>` rows, ASCII signature.
+- `/404` — **Misplaced letter**. Bilingual recovery affordance.
 
-## Local dev
+Animation discipline lives in [ADR 0006](./docs/decisions/0006-no-first-paint-animation.md) (no first-paint animation; axe-core would mid-fade-fail contrast checks otherwise) and [ADR 0005](./docs/decisions/0005-theme-state-auto-override-retire.md) (the day/night theme state machine that retires explicit overrides when the OS catches up).
+
+---
+
+## Reading the code
+
+| Doc                                                | When to read                                                                                                            |
+| -------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------- |
+| [`docs/design-system.md`](./docs/design-system.md) | Canonical visual + a11y spec. Read before changing colour, copy, layout, or adding a route.                             |
+| [`docs/architecture.md`](./docs/architecture.md)   | Layer map, dependency rule, where to put new code.                                                                      |
+| [`docs/security.md`](./docs/security.md)           | Commit signing, DNSSEC, host-neutral header directives, automation workflows, Cloudflare lock-in surface + escape plan. |
+| [`docs/ci.md`](./docs/ci.md)                       | What each CI job does, when it's required-vs-informational.                                                             |
+| [`docs/decisions/`](./docs/decisions/)             | ADRs. One file per consequential trade-off. Start here when you need to know _why_.                                     |
+
+---
+
+## Local development
 
 ```bash
 nvm use 24
 corepack enable
 pnpm install
-pnpm dev               # astro dev on :4321
-pnpm dev:fn            # build + wrangler pages dev (exercises the / redirect)
-pnpm test              # vitest
-pnpm test:e2e          # playwright
-pnpm typecheck
-pnpm lint
-pnpm build
+
+pnpm dev          # astro dev on :4321
+pnpm dev:fn       # astro build + wrangler dev — exercises the / redirect via the real Worker runtime
+pnpm verify:fast  # typecheck + lint + format:check + vitest                (~5 s)
+pnpm verify:slow  # build + html-validate + playwright + lhci               (~80 s)
+pnpm verify       # both
 ```
 
-## Drafts
+`pnpm verify` runs the same gates as CI. If it's green locally, every required CI check will pass.
 
-`getStaticPaths` filters on `status: 'published'` so drafts are invisible
-locally too. To preview a draft, flip `status: published` in a working copy,
-do not commit, run `pnpm dev`.
+### Drafts
 
-## Fonts (one-shot dev task)
+`getStaticPaths` filters on `status: 'published'`, so drafts are invisible locally too. To preview, flip the frontmatter in a working copy and run `pnpm dev`. Don't commit the flip.
+
+### Fonts
 
 ```bash
-pnpm run subset-fonts   # downloads + writes public/fonts/*.woff2 + og-newsreader.ttf
+pnpm subset-fonts
 ```
 
-Run once locally, commit the resulting files. CI does **not** subset fonts.
+One-shot local task. Downloads and subsets the variable Newsreader + JetBrains Mono into `public/fonts/`. CI does not subset — commit the resulting files.
+
+---
 
 ## What runs automatically
 
-- **CI** (`.github/workflows/ci.yml`) — every push + PR: build (typecheck, lint, format, unit tests, astro build, html-validate, pagefind sanity) · Lighthouse CI · Playwright E2E · Cloudflare deploy gated on all of the above + secrets being configured.
-- **Security** (`.github/workflows/security.yml`) — daily 22:00 UTC: `pnpm audit`, license allow-list, gitleaks, CodeQL, `security.txt` Expires guard.
-- **security.txt rotation** (`.github/workflows/security-txt-rotate.yml`) — monthly on the 1st: opens a renewal PR when Expires is < 60 days from lapsing.
-- **release-please** (`.github/workflows/release-please.yml`) — every push to `main`: opens / updates a release PR maintaining `CHANGELOG.md` and bumping `package.json`. Merge cuts a GitHub Release.
-- **Renovate** (managed by the Mend GitHub App; config in `renovate.json`) — Mondays 04:00 Australia/Melbourne: automerges safe updates (patch/minor/digest/lockfile/vulnerability) after CI passes; majors gated for human review. Vulnerability alerts have a separate immediate schedule.
+- **CI** ([`.github/workflows/ci.yml`](./.github/workflows/ci.yml)) — every push + PR. Build → Lighthouse + Playwright in parallel → Cloudflare deploy gated on all of the above. Path-filter skips the heavy jobs on docs-only changes; `vars.LHCI_FORCE` / `vars.E2E_FORCE` are the override.
+- **Security** ([`.github/workflows/security.yml`](./.github/workflows/security.yml)) — daily 22:00 UTC. `pnpm audit`, license allow-list, gitleaks, CodeQL static analysis, security.txt expiry guard.
+- **security.txt rotate** ([`.github/workflows/security-txt-rotate.yml`](./.github/workflows/security-txt-rotate.yml)) — monthly on the 1st. Opens a renewal PR when `Expires` is < 60 days from lapsing.
+- **release-please** ([`.github/workflows/release-please.yml`](./.github/workflows/release-please.yml)) — every push to `main`. Maintains a release PR with `CHANGELOG.md` + `package.json` version bump; merging cuts a GitHub Release.
+- **Renovate** (Mend GitHub App; [`renovate.json`](./renovate.json)) — Monday mornings, Australia/Melbourne. Auto-merges patch/minor/digest/lockfile/vulnerability updates after CI passes; majors gated for human review.
 
-See [`docs/security.md § Automation`](./docs/security.md#automation) for details.
+All `uses:` references in workflow YAML are pinned to immutable 40-char SHAs with the version in a trailing comment. Renovate's `pinGitHubActionDigests` preset keeps them fresh.
 
-## Deferred / next steps
+---
 
-The bootstrap is a working baseline. These items require account access or external setup and are still open:
+## License
 
-- **SSH commit signing** — `git config --global gpg.format ssh && git config --global commit.gpgsign true` plus the SSH key in GitHub Settings → SSH and GPG keys → **Signing keys**.
-- **Branch protection on `main`** — requires GitHub Pro for private repos. Once enabled: signed commits required, linear history, force-push disabled, all CI status checks required.
-- **Cloudflare Pages project** — create the `nicolas-bracigliano` project, add `nicolasbracigliano.com` + `www` custom domains.
-- **DNSSEC** — enable for the zone; copy the DS record to the registrar (recipe in [`docs/security.md`](./docs/security.md#dnssec)).
-- **Cloudflare Web Analytics** — enable in **server-side** mode for the zone (not the default client-side beacon).
-- **GitHub secrets** — `CLOUDFLARE_API_TOKEN` (scoped to Pages on `nicolas-bracigliano`) + `CLOUDFLARE_ACCOUNT_ID`. CI's deploy job stays in a clean "skipping" state until both are set; the moment they appear it activates with no workflow edit.
-- **CSP report-only rollout** — ship `Content-Security-Policy-Report-Only` for the first week post-launch, flip to enforce once devtools shows no violations across both languages.
+- **Code** — MIT. See [`LICENSE`](./LICENSE).
+- **Content** (markdown, images, OG cards) — CC BY-NC-SA 4.0. See [`CONTENT-LICENSE`](./CONTENT-LICENSE).
+
+The split is intentional: the code is reference material for anyone who wants to learn from or fork it; the writing and images are mine.
