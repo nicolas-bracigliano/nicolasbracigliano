@@ -21,25 +21,35 @@ jobs:
     permissions:
       contents: read
     steps:
-      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
-      - uses: pnpm/action-setup@a7487c7e89a18df4991f7f222e4898a00d66ddda # v4.1.0
-      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - uses: pnpm/action-setup@d15e628ca66d93ee5f352c71671a7bc6a97af5c9 # v6.0.8
+      - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
         with:
           node-version-file: '.nvmrc'
           cache: 'pnpm'
       - run: pnpm install --frozen-lockfile
       - name: pnpm audit (prod, fail on high+)
         run: pnpm audit --prod --audit-level=high
+      # `continue-on-error: true` so the JSON dump's exit code is
+      # surfaced in the run UI as a non-blocking signal, rather than
+      # being masked by `|| true`. The dependent upload step still
+      # runs via `if: always()` below.
       - name: pnpm audit (full report, non-failing)
-        if: always()
-        run: pnpm audit --json > audit.json || true
+        continue-on-error: true
+        run: pnpm audit --json > audit.json
       - name: License allow-list
+        # `--excludePrivatePackages` so the private root
+        # `nicolasbracigliano-com` (which license-checker reports as
+        # UNLICENSED even with `license: "MIT"` in package.json,
+        # because `"private": true` overrides the field) drops out
+        # of the scan. We're auditing third-party licenses we ship,
+        # not the repo's own metadata.
         run: |
-          pnpm exec license-checker --production --onlyAllow \
+          pnpm exec license-checker --production --excludePrivatePackages --onlyAllow \
             "MIT;ISC;Apache-2.0;BSD-2-Clause;BSD-3-Clause;CC0-1.0;0BSD;Unlicense"
       - name: Upload audit report
         if: always()
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: pnpm-audit-${{ github.run_id }}
           path: audit.json
@@ -53,28 +63,25 @@ jobs:
     permissions:
       contents: read
     steps:
-      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           fetch-depth: 0
       - uses: gitleaks/gitleaks-action@ff98106e4c7b2bc287b24eaf42907196329070c7 # v2.3.9
 
-  codeql:
-    name: CodeQL static analysis
-    runs-on: ubuntu-latest
-    timeout-minutes: 15
-    permissions:
-      contents: read
-      security-events: write
-      actions: read
-    steps:
-      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
-      - uses: github/codeql-action/init@e12f0178983d466f2f6028f5cc7a6d786fd97f4b # v4.31.4
-        with:
-          languages: javascript-typescript
-          config-file: .github/codeql/codeql-config.yml
-      - uses: github/codeql-action/analyze@e12f0178983d466f2f6028f5cc7a6d786fd97f4b # v4.31.4
-        with:
-          category: '/language:javascript-typescript'
+  # CodeQL job removed (2026-05-25): the upload step requires GitHub
+  # Code Scanning, which is a GitHub Advanced Security ($) feature on
+  # private repos and is not available here. Every daily run failed
+  # with `Code scanning is not enabled for this repository`. The
+  # other three jobs (`audit`, `gitleaks`, `security-txt-expires`)
+  # still cover the main attack surfaces — dependency CVEs, leaked
+  # secrets, and the security.txt RFC 9116 contract.
+  #
+  # Re-add if any of:
+  #   - Repo becomes public (Code Scanning is free for public repos)
+  #   - Account adopts GitHub Advanced Security
+  #   - An equivalent free static analyzer fits the build
+  # Previous config (init+analyze with javascript-typescript) is
+  # recoverable from git history at any commit before this PR.
 
   security-txt-expires:
     name: security.txt expiry guard
@@ -83,7 +90,7 @@ jobs:
     permissions:
       contents: read
     steps:
-      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
       - name: Check security.txt Expires (>=30 days)
         run: |
           expires=$(grep -i '^Expires:' public/.well-known/security.txt | sed 's/Expires:[[:space:]]*//')
