@@ -1,0 +1,49 @@
+---
+// CPR framework — three stacked boxes (Content · Pattern · Relationship)
+// with an upward "escalation" arrow showing where the conversation moves
+// when the same issue keeps coming back.
+//
+// The hierarchy is bottom-up: Content is the first conversation; once
+// a pattern emerges, Pattern is the next; if patterns continue, the
+// conversation becomes Relationship-level.
+export interface Props {
+  caption?: string;
+  label?: string;
+}
+const { caption, label } = Astro.props;
+const labelled = label !== undefined;
+---
+
+<figure
+  class="diagram diagram--cpr"
+  {...labelled ? { role: 'img', 'aria-label': label } : { 'aria-hidden': 'true' }}
+>
+  <svg viewBox="0 0 240 220" width="100%" height="auto" preserveAspectRatio="xMidYMid meet">
+    {label && <title>{label}</title>}
+    {/* Three stacked rectangles. Top is heaviest concern. */}
+    <g fill="none" stroke="currentColor" stroke-width="1.2">
+      <rect x="40" y="20" width="160" height="44" rx="4"></rect>
+      <rect x="40" y="84" width="160" height="44" rx="4"></rect>
+      <rect x="40" y="148" width="160" height="44" rx="4"></rect>
+    </g>
+    <g fill="currentColor" font-size="13" text-anchor="middle">
+      <text x="120" y="38">Relationship</text>
+      <text x="120" y="102">Pattern</text>
+      <text x="120" y="166">Content</text>
+    </g>
+    <g fill="currentColor" font-style="italic" font-size="9" opacity="0.7" text-anchor="middle">
+      <text x="120" y="52">trust, the bigger picture</text>
+      <text x="120" y="116">the recurring trend</text>
+      <text x="120" y="180">this one instance</text>
+    </g>
+    {/* Escalation arrow on the right edge — bottom up. */}
+    <g fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round">
+      <path d="M218 180 L 218 36"></path>
+      <path d="M212 44 L 218 36 L 224 44"></path>
+    </g>
+    <text x="218" y="200" fill="currentColor" font-style="italic" font-size="8" text-anchor="middle"
+      >escalates</text
+    >
+  </svg>
+  {caption && <figcaption>{caption}</figcaption>}
+</figure>

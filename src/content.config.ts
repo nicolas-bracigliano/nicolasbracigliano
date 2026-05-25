@@ -97,7 +97,56 @@ const pieces = defineCollection({
         )
         .max(8)
         .default([]),
-      diagrams: z.array(z.string()).default([]),
+      // Diagram placements. Three rendering positions are supported:
+      //
+      //   `place: 'top'`     — between lede and prose (default; the
+      //                        establishing visual)
+      //   `place: 'bottom'`  — between prose and foot (detail/reference)
+      //   `after: '<slug>'`  — inline, immediately after a specific
+      //                        heading in the prose. The slug matches
+      //                        the heading's auto-generated anchor ID
+      //                        (Astro slugifies `## Why rings` to
+      //                        `why-rings`).
+      //
+      // The top/bottom split solves the "wall of SVG before any prose"
+      // failure mode for the average multi-diagram piece. `after` is
+      // the escape hatch for pieces that genuinely need a diagram
+      // interleaved between two specific paragraphs — kept off the
+      // hot path so the registry layer remains the simple case.
+      //
+      // `place` and `after` are mutually exclusive. Inline rendering
+      // (`after`) requires a rehype plugin that's NOT YET WIRED — the
+      // first piece that uses it ships the plugin alongside. Until
+      // then, an `after`-marked diagram throws at build time with a
+      // clear message rather than silently rendering in the wrong
+      // position. See `src/components/PieceEntry.astro` for the guard.
+      //
+      // i18n coupling: `after` references the slug of an Astro-
+      // generated heading anchor, which is derived from the heading
+      // TEXT. So the same conceptual diagram needs different `after`
+      // values per locale — the EN piece's `## Why rings` (slug
+      // `why-rings`) and the ES piece's `## Por qué los anillos`
+      // (slug `por-que-los-anillos`) reference the same diagram with
+      // different keys. Translation pairs must keep these in sync;
+      // there's no schema-level enforcement.
+      diagrams: z
+        .array(
+          z
+            .object({
+              key: z.string(),
+              place: z.enum(['top', 'bottom']).default('top'),
+              after: z
+                .string()
+                .regex(/^[a-z0-9-]+$/, 'after must be a kebab-case heading anchor slug')
+                .optional(),
+              caption: z.string().max(120).optional(),
+            })
+            .refine((d) => !(d.after !== undefined && d.place !== 'top'), {
+              message:
+                'diagram entries may set `place` OR `after`, not both — `after` implies inline placement',
+            }),
+        )
+        .default([]),
       hero: image().optional(),
       ogOverride: image().optional(),
     }),

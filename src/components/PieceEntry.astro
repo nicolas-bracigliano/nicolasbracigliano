@@ -21,6 +21,7 @@ import type { Locale } from '@lib/routes';
 import { entryRouteFor } from '@lib/i18n';
 import { readingTimeMinutes } from '@lib/reading-time';
 import MarginNote from './MarginNote.astro';
+import DiagramRail from './DiagramRail.astro';
 
 export interface Props {
   entry: CollectionEntry<'pieces'>;
@@ -34,9 +35,38 @@ export interface Props {
 }
 
 const { entry, locale, isFirst = false, isStandalone = false } = Astro.props;
-const { date, tags, title, lede, marginNotes, minutes: minutesOverride } = entry.data;
+const { date, tags, title, lede, marginNotes, diagrams, minutes: minutesOverride } = entry.data;
 const permalink = entryRouteFor(entry);
 const minutes = minutesOverride ?? (entry.body ? readingTimeMinutes(entry.body) : null);
+
+// Split the diagrams by placement. Three positions are supported by
+// the schema: `place: 'top'` (between lede and prose; default),
+// `place: 'bottom'` (between prose and foot), and `after: '<slug>'`
+// (inline, after a specific heading anchor). The top/bottom split
+// handles the average multi-diagram piece without clustering every
+// SVG above the first paragraph (the P2-review failure mode).
+//
+// Inline placement (`after`) is reserved as the escape hatch for
+// pieces that genuinely need a diagram between two specific
+// paragraphs. The rehype plugin that walks the AST and injects
+// at heading anchors is NOT YET WIRED — the first piece that needs
+// it ships the plugin alongside (P3 or later). Until then, an
+// `after`-marked diagram throws at build time with a clear message,
+// rather than silently rendering in the wrong position.
+const inlineDiagrams = diagrams.filter((d) => d.after !== undefined);
+if (inlineDiagrams.length > 0) {
+  const keys = inlineDiagrams.map((d) => `${d.key}(after:${d.after})`).join(', ');
+  throw new Error(
+    `[PieceEntry] inline diagram placement (\`after: ...\`) is not yet ` +
+      `implemented. Piece "${title}" uses it for: ${keys}. ` +
+      `Either remove \`after\` and use \`place: 'top' | 'bottom'\`, ` +
+      `or implement the rehype-inject-diagrams plugin and remove this ` +
+      `guard. (See \`src/lib/diagram-registry.ts\` for the placement-mode ` +
+      `comment block.)`,
+  );
+}
+const topDiagrams = diagrams.filter((d) => d.place !== 'bottom');
+const bottomDiagrams = diagrams.filter((d) => d.place === 'bottom');
 
 const dateFormatter = new Intl.DateTimeFormat(locale === 'es' ? 'es-AR' : 'en-AU', {
   year: 'numeric',
@@ -81,9 +111,18 @@ const TitleTag = isStandalone ? 'h1' : 'h3';
       <a href={permalink} data-astro-prefetch>{title}</a>
     </TitleTag>
     {lede && <p class="piece-lede">{lede}</p>}
+    {/* Top rail — establishing diagrams between lede and prose. */}
+    {topDiagrams.length > 0 && <DiagramRail items={topDiagrams} />}
     <div class="piece-prose">
       <slot />
     </div>
+    {
+      /* Bottom rail — detail/reference diagrams between prose and foot.
+        Lets multi-diagram pieces split establishing visuals (top) from
+        detail visuals (bottom) instead of clustering everything before
+        the first paragraph. */
+    }
+    {bottomDiagrams.length > 0 && <DiagramRail items={bottomDiagrams} />}
     {
       (minutes !== null || !isStandalone) && (
         <div class="piece-foot">
