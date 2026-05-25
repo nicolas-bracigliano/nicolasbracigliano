@@ -132,14 +132,16 @@ describe('diagram registry ↔ pieces frontmatter', () => {
 });
 
 describe('diagram component size budgets', () => {
-  // Enforce the budget called out in the PR description so a future
-  // contributor can't quietly bloat a component past the ceiling.
-  // Per-component cap is generous (8 KB) because C4Level legitimately
-  // carries 4 conditional level variants in one file — but only one
-  // renders per page (Astro's `{cond && ...}` short-circuits at build).
-  // Total cap reflects 5 components + a small margin.
-  const PER_FILE_CAP_BYTES = 8 * 1024;
-  const TOTAL_DIAGRAMS_CAP_BYTES = 18 * 1024;
+  // Enforce a budget that prevents *unintentional* bloat without
+  // tripping on the legitimate cost of `C4Level`'s 4-in-1 structure.
+  // The per-file cap is set to 12 KB — well above C4Level's current
+  // ~6.5 KB, leaving room to add labels or refine a level without
+  // a budget revisit, but well below the 20+ KB threshold where a
+  // component is doing too much for one file.
+  // Total cap accommodates one component growing significantly
+  // while still failing if every file bloats in lockstep.
+  const PER_FILE_CAP_BYTES = 12 * 1024;
+  const TOTAL_DIAGRAMS_CAP_BYTES = 24 * 1024;
 
   const diagramFiles = readdirSync(DIAGRAMS_ROOT).filter((f) => f.endsWith('.astro'));
 

@@ -117,8 +117,18 @@ const pieces = defineCollection({
       // `place` and `after` are mutually exclusive. Inline rendering
       // (`after`) requires a rehype plugin that's NOT YET WIRED — the
       // first piece that uses it ships the plugin alongside. Until
-      // then, an `after`-marked diagram falls back to top placement
-      // with a build-time warning so the author notices.
+      // then, an `after`-marked diagram throws at build time with a
+      // clear message rather than silently rendering in the wrong
+      // position. See `src/components/PieceEntry.astro` for the guard.
+      //
+      // i18n coupling: `after` references the slug of an Astro-
+      // generated heading anchor, which is derived from the heading
+      // TEXT. So the same conceptual diagram needs different `after`
+      // values per locale — the EN piece's `## Why rings` (slug
+      // `why-rings`) and the ES piece's `## Por qué los anillos`
+      // (slug `por-que-los-anillos`) reference the same diagram with
+      // different keys. Translation pairs must keep these in sync;
+      // there's no schema-level enforcement.
       diagrams: z
         .array(
           z

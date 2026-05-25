@@ -51,19 +51,22 @@ const minutes = minutesOverride ?? (entry.body ? readingTimeMinutes(entry.body) 
 // paragraphs. The rehype plugin that walks the AST and injects
 // at heading anchors is NOT YET WIRED — the first piece that needs
 // it ships the plugin alongside (P3 or later). Until then, an
-// `after`-marked diagram falls back to top placement with a
-// build-time warning so the author notices the gap.
+// `after`-marked diagram throws at build time with a clear message,
+// rather than silently rendering in the wrong position.
 const inlineDiagrams = diagrams.filter((d) => d.after !== undefined);
-const topDiagrams = diagrams.filter((d) => d.after === undefined && d.place !== 'bottom');
-const bottomDiagrams = diagrams.filter((d) => d.after === undefined && d.place === 'bottom');
 if (inlineDiagrams.length > 0) {
-  console.warn(
-    `[PieceEntry] inline diagram placement (after: ...) is not yet wired ` +
-      `for "${title}"; ${inlineDiagrams.length} diagram(s) falling back to ` +
-      `the top rail. Add the rehype-inject-diagrams plugin to ship inline.`,
+  const keys = inlineDiagrams.map((d) => `${d.key}(after:${d.after})`).join(', ');
+  throw new Error(
+    `[PieceEntry] inline diagram placement (\`after: ...\`) is not yet ` +
+      `implemented. Piece "${title}" uses it for: ${keys}. ` +
+      `Either remove \`after\` and use \`place: 'top' | 'bottom'\`, ` +
+      `or implement the rehype-inject-diagrams plugin and remove this ` +
+      `guard. (See \`src/lib/diagram-registry.ts\` for the placement-mode ` +
+      `comment block.)`,
   );
 }
-const effectiveTop = [...topDiagrams, ...inlineDiagrams];
+const topDiagrams = diagrams.filter((d) => d.place !== 'bottom');
+const bottomDiagrams = diagrams.filter((d) => d.place === 'bottom');
 
 const dateFormatter = new Intl.DateTimeFormat(locale === 'es' ? 'es-AR' : 'en-AU', {
   year: 'numeric',
@@ -108,12 +111,8 @@ const TitleTag = isStandalone ? 'h1' : 'h3';
       <a href={permalink} data-astro-prefetch>{title}</a>
     </TitleTag>
     {lede && <p class="piece-lede">{lede}</p>}
-    {
-      /* Top rail — establishing diagrams between lede and prose.
-        Includes any `after`-marked diagrams that fall back here
-        until the inline rehype plugin is wired. */
-    }
-    {effectiveTop.length > 0 && <DiagramRail items={effectiveTop} />}
+    {/* Top rail — establishing diagrams between lede and prose. */}
+    {topDiagrams.length > 0 && <DiagramRail items={topDiagrams} />}
     <div class="piece-prose">
       <slot />
     </div>
