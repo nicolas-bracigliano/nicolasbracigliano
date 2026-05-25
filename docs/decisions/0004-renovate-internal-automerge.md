@@ -59,3 +59,11 @@ The flag has not been flipped yet. Doing so safely requires:
 3. **`renovate.json`** flips `platformAutomerge: false → true`; the `dependencyDashboard` and per-PR rules stay as-is. No other code changes required.
 
 This revisit will land as its own PR. Until then, the Decision still holds as the safer default.
+
+## Postscript — 2026-05-25 (later)
+
+The Mend Renovate GitHub App was installed via the [developer.mend.io](https://developer.mend.io) portal. Renovate is now actively consuming `renovate.json`; the auto-created Dependency Dashboard issue is the canonical view of what's queued at any given time.
+
+Branch protection on `main` is configured (the "Base" ruleset, scoped to `~DEFAULT_BRANCH`), but it does not yet include a `required_status_checks` rule. Until that's added, `platformAutomerge: true` would let GitHub merge the moment Renovate enables it, before CI completes — the failure mode this ADR was written to prevent. The flag stays at `false`.
+
+The flip to `platformAutomerge: true` will land as a separate PR that does three things together: adds `required_status_checks` (Build & Verify, Lighthouse CI, E2E tests, Lint workflow pins (ADR 0009), Check deploy prerequisites) to the Base ruleset, flips the flag in `renovate.json`, and amends this ADR with the final postscript closing the loop.
