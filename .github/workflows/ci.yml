@@ -364,12 +364,14 @@ jobs:
           check /en/about/   200 || exit 1
           check /en/colophon/ 200 || exit 1
           check /es/notas/   200 || exit 1
+          check /es/obras/   200 || exit 1
           check /es/sobre/   200 || exit 1
+          check /es/colofón/ 200 || exit 1
           # 404 fallback: unmatched path serves dist/404.html with
           # HTTP 404. Confirms `not_found_handling = "404-page"` is
           # honoured at the Workers Static Assets layer.
           check /this-path-does-not-exist-12345/ 404 || exit 1
-          echo "Smoke test passed (10 routes)"
+          echo "Smoke test passed (12 routes)"
 
           # Body content sanity: status codes alone don't catch a
           # broken Astro build that produces empty HTML. Fetch

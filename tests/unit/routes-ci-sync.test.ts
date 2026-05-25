@@ -1,0 +1,73 @@
+import { describe, expect, it } from 'vitest';
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
+import { ROUTES } from '../../src/lib/routes';
+
+// The CI smoke-test step in `.github/workflows/ci.yml` hard-codes
+// the route paths it `curl`s against the deployed Worker. That list
+// can't `import` from `src/lib/routes.ts` (it's a Bash step calling
+// curl), so it duplicates the source of truth — a known maintenance
+// dependency flagged in the `IMPORTANT` comment above ROUTES.
+//
+// This test enforces that contract: every published locale-path in
+// ROUTES must appear as a `check <path>` line in the smoke step.
+// Adding a route to ROUTES without updating the smoke list trips
+// `pnpm verify:fast` instead of slipping past every code review.
+//
+// Routes intentionally excluded from the smoke list (no content yet,
+// or the curl would 404 against a legitimately-missing page) live in
+// the EXCLUDED set below. Add a comment when adding to this set.
+
+const EXCLUDED: ReadonlySet<string> = new Set([
+  // `/now` and `/ahora` are nested under /about/ and /sobre/ — the
+  // parents already get smoked. Nesting drift would surface as a
+  // failed redirect, not a missing route.
+  '/en/about/now/',
+  '/es/sobre/ahora/',
+  // Essays content collection is empty. The route file exists
+  // (renders an empty index), but smoking it doesn't validate any
+  // real content.
+  '/en/essays/',
+  '/es/ensayos/',
+]);
+
+const WORKFLOW_PATH = join(__dirname, '..', '..', '.github', 'workflows', 'ci.yml');
+const CI_YML = readFileSync(WORKFLOW_PATH, 'utf-8');
+
+function smokePaths(): Set<string> {
+  // The smoke step in `ci.yml` lists each route as:
+  //     check /en/notes/   200 || exit 1
+  // Capture the path token between `check ` and the status code.
+  const re = /^\s+check\s+(\/\S*?)\s+\d{3}\s*\|\|\s*exit\s+1\s*$/gm;
+  const paths = new Set<string>();
+  let m: RegExpExecArray | null;
+  while ((m = re.exec(CI_YML)) !== null) {
+    if (m[1]) paths.add(m[1]);
+  }
+  return paths;
+}
+
+describe('ROUTES ↔ ci.yml smoke list', () => {
+  it('every published ROUTES path is smoked (or explicitly excluded)', () => {
+    const smoked = smokePaths();
+    const missing: string[] = [];
+    for (const pair of Object.values(ROUTES)) {
+      for (const path of [pair.en, pair.es]) {
+        if (!EXCLUDED.has(path) && !smoked.has(path)) {
+          missing.push(path);
+        }
+      }
+    }
+    expect(
+      missing,
+      "Add these to .github/workflows/ci.yml's smoke step, or add to EXCLUDED here",
+    ).toEqual([]);
+  });
+
+  it('smoke list parses (drift-detection for the workflow regex)', () => {
+    // Sanity: if someone reformats the smoke step and the regex
+    // stops matching, this test fails fast instead of the
+    // outer assertion silently asserting on an empty set.
+    expect(smokePaths().size).toBeGreaterThan(0);
+  });
+});

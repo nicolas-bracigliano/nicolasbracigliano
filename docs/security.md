@@ -2,16 +2,17 @@
 
 > **Current state vs. target state.** Several sections below describe the
 > target configuration (DNSSEC, server-side analytics, commit signing,
-> branch protection). Those are **not all live yet** — they're either
-> pending account setup (Cloudflare Pages project not created yet) or
-> blocked on GitHub Pro for branch protection on this private repo.
-> The README's "Deferred items" list tracks what's outstanding.
+> branch protection). Some are not live yet — they're pending account
+> setup or pending branch-protection rule configuration on `main` (now
+> available since the repo went public on 2026-05-25; see ADR 0004
+> postscript for the Renovate revisit that depends on it).
 > Recipes below are how to wire each one up when you get there.
 
 ## Commit signing
 
-**Status**: local hook only. Server-side enforcement pending GitHub branch
-protection (which currently requires GitHub Pro for private repos).
+**Status**: local hook only. Server-side enforcement pending GitHub
+branch protection rule configuration on `main` (available since the
+repo went public on 2026-05-25).
 
 SSH commit signing is intended to be enforced server-side via branch
 protection on `main`. Until that lands, the `pre-push` hook in

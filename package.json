@@ -2,7 +2,26 @@
   "name": "nicolasbracigliano-com",
   "version": "1.7.3",
   "private": true,
-  "description": "Personal site — colophon, bilingual (en/es), Astro + Cloudflare Pages.",
+  "description": "Personal site — colophon, bilingual (en/es), Astro 6 on Cloudflare Workers Static Assets.",
+  "homepage": "https://nicolasbracigliano.com",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nicolas-bracigliano/nicolasbracigliano.git"
+  },
+  "bugs": {
+    "url": "https://github.com/nicolas-bracigliano/nicolasbracigliano/issues"
+  },
+  "author": "Nicolás Bracigliano <hola@nicolasbracigliano.com> (https://nicolasbracigliano.com)",
+  "keywords": [
+    "astro",
+    "cloudflare-workers",
+    "typescript",
+    "bilingual",
+    "static-site",
+    "personal-website",
+    "design-system",
+    "csp"
+  ],
   "license": "MIT",
   "type": "module",
   "engines": {
