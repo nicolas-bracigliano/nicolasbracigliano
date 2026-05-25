@@ -9,6 +9,22 @@ on:
 
 permissions: {}
 
+# Force any Node.js action that hasn't bumped to Node 24 yet to run
+# on Node 24 anyway. GitHub deprecated Node 20 actions on
+# 2025-09-19; Node 20 will be removed from the runner on
+# 2026-09-16, with a forced switch on 2026-06-02. Setting the env
+# var explicitly now:
+#   1. Silences the per-run "Node.js 20 actions are deprecated"
+#      warning that `gitleaks/gitleaks-action@v2.3.9` currently
+#      triggers (the action is still on Node 20 and the project
+#      is dormant — v2.3.9 is the latest release).
+#   2. Surfaces any Node 24 incompatibility now, in a controlled
+#      window, rather than on 2026-06-02 when the switch becomes
+#      forced.
+# See: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
+
 concurrency:
   group: ${{ github.workflow }}
   cancel-in-progress: false
