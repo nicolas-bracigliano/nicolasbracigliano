@@ -39,6 +39,14 @@ const { date, tags, title, lede, marginNotes, diagrams, minutes: minutesOverride
 const permalink = entryRouteFor(entry);
 const minutes = minutesOverride ?? (entry.body ? readingTimeMinutes(entry.body) : null);
 
+// Split the diagrams by placement. `top` diagrams are establishing
+// visuals rendered between lede and prose; `bottom` diagrams are
+// detail/reference rendered between prose and foot. For multi-diagram
+// pieces (e.g. the C4 essay with 5 diagrams), this prevents the
+// wall-of-SVG-before-any-text failure mode flagged in the P2 review.
+const topDiagrams = diagrams.filter((d) => d.place !== 'bottom');
+const bottomDiagrams = diagrams.filter((d) => d.place === 'bottom');
+
 const dateFormatter = new Intl.DateTimeFormat(locale === 'es' ? 'es-AR' : 'en-AU', {
   year: 'numeric',
   month: '2-digit',
@@ -82,15 +90,18 @@ const TitleTag = isStandalone ? 'h1' : 'h3';
       <a href={permalink} data-astro-prefetch>{title}</a>
     </TitleTag>
     {lede && <p class="piece-lede">{lede}</p>}
-    {
-      /* Diagram rail renders between lede and prose so it acts as the
-        piece's establishing visual — the prose section can refer back
-        to it without scrolling. Empty `diagrams` array → no DOM at all. */
-    }
-    {diagrams.length > 0 && <DiagramRail keys={diagrams} />}
+    {/* Top rail — establishing diagrams between lede and prose. */}
+    {topDiagrams.length > 0 && <DiagramRail items={topDiagrams} />}
     <div class="piece-prose">
       <slot />
     </div>
+    {
+      /* Bottom rail — detail/reference diagrams between prose and foot.
+        Lets multi-diagram pieces split establishing visuals (top) from
+        detail visuals (bottom) instead of clustering everything before
+        the first paragraph. */
+    }
+    {bottomDiagrams.length > 0 && <DiagramRail items={bottomDiagrams} />}
     {
       (minutes !== null || !isStandalone) && (
         <div class="piece-foot">

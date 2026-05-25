@@ -16,6 +16,7 @@ const labelled = label !== undefined;
   {...labelled ? { role: 'img', 'aria-label': label } : { 'aria-hidden': 'true' }}
 >
   <svg viewBox="0 0 320 140" width="100%" height="auto" preserveAspectRatio="xMidYMid meet">
+    {label && <title>{label}</title>}
     <g fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round">
       {/* Knotted side — three crossing curves on the left half. */}
       <path d="M20 70 C 40 30, 70 110, 90 60 S 50 100, 80 70 S 100 40, 110 70"></path>
@@ -28,13 +29,7 @@ const labelled = label !== undefined;
       {/* Terminal marker: arrowhead at the right edge. */}
       <path d="M292 62 L 300 68 L 292 74"></path>
     </g>
-    <g
-      fill="currentColor"
-      font-family="var(--font-display, serif)"
-      font-style="italic"
-      font-size="9"
-      opacity="0.7"
-    >
+    <g fill="currentColor" font-style="italic" font-size="9" opacity="0.7">
       <text x="20" y="120">where it usually starts</text>
       <text x="300" y="120" text-anchor="end">where it should land</text>
     </g>

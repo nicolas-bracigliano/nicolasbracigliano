@@ -1,74 +1,97 @@
 import { describe, expect, it } from 'vitest';
-import { readdirSync, readFileSync } from 'node:fs';
+import { readdirSync, readFileSync, statSync } from 'node:fs';
 import { join } from 'node:path';
+import { parse as parseYaml } from 'yaml';
 import { REGISTRY_KEYS, isDiagramKey } from '../../src/lib/diagram-registry';
 
-// Drift detector for the declarative `diagrams: string[]` frontmatter
+// Drift detector for the declarative `diagrams: [...]` frontmatter
 // → `DiagramRail` component registry. Two halves:
 //
 //   FORWARD (always enforced) — every diagram key referenced in any
 //   piece's frontmatter must resolve to a real REGISTRY_KEYS entry.
-//   Typos and renames fail the build instead of silently producing
-//   a console warning at render time.
+//   Typos and renames fail the test instead of waiting for the build
+//   error in `pnpm build`.
 //
 //   REVERSE (deferred until PR P3) — every REGISTRY_KEYS entry should
 //   be referenced by SOME piece. P2 lands no content, so the reverse
 //   half passes vacuously; P3 enables it once the four legacy posts
-//   migrate. Until then, an unused diagram component would slip past.
-//
-// Lifting the reverse half is a one-line change in P3 (remove the
-// `xfail`-style guard in the second `it`).
+//   migrate. Lifting is a one-line change (the short-circuit in
+//   `it('reverse: ...)` goes away).
 
 const PIECES_ROOT = join(__dirname, '..', '..', 'src', 'content', 'pieces');
+const DIAGRAMS_ROOT = join(__dirname, '..', '..', 'src', 'components', 'diagrams');
 
-function loadAllPieceFrontmatterKeys(): { file: string; keys: string[] }[] {
-  const out: { file: string; keys: string[] }[] = [];
+interface FrontmatterDiagram {
+  key: string;
+  place?: 'top' | 'bottom';
+  caption?: string;
+}
+
+/**
+ * Extract the `diagrams` frontmatter array from a markdown file. Uses
+ * the `yaml` package (already a dep) — handles inline/block lists,
+ * quoted strings, and nested objects without bespoke regex.
+ */
+function extractDiagrams(markdown: string): FrontmatterDiagram[] {
+  const fmMatch = markdown.match(/^---\n([\s\S]*?)\n---/);
+  if (!fmMatch || !fmMatch[1]) return [];
+  let fm: Record<string, unknown>;
+  try {
+    fm = parseYaml(fmMatch[1]) as Record<string, unknown>;
+  } catch {
+    return [];
+  }
+  const diagrams = fm.diagrams;
+  if (!Array.isArray(diagrams)) return [];
+  // Coerce defensively rather than fail on shape — a malformed entry
+  // is its own kind of drift, but the FORWARD test below will catch
+  // it via the missing `key`.
+  return diagrams
+    .map((d): FrontmatterDiagram | null => {
+      if (typeof d === 'string') return { key: d };
+      if (
+        d &&
+        typeof d === 'object' &&
+        'key' in d &&
+        typeof (d as { key: unknown }).key === 'string'
+      ) {
+        return d as FrontmatterDiagram;
+      }
+      return null;
+    })
+    .filter((d): d is FrontmatterDiagram => d !== null);
+}
+
+function loadAllPieceDiagrams(): { file: string; diagrams: FrontmatterDiagram[] }[] {
+  const out: { file: string; diagrams: FrontmatterDiagram[] }[] = [];
   for (const locale of ['en', 'es'] as const) {
     let entries: string[];
     try {
       entries = readdirSync(join(PIECES_ROOT, locale));
     } catch {
       // Locale directory may not exist yet (P2 ships before any piece
-      // markdown lands). Skip silently — the FORWARD test passes on
-      // empty input.
+      // markdown lands). Skip silently — FORWARD passes on empty input.
       continue;
     }
     for (const file of entries) {
       if (!file.endsWith('.md')) continue;
       const path = join(PIECES_ROOT, locale, file);
       const text = readFileSync(path, 'utf-8');
-      // Cheap frontmatter parser: find the `diagrams:` line and read
-      // either inline `[a, b]` or block `- a\n- b\n` syntax. Avoid
-      // pulling in a YAML dependency for one field.
-      const inline = text.match(/^diagrams:\s*\[([^\]]*)\]/m);
-      const block = text.match(/^diagrams:\s*\n((?:\s*-\s+[^\n]+\n?)+)/m);
-      const keys: string[] = [];
-      if (inline && inline[1]) {
-        for (const raw of inline[1].split(',')) {
-          const k = raw.trim().replace(/^['"]|['"]$/g, '');
-          if (k) keys.push(k);
-        }
-      } else if (block && block[1]) {
-        for (const line of block[1].split('\n')) {
-          const m = line.match(/-\s+['"]?([^'"\s]+)['"]?/);
-          if (m && m[1]) keys.push(m[1]);
-        }
-      }
-      out.push({ file: `${locale}/${file}`, keys });
+      out.push({ file: `${locale}/${file}`, diagrams: extractDiagrams(text) });
     }
   }
   return out;
 }
 
 describe('diagram registry ↔ pieces frontmatter', () => {
-  const allPieceKeys = loadAllPieceFrontmatterKeys();
+  const allPieces = loadAllPieceDiagrams();
 
-  it('forward: every `diagrams: [...]` value resolves to a REGISTRY_KEYS entry', () => {
+  it('forward: every `diagrams[].key` value resolves to a REGISTRY_KEYS entry', () => {
     const offenders: string[] = [];
-    for (const { file, keys } of allPieceKeys) {
-      for (const k of keys) {
-        if (!isDiagramKey(k)) {
-          offenders.push(`${file}: "${k}"`);
+    for (const { file, diagrams } of allPieces) {
+      for (const d of diagrams) {
+        if (!isDiagramKey(d.key)) {
+          offenders.push(`${file}: "${d.key}"`);
         }
       }
     }
@@ -79,22 +102,19 @@ describe('diagram registry ↔ pieces frontmatter', () => {
   });
 
   it('reverse: every REGISTRY_KEYS entry is referenced by some piece [skipped until PR P3]', () => {
-    // PR P3 will flip this guard to actually assert. P2 ships the
-    // registry alongside zero content, so the reverse direction is
-    // trivially false but not meaningfully so — it's not actionable
-    // information until pieces exist. See the FORWARD test above for
-    // the always-on half of the drift detector.
+    // PR P3 flips this guard to actually assert. P2 ships the registry
+    // alongside zero content, so the reverse direction is trivially
+    // false but not meaningfully so — it's not actionable until pieces
+    // exist. See the FORWARD test above for the always-on half.
     const referenced = new Set<string>();
-    for (const { keys } of allPieceKeys) {
-      for (const k of keys) referenced.add(k);
+    for (const { diagrams } of allPieces) {
+      for (const d of diagrams) referenced.add(d.key);
     }
     const unused = REGISTRY_KEYS.filter((k) => !referenced.has(k));
-    if (allPieceKeys.length === 0) {
-      // P2 state — no content exists yet. Skip the reverse half.
+    if (allPieces.length === 0) {
       expect(unused.length).toBeGreaterThanOrEqual(0);
       return;
     }
-    // P3+ state — pieces exist; every registry key should be cited.
     expect(unused, 'Registry keys not referenced by any piece').toEqual([]);
   });
 
@@ -105,5 +125,34 @@ describe('diagram registry ↔ pieces frontmatter', () => {
   it('isDiagramKey rejects unknown keys', () => {
     expect(isDiagramKey('clean-arch-rings')).toBe(true);
     expect(isDiagramKey('not-a-real-key')).toBe(false);
+  });
+});
+
+describe('diagram component size budgets', () => {
+  // Enforce the budget called out in the PR description so a future
+  // contributor can't quietly bloat a component past the ceiling.
+  // Per-component cap is generous (8 KB) because C4Level legitimately
+  // carries 4 conditional level variants in one file — but only one
+  // renders per page (Astro's `{cond && ...}` short-circuits at build).
+  // Total cap reflects 5 components + a small margin.
+  const PER_FILE_CAP_BYTES = 8 * 1024;
+  const TOTAL_DIAGRAMS_CAP_BYTES = 18 * 1024;
+
+  const diagramFiles = readdirSync(DIAGRAMS_ROOT).filter((f) => f.endsWith('.astro'));
+
+  it.each(diagramFiles)('%s is under the per-file cap', (file) => {
+    const size = statSync(join(DIAGRAMS_ROOT, file)).size;
+    expect(size, `${file} is ${size} bytes`).toBeLessThan(PER_FILE_CAP_BYTES);
+  });
+
+  it('all diagrams combined are under the total cap', () => {
+    const total = diagramFiles
+      .map((f) => statSync(join(DIAGRAMS_ROOT, f)).size)
+      .reduce((a, b) => a + b, 0);
+    expect(total, `total diagrams source: ${total} bytes`).toBeLessThan(TOTAL_DIAGRAMS_CAP_BYTES);
+  });
+
+  it('there are at least 5 diagram components (PR P2 baseline)', () => {
+    expect(diagramFiles.length).toBeGreaterThanOrEqual(5);
   });
 });

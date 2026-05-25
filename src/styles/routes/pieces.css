@@ -245,6 +245,14 @@
     margin-inline: auto;
     max-width: 32rem;
   }
+  /* SVG `<text>` font comes from a CSS rule, not an SVG presentation
+     attribute. `font-family="var(--font-display, serif)"` worked on
+     attributes in most modern browsers but the spec is patchier than
+     CSS-rule resolution — `.diagram svg text` is the safer surface.
+     Per-text font-size stays inline (varies per diagram). */
+  .diagram svg text {
+    font-family: var(--font-display);
+  }
   .diagram figcaption {
     font-family: var(--font-display);
     font-style: italic;

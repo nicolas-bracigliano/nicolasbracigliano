@@ -16,6 +16,7 @@ const labelled = label !== undefined;
   {...labelled ? { role: 'img', 'aria-label': label } : { 'aria-hidden': 'true' }}
 >
   <svg viewBox="0 0 240 240" width="100%" height="auto" preserveAspectRatio="xMidYMid meet">
+    {label && <title>{label}</title>}
     {/* Outer circle + cross-dividers. */}
     <g fill="none" stroke="currentColor" stroke-width="1.2">
       <circle cx="120" cy="120" r="100"></circle>
@@ -28,26 +29,14 @@ const labelled = label !== undefined;
       <circle cx="120" cy="120" r="36"></circle>
     </g>
     {/* Quadrant labels — clockwise from top-left. */}
-    <g
-      fill="currentColor"
-      font-family="var(--font-display, serif)"
-      font-size="11"
-      text-anchor="middle"
-    >
+    <g fill="currentColor" font-size="11" text-anchor="middle">
       <text x="70" y="72">Context</text>
       <text x="170" y="72">Container</text>
       <text x="170" y="172">Component</text>
       <text x="70" y="172">Code</text>
     </g>
     {/* Numeric markers inside each quadrant. */}
-    <g
-      fill="currentColor"
-      font-family="var(--font-display, serif)"
-      font-style="italic"
-      font-size="9"
-      opacity="0.7"
-      text-anchor="middle"
-    >
+    <g fill="currentColor" font-style="italic" font-size="9" opacity="0.7" text-anchor="middle">
       <text x="70" y="86">1</text>
       <text x="170" y="86">2</text>
       <text x="170" y="186">3</text>

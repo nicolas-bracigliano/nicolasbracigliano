@@ -1,15 +1,21 @@
 ---
-// DiagramRail — declarative registry that resolves the string keys
-// from a piece's `diagrams: string[]` frontmatter to the matching
-// SVG component. Why declarative (not MDX): keeps `.md` content
-// fully markup-free, avoids adding `@astrojs/mdx` and the hoisted-
-// script CSP risk it brings, and the registry is unit-testable as
-// pure data. See ADR 0010's "Related infrastructure" note + the
-// drift detector at `tests/unit/diagram-registry.test.ts`.
+// DiagramRail — declarative registry that resolves a piece's `diagrams`
+// frontmatter entries to the matching SVG components. Why declarative
+// (not MDX): keeps `.md` content fully markup-free, avoids adding
+// `@astrojs/mdx` and the hoisted-script CSP risk it brings, and the
+// registry is unit-testable as pure data. See ADR 0010's "Related
+// infrastructure" note + the drift detector at
+// `tests/unit/diagram-registry.test.ts`.
 //
 // The four `c4-*` keys all resolve to the parameterised `C4Level`
 // component with different `level` props — one component, four
 // concrete diagrams. The other entries are 1-to-1.
+//
+// IMPORTANT: this frontmatter runs at BUILD TIME (Astro static-site
+// generation), not in the browser. The `throw` below crashes the build
+// if a piece references an unknown key — exactly what we want: a typo
+// in `diagrams: [{ key: 'c4-wheels' }]` fails CI loudly instead of
+// silently producing a page without the diagram.
 
 import CleanArchRings from './diagrams/CleanArchRings.astro';
 import C4Wheel from './diagrams/C4Wheel.astro';
@@ -18,40 +24,56 @@ import CprFramework from './diagrams/CprFramework.astro';
 import AgileRoadKnot from './diagrams/AgileRoadKnot.astro';
 import { isDiagramKey, type DiagramKey } from '@lib/diagram-registry';
 
-export interface Props {
-  /** Diagram keys to render in order. Unknown keys are skipped with a
-   *  build-time warning rather than failing the build — content authors
-   *  shouldn't have a 2-AM page-doesn't-build emergency over a typo. */
-  keys: readonly string[];
+export interface DiagramRailItem {
+  key: string;
+  /** `caption?: string | undefined` (not bare `caption?: string`) so
+   *  the type matches Zod's inferred `.optional()` shape exactly under
+   *  `exactOptionalPropertyTypes: true`. Callers can pass either an
+   *  omitted field or an explicit `undefined`. */
+  caption?: string | undefined;
 }
 
-const { keys } = Astro.props;
+export interface Props {
+  /** Diagram entries to render in order. An unknown `key` is a
+   *  build-time error (see file header). */
+  items: readonly DiagramRailItem[];
+}
 
-const resolved = keys
-  .filter((k) => {
-    const ok = isDiagramKey(k);
-    if (!ok) {
-      console.warn(`[DiagramRail] unknown diagram key: ${k}`);
-    }
-    return ok;
-  })
-  .map((k) => k as DiagramKey);
+const { items } = Astro.props;
+
+// Validate keys up front so the error message points at the
+// offending key rather than the rendering switch below.
+for (const item of items) {
+  if (!isDiagramKey(item.key)) {
+    throw new Error(
+      `[DiagramRail] unknown diagram key: "${item.key}". ` +
+        `Valid keys are registered in src/lib/diagram-registry.ts.`,
+    );
+  }
+}
+const resolved = items.map((item) => ({ ...item, key: item.key as DiagramKey }));
 ---
 
 <div class="diagram-rail">
   {
-    resolved.map((key) => {
-      if (key === 'clean-arch-rings') return <CleanArchRings />;
-      if (key === 'c4-wheel') return <C4Wheel />;
-      if (key === 'c4-context') return <C4Level level={1} />;
-      if (key === 'c4-containers') return <C4Level level={2} />;
-      if (key === 'c4-components') return <C4Level level={3} />;
-      if (key === 'c4-code') return <C4Level level={4} />;
-      if (key === 'cpr-framework') return <CprFramework />;
-      if (key === 'agile-road-knot') return <AgileRoadKnot />;
-      // Exhaustive — TS narrows `key` to `never` here. Throw at runtime
-      // so a future contributor adding a REGISTRY_KEYS entry without a
-      // case here doesn't ship a silent gap.
+    /* Conditional spread on `caption` bridges Zod's `string | undefined`
+       to the diagram component's `caption?: string` shape — Astro/TS
+       under `exactOptionalPropertyTypes: true` rejects passing
+       `undefined` to an `?:` property. Same pattern as
+       BaseLayout's `description`. */
+    resolved.map(({ key, caption }) => {
+      const capProp = caption ? { caption } : {};
+      if (key === 'clean-arch-rings') return <CleanArchRings {...capProp} />;
+      if (key === 'c4-wheel') return <C4Wheel {...capProp} />;
+      if (key === 'c4-context') return <C4Level level={1} {...capProp} />;
+      if (key === 'c4-containers') return <C4Level level={2} {...capProp} />;
+      if (key === 'c4-components') return <C4Level level={3} {...capProp} />;
+      if (key === 'c4-code') return <C4Level level={4} {...capProp} />;
+      if (key === 'cpr-framework') return <CprFramework {...capProp} />;
+      if (key === 'agile-road-knot') return <AgileRoadKnot {...capProp} />;
+      // Exhaustive — TS narrows `key` to `never` here, so adding a new
+      // REGISTRY_KEYS entry without a matching case fails TS-check with
+      // a clear error.
       throw new Error(`Unreachable: unhandled diagram key ${key satisfies never}`);
     })
   }

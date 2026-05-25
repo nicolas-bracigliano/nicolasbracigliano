@@ -97,7 +97,21 @@ const pieces = defineCollection({
         )
         .max(8)
         .default([]),
-      diagrams: z.array(z.string()).default([]),
+      // Diagram placements. `place` distributes diagrams between the
+      // top-of-prose rail and a bottom-of-prose rail so a multi-diagram
+      // piece (the C4 essay has 5+) doesn't pile every SVG above the
+      // first paragraph. `top` is the establishing visual; `bottom` is
+      // detail/reference. `caption` is an optional figcaption rendered
+      // beneath the SVG.
+      diagrams: z
+        .array(
+          z.object({
+            key: z.string(),
+            place: z.enum(['top', 'bottom']).default('top'),
+            caption: z.string().max(120).optional(),
+          }),
+        )
+        .default([]),
       hero: image().optional(),
       ogOverride: image().optional(),
     }),

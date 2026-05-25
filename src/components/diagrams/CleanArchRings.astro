@@ -5,9 +5,14 @@
 // code dependencies point only inward.
 //
 // Pure SVG. Colour comes from the wrapping `<figure class="diagram
-// diagram--rings">` via CSS variable. No hardcoded hex.
+// diagram--rings">` via CSS variable. Font + text styling come from
+// `.diagram svg text` rules in `pieces.css` — keeping CSS-variable
+// resolution in a CSS rule (not an SVG presentation attribute, which
+// is inconsistently honoured for `var()` references).
+//
 // `aria-hidden` by default; if `label` is provided, the figure becomes
-// `role="img"` with the label so screen readers announce the diagram.
+// `role="img"` with the label and the SVG carries a `<title>` so the
+// diagram is accessible both via screen reader and as standalone SVG.
 export interface Props {
   /** Optional visible caption below the diagram. */
   caption?: string;
@@ -24,18 +29,14 @@ const labelled = label !== undefined;
   {...labelled ? { role: 'img', 'aria-label': label } : { 'aria-hidden': 'true' }}
 >
   <svg viewBox="0 0 240 240" width="100%" height="auto" preserveAspectRatio="xMidYMid meet">
+    {label && <title>{label}</title>}
     <g fill="none" stroke="currentColor" stroke-width="1.2">
       <circle cx="120" cy="120" r="108"></circle>
       <circle cx="120" cy="120" r="80"></circle>
       <circle cx="120" cy="120" r="52"></circle>
       <circle cx="120" cy="120" r="24"></circle>
     </g>
-    <g
-      fill="currentColor"
-      font-family="var(--font-display, serif)"
-      font-size="9"
-      text-anchor="middle"
-    >
+    <g fill="currentColor" font-size="9" text-anchor="middle">
       <text x="120" y="123">Entities</text>
       <text x="120" y="56">Use Cases</text>
       <text x="120" y="28">Adapters</text>
@@ -46,14 +47,8 @@ const labelled = label !== undefined;
       <path d="M210 120 L 145 120"></path>
       <path d="M152 114 L 145 120 L 152 126"></path>
     </g>
-    <text
-      x="180"
-      y="113"
-      fill="currentColor"
-      font-family="var(--font-display, serif)"
-      font-style="italic"
-      font-size="8"
-      text-anchor="middle">dependencies →</text
+    <text x="180" y="113" fill="currentColor" font-style="italic" font-size="8" text-anchor="middle"
+      >dependencies →</text
     >
   </svg>
   {caption && <figcaption>{caption}</figcaption>}

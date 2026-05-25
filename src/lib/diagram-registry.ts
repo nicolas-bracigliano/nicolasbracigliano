@@ -3,14 +3,30 @@
 // an Astro vite plugin in the vitest config. The actual component
 // resolution + rendering lives in `src/components/DiagramRail.astro`.
 //
-// Adding a new diagram:
-//   1. Append the key to REGISTRY_KEYS below (TS literal type
-//      narrowing keeps the registry honest).
-//   2. Add the component import + case in DiagramRail.astro.
-//   3. The forward-direction drift test confirms any piece's
-//      `diagrams: [...]` value resolves; the reverse test (PR P3+)
-//      confirms every key is referenced by some piece.
+// EXECUTION MODEL — important: `DiagramRail.astro`'s frontmatter (and
+// therefore the throw-on-unknown-key check that consumes this registry)
+// runs at BUILD TIME during Astro's static-site generation. Errors
+// surface in `pnpm build` output and CI, not in the browser console.
+//
+// ─── To add a new diagram, update three places ────────────────────
+//   1. REGISTRY_KEYS below — add the new key string. The tuple type
+//      narrows automatically and the rest of the system picks it up.
+//   2. `src/components/diagrams/<NewDiagram>.astro` — the component
+//      itself. Mirror an existing one (pure SVG, `currentColor`,
+//      optional `caption` + `label` props, `<title>` when labelled).
+//   3. `src/components/DiagramRail.astro` — import the component +
+//      add a matching `if (key === '...') return <NewDiagram />`
+//      case. The `satisfies never` line at the bottom of the switch
+//      fails TS-check if you forget this step.
+// ─── Optional ────────────────────────────────────────────────────
+//   4. Per-kind tint in `src/styles/routes/pieces.css` if the default
+//      `--ink-2` colour doesn't fit. Use `--ink-blue` / `--accent-aa`
+//      / `--mate` for the existing palette vocabulary.
 
+// `readonly [string, ...string[]]` constraint keeps TS aware that the
+// tuple is non-empty — `REGISTRY_KEYS[0]` is `string`, not `string |
+// undefined`. Catches an accidental empty-array edit at type-check
+// time instead of leaving it for runtime.
 export const REGISTRY_KEYS = [
   'clean-arch-rings',
   'c4-wheel',
@@ -20,7 +36,7 @@ export const REGISTRY_KEYS = [
   'c4-code',
   'cpr-framework',
   'agile-road-knot',
-] as const;
+] as const satisfies readonly [string, ...string[]];
 
 export type DiagramKey = (typeof REGISTRY_KEYS)[number];
 
