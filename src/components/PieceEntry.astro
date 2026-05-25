@@ -3,25 +3,31 @@
 //
 //   - **Standalone** (slug page, `isStandalone=true`): full prose body,
 //     diagram rails top + bottom, foot with read-time. The piece title
-//     becomes the page's `<h1>`.
+//     becomes the page's `<h1>` — plain text, NOT a link (it would
+//     link to its own page, which is the kind of self-referential
+//     mistake browsers don't enjoy).
 //
 //   - **Index** (list view, `isStandalone=false` default): a card-style
-//     excerpt — title + lede + first paragraphs of the body + a
-//     "continue reading" link. NO diagrams, NO body slot beyond the
-//     excerpt. Keeps the index lightweight and the reader oriented;
-//     full content lives one click away.
+//     excerpt — title + lede + first top diagram + kernel paragraphs.
+//     The entire body is wrapped in a single `<a>` so the whole card
+//     is the click target; title and diagram are plain content inside
+//     the wrapper, not separate links. Keeps the index lightweight and
+//     the reader oriented; full content is one click away.
 //
 // Margin notes are NOT rendered here in either mode. The
 // `remark-inject-margin-notes` plugin (wired in `astro.config.ts`)
 // injects them into the markdown AST right after their anchor heading
 // at build time — they only show up on the slug page, and the index
-// excerpt cuts off before any of them would appear (the kernel is
-// the prose before the first H2, where margin notes live).
+// excerpt cuts off before any of them would appear.
 //
-// On viewports ≤ 880 px, `.piece-left` (date + tags) hides via CSS
-// and the same data renders inside `.piece-meta-foot` below the body.
-// Two render locations, mutually exclusive via display: none, so the
-// accessibility tree only sees one.
+// Breakpoint behaviour at ≤ 880 px:
+//   - `.piece-left` (desktop date + tags rail) hides.
+//   - `.piece-date-top` shows date above the title.
+//   - `.piece-meta-foot` shows tags below the body.
+//   - `.piece-foot` shows read-time at the bottom.
+// On desktop (≥ 881 px), `.piece-foot` is also hidden — read-time
+// isn't useful enough to claim the column on a wide screen, and the
+// card-level link makes a per-entry "continue reading" link redundant.
 import type { CollectionEntry } from 'astro:content';
 import type { Locale } from '@lib/routes';
 import { entryRouteFor } from '@lib/i18n';
@@ -32,7 +38,7 @@ export interface Props {
   entry: CollectionEntry<'pieces'>;
   locale: Locale;
   /** Single-entry page (PieceLayout) vs index-list context. When true,
-   *  the foot's permalink is suppressed and the full body slot renders. */
+   *  the body slot renders the full prose; when false, only the kernel. */
   isStandalone?: boolean;
 }
 
@@ -59,6 +65,11 @@ if (inlineDiagrams.length > 0) {
 }
 const topDiagrams = diagrams.filter((d) => d.place !== 'bottom');
 const bottomDiagrams = diagrams.filter((d) => d.place === 'bottom');
+// The "main image" — first top diagram. Rendered on the index card as
+// the visual hook AND on the slug page as the full top rail's first
+// member. Cards without any top diagram render no image; that's an
+// authorial choice, not a layout bug.
+const indexDiagrams = topDiagrams.slice(0, 1);
 
 const dateFormatter = new Intl.DateTimeFormat(locale === 'es' ? 'es-AR' : 'en-AU', {
   year: 'numeric',
@@ -70,15 +81,14 @@ const dateDisplay = `${dateParts.find((p) => p.type === 'year')?.value} · ${dat
 
 const readTimeLabel = locale === 'es' ? 'lectura' : 'read time';
 const minLabel = locale === 'es' ? 'min' : 'min';
-const continueLabel = locale === 'es' ? 'seguir leyendo →' : 'continue reading →';
 
 // On the index, the piece body shows only its KERNEL — the prose
 // before the first `## ` heading, capped at three paragraphs. Kernels
 // are deliberately written as plain prose (no inline markdown, no
 // lists, no code blocks), so they render safely as escaped-text
-// paragraphs without a markdown processor. The cap also protects
-// against future pieces that don't use H2 headings — they'd otherwise
-// dump their whole body into the index.
+// paragraphs without a markdown processor. The cap protects against
+// future pieces that don't use H2 headings — they'd otherwise dump
+// their whole body into the index.
 const EXCERPT_PARAGRAPH_CAP = 3;
 const kernelParagraphs: string[] = !isStandalone
   ? ((entry.body ?? '')
@@ -90,6 +100,20 @@ const kernelParagraphs: string[] = !isStandalone
   : [];
 
 const TitleTag = isStandalone ? 'h1' : 'h3';
+
+// Click wrapper element: `<a>` on the index (whole card navigates),
+// `<div>` on the slug page (no link, since we ARE the page). Allows
+// one render path with conditional semantics. Title text stays plain
+// inside either wrapper — never its own link.
+const CardWrapper = isStandalone ? 'div' : 'a';
+const cardWrapperProps = isStandalone
+  ? { class: 'piece-card' }
+  : {
+      class: 'piece-card piece-card--link',
+      href: permalink,
+      'data-astro-prefetch': '',
+      'aria-label': title,
+    };
 ---
 
 <li class="piece">
@@ -106,76 +130,77 @@ const TitleTag = isStandalone ? 'h1' : 'h3';
     }
   </div>
 
-  <article class="piece-body">
-    <TitleTag class="piece-title">
-      <a href={permalink} data-astro-prefetch>{title}</a>
-    </TitleTag>
-    {lede && <p class="piece-lede">{lede}</p>}
-
-    {/* Standalone — full prose + diagrams. */}
-    {
-      isStandalone && (
-        <>
-          {topDiagrams.length > 0 && <DiagramRail items={topDiagrams} />}
-          <div class="piece-prose">
-            <slot />
-          </div>
-          {bottomDiagrams.length > 0 && <DiagramRail items={bottomDiagrams} />}
-        </>
-      )
-    }
-
-    {
-      /* Index excerpt — kernel paragraphs + continue-reading link.
-        Diagrams + margin notes do not render in this mode; they
-        belong with the full piece. */
-    }
-    {
-      !isStandalone && kernelParagraphs.length > 0 && (
-        <div class="piece-prose piece-prose--excerpt">
-          {kernelParagraphs.map((p) => (
-            <p>{p}</p>
-          ))}
-        </div>
-      )
-    }
-
-    {
-      /* Mobile-only meta strip — date + tags moved here under ≤ 880 px,
-        where `.piece-left` is hidden. Renders on every breakpoint but
-        is `display: none` on desktop; accessibility tree shows only
-        one location at a time. */
-    }
-    <div class="piece-meta-foot">
-      <span class="piece-date">{dateDisplay}</span>
+  <CardWrapper {...cardWrapperProps}>
+    <article class="piece-body">
       {
-        tags && tags.length > 0 && (
-          <span class="piece-tags-inline">
-            {tags.map((t) => (
-              <span class="piece-tag">#{t}</span>
-            ))}
-          </span>
+        /* Mobile-only date strip — appears ABOVE the title at ≤ 880 px,
+          where the left rail is hidden. */
+      }
+      <div class="piece-date-top">{dateDisplay}</div>
+
+      <TitleTag class="piece-title">{title}</TitleTag>
+      {lede && <p class="piece-lede">{lede}</p>}
+
+      {
+        /* Top diagram(s). Index renders just the first one as the
+          card's "main image"; the slug page renders the full top set. */
+      }
+      {topDiagrams.length > 0 && <DiagramRail items={isStandalone ? topDiagrams : indexDiagrams} />}
+
+      {/* Standalone — full prose + bottom diagrams. */}
+      {
+        isStandalone && (
+          <>
+            <div class="piece-prose">
+              <slot />
+            </div>
+            {bottomDiagrams.length > 0 && <DiagramRail items={bottomDiagrams} />}
+          </>
         )
       }
-    </div>
 
-    {
-      (minutes !== null || !isStandalone) && (
-        <div class="piece-foot">
-          {minutes !== null && (
+      {/* Index excerpt — kernel paragraphs only. */}
+      {
+        !isStandalone && kernelParagraphs.length > 0 && (
+          <div class="piece-prose piece-prose--excerpt">
+            {kernelParagraphs.map((p) => (
+              <p>{p}</p>
+            ))}
+          </div>
+        )
+      }
+
+      {
+        /* Mobile-only tag strip. Date moved above title (item 4); tags
+          stay at the foot of the body since they're secondary. */
+      }
+      {
+        tags && tags.length > 0 && (
+          <div class="piece-meta-foot">
+            <span class="piece-tags-inline">
+              {tags.map((t) => (
+                <span class="piece-tag">#{t}</span>
+              ))}
+            </span>
+          </div>
+        )
+      }
+
+      {
+        /* Read-time. Mobile-only via CSS — `.piece-foot` is `display:
+          none` on big screens. On the index, the card-level link is
+          the navigation affordance; on the slug page, read-time would
+          take up a desktop column for not much value. */
+      }
+      {
+        minutes !== null && (
+          <div class="piece-foot">
             <span>
               {readTimeLabel} · {minutes} {minLabel}
             </span>
-          )}
-          {minutes !== null && !isStandalone && <span class="sep">·</span>}
-          {!isStandalone && (
-            <a class="piece-continue" href={permalink}>
-              {continueLabel}
-              <span class="visually-hidden">: {title}</span>
-            </a>
-          )}
-        </div>
-      )
-    }
-  </article>
+          </div>
+        )
+      }
+    </article>
+  </CardWrapper>
 </li>

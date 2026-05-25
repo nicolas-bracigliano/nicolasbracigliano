@@ -102,6 +102,29 @@
     letter-spacing: 0.06em;
   }
 
+  /* Card wrapper. Standalone slug pages use a `<div class="piece-card">`
+     (no link, no hover). Index entries use a `<a class="piece-card
+     piece-card--link">` — the entire body becomes the click target.
+     The title text inside is plain, not its own link (item 6). */
+  .piece-card {
+    display: block;
+    color: inherit;
+  }
+  .piece-card--link {
+    text-decoration: none;
+    border: 0;
+    transition: color var(--speed-micro);
+    cursor: pointer;
+  }
+  .piece-card--link:hover .piece-title,
+  .piece-card--link:focus-visible .piece-title {
+    color: var(--accent-aa);
+  }
+  .piece-card--link:focus-visible {
+    outline: 2px solid var(--accent-aa);
+    outline-offset: 4px;
+  }
+
   .piece-body {
     /* Right padding reserves the gutter that floated margin notes
        spill into. The prose itself stays at the design-system 78ch
@@ -110,6 +133,13 @@
     padding-inline-end: 280px;
     min-inline-size: 0;
   }
+
+  /* Mobile-only date strip above the title (item 4). Hidden on
+     desktop because `.piece-left` shows the same info on the rail. */
+  .piece-date-top {
+    display: none;
+  }
+
   .piece-title {
     font-family: var(--font-display);
     font-weight: 400;
@@ -117,6 +147,8 @@
     letter-spacing: -0.01em;
     line-height: 1.12;
     margin: 0 0 0.625rem;
+    color: var(--ink);
+    transition: color var(--speed-micro);
   }
   /* Standalone slug page: title is the page's <h1> and carries the
      full masthead register (no `<h1>` from a separate masthead). */
@@ -125,16 +157,6 @@
     letter-spacing: -0.015em;
     line-height: 1.08;
     margin-block-end: 0.875rem;
-  }
-  .piece-title a {
-    color: var(--ink);
-    text-decoration: none;
-    border: 0;
-    transition: color var(--speed-micro);
-  }
-  .piece-title a:hover,
-  .piece-title a:focus-visible {
-    color: var(--accent-aa);
   }
   .piece-lede {
     font-family: var(--font-display);
@@ -243,42 +265,73 @@
     margin-block-end: 0.25rem;
   }
 
+  /* `.piece-foot` is mobile-only (hidden on desktop). On big screens
+     the read-time isn't useful enough to claim a column on a wide
+     page, and the card-level link makes a per-entry "continue reading"
+     redundant. Visible block at ≤ 880 px via the media query below. */
   .piece-foot {
-    margin-block-start: 1rem;
-    font-size: 0.6875rem;
-    letter-spacing: 0.06em;
-    color: var(--ink-3);
-    display: flex;
-    gap: 0.625rem;
-    align-items: center;
-    clear: right; /* don't overlap a trailing floated margin note */
-  }
-  .piece-foot a {
-    color: var(--ink-2);
-    border: 0;
-    text-decoration: none;
-    transition: color var(--speed-micro);
-  }
-  .piece-foot a:hover,
-  .piece-foot a:focus-visible {
-    color: var(--accent-aa);
-    text-decoration: underline;
-  }
-  /* Continue-reading link gets accent treatment + a stronger weight
-     than the muted foot meta. Visible at a glance as the index's
-     primary call to action. Compound selector beats `.piece-foot a`
-     on specificity (two classes vs class+tag) — no `!important`. */
-  .piece-foot .piece-continue {
-    color: var(--accent-aa);
-    letter-spacing: 0.04em;
+    display: none;
   }
 
-  /* Mobile-only meta strip — hidden on desktop. On mobile, `.piece-left`
-     hides (see the media query block) and this strip is what shows the
-     date + tags. Two locations in markup but only one visible per
-     breakpoint, so the accessibility tree sees one set. */
+  /* Mobile-only meta strip — tags shown at the foot of the body. Date
+     moved above the title via `.piece-date-top` (item 4 of the post-
+     marginalia review). Hidden on desktop because `.piece-left` shows
+     the same info. */
   .piece-meta-foot {
     display: none;
+  }
+
+  /* ─── Diagram styling ───────────────────────────────────────────
+     SVG `<text>` font comes from a CSS rule, not an SVG presentation
+     attribute (`font-family="var(...)"` was patchy across rendering
+     paths). `.diagram svg text` keeps the CSS-variable resolution
+     reliable. Per-text font-size stays inline (varies per diagram). */
+  .diagram-rail {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    margin: 1.5rem 0 2rem;
+  }
+  .diagram {
+    margin: 0;
+    color: var(--ink-2);
+    max-width: 100%;
+  }
+  .diagram svg {
+    display: block;
+    margin-inline: auto;
+    max-width: 32rem;
+  }
+  .diagram svg text {
+    font-family: var(--font-display);
+  }
+  .diagram figcaption {
+    font-family: var(--font-display);
+    font-style: italic;
+    font-size: 0.8125rem;
+    color: var(--ink-3);
+    text-align: center;
+    margin-block-start: 0.5rem;
+    line-height: 1.45;
+    max-width: 32rem;
+    margin-inline: auto;
+  }
+  /* Per-kind tints — picked so each diagram carries a colour that
+     fits its content. Restored after the marginalia-rewrite rewrote
+     pieces.css and dropped them; this is what makes diagrams look
+     drawn rather than black-line printouts. */
+  .diagram--rings {
+    color: var(--ink-blue);
+  }
+  .diagram--c4-wheel,
+  .diagram--c4-level {
+    color: var(--ink-blue);
+  }
+  .diagram--cpr {
+    color: var(--accent-aa);
+  }
+  .diagram--road-knot {
+    color: var(--mate);
   }
 
   .pieces-foot {
@@ -315,6 +368,15 @@
       /* No gutter on mobile — margin notes inline below their heading. */
       padding-inline-end: 0;
     }
+    /* Date strip above the title (item 4 of the post-marginalia review). */
+    .piece-date-top {
+      display: block;
+      font-size: 0.6875rem;
+      letter-spacing: 0.04em;
+      color: var(--ink-3);
+      margin-block-end: 0.5rem;
+      font-variant-numeric: tabular-nums;
+    }
     .piece-prose .margin-note--inline {
       float: none;
       clear: none;
@@ -322,8 +384,8 @@
       margin-inline: 0;
       margin-block: 1rem;
     }
-    /* Mobile meta strip: date + tags in a horizontal row at the foot
-       of each entry. Same data that `.piece-left` showed on desktop. */
+    /* Mobile tags strip at the foot of the body. Date isn't repeated
+       here — it lives above the title via `.piece-date-top`. */
     .piece-meta-foot {
       display: flex;
       gap: 1rem;
@@ -338,6 +400,17 @@
       display: flex;
       gap: 0.5rem;
       flex-wrap: wrap;
+    }
+    /* Foot — read-time. Visible only on mobile per item 3. */
+    .piece-foot {
+      display: flex;
+      gap: 0.625rem;
+      align-items: center;
+      margin-block-start: 0.75rem;
+      font-size: 0.6875rem;
+      letter-spacing: 0.06em;
+      color: var(--ink-3);
+      clear: right;
     }
     .piece-date {
       letter-spacing: 0.02em;

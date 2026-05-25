@@ -52,31 +52,37 @@ test.describe('C4 piece — mobile layout', () => {
   });
 });
 
-test.describe('piece foot — visually-hidden title in permalinks', () => {
+test.describe('piece-card link — every index card is a navigable target', () => {
   test.use({ viewport: { width: 1280, height: 800 } });
 
-  test('index page permalinks include the title in their accessible name', async ({ page }) => {
+  test('every piece card has an `<a>` with the title as its accessible name', async ({ page }) => {
     await page.goto('/en/pieces/');
-    // Each `<a>` in `.piece-foot` has a visible "link" text + a
-    // visually-hidden `<span>: title</span>`. The accessible name
-    // computes from inner text including hidden spans, which is
-    // what Lighthouse's `link-text` audit reads — and what we
-    // need to keep stable as we touch the foot markup.
-    const footLinks = page.locator('.piece-foot a');
-    const count = await footLinks.count();
-    expect(count).toBeGreaterThanOrEqual(4);
+    // The whole piece body is wrapped in `<a class="piece-card piece-card--link">`
+    // — the click target on the index. The title text inside is plain,
+    // NOT its own link (item 6 of the post-marginalia review). The
+    // wrapper carries `aria-label="<title>"` so screen readers announce
+    // a meaningful name without reading the full card content.
+    const cardLinks = page.locator('.piece-card--link');
+    const count = await cardLinks.count();
+    expect(count, 'index should render at least 4 piece cards').toBeGreaterThanOrEqual(4);
     for (let i = 0; i < count; i++) {
-      const link = footLinks.nth(i);
-      // `textContent` includes visually-hidden spans (innerText skips them
-      // in some engines because clip-path counts as "not rendered"). The
-      // visually-hidden span is part of the link's accessible name, which
-      // is what Lighthouse's link-text audit reads. The accessible name is
-      // computed from the DOM text content, not the rendered text.
-      const accessibleText = (await link.textContent())?.trim() ?? '';
+      const link = cardLinks.nth(i);
+      const ariaLabel = await link.getAttribute('aria-label');
+      const href = await link.getAttribute('href');
       expect(
-        accessibleText,
-        `piece-foot link ${i} should include a title beyond the generic "link"`,
-      ).toMatch(/link\s*:\s*\S+/);
+        ariaLabel,
+        `card ${i}: aria-label should be the piece title (non-empty, non-generic)`,
+      ).toBeTruthy();
+      expect(ariaLabel?.length ?? 0).toBeGreaterThan(3);
+      expect(href, `card ${i}: href should point at the piece slug`).toMatch(/\/en\/pieces\/\S+/);
     }
+  });
+
+  test('the title inside the card is NOT its own link', async ({ page }) => {
+    await page.goto('/en/pieces/');
+    // Item 6 of the review: title text shouldn't be a separate <a>.
+    // `.piece-title a` would be a nested link inside the card wrapper —
+    // invalid HTML and the wrong UX.
+    await expect(page.locator('.piece-title a')).toHaveCount(0);
   });
 });
