@@ -104,20 +104,19 @@ describe('diagram registry ↔ pieces frontmatter', () => {
     ).toEqual([]);
   });
 
-  it('reverse: every REGISTRY_KEYS entry is referenced by some piece [skipped until PR P3]', () => {
-    // PR P3 flips this guard to actually assert. P2 ships the registry
-    // alongside zero content, so the reverse direction is trivially
-    // false but not meaningfully so — it's not actionable until pieces
-    // exist. See the FORWARD test above for the always-on half.
+  it('reverse: every REGISTRY_KEYS entry is referenced by some piece', () => {
+    // Enabled in PR P3 once the four legacy posts shipped content
+    // that references the diagrams. The reverse half catches the
+    // "registered but unused" failure mode: a diagram component sits
+    // in the codebase, gets indexed, gets a budget allocation, but
+    // never actually appears on any page. If a future redesign drops
+    // a piece that was the sole consumer of a diagram, this test
+    // surfaces the orphaned component for explicit removal or reuse.
     const referenced = new Set<string>();
     for (const { diagrams } of allPieces) {
       for (const d of diagrams) referenced.add(d.key);
     }
     const unused = REGISTRY_KEYS.filter((k) => !referenced.has(k));
-    if (allPieces.length === 0) {
-      expect(unused.length).toBeGreaterThanOrEqual(0);
-      return;
-    }
     expect(unused, 'Registry keys not referenced by any piece').toEqual([]);
   });
 

@@ -10,7 +10,9 @@
         "http://localhost/en/works/this-site/",
         "http://localhost/es/notas/hola/",
         "http://localhost/en/pieces/",
-        "http://localhost/es/ensayos/"
+        "http://localhost/es/ensayos/",
+        "http://localhost/en/pieces/rings-i-keep-redrawing/",
+        "http://localhost/es/ensayos/anillos-que-sigo-redibujando/"
       ],
       "numberOfRuns": 2,
       "settings": {

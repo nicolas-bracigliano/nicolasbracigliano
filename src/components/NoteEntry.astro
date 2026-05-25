@@ -83,7 +83,12 @@ const permalinkLabel = locale === 'es' ? 'enlace' : 'link';
             </span>
           )}
           {minutes !== null && !isStandalone && <span class="sep">·</span>}
-          {!isStandalone && <a href={permalink}>{permalinkLabel}</a>}
+          {!isStandalone && (
+            <a href={permalink}>
+              {permalinkLabel}
+              <span class="visually-hidden">: {title}</span>
+            </a>
+          )}
         </div>
       )
     }
