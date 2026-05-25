@@ -79,7 +79,16 @@ jobs:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           fetch-depth: 0
+      # `gitleaks-action@v2.3.9` still targets Node 20; the project
+      # is dormant. The env var below opts the action into Node 24
+      # ahead of the 2026-06-02 forced switch and silences the loud
+      # deprecation warning. Remove this once gitleaks-action ships
+      # a Node-24-targeting release, or by 2026-09-16 when Node 20
+      # is removed from runners (whichever comes first).
+      # https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
       - uses: gitleaks/gitleaks-action@ff98106e4c7b2bc287b24eaf42907196329070c7 # v2.3.9
+        env:
+          FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
 
   codeql:
     name: CodeQL static analysis
