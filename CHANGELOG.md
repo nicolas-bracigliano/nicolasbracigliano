@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.8.0](https://github.com/nicolas-bracigliano/nicolasbracigliano/compare/v1.7.6...v1.8.0) (2026-05-25)
+
+
+### Features
+
+* **diagrams:** add reusable SVG diagram components ([#70](https://github.com/nicolas-bracigliano/nicolasbracigliano/issues/70)) ([b28d280](https://github.com/nicolas-bracigliano/nicolasbracigliano/commit/b28d28088e617d3528f2108c3ec169c54e93f1fe))
+
 ## [1.7.6](https://github.com/nicolas-bracigliano/nicolasbracigliano/compare/v1.7.5...v1.7.6) (2026-05-25)
 
 
