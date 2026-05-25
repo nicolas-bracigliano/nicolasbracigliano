@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.7.3](https://github.com/nicolas-bracigliano/nicolasbracigliano/compare/v1.7.2...v1.7.3) (2026-05-25)
+
+
+### Bug Fixes
+
+* **security:** enhance license check to exclude private packages ([#56](https://github.com/nicolas-bracigliano/nicolasbracigliano/issues/56)) ([9d5c0b2](https://github.com/nicolas-bracigliano/nicolasbracigliano/commit/9d5c0b2fee1b253ee240854c050aea2bea66b1b1))
+
 ## [1.7.2](https://github.com/nicolas-bracigliano/nicolasbracigliano/compare/v1.7.1...v1.7.2) (2026-05-24)
 
 
