@@ -16,6 +16,7 @@
     "dev:fn": "astro build && wrangler dev",
     "typecheck": "astro check",
     "lint": "eslint . && stylelint \"src/**/*.css\"",
+    "lint:actions": "scripts/lint-workflow-pins.sh",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "test": "vitest run",
@@ -24,7 +25,7 @@
     "lhci": "lhci autorun",
     "subset-fonts": "node scripts/subset-fonts.mjs",
     "postbuild": "pagefind --site dist --output-subdir _pagefind",
-    "verify:fast": "pnpm typecheck && pnpm lint && pnpm format:check && pnpm test",
+    "verify:fast": "pnpm typecheck && pnpm lint && pnpm lint:actions && pnpm format:check && pnpm test",
     "verify:slow": "pnpm build && pnpm exec html-validate \"dist/**/*.html\" && pnpm test:e2e && pnpm lhci",
     "verify": "pnpm verify:fast && pnpm verify:slow"
   },
