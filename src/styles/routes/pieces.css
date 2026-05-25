@@ -1,23 +1,26 @@
 @layer routes {
   /* ─── Pieces: Long-form sibling of /notes (design system §3, §17) ──
-     Same marginalia 3-column grid as `/notes`, but the centre column
-     widens to 78ch (notes are 68ch — pieces breathe more) and the right
-     rail supports N margin notes via the `marginNotes` frontmatter
-     array (notes only carry one via `aside`).
+     Two-column grid (date/tags rail · prose body). The body reserves
+     a right-gutter padding zone that floated margin notes spill into
+     on desktop. Notes themselves are injected into the prose by the
+     `remark-inject-margin-notes` plugin (wired in `astro.config.ts`)
+     right after the heading whose anchor matches `note.section` — so
+     they sit visually next to the section they annotate, not at the
+     top of the article.
 
-     Margin notes here are NON-sticky. Notes have a single sticky aside
-     that stays visible while the reader scrolls a short prose column;
-     pieces have N margin notes, and stacking them with sticky offsets
-     overlaps quickly. Source-order alignment with prose sections does
-     the work — each margin note's vertical position roughly tracks its
-     anchor section because Astro renders the rail's children in array
-     order alongside the prose.
+     Why floats, not a separate column: a separate `.piece-right` rail
+     puts all notes at the same vertical baseline (top of body). For
+     pieces with N>1 notes, the rail was either overlap-prone under
+     sticky positioning, or visually disconnected from the section
+     each note belongs to. Floating each note into the right gutter
+     from its anchor heading solves both — document flow gives the
+     note its vertical position automatically.
 
-     Mobile (≤ 880 px): the right rail does NOT hide (it would erase
-     half the marginalia's point). Instead the rail moves below the
-     prose, where the margin notes flow as a stack of asides. PR P3
-     will validate whether inline-interleaving (each note next to its
-     `section` anchor in the prose) reads better with real content. */
+     Mobile (≤ 880 px): the gutter goes away. Notes lose their float
+     and inline naturally between the heading and the next paragraph,
+     reading like an indented aside. `.piece-left` (date + tags)
+     hides; the same data renders inside `.piece-meta-foot` below the
+     body so the reader still sees it. */
 
   .pieces.wrap {
     max-width: 1180px;
@@ -66,7 +69,7 @@
 
   .piece {
     display: grid;
-    grid-template-columns: 180px minmax(0, 1fr) 240px;
+    grid-template-columns: 180px minmax(0, 1fr);
     gap: 2.5rem;
     padding-block: 3rem;
     border-block-start: 1px solid var(--rule);
@@ -100,10 +103,11 @@
   }
 
   .piece-body {
-    /* `min-inline-size: 0` lets the column shrink below its min-content
-       so long unbreakable strings don't blow out the grid. Wider than
-       notes' 68ch — pieces are long enough to want the extra measure. */
-    max-width: 78ch;
+    /* Right padding reserves the gutter that floated margin notes
+       spill into. The prose itself stays at the design-system 78ch
+       measure via .piece-prose's max-width, so this padding is the
+       margin gutter, not a wider line length. */
+    padding-inline-end: 280px;
     min-inline-size: 0;
   }
   .piece-title {
@@ -114,9 +118,8 @@
     line-height: 1.12;
     margin: 0 0 0.625rem;
   }
-  /* On the standalone slug page (PieceLayout `pieces--single`) the title
-     becomes the page's `<h1>` — no masthead above it, so it carries the
-     full heading register, not the third-level register used on indexes. */
+  /* Standalone slug page: title is the page's <h1> and carries the
+     full masthead register (no `<h1>` from a separate masthead). */
   .pieces--single .piece-title {
     font-size: clamp(2.25rem, 4.4vw, 3rem);
     letter-spacing: -0.015em;
@@ -141,6 +144,9 @@
     margin: 0 0 1.25rem;
     line-height: 1.5;
   }
+  .piece-prose {
+    max-width: 78ch;
+  }
   .piece-prose p {
     font-size: 0.9375rem;
     line-height: 1.75;
@@ -155,6 +161,7 @@
     line-height: 1.25;
     margin: 2rem 0 0.75rem;
     letter-spacing: -0.005em;
+    clear: right; /* never start a section beside a floated margin note */
   }
   .piece-prose h3 {
     font-family: var(--font-display);
@@ -162,6 +169,7 @@
     font-style: italic;
     font-size: 1.1875rem;
     margin: 1.5rem 0 0.5rem;
+    clear: right;
   }
   .piece-prose ul,
   .piece-prose ol {
@@ -192,6 +200,49 @@
     background-repeat: repeat-x;
     opacity: 0.7;
   }
+
+  /* ─── Inline margin notes (injected by rehype) ────────────────────
+     Each `.margin-note--inline` is a sibling of the heading whose
+     anchor matched. On desktop, float right into the body's reserved
+     gutter via a positive margin (the body already has 280px right
+     padding, so we negate part of that with a right-margin pull).
+     The selector chain beats `.margin-note` in notes.css regardless
+     of import order (more specific). */
+  .piece-prose .margin-note--inline {
+    /* Override notes.css's sticky positioning explicitly. */
+    position: static;
+    inset-block-start: auto;
+    transform: none;
+
+    float: right;
+    clear: right;
+    width: 220px;
+    margin-inline-start: 1.5rem;
+    margin-inline-end: -260px;
+    margin-block: 0.25rem 1rem;
+    /* Restate visual identity in case notes.css ever changes — keeps
+       margin notes readable inside the piece prose at the right edge. */
+    font-size: 0.75rem;
+    font-style: italic;
+    font-family: var(--font-display);
+    color: var(--ink-2);
+    padding: 0.5rem 0.75rem;
+    border-inline-start: 1px solid var(--accent-aa);
+    background: color-mix(in oklab, var(--accent) 4%, transparent);
+    line-height: 1.5;
+  }
+  .piece-prose .margin-note--inline p {
+    margin: 0;
+    font-size: inherit;
+    line-height: inherit;
+  }
+  .piece-prose .margin-note--inline .margin-mark {
+    display: block;
+    color: var(--accent-aa);
+    font-size: 0.875rem;
+    margin-block-end: 0.25rem;
+  }
+
   .piece-foot {
     margin-block-start: 1rem;
     font-size: 0.6875rem;
@@ -200,6 +251,7 @@
     display: flex;
     gap: 0.625rem;
     align-items: center;
+    clear: right; /* don't overlap a trailing floated margin note */
   }
   .piece-foot a {
     color: var(--ink-2);
@@ -212,72 +264,21 @@
     color: var(--accent-aa);
     text-decoration: underline;
   }
-
-  .piece-right {
-    /* N margin notes stack vertically; gap separates them. No sticky
-       — see file header. Each note's vertical position aligns roughly
-       with its anchor section via source order. */
-    display: flex;
-    flex-direction: column;
-    gap: 1.5rem;
-  }
-
-  /* ─── Diagram components (PR P2) ──────────────────────────────────
-     The `<DiagramRail>` registry renders one `<figure class="diagram
-     diagram--<kind>">` per key. Colour comes through `currentColor`
-     so theme switching is free. The default tint here is `--ink-2`;
-     individual diagram kinds (e.g. `diagram--rings`) can override
-     via `.diagram--rings { color: var(--ink-blue) }` patterns if a
-     specific piece wants a kind-coded accent. */
-  .diagram-rail {
-    display: flex;
-    flex-direction: column;
-    gap: 1.5rem;
-    margin: 1.5rem 0 2rem;
-  }
-  .diagram {
-    margin: 0;
-    color: var(--ink-2);
-    max-width: 100%;
-  }
-  .diagram svg {
-    display: block;
-    margin-inline: auto;
-    max-width: 32rem;
-  }
-  /* SVG `<text>` font comes from a CSS rule, not an SVG presentation
-     attribute. `font-family="var(--font-display, serif)"` worked on
-     attributes in most modern browsers but the spec is patchier than
-     CSS-rule resolution — `.diagram svg text` is the safer surface.
-     Per-text font-size stays inline (varies per diagram). */
-  .diagram svg text {
-    font-family: var(--font-display);
-  }
-  .diagram figcaption {
-    font-family: var(--font-display);
-    font-style: italic;
-    font-size: 0.8125rem;
-    color: var(--ink-3);
-    text-align: center;
-    margin-block-start: 0.5rem;
-    line-height: 1.45;
-  }
-  /* Per-kind tints — pick the palette token whose connotation matches
-     the diagram's content. Easy to retune per-piece by adding a class
-     to the wrapping figure or piece, but the defaults below cover the
-     known P3 diagrams without further work. */
-  .diagram--rings {
-    color: var(--ink-blue);
-  }
-  .diagram--c4-wheel,
-  .diagram--c4-level {
-    color: var(--ink-blue);
-  }
-  .diagram--cpr {
+  /* Continue-reading link gets accent treatment + a stronger weight
+     than the muted foot meta. Visible at a glance as the index's
+     primary call to action. Compound selector beats `.piece-foot a`
+     on specificity (two classes vs class+tag) — no `!important`. */
+  .piece-foot .piece-continue {
     color: var(--accent-aa);
+    letter-spacing: 0.04em;
   }
-  .diagram--road-knot {
-    color: var(--mate);
+
+  /* Mobile-only meta strip — hidden on desktop. On mobile, `.piece-left`
+     hides (see the media query block) and this strip is what shows the
+     date + tags. Two locations in markup but only one visible per
+     breakpoint, so the accessibility tree sees one set. */
+  .piece-meta-foot {
+    display: none;
   }
 
   .pieces-foot {
@@ -304,16 +305,39 @@
 
   @media (max-width: 880px) {
     .piece {
-      grid-template-columns: 7rem 1fr;
+      grid-template-columns: 1fr;
       gap: 1.125rem;
     }
-    /* Move the right rail below the prose by spanning both columns —
-       margin notes stay visible (unlike notes.css which hides them).
-       PR P3 may refine this to inline-interleaving once real content
-       lands; for now the foot-stack is a defensible default. */
-    .piece-right {
-      grid-column: 1 / -1;
-      margin-block-start: 0.5rem;
+    .piece-left {
+      display: none;
+    }
+    .piece-body {
+      /* No gutter on mobile — margin notes inline below their heading. */
+      padding-inline-end: 0;
+    }
+    .piece-prose .margin-note--inline {
+      float: none;
+      clear: none;
+      width: auto;
+      margin-inline: 0;
+      margin-block: 1rem;
+    }
+    /* Mobile meta strip: date + tags in a horizontal row at the foot
+       of each entry. Same data that `.piece-left` showed on desktop. */
+    .piece-meta-foot {
+      display: flex;
+      gap: 1rem;
+      align-items: baseline;
+      flex-wrap: wrap;
+      margin-block-start: 1.25rem;
+      font-size: 0.6875rem;
+      letter-spacing: 0.04em;
+      color: var(--ink-3);
+    }
+    .piece-meta-foot .piece-tags-inline {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
     }
     .piece-date {
       letter-spacing: 0.02em;

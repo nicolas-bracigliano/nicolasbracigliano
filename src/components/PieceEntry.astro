@@ -1,58 +1,50 @@
 ---
-// PieceEntry — long-form sibling of NoteEntry. Same 3-column grid
-// (date/tags/glyph rail · prose · margin notes), but the centre column
-// widens to 78ch and the right rail supports N margin notes via the
-// `marginNotes` frontmatter array (notes only get one via `aside`).
+// PieceEntry — long-form sibling of NoteEntry. Renders in two modes:
 //
-// Margin-note semantic: each note is a `<div class="margin-note">`,
-// NOT `<aside>`. PR #6 hit html-validate's `unique-landmark` rule when
-// notes used `<aside>` (every `<aside>` is a landmark; multiple siblings
-// break uniqueness). Pieces have N>1 margin notes by design, so the
-// `<div>` discipline is even more binding here than for notes.
+//   - **Standalone** (slug page, `isStandalone=true`): full prose body,
+//     diagram rails top + bottom, foot with read-time. The piece title
+//     becomes the page's `<h1>`.
 //
-// Mobile fallback (≤ 880 px): the right rail collapses below the prose
-// per `pieces.css`. The current PR P1 implementation stacks margin
-// notes at the foot of the prose column. PR P3 will validate whether
-// inline-interleaving (each note adjacent to its `section` anchor)
-// reads better with real long-form content; the `section` field in
-// the frontmatter is the hook for that future refinement.
+//   - **Index** (list view, `isStandalone=false` default): a card-style
+//     excerpt — title + lede + first paragraphs of the body + a
+//     "continue reading" link. NO diagrams, NO body slot beyond the
+//     excerpt. Keeps the index lightweight and the reader oriented;
+//     full content lives one click away.
+//
+// Margin notes are NOT rendered here in either mode. The
+// `remark-inject-margin-notes` plugin (wired in `astro.config.ts`)
+// injects them into the markdown AST right after their anchor heading
+// at build time — they only show up on the slug page, and the index
+// excerpt cuts off before any of them would appear (the kernel is
+// the prose before the first H2, where margin notes live).
+//
+// On viewports ≤ 880 px, `.piece-left` (date + tags) hides via CSS
+// and the same data renders inside `.piece-meta-foot` below the body.
+// Two render locations, mutually exclusive via display: none, so the
+// accessibility tree only sees one.
 import type { CollectionEntry } from 'astro:content';
 import type { Locale } from '@lib/routes';
 import { entryRouteFor } from '@lib/i18n';
 import { readingTimeMinutes } from '@lib/reading-time';
-import MarginNote from './MarginNote.astro';
 import DiagramRail from './DiagramRail.astro';
 
 export interface Props {
   entry: CollectionEntry<'pieces'>;
   locale: Locale;
-  /** If true, this is the first piece in a list — gets a star margin-mark
-   *  on the first margin note instead of the arrow. Mirrors NoteEntry. */
-  isFirst?: boolean;
   /** Single-entry page (PieceLayout) vs index-list context. When true,
-   *  the foot's permalink is suppressed. */
+   *  the foot's permalink is suppressed and the full body slot renders. */
   isStandalone?: boolean;
 }
 
-const { entry, locale, isFirst = false, isStandalone = false } = Astro.props;
-const { date, tags, title, lede, marginNotes, diagrams, minutes: minutesOverride } = entry.data;
+const { entry, locale, isStandalone = false } = Astro.props;
+const { date, tags, title, lede, diagrams, minutes: minutesOverride } = entry.data;
 const permalink = entryRouteFor(entry);
 const minutes = minutesOverride ?? (entry.body ? readingTimeMinutes(entry.body) : null);
 
-// Split the diagrams by placement. Three positions are supported by
-// the schema: `place: 'top'` (between lede and prose; default),
-// `place: 'bottom'` (between prose and foot), and `after: '<slug>'`
-// (inline, after a specific heading anchor). The top/bottom split
-// handles the average multi-diagram piece without clustering every
-// SVG above the first paragraph (the P2-review failure mode).
-//
-// Inline placement (`after`) is reserved as the escape hatch for
-// pieces that genuinely need a diagram between two specific
-// paragraphs. The rehype plugin that walks the AST and injects
-// at heading anchors is NOT YET WIRED — the first piece that needs
-// it ships the plugin alongside (P3 or later). Until then, an
-// `after`-marked diagram throws at build time with a clear message,
-// rather than silently rendering in the wrong position.
+// Diagram placement modes per the P2 review fix (top / bottom / after).
+// `after` is reserved; if any piece sets it before the inline-rehype
+// plugin lands, fail loudly at build time rather than silently render
+// in the wrong position.
 const inlineDiagrams = diagrams.filter((d) => d.after !== undefined);
 if (inlineDiagrams.length > 0) {
   const keys = inlineDiagrams.map((d) => `${d.key}(after:${d.after})`).join(', ');
@@ -78,18 +70,26 @@ const dateDisplay = `${dateParts.find((p) => p.type === 'year')?.value} · ${dat
 
 const readTimeLabel = locale === 'es' ? 'lectura' : 'read time';
 const minLabel = locale === 'es' ? 'min' : 'min';
-const permalinkLabel = locale === 'es' ? 'enlace' : 'link';
+const continueLabel = locale === 'es' ? 'seguir leyendo →' : 'continue reading →';
 
-// Heading level: pieces use `<h1>` on the standalone slug page (PieceLayout,
-// `isStandalone=true`) and `<h3>` on the index (mirroring NoteEntry's index
-// position). The slug page deserves a real H1 — chrome doesn't provide one
-// and the title IS the page's primary heading. Future follow-up: align
-// NoteEntry to the same pattern so /en/notes/<slug>/ also gets an H1.
+// On the index, the piece body shows only its KERNEL — the prose
+// before the first `## ` heading, capped at three paragraphs. Kernels
+// are deliberately written as plain prose (no inline markdown, no
+// lists, no code blocks), so they render safely as escaped-text
+// paragraphs without a markdown processor. The cap also protects
+// against future pieces that don't use H2 headings — they'd otherwise
+// dump their whole body into the index.
+const EXCERPT_PARAGRAPH_CAP = 3;
+const kernelParagraphs: string[] = !isStandalone
+  ? ((entry.body ?? '')
+      .split('\n## ')[0]
+      ?.trim()
+      .split(/\n\n+/)
+      .filter((p) => p.length > 0)
+      .slice(0, EXCERPT_PARAGRAPH_CAP) ?? [])
+  : [];
+
 const TitleTag = isStandalone ? 'h1' : 'h3';
-
-// Pieces don't carry a per-entry glyph (the frontmatter `glyph` field is
-// notes-only — pieces are long enough that a glyph reads as visual noise).
-// The .piece-left rail stays clean: date + tags only.
 ---
 
 <li class="piece">
@@ -111,18 +111,54 @@ const TitleTag = isStandalone ? 'h1' : 'h3';
       <a href={permalink} data-astro-prefetch>{title}</a>
     </TitleTag>
     {lede && <p class="piece-lede">{lede}</p>}
-    {/* Top rail — establishing diagrams between lede and prose. */}
-    {topDiagrams.length > 0 && <DiagramRail items={topDiagrams} />}
-    <div class="piece-prose">
-      <slot />
-    </div>
+
+    {/* Standalone — full prose + diagrams. */}
     {
-      /* Bottom rail — detail/reference diagrams between prose and foot.
-        Lets multi-diagram pieces split establishing visuals (top) from
-        detail visuals (bottom) instead of clustering everything before
-        the first paragraph. */
+      isStandalone && (
+        <>
+          {topDiagrams.length > 0 && <DiagramRail items={topDiagrams} />}
+          <div class="piece-prose">
+            <slot />
+          </div>
+          {bottomDiagrams.length > 0 && <DiagramRail items={bottomDiagrams} />}
+        </>
+      )
     }
-    {bottomDiagrams.length > 0 && <DiagramRail items={bottomDiagrams} />}
+
+    {
+      /* Index excerpt — kernel paragraphs + continue-reading link.
+        Diagrams + margin notes do not render in this mode; they
+        belong with the full piece. */
+    }
+    {
+      !isStandalone && kernelParagraphs.length > 0 && (
+        <div class="piece-prose piece-prose--excerpt">
+          {kernelParagraphs.map((p) => (
+            <p>{p}</p>
+          ))}
+        </div>
+      )
+    }
+
+    {
+      /* Mobile-only meta strip — date + tags moved here under ≤ 880 px,
+        where `.piece-left` is hidden. Renders on every breakpoint but
+        is `display: none` on desktop; accessibility tree shows only
+        one location at a time. */
+    }
+    <div class="piece-meta-foot">
+      <span class="piece-date">{dateDisplay}</span>
+      {
+        tags && tags.length > 0 && (
+          <span class="piece-tags-inline">
+            {tags.map((t) => (
+              <span class="piece-tag">#{t}</span>
+            ))}
+          </span>
+        )
+      }
+    </div>
+
     {
       (minutes !== null || !isStandalone) && (
         <div class="piece-foot">
@@ -133,8 +169,8 @@ const TitleTag = isStandalone ? 'h1' : 'h3';
           )}
           {minutes !== null && !isStandalone && <span class="sep">·</span>}
           {!isStandalone && (
-            <a href={permalink}>
-              {permalinkLabel}
+            <a class="piece-continue" href={permalink}>
+              {continueLabel}
               <span class="visually-hidden">: {title}</span>
             </a>
           )}
@@ -142,17 +178,4 @@ const TitleTag = isStandalone ? 'h1' : 'h3';
       )
     }
   </article>
-
-  <div class="piece-right">
-    {
-      /* The `section` field is intentionally unread in P1. It will drive
-        PR P3's inline-interleave refinement (anchoring each margin note
-        next to its source heading on narrow viewports). For now the rail
-        renders the notes in array order — vertical position correlates
-        roughly with prose-section order because writers put them that way. */
-      marginNotes.map((note, i) => (
-        <MarginNote text={note.text} mark={note.mark ?? (isFirst && i === 0 ? '✸' : '↳')} />
-      ))
-    }
-  </div>
 </li>
