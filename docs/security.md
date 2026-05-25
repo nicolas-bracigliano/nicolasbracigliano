@@ -117,6 +117,15 @@ tag in a trailing comment; Renovate's `helpers:pinGitHubActionDigests`
 preset maintains them. The `permissions: {}` at workflow root + minimal
 per-job grants keeps the GITHUB_TOKEN scope tight.
 
+`gitleaks-action@v2.3.9` is dormant and still targets Node 20. The
+gitleaks step in `security.yml` carries
+`FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'` at the step level — a
+[documented GitHub opt-in](https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/)
+that runs the action on Node 24 ahead of the 2026-06-02 forced
+switch. Remove the env var once gitleaks-action ships a
+Node-24-targeting release, or it becomes moot when Node 20 is
+removed from runners on 2026-09-16.
+
 ## Notes on `lockfile-lint`
 
 Considered and removed. `lockfile-lint@5` doesn't parse `pnpm-lock.yaml`
