@@ -278,7 +278,7 @@ The prototype loads dependencies from CDNs and uses Babel-in-browser; production
 
 **Performance.** Static HTML built at deploy time. Self-hosted, subsetted fonts under 80 KB combined. No third-party scripts. Target Lighthouse ≥ 95 / page weight ≤ 100 KB gzipped / above-the-fold CSS inlined. _Currently shipping_: 100/100 across perf/a11y/best-practices/SEO on all 5 audited URLs at ~11 KB per page.
 
-**Security.** Cloudflare Pages with HSTS preload, DNSSEC, **strict `script-src` CSP** (`default-src 'self'; script-src 'self'`), no cookies, no **client-side** analytics (Cloudflare's server-side aggregation off edge logs is allowed — it has no beacon, no cookie, no CSP loosening). Preferences (mode, lang) live in `localStorage` only.
+**Security.** Cloudflare Workers Static Assets with HSTS preload, DNSSEC, **strict `script-src` CSP** (`default-src 'self'; script-src 'self'`), no cookies, no **client-side** analytics (Cloudflare's server-side aggregation off edge logs is allowed — it has no beacon, no cookie, no CSP loosening). Preferences (mode, lang) live in `localStorage` only.
 
 `style-src` is `'self' 'unsafe-inline'` — a _deliberate_ loosening to permit Astro's `<ClientRouter />` view-transition runtime styles. The XSS attack surface (`script-src`) stays strict; CSS injection on a no-user-input static site is effectively nil (no auth to phish, `img-src 'self'` blocks the `background-image: url(evil.com)` exfil vector). Full reasoning in [`docs/decisions/0002-csp-style-src-unsafe-inline.md`](./decisions/0002-csp-style-src-unsafe-inline.md).
 

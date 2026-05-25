@@ -49,7 +49,7 @@ The `ROUTES` constant solves three problems at once: typed lookup for navigation
 **What we accept:**
 
 - **Adding a route is a four-step change**: (1) add to `ROUTES`, (2) create the page in `/en/`, (3) create the page in `/es/`, (4) write the content in both languages. If you forget any of these, CI catches it: the `findSiblingIn` test fails if a `translationKey` is published without its sibling.
-- **The ES route segment for `colofón` contains a non-ASCII character**. Cloudflare Pages serves it correctly, but some clients normalise (`/es/colofon` vs `/es/colofón`). Mitigated by a 301 in `public/_redirects` from the unaccented form.
+- **The ES route segment for `colofón` contains a non-ASCII character**. Cloudflare Workers Static Assets serves it correctly (clients that send the literal UTF-8 byte get 307-redirected to the percent-encoded canonical form, then 200). Some clients normalise (`/es/colofon` vs `/es/colofón`); mitigated by a 301 in `public/_redirects` from the unaccented form.
 - **No automatic locale fallback**. If the user requests `/es/essays/` and we only have `/en/essays/` content, they see the empty index page — not the English fallback. This is intentional per design system §2 ("Not bilingual in the half-measure sense"): either a page exists in both languages or the language toggle disables itself.
 
 **What we gain:**
