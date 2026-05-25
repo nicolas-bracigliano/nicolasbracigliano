@@ -371,6 +371,13 @@
     color: var(--mate);
     border-color: color-mix(in oklab, var(--mate) 30%, var(--rule));
   }
+  /* `.k-piece` is the kind-pill colour for `pieces` (long-form) entries
+     on the home "Latest entries" list. Unverified visually in P1 because
+     no pieces are published until PR P3 — the colour treatment will
+     first appear on the home page when the migration lands. If the
+     `--ink-blue` swatch reads poorly against the home palette under
+     real content, retune here (works/code use `--accent`, garden uses
+     `--mate` — those are the precedents). */
   .kind-pill.k-piece {
     color: var(--ink-blue);
     border-color: color-mix(in oklab, var(--ink-blue) 30%, var(--rule));

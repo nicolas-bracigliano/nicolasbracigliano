@@ -1,6 +1,5 @@
 {
   "$schema": "https://raw.githubusercontent.com/GoogleChrome/lighthouse-ci/main/packages/utils/src/lighthouserc-schema.json",
-  "_comment": "Per-URL budget carve-out (PR P1, ADR 0010-adjacent): `pieces` URLs (long-form content with bespoke SVG diagrams) get a relaxed total-size + image-size budget. All other routes keep the strict notes-density budget. See `assertMatrix` below — the first matching pattern wins. Strict budgets remain the default; pieces URLs match the second matrix entry. Updated when PR P3 lands content; before that the pieces indexes are empty but their budget structure is already in place so the relaxation is reviewable in isolation.",
   "ci": {
     "collect": {
       "staticDistDir": "./dist",

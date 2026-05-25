@@ -21,7 +21,6 @@ import type { Locale } from '@lib/routes';
 import { entryRouteFor } from '@lib/i18n';
 import { readingTimeMinutes } from '@lib/reading-time';
 import MarginNote from './MarginNote.astro';
-import NoteGlyph from './NoteGlyph.astro';
 
 export interface Props {
   entry: CollectionEntry<'pieces'>;
@@ -51,9 +50,16 @@ const readTimeLabel = locale === 'es' ? 'lectura' : 'read time';
 const minLabel = locale === 'es' ? 'min' : 'min';
 const permalinkLabel = locale === 'es' ? 'enlace' : 'link';
 
+// Heading level: pieces use `<h1>` on the standalone slug page (PieceLayout,
+// `isStandalone=true`) and `<h3>` on the index (mirroring NoteEntry's index
+// position). The slug page deserves a real H1 — chrome doesn't provide one
+// and the title IS the page's primary heading. Future follow-up: align
+// NoteEntry to the same pattern so /en/notes/<slug>/ also gets an H1.
+const TitleTag = isStandalone ? 'h1' : 'h3';
+
 // Pieces don't carry a per-entry glyph (the frontmatter `glyph` field is
 // notes-only — pieces are long enough that a glyph reads as visual noise).
-// The rail stays clean: date + tags only.
+// The .piece-left rail stays clean: date + tags only.
 ---
 
 <li class="piece">
@@ -68,13 +74,12 @@ const permalinkLabel = locale === 'es' ? 'enlace' : 'link';
         </div>
       )
     }
-    <NoteGlyph kind="none" />
   </div>
 
   <article class="piece-body">
-    <h3 class="piece-title">
+    <TitleTag class="piece-title">
       <a href={permalink} data-astro-prefetch>{title}</a>
-    </h3>
+    </TitleTag>
     {lede && <p class="piece-lede">{lede}</p>}
     <div class="piece-prose">
       <slot />
@@ -96,6 +101,11 @@ const permalinkLabel = locale === 'es' ? 'enlace' : 'link';
 
   <div class="piece-right">
     {
+      /* The `section` field is intentionally unread in P1. It will drive
+        PR P3's inline-interleave refinement (anchoring each margin note
+        next to its source heading on narrow viewports). For now the rail
+        renders the notes in array order — vertical position correlates
+        roughly with prose-section order because writers put them that way. */
       marginNotes.map((note, i) => (
         <MarginNote text={note.text} mark={note.mark ?? (isFirst && i === 0 ? '✸' : '↳')} />
       ))

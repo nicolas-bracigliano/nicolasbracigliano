@@ -54,4 +54,23 @@ describe('chrome navItems', () => {
     expect(en).toHaveLength(6);
     expect(es).toHaveLength(6);
   });
+
+  it('every ROUTES key appears in navItems (or is in the hidden allowlist)', () => {
+    // Forward-coverage: adding a new ROUTES key without also adding it to
+    // navItems (or the hidden allowlist below) should fail this test.
+    // Without this, a contributor adds a route, ships it, and finds it's
+    // unreachable from the chrome.
+    //
+    // Hidden routes are reachable by direct link but absent from the nav
+    // by design (design-system §5: "hidden routes make the nav shorter
+    // and reward the curious"). `now` is the canonical example — it's a
+    // child of /about and chrome navigation goes through /about.
+    const HIDDEN: ReadonlySet<NavKey> = new Set(['now']);
+
+    const navKeys = new Set(en.map((i) => i.key));
+    for (const key of Object.keys(ROUTES) as NavKey[]) {
+      if (HIDDEN.has(key)) continue;
+      expect(navKeys.has(key), `${key} is in ROUTES but not in navItems`).toBe(true);
+    }
+  });
 });

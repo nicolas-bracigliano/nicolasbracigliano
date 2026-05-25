@@ -114,6 +114,15 @@
     line-height: 1.12;
     margin: 0 0 0.625rem;
   }
+  /* On the standalone slug page (PieceLayout `pieces--single`) the title
+     becomes the page's `<h1>` — no masthead above it, so it carries the
+     full heading register, not the third-level register used on indexes. */
+  .pieces--single .piece-title {
+    font-size: clamp(2.25rem, 4.4vw, 3rem);
+    letter-spacing: -0.015em;
+    line-height: 1.08;
+    margin-block-end: 0.875rem;
+  }
   .piece-title a {
     color: var(--ink);
     text-decoration: none;

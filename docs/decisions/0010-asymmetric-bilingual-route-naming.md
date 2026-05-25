@@ -61,4 +61,8 @@ The remaining routes (`home`, `about`, `now`, `colophon`) ship symmetric pairs (
 
 ## When to revisit
 
-If we ever find ourselves with five or more asymmetric pairs out of ten routes, the doctrine should flip — at that point asymmetric IS the norm and mirrored becomes the exception worth flagging.
+If more than half of the routes in `ROUTES` end up asymmetric, the doctrine should flip — at that point asymmetric IS the norm and mirrored becomes the exception worth flagging. (The ratio matters, not the absolute count; the IA is allowed to grow or shrink.)
+
+## Related infrastructure
+
+PR P1 (the `essays` → `pieces` rename) also carved out a per-URL Lighthouse budget in `lighthouserc.json` for the pieces routes: 90 KB total / 30 KB images, vs. the strict 50 KB total / 200 KB images everywhere else. Pieces are long-form content with bespoke SVG diagrams (PR P2), so the strict notes-density budget doesn't fit. The carve-out lives in `assertMatrix` — the pieces URL pattern matches first and wins; everything else falls through to the strict default. Adding a new route family that needs its own budget should follow the same pattern (new `assertMatrix` entry above the catch-all).
