@@ -5,6 +5,7 @@ import '@styles/base.css';
 import '@styles/animations.css';
 import { ClientRouter } from 'astro:transitions';
 import { ROUTES, buildHreflangAlternates, type Locale } from '@lib/routes';
+import { getNavItems } from '@lib/chrome-nav';
 
 export interface Props {
   title: string;
@@ -35,22 +36,7 @@ const hreflangs = buildHreflangAlternates(origin, { locale, path }, siblingPath)
 
 const toggleDisabled = siblingPath === null;
 
-const navItems: Array<{ key: keyof typeof ROUTES; label: string }> =
-  locale === 'en'
-    ? [
-        { key: 'home', label: 'home' },
-        { key: 'notes', label: 'notes' },
-        { key: 'works', label: 'works' },
-        { key: 'about', label: 'about' },
-        { key: 'colophon', label: 'colophon' },
-      ]
-    : [
-        { key: 'home', label: 'inicio' },
-        { key: 'notes', label: 'notas' },
-        { key: 'works', label: 'obras' },
-        { key: 'about', label: 'sobre' },
-        { key: 'colophon', label: 'colofón' },
-      ];
+const navItems = getNavItems(locale);
 
 // Home needs exact match — every /en/* path startsWith /en/.
 function isActive(key: keyof typeof ROUTES, currentPath: string): boolean {

@@ -6,7 +6,7 @@ import PieceEntry from '@components/PieceEntry.astro';
 import { ROUTES } from '@lib/routes';
 
 const pieces = (
-  await getCollection('pieces', (e) => e.data.lang === 'es' && e.data.status === 'published')
+  await getCollection('pieces', (e) => e.data.lang === 'en' && e.data.status === 'published')
 ).sort((a, b) => +b.data.date - +a.data.date);
 
 const rendered = await Promise.all(
@@ -16,27 +16,27 @@ const rendered = await Promise.all(
   })),
 );
 
-const path = ROUTES.pieces.es;
-const siblingPath = ROUTES.pieces.en;
+const path = ROUTES.pieces.en;
+const siblingPath = ROUTES.pieces.es;
 ---
 
 <BaseLayout
-  title="Ensayos"
-  description="Entradas más largas. Cosas que querían más que un párrafo."
-  locale="es"
+  title="Pieces"
+  description="Longer entries. Things that wanted more than a paragraph."
+  locale="en"
   path={path}
   siblingPath={siblingPath}
 >
   <section class="pieces wrap">
-    <PiecesMasthead locale="es" />
+    <PiecesMasthead locale="en" />
 
     {
       rendered.length === 0 ? (
-        <p class="pieces-empty">Todavía no hay ensayos — el primero está en el banco.</p>
+        <p class="pieces-empty">No pieces yet — the first one is on the bench.</p>
       ) : (
         <ol class="pieces-list">
           {rendered.map(({ entry, Content }, i) => (
-            <PieceEntry entry={entry} locale="es" isFirst={i === 0}>
+            <PieceEntry entry={entry} locale="en" isFirst={i === 0}>
               <Content />
             </PieceEntry>
           ))}
@@ -47,7 +47,7 @@ const siblingPath = ROUTES.pieces.en;
     {
       rendered.length > 0 && (
         <footer class="pieces-foot">
-          <span class="eyebrow">↺ &nbsp;ensayos más viejos en el cajón</span>
+          <span class="eyebrow">↺ &nbsp;older pieces in the drawer</span>
         </footer>
       )
     }

@@ -1,0 +1,41 @@
+---
+import BaseLayout from './BaseLayout.astro';
+import PieceEntry from '@components/PieceEntry.astro';
+import type { CollectionEntry } from 'astro:content';
+import { ROUTES, type Locale } from '@lib/routes';
+import { ogImageUrlFor } from '@lib/i18n';
+
+export interface Props {
+  entry: CollectionEntry<'pieces'>;
+  path: string;
+  siblingPath: string | null;
+}
+
+const { entry, path, siblingPath } = Astro.props;
+const { title, lede, lang } = entry.data;
+const locale = lang as Locale;
+const indexHref = ROUTES.pieces[locale];
+const indexLabel = locale === 'es' ? '↩ todos los ensayos' : '↩ all pieces';
+const ogImage = ogImageUrlFor(entry);
+---
+
+<BaseLayout
+  title={title}
+  locale={locale}
+  path={path}
+  siblingPath={siblingPath}
+  ogImage={ogImage}
+  {...lede && { description: lede }}
+>
+  <section class="pieces wrap pieces--single">
+    <ol class="pieces-list">
+      <PieceEntry entry={entry} locale={locale} isFirst={true} isStandalone={true}>
+        <slot />
+      </PieceEntry>
+    </ol>
+
+    <footer class="pieces-foot">
+      <a class="back-link" href={indexHref} data-astro-prefetch>{indexLabel}</a>
+    </footer>
+  </section>
+</BaseLayout>

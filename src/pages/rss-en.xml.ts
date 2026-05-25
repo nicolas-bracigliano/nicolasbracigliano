@@ -7,22 +7,22 @@ export async function GET(context: APIContext) {
     'notes',
     (e) => e.data.lang === 'en' && e.data.status === 'published',
   );
-  const essays = await getCollection(
-    'essays',
+  const pieces = await getCollection(
+    'pieces',
     (e) => e.data.lang === 'en' && e.data.status === 'published',
   );
-  const items = [...notes, ...essays]
+  const items = [...notes, ...pieces]
     .sort((a, b) => +b.data.date - +a.data.date)
     .map((e) => ({
       title: e.data.title,
       pubDate: e.data.date,
       description: e.data.lede ?? '',
-      link: e.collection === 'notes' ? `/en/notes/${e.data.slug}/` : `/en/essays/${e.data.slug}/`,
+      link: e.collection === 'notes' ? `/en/notes/${e.data.slug}/` : `/en/pieces/${e.data.slug}/`,
     }));
 
   return rss({
-    title: 'Nicolas Bracigliano — notes & essays (EN)',
-    description: 'Notes and essays from a senior software engineer in Melbourne.',
+    title: 'Nicolas Bracigliano — notes & pieces (EN)',
+    description: 'Notes and pieces from a senior software engineer in Melbourne.',
     site: context.site ?? 'https://nicolasbracigliano.com',
     items,
     customData: '<language>en-au</language>',

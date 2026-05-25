@@ -39,7 +39,7 @@ predictable, not by being elaborate.
                               ▲
                               │ (content — the inputs)
 ┌───────────────────────────────────────────────────────────────────────┐
-│ src/content/{notes,works,essays,pages}/{en,es}/*.md                   │
+│ src/content/{notes,works,pieces,pages}/{en,es}/*.md                   │
 └───────────────────────────────────────────────────────────────────────┘
 ```
 

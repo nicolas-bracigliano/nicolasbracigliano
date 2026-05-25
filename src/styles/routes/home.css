@@ -371,7 +371,7 @@
     color: var(--mate);
     border-color: color-mix(in oklab, var(--mate) 30%, var(--rule));
   }
-  .kind-pill.k-essay {
+  .kind-pill.k-piece {
     color: var(--ink-blue);
     border-color: color-mix(in oklab, var(--ink-blue) 30%, var(--rule));
   }

@@ -14,7 +14,12 @@ describe('ROUTES', () => {
     expect(ROUTES.works.es).toBe('/es/obras/');
     expect(ROUTES.about.es).toBe('/es/sobre/');
     expect(ROUTES.colophon.es).toBe('/es/colofón/');
-    expect(ROUTES.essays.es).toBe('/es/ensayos/');
+    expect(ROUTES.pieces.es).toBe('/es/ensayos/');
+  });
+
+  it('records the asymmetric pieces/ensayos pair (ADR 0010)', () => {
+    expect(ROUTES.pieces.en).toBe('/en/pieces/');
+    expect(ROUTES.pieces.es).toBe('/es/ensayos/');
   });
 });
 

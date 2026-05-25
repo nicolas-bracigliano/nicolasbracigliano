@@ -1,5 +1,6 @@
 {
   "$schema": "https://raw.githubusercontent.com/GoogleChrome/lighthouse-ci/main/packages/utils/src/lighthouserc-schema.json",
+  "_comment": "Per-URL budget carve-out (PR P1, ADR 0010-adjacent): `pieces` URLs (long-form content with bespoke SVG diagrams) get a relaxed total-size + image-size budget. All other routes keep the strict notes-density budget. See `assertMatrix` below — the first matching pattern wins. Strict budgets remain the default; pieces URLs match the second matrix entry. Updated when PR P3 lands content; before that the pieces indexes are empty but their budget structure is already in place so the relaxation is reviewable in isolation.",
   "ci": {
     "collect": {
       "staticDistDir": "./dist",
@@ -8,7 +9,9 @@
         "http://localhost/en/notes/",
         "http://localhost/en/notes/hello/",
         "http://localhost/en/works/this-site/",
-        "http://localhost/es/notas/hola/"
+        "http://localhost/es/notas/hola/",
+        "http://localhost/en/pieces/",
+        "http://localhost/es/ensayos/"
       ],
       "numberOfRuns": 2,
       "settings": {
@@ -16,25 +19,52 @@
       }
     },
     "assert": {
-      "assertions": {
-        "categories:performance": ["error", { "minScore": 0.95 }],
-        "categories:accessibility": ["error", { "minScore": 0.95 }],
-        "categories:best-practices": ["error", { "minScore": 0.95 }],
-        "categories:seo": ["error", { "minScore": 0.95 }],
+      "assertMatrix": [
+        {
+          "matchingUrlPattern": "/(en/pieces|es/ensayos)(/|$)",
+          "assertions": {
+            "categories:performance": ["error", { "minScore": 0.95 }],
+            "categories:accessibility": ["error", { "minScore": 0.95 }],
+            "categories:best-practices": ["error", { "minScore": 0.95 }],
+            "categories:seo": ["error", { "minScore": 0.95 }],
 
-        "largest-contentful-paint": ["error", { "maxNumericValue": 2500 }],
-        "cumulative-layout-shift": ["error", { "maxNumericValue": 0.1 }],
-        "total-blocking-time": ["error", { "maxNumericValue": 200 }],
-        "first-contentful-paint": ["error", { "maxNumericValue": 1800 }],
+            "largest-contentful-paint": ["error", { "maxNumericValue": 2500 }],
+            "cumulative-layout-shift": ["error", { "maxNumericValue": 0.1 }],
+            "total-blocking-time": ["error", { "maxNumericValue": 200 }],
+            "first-contentful-paint": ["error", { "maxNumericValue": 1800 }],
 
-        "resource-summary:total:size": ["error", { "maxNumericValue": 50000 }],
-        "resource-summary:document:size": ["error", { "maxNumericValue": 20000 }],
-        "resource-summary:script:size": ["error", { "maxNumericValue": 14000 }],
-        "resource-summary:stylesheet:size": ["error", { "maxNumericValue": 30000 }],
-        "resource-summary:font:size": ["error", { "maxNumericValue": 120000 }],
-        "resource-summary:image:size": ["error", { "maxNumericValue": 200000 }],
-        "resource-summary:third-party:count": ["error", { "maxNumericValue": 0 }]
-      }
+            "resource-summary:total:size": ["error", { "maxNumericValue": 90000 }],
+            "resource-summary:document:size": ["error", { "maxNumericValue": 35000 }],
+            "resource-summary:script:size": ["error", { "maxNumericValue": 14000 }],
+            "resource-summary:stylesheet:size": ["error", { "maxNumericValue": 30000 }],
+            "resource-summary:font:size": ["error", { "maxNumericValue": 120000 }],
+            "resource-summary:image:size": ["error", { "maxNumericValue": 30000 }],
+            "resource-summary:third-party:count": ["error", { "maxNumericValue": 0 }]
+          }
+        },
+        {
+          "matchingUrlPattern": ".*",
+          "assertions": {
+            "categories:performance": ["error", { "minScore": 0.95 }],
+            "categories:accessibility": ["error", { "minScore": 0.95 }],
+            "categories:best-practices": ["error", { "minScore": 0.95 }],
+            "categories:seo": ["error", { "minScore": 0.95 }],
+
+            "largest-contentful-paint": ["error", { "maxNumericValue": 2500 }],
+            "cumulative-layout-shift": ["error", { "maxNumericValue": 0.1 }],
+            "total-blocking-time": ["error", { "maxNumericValue": 200 }],
+            "first-contentful-paint": ["error", { "maxNumericValue": 1800 }],
+
+            "resource-summary:total:size": ["error", { "maxNumericValue": 50000 }],
+            "resource-summary:document:size": ["error", { "maxNumericValue": 20000 }],
+            "resource-summary:script:size": ["error", { "maxNumericValue": 14000 }],
+            "resource-summary:stylesheet:size": ["error", { "maxNumericValue": 30000 }],
+            "resource-summary:font:size": ["error", { "maxNumericValue": 120000 }],
+            "resource-summary:image:size": ["error", { "maxNumericValue": 200000 }],
+            "resource-summary:third-party:count": ["error", { "maxNumericValue": 0 }]
+          }
+        }
+      ]
     },
     "upload": {
       "target": "filesystem",

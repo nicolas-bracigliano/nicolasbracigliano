@@ -24,11 +24,6 @@ const EXCLUDED: ReadonlySet<string> = new Set([
   // failed redirect, not a missing route.
   '/en/about/now/',
   '/es/sobre/ahora/',
-  // Essays content collection is empty. The route file exists
-  // (renders an empty index), but smoking it doesn't validate any
-  // real content.
-  '/en/essays/',
-  '/es/ensayos/',
 ]);
 
 const WORKFLOW_PATH = join(__dirname, '..', '..', '.github', 'workflows', 'ci.yml');

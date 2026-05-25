@@ -5,12 +5,13 @@
    cascade layer is declared once above and merged across all
    imports. Selectors do not overlap between routes (audited
    empirically), so import order has no effect on cascade.
-   `essays.css` loads first because its single placeholder rule
-   was historically the first inside `@layer routes`; keeping it
-   there means the emitted bundle stays byte-identical to the
-   pre-split build. The rest follow visual hierarchy of the
-   site (home → notes → colophon → works → about → now → 404). */
-@import url('./routes/essays.css');
+   `pieces.css` (formerly `essays.css` — see ADR 0010) loads first
+   because its placeholder rule was historically the first inside
+   `@layer routes`; keeping it there means the emitted bundle stays
+   byte-identical to the pre-split build. The rest follow visual
+   hierarchy of the site (home → notes → colophon → works → about
+   → now → 404). */
+@import url('./routes/pieces.css');
 @import url('./routes/home.css');
 @import url('./routes/notes.css');
 @import url('./routes/colophon.css');
@@ -176,7 +177,7 @@
   /* ─── Top nav (desktop) ───────────────────────────────────────────── */
   .nav ul {
     display: flex;
-    gap: 1.25rem;
+    gap: 1.125rem;
     justify-content: center;
     padding: 0;
     list-style: none;
@@ -193,14 +194,22 @@
     margin-inline-end: 2px;
   }
   /* Drop the slash prefix on narrower viewports — between the 720 px
-     breakpoint (where the top nav hides entirely in favour of the
-     foot-rail) and ~940 px the chrome is already tight, and the slash
-     row reads as visual noise once the nav, language toggle, theme
-     toggle, and mark have to share one cramped header row. The labels
-     stay; only the decoration drops. */
-  @media (max-width: 940px) {
+    breakpoint (where the top nav hides entirely in favour of the
+    foot-rail) and ~1030 px the chrome is already tight, and the slash
+    row reads as visual noise once the nav (now 6 items after the
+    /pieces addition — see ADR 0010), language toggle, theme toggle,
+    and mark have to share one cramped header row. The labels stay;
+    only the decoration drops. */
+  @media (max-width: 1030px) {
     .nav a::before {
       content: none;
+    }
+  }
+  /* Below 880 px, tighten the gap further so 6 unslashed items still
+     fit between the mark and chrome-end. */
+  @media (max-width: 880px) {
+    .nav ul {
+      gap: 0.875rem;
     }
   }
   .nav a[aria-current='page'],
@@ -431,6 +440,17 @@
       text-transform: lowercase;
       font-size: 0.85rem;
       position: relative;
+    }
+    /* Very narrow viewports (≤ 380 px): 6 items × ~60 px ≈ 360 px,
+       so labels like "colofón" / "ensayos" may visually tighten.
+       Shrink the font half a step and tighten padding to keep each
+       label readable without truncation. Falls back gracefully on
+       slightly-wider screens via the cascade. */
+    @media (max-width: 380px) {
+      .foot-rail a {
+        font-size: 0.75rem;
+        padding: 0 0.125rem;
+      }
     }
     .foot-rail a[aria-current='page'] {
       color: var(--accent-aa);

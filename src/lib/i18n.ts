@@ -8,7 +8,7 @@ import { ROUTES, otherLocale, PAGE_SLUGS, type Locale, type PageSlug } from './r
 export type AnyEntry =
   | CollectionEntry<'notes'>
   | CollectionEntry<'works'>
-  | CollectionEntry<'essays'>
+  | CollectionEntry<'pieces'>
   | CollectionEntry<'pages'>;
 
 // Runtime guard around `PAGE_SLUGS` (the source of truth in `routes.ts`).

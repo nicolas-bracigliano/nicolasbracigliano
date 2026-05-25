@@ -10,10 +10,10 @@
 import type { CollectionEntry } from 'astro:content';
 import { entryRouteFor } from '@lib/i18n';
 
-export type LatestKind = 'note' | 'work' | 'essay';
+export type LatestKind = 'note' | 'work' | 'piece';
 
 export type LatestItem = {
-  entry: CollectionEntry<'notes'> | CollectionEntry<'works'> | CollectionEntry<'essays'>;
+  entry: CollectionEntry<'notes'> | CollectionEntry<'works'> | CollectionEntry<'pieces'>;
   kind: LatestKind;
 };
 
