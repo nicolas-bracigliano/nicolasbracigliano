@@ -361,10 +361,12 @@ jobs:
           check /es/         200 || exit 1
           check /en/notes/   200 || exit 1
           check /en/works/   200 || exit 1
+          check /en/pieces/  200 || exit 1
           check /en/about/   200 || exit 1
           check /en/colophon/ 200 || exit 1
           check /es/notas/   200 || exit 1
           check /es/obras/   200 || exit 1
+          check /es/ensayos/ 200 || exit 1
           check /es/sobre/   200 || exit 1
           # `colofón` in percent-encoded form — curl sends the literal
           # UTF-8 byte for `ó`, and Cloudflare normalizes that to the
@@ -377,7 +379,7 @@ jobs:
           # HTTP 404. Confirms `not_found_handling = "404-page"` is
           # honoured at the Workers Static Assets layer.
           check /this-path-does-not-exist-12345/ 404 || exit 1
-          echo "Smoke test passed (12 routes)"
+          echo "Smoke test passed (14 routes)"
 
           # Body content sanity: status codes alone don't catch a
           # broken Astro build that produces empty HTML. Fetch

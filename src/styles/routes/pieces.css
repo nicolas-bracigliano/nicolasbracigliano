@@ -1,0 +1,264 @@
+@layer routes {
+  /* ─── Pieces: Long-form sibling of /notes (design system §3, §17) ──
+     Same marginalia 3-column grid as `/notes`, but the centre column
+     widens to 78ch (notes are 68ch — pieces breathe more) and the right
+     rail supports N margin notes via the `marginNotes` frontmatter
+     array (notes only carry one via `aside`).
+
+     Margin notes here are NON-sticky. Notes have a single sticky aside
+     that stays visible while the reader scrolls a short prose column;
+     pieces have N margin notes, and stacking them with sticky offsets
+     overlaps quickly. Source-order alignment with prose sections does
+     the work — each margin note's vertical position roughly tracks its
+     anchor section because Astro renders the rail's children in array
+     order alongside the prose.
+
+     Mobile (≤ 880 px): the right rail does NOT hide (it would erase
+     half the marginalia's point). Instead the rail moves below the
+     prose, where the margin notes flow as a stack of asides. PR P3
+     will validate whether inline-interleaving (each note next to its
+     `section` anchor in the prose) reads better with real content. */
+
+  .pieces.wrap {
+    max-width: 1180px;
+    margin-inline: auto;
+    padding-inline: var(--gutter);
+  }
+
+  .pieces-head {
+    padding-block-start: clamp(2.5rem, 6vw, 5rem);
+    margin-block-end: 3rem;
+    max-width: 720px;
+  }
+  .pieces-h1 {
+    font-family: var(--font-display);
+    font-weight: 400;
+    font-size: clamp(2.5rem, 5.6vw, 4.75rem);
+    line-height: 1.04;
+    letter-spacing: -0.02em;
+    margin: 0.75rem 0 1rem;
+  }
+  .pieces-sub {
+    font-size: 0.875rem;
+    color: var(--ink-2);
+    max-width: 50ch;
+    line-height: 1.6;
+  }
+
+  /* Empty-state — rendered until the first piece lands (PR P3). The
+     workshop "bench" vocabulary picks up from the home masthead's
+     bench cards and `/about/now`'s bench tour. */
+  .pieces-empty {
+    font-family: var(--font-display);
+    font-style: italic;
+    font-size: 1.0625rem;
+    color: var(--ink-2);
+    max-width: 50ch;
+    line-height: 1.6;
+    margin-block-start: 1rem;
+  }
+
+  .pieces-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .piece {
+    display: grid;
+    grid-template-columns: 180px minmax(0, 1fr) 240px;
+    gap: 2.5rem;
+    padding-block: 3rem;
+    border-block-start: 1px solid var(--rule);
+    position: relative;
+  }
+  .piece:first-child {
+    border-block-start: 0;
+    padding-block-start: 0;
+  }
+
+  .piece-left {
+    text-align: end;
+    font-size: 0.6875rem;
+    color: var(--ink-3);
+  }
+  .piece-date {
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.04em;
+    white-space: nowrap;
+  }
+  .piece-tags {
+    margin-block-start: 0.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.125rem;
+    align-items: flex-end;
+  }
+  .piece-tag {
+    font-size: 0.625rem;
+    letter-spacing: 0.06em;
+  }
+
+  .piece-body {
+    /* `min-inline-size: 0` lets the column shrink below its min-content
+       so long unbreakable strings don't blow out the grid. Wider than
+       notes' 68ch — pieces are long enough to want the extra measure. */
+    max-width: 78ch;
+    min-inline-size: 0;
+  }
+  .piece-title {
+    font-family: var(--font-display);
+    font-weight: 400;
+    font-size: 2rem;
+    letter-spacing: -0.01em;
+    line-height: 1.12;
+    margin: 0 0 0.625rem;
+  }
+  /* On the standalone slug page (PieceLayout `pieces--single`) the title
+     becomes the page's `<h1>` — no masthead above it, so it carries the
+     full heading register, not the third-level register used on indexes. */
+  .pieces--single .piece-title {
+    font-size: clamp(2.25rem, 4.4vw, 3rem);
+    letter-spacing: -0.015em;
+    line-height: 1.08;
+    margin-block-end: 0.875rem;
+  }
+  .piece-title a {
+    color: var(--ink);
+    text-decoration: none;
+    border: 0;
+    transition: color var(--speed-micro);
+  }
+  .piece-title a:hover,
+  .piece-title a:focus-visible {
+    color: var(--accent-aa);
+  }
+  .piece-lede {
+    font-family: var(--font-display);
+    font-style: italic;
+    font-size: 1.125rem;
+    color: var(--ink-2);
+    margin: 0 0 1.25rem;
+    line-height: 1.5;
+  }
+  .piece-prose p {
+    font-size: 0.9375rem;
+    line-height: 1.75;
+    color: var(--ink);
+    margin: 0 0 1rem;
+    text-wrap: pretty;
+  }
+  .piece-prose h2 {
+    font-family: var(--font-display);
+    font-weight: 400;
+    font-size: 1.5rem;
+    line-height: 1.25;
+    margin: 2rem 0 0.75rem;
+    letter-spacing: -0.005em;
+  }
+  .piece-prose h3 {
+    font-family: var(--font-display);
+    font-weight: 400;
+    font-style: italic;
+    font-size: 1.1875rem;
+    margin: 1.5rem 0 0.5rem;
+  }
+  .piece-prose ul,
+  .piece-prose ol {
+    padding-inline-start: 1.25rem;
+    margin: 0 0 1rem;
+  }
+  .piece-prose li {
+    font-size: 0.9375rem;
+    line-height: 1.75;
+    margin-block-end: 0.375rem;
+    text-wrap: pretty;
+  }
+  .piece-prose blockquote {
+    margin: 1.25rem 0;
+    padding-inline-start: 1rem;
+    border-inline-start: 2px solid var(--accent-aa);
+    color: var(--ink-2);
+    font-style: italic;
+  }
+  /* `---` in markdown → ornament divider (same vocabulary as notes). */
+  .piece-prose hr {
+    border: 0;
+    margin: 2rem auto;
+    height: 0.75rem;
+    width: 5rem;
+    background-image: radial-gradient(circle, var(--accent-aa) 1.5px, transparent 1.8px);
+    background-size: 1rem 0.75rem;
+    background-repeat: repeat-x;
+    opacity: 0.7;
+  }
+  .piece-foot {
+    margin-block-start: 1rem;
+    font-size: 0.6875rem;
+    letter-spacing: 0.06em;
+    color: var(--ink-3);
+    display: flex;
+    gap: 0.625rem;
+    align-items: center;
+  }
+  .piece-foot a {
+    color: var(--ink-2);
+    border: 0;
+    text-decoration: none;
+    transition: color var(--speed-micro);
+  }
+  .piece-foot a:hover,
+  .piece-foot a:focus-visible {
+    color: var(--accent-aa);
+    text-decoration: underline;
+  }
+
+  .piece-right {
+    /* N margin notes stack vertically; gap separates them. No sticky
+       — see file header. Each note's vertical position aligns roughly
+       with its anchor section via source order. */
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  .pieces-foot {
+    text-align: center;
+    margin-block-start: 4rem;
+    color: var(--ink-3);
+    font-size: 0.75rem;
+  }
+  .pieces-foot .back-link {
+    color: var(--ink-2);
+    border: 0;
+    text-decoration: none;
+    letter-spacing: 0.04em;
+    transition: color var(--speed-micro);
+  }
+  .pieces-foot .back-link:hover,
+  .pieces-foot .back-link:focus-visible {
+    color: var(--accent-aa);
+  }
+
+  .pieces--single .pieces-list {
+    padding-block-start: clamp(2.5rem, 6vw, 5rem);
+  }
+
+  @media (max-width: 880px) {
+    .piece {
+      grid-template-columns: 7rem 1fr;
+      gap: 1.125rem;
+    }
+    /* Move the right rail below the prose by spanning both columns —
+       margin notes stay visible (unlike notes.css which hides them).
+       PR P3 may refine this to inline-interleaving once real content
+       lands; for now the foot-stack is a defensible default. */
+    .piece-right {
+      grid-column: 1 / -1;
+      margin-block-start: 0.5rem;
+    }
+    .piece-date {
+      letter-spacing: 0.02em;
+    }
+  }
+}

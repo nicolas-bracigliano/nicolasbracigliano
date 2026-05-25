@@ -21,7 +21,12 @@ export const ROUTES = {
   about: { en: '/en/about/', es: '/es/sobre/' },
   now: { en: '/en/about/now/', es: '/es/sobre/ahora/' },
   colophon: { en: '/en/colophon/', es: '/es/colofón/' },
-  essays: { en: '/en/essays/', es: '/es/ensayos/' },
+  // `pieces` (EN) · `ensayos` (ES) — asymmetric per ADR 0010.
+  // ES `ensayo` keeps the older meaning (an attempt, a rehearsal) which
+  // is on-brand for §6 ("admit uncertainty over polish"); EN `essay`
+  // accreted school/thought-leadership baggage that fights the spirit
+  // of the site. `pieces` returns the craft register alongside `works`.
+  pieces: { en: '/en/pieces/', es: '/es/ensayos/' },
 } as const;
 
 /** The slugs that live in the `pages` content collection.
@@ -31,8 +36,8 @@ export const ROUTES = {
  *   - `tests/unit/page-slugs.test.ts` (drift detection against
  *     the actual `src/content/pages/{en,es}/*.md` files)
  *
- *  Adding a new page (e.g. when `/essays` gets its real
- *  treatment): append the slug here, add a matching variant in
+ *  Adding a new page (e.g. when `/pieces` gets its own pages-collection
+ *  entry): append the slug here, add a matching variant in
  *  `content.config.ts`, and add the markdown files in
  *  `src/content/pages/{en,es}/`. The drift test fails until all
  *  three are in sync. */

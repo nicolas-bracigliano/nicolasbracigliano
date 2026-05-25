@@ -76,17 +76,17 @@ Each principle is paired with a concrete test. If you can't pass the test, you'v
 
 Bilingual URL pattern: `/es/...` and `/en/...` mirror each other. The language toggle persists choice in `localStorage`. Missing translations show the available language with a small note linking to it. Do **not** auto-translate or hide the toggle.
 
-| Route (ES / EN)               | Purpose                                         | Status        |
-| ----------------------------- | ----------------------------------------------- | ------------- |
-| `/`                           | Identity-first home: bio, bench, latest entries | shipping      |
-| `/notas` · `/notes`           | Short notes, TILs, micro-posts                  | shipping      |
-| `/obras` · `/works`           | Projects — digital and physical                 | shipping      |
-| `/sobre` · `/about`           | Fuller bio, contact                             | shipping      |
-| `/sobre/ahora` · `/about/now` | Current focus ("now" page)                      | shipping      |
-| `/colofón` · `/colophon`      | Stack, fonts, hosting, workflow, principles     | shipping      |
-| `/404`                        | Page not found                                  | shipping      |
-| `/ensayos` · `/essays`        | Long-form essays                                | **[planned]** |
-| `/rss.xml`                    | RSS feed (per-language variant)                 | **[planned]** |
+| Route (ES / EN)               | Purpose                                         | Status           |
+| ----------------------------- | ----------------------------------------------- | ---------------- |
+| `/`                           | Identity-first home: bio, bench, latest entries | shipping         |
+| `/notas` · `/notes`           | Short notes, TILs, micro-posts                  | shipping         |
+| `/obras` · `/works`           | Projects — digital and physical                 | shipping         |
+| `/sobre` · `/about`           | Fuller bio, contact                             | shipping         |
+| `/sobre/ahora` · `/about/now` | Current focus ("now" page)                      | shipping         |
+| `/colofón` · `/colophon`      | Stack, fonts, hosting, workflow, principles     | shipping         |
+| `/404`                        | Page not found                                  | shipping         |
+| `/ensayos` · `/pieces`        | Long-form pieces (per ADR 0010)                 | shipping (empty) |
+| `/rss.xml`                    | RSS feed (per-language variant)                 | **[planned]**    |
 
 Hidden routes are reachable by direct link but absent from the nav. They make the nav shorter and reward the curious. `/now` is one of these.
 
@@ -144,7 +144,7 @@ This is the bridge between _system_ and _daily use_.
    aside: '(optional) one line for the right margin'
    ```
 3. **Body.** Write in markdown. The first paragraph is the most important. Use the `rule` keyword on its own line to insert the dotted ornament when a real section break is earned. Avoid the temptation to add subheadings — notes are short enough to live without them.
-4. **Status check.** Before publishing, read aloud. If you can't say it conversationally, it's still an essay. Wait, or move it to `/essays`.
+4. **Status check.** Before publishing, read aloud. If you can't say it conversationally, it's still an essay. Wait, or move it to `/pieces` · `/ensayos`.
 5. **No previewing in production.** Notes get pushed when they are _almost_ right. Polish happens after they exist in public.
 6. **Don't backfill.** Don't date a note earlier than today. The dated stream is a story, not a portfolio.
 
@@ -267,7 +267,7 @@ The site has known tells. Document them so they don't repeat.
 2. **Over-symmetry.** Four cards, four crafts, four colors, four sections. Real life is asymmetric. If you find yourself rounding a count up to four for aesthetic reasons, leave three.
 3. **Looping vignettes.** Animate on mount, then rest. Continuous loops read as nervous, not alive.
 4. **Round-number self-claims.** "Twenty years of experience" reads as posture, not fact. Say _"since 2006,"_ or say nothing.
-5. **Polished notes.** A note that reads like a finished essay has betrayed its category. Move it to `/essays` (when that exists) or roughen it.
+5. **Polished notes.** A note that reads like a finished essay has betrayed its category. Move it to `/pieces` · `/ensayos` or roughen it.
 6. **Decorative SVG everywhere.** Two illustrations per page max. If a third tries to enter, choose between them.
 7. **Quotable closing lines.** Every section ending with a quotable summary reads as LLM-generated. Let some sections end un-resolved.
 8. **Performative completeness.** Listing every keyboard, every espresso machine, every guitar by exact model in the colofón. Pick one or two. Restraint is the brand.
@@ -285,7 +285,7 @@ The prototype loads dependencies from CDNs and uses Babel-in-browser; production
 ## 17 · Open questions
 
 1. **Real avatar.** Pick a direction from `AVATAR-OPTIONS.md` and commission or draw.
-2. **Real essays.** `/essays` is in the IA but has no content yet. Same notebook treatment as `/notes`, longer.
+2. **Real pieces.** `/pieces` · `/ensayos` ships with the route shell (PR P1) but no content yet. Same notebook treatment as `/notes`, longer; multiple `<MarginNote>` instances down the right rail. Content lands in PR P3 (legacy WordPress migration with tone rewrites).
 3. **Real copy.** Most body copy on Home, About, Notes, Now, and Colofón is currently invented. Replace with material Nicolas actually wrote.
 4. **Search UI.** Pagefind index is built (`postbuild` produces `dist/_pagefind/`); UI not yet wired into the layouts. Drop in a small `.astro` component on `/notes`.
 5. **Print stylesheet.** Notes and essays should print like typed letters. Dedicated `@media print` pass.

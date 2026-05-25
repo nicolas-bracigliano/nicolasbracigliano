@@ -50,4 +50,45 @@ test.describe('mobile foot-rail', () => {
     await expect(home).toHaveCount(1);
     await expect(home).toContainText('home');
   });
+
+  test('foot-rail shows all 6 nav items (PR P1 / ADR 0010)', async ({ page }) => {
+    await page.goto('/en/');
+    const items = page.locator('.foot-rail li');
+    await expect(items).toHaveCount(6);
+    const labels = await items.allInnerTexts();
+    expect(labels).toEqual(['home', 'notes', 'works', 'pieces', 'about', 'colophon']);
+  });
+
+  test('foot-rail labels localize on /es', async ({ page }) => {
+    await page.goto('/es/');
+    const items = page.locator('.foot-rail li');
+    await expect(items).toHaveCount(6);
+    const labels = await items.allInnerTexts();
+    expect(labels).toEqual(['inicio', 'notas', 'obras', 'ensayos', 'sobre', 'colofón']);
+  });
+
+  test('foot-rail labels fit without truncation on a 360 px viewport', async ({ page }) => {
+    await page.setViewportSize({ width: 360, height: 740 });
+    await page.goto('/es/');
+    // The longest ES label is "colofón" (7 chars + diacritic). At 360 px
+    // with 6 items, each gets ~60 px. The 380 px-and-below media query
+    // shrinks the font and tightens padding so labels still fit. Verify
+    // none of the anchor boxes are wider than its <li> parent (i.e. no
+    // overflow forcing horizontal scroll).
+    const items = page.locator('.foot-rail li');
+    const count = await items.count();
+    expect(count).toBe(6);
+    for (let i = 0; i < count; i++) {
+      const li = items.nth(i);
+      const liBox = await li.boundingBox();
+      const a = li.locator('a');
+      const aBox = await a.boundingBox();
+      expect(liBox, 'li box').not.toBeNull();
+      expect(aBox, 'a box').not.toBeNull();
+      if (!liBox || !aBox) continue;
+      expect(aBox.width, `label ${i} should fit in its <li>`).toBeLessThanOrEqual(
+        liBox.width + 0.5,
+      );
+    }
+  });
 });

@@ -7,11 +7,11 @@ export async function GET(context: APIContext) {
     'notes',
     (e) => e.data.lang === 'es' && e.data.status === 'published',
   );
-  const essays = await getCollection(
-    'essays',
+  const pieces = await getCollection(
+    'pieces',
     (e) => e.data.lang === 'es' && e.data.status === 'published',
   );
-  const items = [...notes, ...essays]
+  const items = [...notes, ...pieces]
     .sort((a, b) => +b.data.date - +a.data.date)
     .map((e) => ({
       title: e.data.title,

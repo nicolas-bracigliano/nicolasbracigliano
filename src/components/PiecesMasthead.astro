@@ -1,0 +1,29 @@
+---
+import type { Locale } from '@lib/routes';
+
+export interface Props {
+  locale: Locale;
+}
+const { locale } = Astro.props;
+
+const copy = {
+  en: {
+    eyebrow: 'Pieces',
+    h1: 'When a note won’t hold.',
+    sub: 'Longer entries: a thought I worked on long enough to redraw, an idea that wanted more than a paragraph.',
+  },
+  es: {
+    eyebrow: 'Ensayos',
+    h1: 'Cuando una nota no alcanza.',
+    sub: 'Entradas más largas: una idea que trabajé lo suficiente para volver a dibujarla, un pensamiento que quería más que un párrafo.',
+  },
+} as const;
+
+const t = copy[locale];
+---
+
+<header class="pieces-head">
+  <span class="eyebrow eyebrow--rule">{t.eyebrow}</span>
+  <h1 class="pieces-h1 serif-italic">{t.h1}</h1>
+  <p class="pieces-sub">{t.sub}</p>
+</header>

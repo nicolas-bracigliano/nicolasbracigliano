@@ -14,7 +14,7 @@ const FONT_PATH = resolve(process.cwd(), 'public/fonts/og-newsreader.ttf');
 
 export async function getStaticPaths() {
   const grouped = await Promise.all(
-    (['notes', 'works', 'essays'] as const).map(async (name) =>
+    (['notes', 'works', 'pieces'] as const).map(async (name) =>
       (await getCollection(name)).map((entry) => ({ collection: name, entry })),
     ),
   );
@@ -30,7 +30,7 @@ type Props = InferGetStaticPropsType<typeof getStaticPaths>;
 
 export const GET: APIRoute<Props> = async ({ props }) => {
   const { entry, collection } = props;
-  const kind = collection === 'notes' ? 'note' : collection === 'works' ? 'work' : 'essay';
+  const kind = collection === 'notes' ? 'note' : collection === 'works' ? 'work' : 'piece';
 
   if (existsSync(FONT_PATH)) {
     try {

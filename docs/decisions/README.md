@@ -17,6 +17,7 @@ When in doubt about whether a decision rates an ADR, ask: **would I want to know
 | [0007](./0007-tsconfig-strictness-flipped.md)         | Accepted            | Tighten TypeScript strictness flags (post-bootstrap)             |
 | [0008](./0008-externalize-hoisted-scripts-for-csp.md) | Accepted            | Externalize every hoisted `<script>` so production CSP allows it |
 | [0009](./0009-github-actions-sha-pinning.md)          | Accepted            | Pin every GitHub Action to an immutable SHA                      |
+| [0010](./0010-asymmetric-bilingual-route-naming.md)   | Accepted            | EN/ES route slugs may diverge (refines ADR 0003)                 |
 
 ## ADR format
 

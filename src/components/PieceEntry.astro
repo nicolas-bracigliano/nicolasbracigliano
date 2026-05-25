@@ -1,0 +1,114 @@
+---
+// PieceEntry — long-form sibling of NoteEntry. Same 3-column grid
+// (date/tags/glyph rail · prose · margin notes), but the centre column
+// widens to 78ch and the right rail supports N margin notes via the
+// `marginNotes` frontmatter array (notes only get one via `aside`).
+//
+// Margin-note semantic: each note is a `<div class="margin-note">`,
+// NOT `<aside>`. PR #6 hit html-validate's `unique-landmark` rule when
+// notes used `<aside>` (every `<aside>` is a landmark; multiple siblings
+// break uniqueness). Pieces have N>1 margin notes by design, so the
+// `<div>` discipline is even more binding here than for notes.
+//
+// Mobile fallback (≤ 880 px): the right rail collapses below the prose
+// per `pieces.css`. The current PR P1 implementation stacks margin
+// notes at the foot of the prose column. PR P3 will validate whether
+// inline-interleaving (each note adjacent to its `section` anchor)
+// reads better with real long-form content; the `section` field in
+// the frontmatter is the hook for that future refinement.
+import type { CollectionEntry } from 'astro:content';
+import type { Locale } from '@lib/routes';
+import { entryRouteFor } from '@lib/i18n';
+import { readingTimeMinutes } from '@lib/reading-time';
+import MarginNote from './MarginNote.astro';
+
+export interface Props {
+  entry: CollectionEntry<'pieces'>;
+  locale: Locale;
+  /** If true, this is the first piece in a list — gets a star margin-mark
+   *  on the first margin note instead of the arrow. Mirrors NoteEntry. */
+  isFirst?: boolean;
+  /** Single-entry page (PieceLayout) vs index-list context. When true,
+   *  the foot's permalink is suppressed. */
+  isStandalone?: boolean;
+}
+
+const { entry, locale, isFirst = false, isStandalone = false } = Astro.props;
+const { date, tags, title, lede, marginNotes, minutes: minutesOverride } = entry.data;
+const permalink = entryRouteFor(entry);
+const minutes = minutesOverride ?? (entry.body ? readingTimeMinutes(entry.body) : null);
+
+const dateFormatter = new Intl.DateTimeFormat(locale === 'es' ? 'es-AR' : 'en-AU', {
+  year: 'numeric',
+  month: '2-digit',
+  day: '2-digit',
+});
+const dateParts = dateFormatter.formatToParts(date).filter((p) => p.type !== 'literal');
+const dateDisplay = `${dateParts.find((p) => p.type === 'year')?.value} · ${dateParts.find((p) => p.type === 'month')?.value} · ${dateParts.find((p) => p.type === 'day')?.value}`;
+
+const readTimeLabel = locale === 'es' ? 'lectura' : 'read time';
+const minLabel = locale === 'es' ? 'min' : 'min';
+const permalinkLabel = locale === 'es' ? 'enlace' : 'link';
+
+// Heading level: pieces use `<h1>` on the standalone slug page (PieceLayout,
+// `isStandalone=true`) and `<h3>` on the index (mirroring NoteEntry's index
+// position). The slug page deserves a real H1 — chrome doesn't provide one
+// and the title IS the page's primary heading. Future follow-up: align
+// NoteEntry to the same pattern so /en/notes/<slug>/ also gets an H1.
+const TitleTag = isStandalone ? 'h1' : 'h3';
+
+// Pieces don't carry a per-entry glyph (the frontmatter `glyph` field is
+// notes-only — pieces are long enough that a glyph reads as visual noise).
+// The .piece-left rail stays clean: date + tags only.
+---
+
+<li class="piece">
+  <div class="piece-left">
+    <div class="piece-date">{dateDisplay}</div>
+    {
+      tags && tags.length > 0 && (
+        <div class="piece-tags">
+          {tags.map((t) => (
+            <span class="piece-tag">#{t}</span>
+          ))}
+        </div>
+      )
+    }
+  </div>
+
+  <article class="piece-body">
+    <TitleTag class="piece-title">
+      <a href={permalink} data-astro-prefetch>{title}</a>
+    </TitleTag>
+    {lede && <p class="piece-lede">{lede}</p>}
+    <div class="piece-prose">
+      <slot />
+    </div>
+    {
+      (minutes !== null || !isStandalone) && (
+        <div class="piece-foot">
+          {minutes !== null && (
+            <span>
+              {readTimeLabel} · {minutes} {minLabel}
+            </span>
+          )}
+          {minutes !== null && !isStandalone && <span class="sep">·</span>}
+          {!isStandalone && <a href={permalink}>{permalinkLabel}</a>}
+        </div>
+      )
+    }
+  </article>
+
+  <div class="piece-right">
+    {
+      /* The `section` field is intentionally unread in P1. It will drive
+        PR P3's inline-interleave refinement (anchoring each margin note
+        next to its source heading on narrow viewports). For now the rail
+        renders the notes in array order — vertical position correlates
+        roughly with prose-section order because writers put them that way. */
+      marginNotes.map((note, i) => (
+        <MarginNote text={note.text} mark={note.mark ?? (isFirst && i === 0 ? '✸' : '↳')} />
+      ))
+    }
+  </div>
+</li>

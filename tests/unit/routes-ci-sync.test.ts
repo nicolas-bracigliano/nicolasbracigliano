@@ -24,11 +24,6 @@ const EXCLUDED: ReadonlySet<string> = new Set([
   // failed redirect, not a missing route.
   '/en/about/now/',
   '/es/sobre/ahora/',
-  // Essays content collection is empty. The route file exists
-  // (renders an empty index), but smoking it doesn't validate any
-  // real content.
-  '/en/essays/',
-  '/es/ensayos/',
 ]);
 
 const WORKFLOW_PATH = join(__dirname, '..', '..', '.github', 'workflows', 'ci.yml');
@@ -77,5 +72,23 @@ describe('ROUTES ↔ ci.yml smoke list', () => {
     // stops matching, this test fails fast instead of the
     // outer assertion silently asserting on an empty set.
     expect(smokePaths().size).toBeGreaterThan(0);
+  });
+
+  it('every EXCLUDED path is a real ROUTES path (no stale or typoed entries)', () => {
+    // Lock the EXCLUDED set to actual routes — catches typos like
+    // `/en/about/now` (missing trailing slash) and stale exclusions
+    // for routes that have since been deleted. EXCLUDED is meant for
+    // routes that exist but legitimately don't need smoking; it's not
+    // a catch-all for "things we don't want to assert on."
+    const allRoutePaths = new Set<string>();
+    for (const pair of Object.values(ROUTES)) {
+      allRoutePaths.add(pair.en);
+      allRoutePaths.add(pair.es);
+    }
+    for (const excluded of EXCLUDED) {
+      expect(allRoutePaths.has(excluded), `${excluded} is in EXCLUDED but not in ROUTES`).toBe(
+        true,
+      );
+    }
   });
 });

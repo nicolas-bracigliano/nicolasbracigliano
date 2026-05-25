@@ -8,7 +8,7 @@ export interface OgProps {
    *  see BaseLayout's `description` prop for the same pattern. */
   lede?: string;
   locale: 'en' | 'es';
-  kind: 'note' | 'work' | 'essay' | 'page';
+  kind: 'note' | 'work' | 'piece' | 'page';
 }
 
 /**

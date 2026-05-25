@@ -67,11 +67,37 @@ const works = defineCollection({
     }),
 });
 
-const essays = defineCollection({
-  loader: glob({ pattern: '**/*.md', base: './src/content/essays', generateId: pathId }),
+// `pieces` (EN) · `ensayos` (ES) — long-form route. The collection
+// name follows the EN slug per ADR 0010. Schema extends `base` with:
+//   - `series` — optional grouping for multi-part pieces
+//   - `marginNotes` — array of section-anchored asides; pieces have
+//     N>1 by design (compared to notes' single optional `aside`).
+//     Each note's text is plain text, max 180 chars; if longer, the
+//     thought should be a paragraph in the body. Capped at 8 per
+//     piece — more than that is a structural smell.
+//   - `diagrams` — declarative list of registered SVG diagram keys
+//     to render in the piece (resolved at build time by
+//     `src/components/DiagramRail.astro`). Pure markup; no MDX —
+//     see ADR 0010 + the inline rationale in DiagramRail.
+const pieces = defineCollection({
+  loader: glob({ pattern: '**/*.md', base: './src/content/pieces', generateId: pathId }),
   schema: ({ image }) =>
     base.extend({
       series: z.string().optional(),
+      /** Manual reading-time override; if omitted, PieceEntry computes
+       *  from `entry.body`. Same convention as notes. */
+      minutes: z.number().int().positive().optional(),
+      marginNotes: z
+        .array(
+          z.object({
+            section: z.string(),
+            text: z.string().max(180),
+            mark: z.string().max(2).optional(),
+          }),
+        )
+        .max(8)
+        .default([]),
+      diagrams: z.array(z.string()).default([]),
       hero: image().optional(),
       ogOverride: image().optional(),
     }),
@@ -86,8 +112,8 @@ const essays = defineCollection({
 // `items` ISN'T present (a stray `items:` accidentally added to
 // home.md fails Zod validation, loudly, at build time).
 //
-// Adding a new page (e.g. /essays) when the route gets its
-// treatment: append the slug to `PAGE_SLUGS` in `lib/routes.ts`,
+// Adding a new page (e.g. /pieces) when the route gets its own
+// pages-collection entry: append the slug to `PAGE_SLUGS` in `lib/routes.ts`,
 // add a matching variant below with `slug: z.literal('…')`, and
 // ship the markdown files in `src/content/pages/{en,es}/`. The
 // drift test in `tests/unit/page-slugs.test.ts` fails until all
@@ -118,4 +144,4 @@ const pages = defineCollection({
   },
 });
 
-export const collections = { notes, works, essays, pages };
+export const collections = { notes, works, pieces, pages };

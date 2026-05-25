@@ -130,9 +130,6 @@
     color: var(--ink-2);
   }
 
-  /* Per-kind № tint. Mate (--mate) is the codebase's olive token —
-     the prototype called it `--olive` but the design system already
-     ships `--mate`, which lives in both Día + Noche palettes. */
   .now-code .now-num,
   .now-print .now-num {
     color: var(--ink-blue);
@@ -142,9 +139,9 @@
     color: var(--mate);
   }
   /* Guitar + coffee deliberately inherit the default `.now-num`
-     accent. This rule is functionally a no-op but stays as
-     documented intent: don't let a future "consolidate dead CSS"
-     refactor wipe it out and lose the per-kind palette story. */
+    accent. This rule is functionally a no-op but stays as
+    documented intent: don't let a future "consolidate dead CSS"
+    refactor wipe it out and lose the per-kind palette story. */
   .now-guitar .now-num,
   .now-coffee .now-num {
     color: var(--accent-aa);
