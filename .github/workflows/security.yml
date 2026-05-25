@@ -35,7 +35,7 @@ jobs:
         run: pnpm audit --json > audit.json || true
       - name: License allow-list
         run: |
-          pnpm exec license-checker --production --onlyAllow \
+          pnpm exec license-checker --production --excludePrivatePackages --onlyAllow \
             "MIT;ISC;Apache-2.0;BSD-2-Clause;BSD-3-Clause;CC0-1.0;0BSD;Unlicense"
       - name: Upload audit report
         if: always()
