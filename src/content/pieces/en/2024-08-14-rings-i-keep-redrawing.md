@@ -8,9 +8,9 @@ status: published
 tags: [architecture, code]
 lede: 'Five rewrites in, the rings still want to migrate outward.'
 marginNotes:
-  - section: 'why-rings'
+  - section: 'why-rings-not-boxes'
     text: "I keep the most recent attempt pinned above my desk. The previous four are in a notebook I don't open."
-  - section: 'use-cases-vs-adapters'
+  - section: 'use-cases-versus-adapters'
     text: 'On a fintech rebuild in 2022 I put the entire payment gateway in "use case" for six months. It worked. It was also wrong.'
 diagrams:
   - key: 'clean-arch-rings'

@@ -10,7 +10,7 @@ lede: 'Three levels. Most workplace conversations get stuck at the wrong one.'
 marginNotes:
   - section: 'the-deadline-that-clicked'
     text: "Names changed; missed deadlines don't have to be."
-  - section: 'cost-and-payoff'
+  - section: 'the-cost-and-the-payoff'
     text: 'First three times I tried CPR live, I went silent mid-sentence trying to diagnose what level we were at. Subtle.'
 diagrams:
   - key: 'cpr-framework'

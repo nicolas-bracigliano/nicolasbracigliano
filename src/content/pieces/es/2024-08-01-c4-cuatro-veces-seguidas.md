@@ -12,7 +12,7 @@ marginNotes:
     text: 'Creo que como industria desperdiciamos toda una generación de arquitectos en UML.'
   - section: 'los-cuatro-niveles'
     text: 'La doc de Simon Brown en c4model.com sigue siendo la mejor referencia. La tengo siempre en una pestaña.'
-  - section: 'cuando-parar'
+  - section: 'cuándo-parar'
     text: 'El nivel 4 es el que casi nunca dibujo. El código mismo es el diagrama, y se mantiene en sincro gratis.'
 diagrams:
   - key: 'c4-wheel'
@@ -32,7 +32,7 @@ diagrams:
     caption: 'Nivel 4: Código. Un componente con un zoom adentro para ver sus clases. Normalmente opcional.'
 ---
 
-Los diagramas de arquitectura que hacía antes de C4 tenían cajas, líneas, a veces flechas, y casi siempre una pregunta después sobre qué quería decir alguna de las cajas. C4 arregla esto obligándote a comprometerte con un nivel de zoom, y después te hace dibujar el mismo sistema en el nivel siguiente, y en el siguiente, y en el siguiente. Cuatro veces seguidas se siente excesivo hasta la tercera vez que alguien pregunta "¿pero la base dónde va?" y podés apuntar al nivel 2 en vez de redibujar.
+Los diagramas de arquitectura que hacía antes de C4 tenían cajas, líneas, a veces flechas, y casi siempre una pregunta después sobre qué quería decir alguna de las cajas. C4 arregla esto obligándote a comprometerte con un nivel de zoom, y después te hace redibujar el mismo sistema un paso más adentro, y otro paso más adentro, y otro. Cuatro veces seguidas se siente excesivo hasta la tercera vez que alguien pregunta "¿pero la base dónde va?" y podés apuntar al nivel 2 en vez de redibujar.
 
 ## Antes de C4
 
@@ -64,7 +64,7 @@ La jerarquía de zoom es explícita. Cuando alguien dice "el componente de auth"
 
 Las mismas formas significan las mismas cosas en todos los niveles. Una caja siempre es una cosa que corre. Una línea siempre es una relación. Una línea punteada siempre es asíncrono. No podés meter sin querer vocabulario privado porque el vocabulario está fijo.
 
-El modelo sabe cuándo parar. No tenés que dibujar todos los niveles. La mayoría de los sistemas sólo necesitan el 1 y el 2; algunos necesitan el 3 para un contenedor en particular; muy pocos necesitan el 4 en algún lado. El marco te da permiso para parar.
+El modelo sabe cuándo parar. No tenés que dibujar todos los pasos. La mayoría de los sistemas sólo necesitan el 1 y el 2; algunos necesitan el 3 para un contenedor en particular; muy pocos necesitan el 4 en algún lado. El marco te da permiso para parar.
 
 ## Lo que no arregla
 

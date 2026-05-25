@@ -8,9 +8,9 @@ status: published
 tags: [arquitectura, código]
 lede: 'Cinco redibujos, y los anillos todavía quieren irse para afuera.'
 marginNotes:
-  - section: 'por-que-anillos'
+  - section: 'por-qué-anillos-no-cajitas'
     text: 'El intento más reciente lo tengo arriba del escritorio. Los cuatro anteriores quedaron en un cuaderno que no abro.'
-  - section: 'casos-de-uso-vs-adaptadores'
+  - section: 'casos-de-uso-o-adaptadores'
     text: 'En un rearmado de un fintech en 2022 puse toda la pasarela de pagos en "caso de uso" durante seis meses. Funcionaba. También estaba mal.'
 diagrams:
   - key: 'clean-arch-rings'

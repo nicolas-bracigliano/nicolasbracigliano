@@ -32,7 +32,7 @@ diagrams:
     caption: 'Level 4: Code. One component zoomed in to show its classes. Usually optional.'
 ---
 
-Architecture diagrams I drew before C4 had boxes, lines, sometimes arrows, and almost always a question afterwards about what one of the boxes meant. C4 fixes this by forcing you to commit to a zoom level, then it makes you draw the same system at the next zoom level, and the next, and the next. Four times in a row feels like overkill until the third time someone asks "but where does the database fit?" and you can point at level 2 instead of redrawing.
+Architecture diagrams I drew before C4 had boxes, lines, sometimes arrows, and almost always a question afterwards about what one of the boxes meant. C4 fixes this by forcing you to commit to a zoom level, then it makes you redraw the same system one step closer, and another step closer, and another. Four times in a row feels like overkill until the third time someone asks "but where does the database fit?" and you can point at level 2 instead of redrawing.
 
 ## Before C4
 
@@ -64,7 +64,7 @@ The zoom hierarchy is explicit. When someone says "the auth component," there's 
 
 The same shapes mean the same things across levels. A box is always a thing-that-runs. A line is always a relationship. A dashed line is always asynchronous. You can't accidentally introduce private vocabulary because the vocabulary is fixed.
 
-The model knows when to stop. You don't have to draw every level. Most systems only need 1 and 2; some need 3 for one specific container; very few need 4 anywhere. The framework gives you permission to stop.
+The model knows when to stop. You don't have to draw every step. Most systems only need 1 and 2; some need 3 for one specific container; very few need 4 anywhere. The framework gives you permission to stop.
 
 ## What it doesn't fix
 
