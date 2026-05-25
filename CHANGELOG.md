@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.7.6](https://github.com/nicolas-bracigliano/nicolasbracigliano/compare/v1.7.5...v1.7.6) (2026-05-25)
+
+
+### Refactors
+
+* **pieces:** rename essays to pieces and ship empty visual treatment ([#68](https://github.com/nicolas-bracigliano/nicolasbracigliano/issues/68)) ([5e1046e](https://github.com/nicolas-bracigliano/nicolasbracigliano/commit/5e1046e007d88297485e18b597d3b81d3a38ae34))
+
 ## [1.7.5](https://github.com/nicolas-bracigliano/nicolasbracigliano/compare/v1.7.4...v1.7.5) (2026-05-25)
 
 
