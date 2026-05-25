@@ -366,7 +366,13 @@ jobs:
           check /es/notas/   200 || exit 1
           check /es/obras/   200 || exit 1
           check /es/sobre/   200 || exit 1
-          check /es/colofón/ 200 || exit 1
+          # `colofón` in percent-encoded form — curl sends the literal
+          # UTF-8 byte for `ó`, and Cloudflare normalizes that to the
+          # `%C3%B3n` form via a 307 redirect, breaking the immediate-
+          # status assertion. Hitting the canonical encoded URL directly
+          # is equivalent (Astro's `_redirects` also points the unaccented
+          # variant `/es/colofon` here).
+          check /es/colof%C3%B3n/ 200 || exit 1
           # 404 fallback: unmatched path serves dist/404.html with
           # HTTP 404. Confirms `not_found_handling = "404-page"` is
           # honoured at the Workers Static Assets layer.

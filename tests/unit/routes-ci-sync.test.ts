@@ -38,11 +38,19 @@ function smokePaths(): Set<string> {
   // The smoke step in `ci.yml` lists each route as:
   //     check /en/notes/   200 || exit 1
   // Capture the path token between `check ` and the status code.
+  //
+  // Decode percent-encoded paths back to their unicode form so the
+  // comparison with ROUTES works. `/es/colofón/` lives in ROUTES with
+  // the literal `ó`, but ships in the smoke list as `/es/colof%C3%B3n/`
+  // — curl sends literal UTF-8 bytes that Cloudflare 307-redirects to
+  // the encoded form, breaking the immediate-status assertion. The
+  // semantic check is "this route is in smoke," not "the byte
+  // representation matches."
   const re = /^\s+check\s+(\/\S*?)\s+\d{3}\s*\|\|\s*exit\s+1\s*$/gm;
   const paths = new Set<string>();
   let m: RegExpExecArray | null;
   while ((m = re.exec(CI_YML)) !== null) {
-    if (m[1]) paths.add(m[1]);
+    if (m[1]) paths.add(decodeURIComponent(m[1]));
   }
   return paths;
 }
