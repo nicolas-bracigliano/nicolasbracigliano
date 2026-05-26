@@ -18,7 +18,7 @@ const labelled = label !== undefined;
   class="diagram diagram--cpr"
   {...labelled ? { role: 'img', 'aria-label': label } : { 'aria-hidden': 'true' }}
 >
-  <svg viewBox="0 0 240 220" width="100%" height="auto" preserveAspectRatio="xMidYMid meet">
+  <svg viewBox="0 0 260 200" width="100%" height="auto" preserveAspectRatio="xMidYMid meet">
     {label && <title>{label}</title>}
     {
       /* Three stacked rectangles split into three groups so each layer
@@ -39,7 +39,14 @@ const labelled = label !== undefined;
       <text x="120" y="102">Pattern</text>
       <text x="120" y="166">Content</text>
     </g>
-    <g class="d-subtext" font-style="italic" font-size="9" opacity="0.7" text-anchor="middle">
+    <g
+      class="d-subtext"
+      font-style="italic"
+      font-size="9"
+      opacity="0.7"
+      stroke-width="0.1"
+      text-anchor="middle"
+    >
       <text x="120" y="52">trust, the bigger picture</text>
       <text x="120" y="116">the recurring trend</text>
       <text x="120" y="180">this one instance</text>
@@ -47,10 +54,17 @@ const labelled = label !== undefined;
     {/* Escalation arrow on the right edge — bottom up. */}
     <g class="d-arrow">
       <g fill="none" stroke-width="1.2" stroke-linecap="round">
-        <path d="M218 180 L 218 36"></path>
-        <path d="M212 44 L 218 36 L 224 44"></path>
+        <path d="M228 170 L 228 36"></path>
+        <path d="M222 44 L 228 36 L 234 44"></path>
       </g>
-      <text x="218" y="200" font-style="italic" font-size="8" text-anchor="middle">escalates</text>
+      <text
+        x="228"
+        y="191"
+        font-style="italic"
+        font-size="8"
+        stroke-width="0.1"
+        text-anchor="middle">escalates</text
+      >
     </g>
   </svg>
   {caption && <figcaption>{caption}</figcaption>}
