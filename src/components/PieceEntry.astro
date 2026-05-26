@@ -7,7 +7,7 @@
 // Structure (desktop):
 //   <li class="piece-row">
 //     <a class="piece-row-link" href={permalink}>
-//       <aside class="piece-row-meta">date / read-time / tags</aside>
+//       <div class="piece-row-meta">date / read-time / tags</div>
 //       <div class="piece-row-body">
 //         <h2 class="piece-row-title"><em>title</em></h2>
 //         <p class="piece-row-deck">{lede}</p>
@@ -65,7 +65,7 @@ const titleHtml = renderTitle(title);
 
 <li class="piece-row">
   <a class="piece-row-link" href={permalink} data-astro-prefetch>
-    <aside class="piece-row-meta">
+    <div class="piece-row-meta">
       <time class="piece-row-date" datetime={date.toISOString().split('T')[0]}>{dateDisplay}</time>
       {
         minutes !== null && (
@@ -74,7 +74,7 @@ const titleHtml = renderTitle(title);
           </span>
         )
       }
-    </aside>
+    </div>
 
     <div class="piece-row-body">
       <h2 class="piece-row-title"><Fragment set:html={titleHtml} /></h2>

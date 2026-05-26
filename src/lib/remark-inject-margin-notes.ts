@@ -4,7 +4,7 @@
 //   1. PULL QUOTES (formerly "margin notes"). For each
 //      `marginNotes: [{ section, text }]` frontmatter entry, find the H2
 //      whose computed slug matches `section`, then insert an
-//      `<aside class="pull">` AFTER the last paragraph of that section
+//      `<p class="pull">` AFTER the last paragraph of that section
 //      (i.e. immediately before the next H2 at the same level, or before
 //      the end of the document if the section is last). This anchor
 //      logic matches the prototype's pull-quote placement, where the
@@ -109,7 +109,13 @@ function escapeHtml(s: string): string {
 }
 
 function buildPullQuoteHtml(note: MarginNote): string {
-  return `<aside class="pull">${escapeHtml(note.text)}</aside>`;
+  // `<p>` not `<aside>`: per the project's memory rule (and html-validate's
+  // `unique-landmark`), multiple `<aside>` siblings need unique aria-labels
+  // because each is a landmark. Pieces have N>1 pull quotes by design, so
+  // they can't carry landmark semantics. A `<p class="pull">` is the right
+  // primitive — pull quotes are typographic emphasis inside prose, not a
+  // page-level aside. Same CSS rule (`.pull`) matches.
+  return `<p class="pull">${escapeHtml(note.text)}</p>`;
 }
 
 /** Mark the lead paragraph with `class="lead-p"` via mdast's
@@ -137,7 +143,7 @@ function markLeadParagraph(tree: MdastNode): void {
 /** Insert pull quotes at the end of each section. For each match in
  *  `notesBySection`, walk forward from the matching H2 to find the
  *  index just before the next H2 of equal-or-shallower depth (or end of
- *  document), then splice an `<aside class="pull">` node at that index.
+ *  document), then splice an `<p class="pull">` node at that index.
  *
  *  Only operates on the top-level children. Pull quotes are an editorial
  *  affordance for sectioned long-form prose; nested injection points

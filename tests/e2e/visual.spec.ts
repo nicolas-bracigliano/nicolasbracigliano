@@ -95,3 +95,42 @@ test.describe('pieces visual', () => {
     });
   });
 });
+
+test.describe('diagrams visual — PR P4 per-role palette', () => {
+  // The drift unit test in `tests/unit/diagram-roles.test.ts` locks the
+  // schema (every SVG `.d-<role>` has a CSS binding and vice versa); it
+  // doesn't catch a palette swap that keeps the schema intact (e.g.
+  // changing `--c-rings: var(--ink-2)` to `var(--ink-3)`). Two
+  // representative diagrams snapshot here:
+  //   - CprFramework — exercises the 3-step escalation gradient
+  //     (Content → Pattern → Relationship) + multi-shape rendering
+  //     (3 separate rects, main labels + italic sublabels, arrow + text).
+  //   - AgileRoadKnot — exercises the narrative arc (knot → bridge →
+  //     clear) where role colours carry semantic weight, not just
+  //     visual differentiation.
+  // Targeting `.diagram--<kind>` (not the whole page) keeps the
+  // baseline focused on what this PR contracts and avoids noise from
+  // unrelated layout changes elsewhere on the page.
+  test('CprFramework — Día escalation gradient', async ({ page }) => {
+    await page.setViewportSize(DESKTOP_VIEWPORT);
+    await page.goto('/en/pieces/cpr-when-to-escalate/');
+    await page.waitForLoadState('networkidle');
+    await page.evaluate(() => document.fonts.ready);
+    await expect(page.locator('.diagram--cpr')).toHaveScreenshot('diagram-cpr-desktop.png', {
+      maxDiffPixelRatio: 0.02,
+    });
+  });
+
+  test('AgileRoadKnot — Día narrative arc', async ({ page }) => {
+    await page.setViewportSize(DESKTOP_VIEWPORT);
+    await page.goto('/en/pieces/where-agile-gets-stuck/');
+    await page.waitForLoadState('networkidle');
+    await page.evaluate(() => document.fonts.ready);
+    await expect(page.locator('.diagram--road-knot')).toHaveScreenshot(
+      'diagram-road-knot-desktop.png',
+      {
+        maxDiffPixelRatio: 0.02,
+      },
+    );
+  });
+});

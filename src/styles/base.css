@@ -19,6 +19,9 @@
 @import url('./routes/about.css');
 @import url('./routes/now.css');
 @import url('./routes/404.css');
+/* Component-scoped (not a route): the diagram base + per-role colour
+   palette used by /pieces. See PR P4 + ADR 0012. */
+@import url('./diagrams.css');
 
 @layer base {
   html {

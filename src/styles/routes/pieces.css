@@ -437,6 +437,11 @@
     margin-block: 2.5rem;
   }
 
+  /* Diagram base + per-role colour palette lives in
+     `src/styles/diagrams.css` (component-scoped — diagrams are
+     consumed only by /pieces today but conceptually distinct from
+     the route's chrome). */
+
   /* ─── Slug page foot ──────────────────────────────────────────────── */
 
   /* Three rows: mono meta strip (written · date · read time), italic

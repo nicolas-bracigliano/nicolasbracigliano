@@ -115,7 +115,7 @@ const titleHtml = renderTitle(title);
   ogImage={ogImage}
   {...lede && { description: lede }}
 >
-  <main class="piece-page" id="piece-top">
+  <article class="piece-page" id="piece-top">
     <header class="piece-head">
       <p class="piece-eyebrow">
         <a class="piece-eyebrow-back" href={indexHref} data-astro-prefetch>{t.back}</a>
@@ -196,5 +196,5 @@ const titleHtml = renderTitle(title);
         <a class="piece-foot-nav-link" href="#piece-top">{t.backToTop}</a>
       </nav>
     </footer>
-  </main>
+  </article>
 </BaseLayout>

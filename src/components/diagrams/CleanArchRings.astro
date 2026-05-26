@@ -28,28 +28,35 @@ const labelled = label !== undefined;
   class="diagram diagram--rings"
   {...labelled ? { role: 'img', 'aria-label': label } : { 'aria-hidden': 'true' }}
 >
-  <svg viewBox="0 0 240 240" width="100%" height="auto" preserveAspectRatio="xMidYMid meet">
+  <svg viewBox="0 0 250 250" width="100%" height="auto" preserveAspectRatio="xMidYMid meet">
     {label && <title>{label}</title>}
-    <g fill="none" stroke="currentColor" opacity="0.6" stroke-width="1.2">
+    <g class="d-rings" fill="none" opacity="0.5" stroke-width="1.2">
       <circle cx="120" cy="120" r="108"></circle>
       <circle cx="120" cy="120" r="80"></circle>
       <circle cx="120" cy="120" r="52"></circle>
       <circle cx="120" cy="120" r="24"></circle>
     </g>
-    <g fill="currentColor" font-size="9" text-anchor="middle">
+    <g class="d-label" font-size="7" text-anchor="middle">
       <text x="120" y="122">Entities</text>
       <text x="120" y="88">Use Cases</text>
-      <text x="120" y="58">Interface Adapters</text>
-      <text x="120" y="30">Frameworks &amp; Drivers</text>
+      <text x="120" y="61">Interface Adapters</text>
+      <text x="120" y="32">Frameworks &amp; Drivers</text>
     </g>
     {/* Dependency-rule arrow: points inward, top → centre. */}
-    <g fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round">
-      <path d="M300 120 L 145 120"></path>
-      <path d="M152 114 L 145 120 L 152 126"></path>
+    <g class="d-arrow">
+      <g fill="none" stroke-width="1.2" stroke-linecap="round">
+        <path d="M300 120 L 145 120"></path>
+        <path d="M152 114 L 145 120 L 152 126"></path>
+      </g>
+      <text
+        x="199"
+        y="113"
+        font-style="italic"
+        font-size="6"
+        stroke-width="0.3"
+        text-anchor="middle">Source Code Dependencies</text
+      >
     </g>
-    <text x="199" y="113" fill="currentColor" font-style="italic" font-size="8" text-anchor="middle"
-      >Source Code Dependencies</text
-    >
   </svg>
   {caption && <figcaption>{caption}</figcaption>}
 </figure>

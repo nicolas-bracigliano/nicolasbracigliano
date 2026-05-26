@@ -17,33 +17,37 @@ const labelled = label !== undefined;
 >
   <svg viewBox="0 0 240 240" width="100%" height="auto" preserveAspectRatio="xMidYMid meet">
     {label && <title>{label}</title>}
-    {/* Outer circle + cross-dividers. */}
-    <g fill="none" stroke="currentColor" stroke-width="1.5">
+    {/* Outer circle + cross-dividers — the grid scaffold. */}
+    <g class="d-grid" fill="none" stroke-width="1.5">
       <circle cx="120" cy="120" r="100"></circle>
       <line x1="20" y1="120" x2="220" y2="120"></line>
       <line x1="120" y1="20" x2="120" y2="220"></line>
     </g>
-    {/* Inner reference rings hint at the zoom-in nature of the model. */}
-    <g fill="currentColor" stroke="currentColor" stroke-width="0.6" opacity="1">
+    {/* Centre hub circle — focal accent, paired with the "C4" mark. */}
+    <g class="d-hub" stroke-width="0.6" opacity="1">
       <circle cx="120" cy="120" r="36"></circle>
     </g>
-    {/* Quadrant labels — clockwise from top-left. */}
-    <g fill="currentColor" font-size="11" text-anchor="middle">
+    {/* Quadrant labels + numeric markers — sit on the grid in label colour. */}
+    <g class="d-label" font-size="11" text-anchor="middle">
       <text x="70" y="72">Context</text>
       <text x="170" y="72">Container</text>
       <text x="170" y="172">Component</text>
       <text x="70" y="172">Code</text>
     </g>
-    {/* Numeric markers inside each quadrant. */}
-    <g fill="currentColor" font-style="italic" font-size="9" opacity="0.7" text-anchor="middle">
+    <g class="d-label" font-style="italic" font-size="7" opacity="0.7" text-anchor="middle">
       <text x="70" y="86">1</text>
       <text x="170" y="86">2</text>
       <text x="170" y="186">3</text>
       <text x="70" y="186">4</text>
     </g>
 
-    {/* Centre label */}
-    <g fill="currentColor" font-size="24" text-anchor="middle">
+    {
+      /* Centre "C4" mark — sits on the hub, takes the hub colour. The
+        text needs `fill: var(--c-hub)` not the hub's stroke role, so
+        we override via a separate inline-style hook. Simpler: re-use
+        the d-hub class — its CSS sets `fill` too. */
+    }
+    <g class="d-hub" font-size="24" font-weight="900" text-anchor="middle">
       <text x="120" y="128">C4</text>
     </g>
   </svg>
