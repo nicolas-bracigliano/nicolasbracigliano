@@ -13,6 +13,7 @@ The reference for everything about this site. Read this before changing color, c
 - **2026‑05‑22** — `--ink-3` tokens darkened (Día `#736b5e`) and lightened (Noche `#8c8678`) to pass WCAG AA. Why: axe-core caught the originals failing contrast in CI.
 - **2026‑05‑22** — §11/§12/§16 brought up to current state; §17 Search + OG cards moved to shipped. Why: canonical promotion missed everything but the change-log.
 - **2026‑05‑22** — first-paint motion removed (ADR 0006). Why: incompatible with axe-core contrast checks in CI.
+- **2026‑05‑25** — §6 Hedges tightened: at most one or two hedges per paragraph; voice is curious, humble, but assertive. New §6 Punctuation subsection: no em dash (`—`) in prose. Why: the open-ended "hedges encouraged" rule produced over-hedged drafts during PR P3 calibration; an author writes about a topic because they have knowledge of it, and stacking three "probably / I think / not sure" reads as performative uncertainty.
 
 When something material changes, add a line. Keep the log short: date, what changed, why. If you can't write the _why_ in one clause, you probably shouldn't make the change.
 
@@ -114,8 +115,27 @@ The voice section only works with concrete pairs. Add to this list as new patter
 
 ### Hedges
 
+The voice is **curious, humble, but assertive**. Hedges signal that you've thought about the topic and know where you're still unsure; they don't mean you're unsure about everything. Use them where uncertainty is genuine and load-bearing, not as a sentence-end tic.
+
 ✓ _"I think,"_ _"I'm not sure,"_ _"I was wrong about this last time."_
 ✗ _"Best practices,"_ _"Industry-standard,"_ _"Cutting-edge."_
+
+**Cap: at most one or two hedges per paragraph.** If every sentence ends with "probably" or "I think," you've stopped writing and started apologising; the reader stops trusting the parts where you _do_ know what you're talking about. Lead with what you actually think; acknowledge complexity _after_ the assertion, not instead of it.
+
+✓ _"The Dependency Rule itself is right; code dependencies should flow toward the stable core. What's hard, every time, is the boundary between use cases and interface adapters."_
+✗ _"The Dependency Rule is probably right. I think code dependencies might flow toward the stable core. I might be wrong about this, but the boundary between use cases and adapters seems hard."_
+
+### Punctuation
+
+**No em dash (`—`) in prose.** The em dash signals editorial flourish; the site's voice is craft-bench, not editorial. Use a period (new sentence), comma, colon, semicolon, or parentheses depending on what the dash was doing.
+
+✓ _"The Dependency Rule itself is right; code dependencies should flow toward the stable core."_
+✗ _"The Dependency Rule itself is right — code dependencies should flow toward the stable core."_
+
+✓ _"The pattern isn't that agile doesn't work. It's that the parts that take patience get cut first."_
+✗ _"The pattern isn't that agile doesn't work — it's that the parts that take patience get cut first."_
+
+Em dashes stay in design surfaces (mastheads, eyebrow separators, the `Bitacora —` lead-in). Those are typographic, not prose.
 
 ### Bilingual
 

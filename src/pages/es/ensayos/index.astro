@@ -1,20 +1,17 @@
 ---
-import { getCollection, render } from 'astro:content';
+import { getCollection } from 'astro:content';
 import BaseLayout from '@layouts/BaseLayout.astro';
 import PiecesMasthead from '@components/PiecesMasthead.astro';
 import PieceEntry from '@components/PieceEntry.astro';
 import { ROUTES } from '@lib/routes';
 
+// El índice muestra cada ensayo como un excerpt (párrafos del kernel
+// + un enlace para seguir leyendo). PieceEntry extrae el kernel
+// directamente de `entry.body`, así que no hace falta llamar a
+// `render()` acá; sería costo de build para descartar el HTML.
 const pieces = (
   await getCollection('pieces', (e) => e.data.lang === 'es' && e.data.status === 'published')
 ).sort((a, b) => +b.data.date - +a.data.date);
-
-const rendered = await Promise.all(
-  pieces.map(async (entry) => ({
-    entry,
-    Content: (await render(entry)).Content,
-  })),
-);
 
 const path = ROUTES.pieces.es;
 const siblingPath = ROUTES.pieces.en;
@@ -31,21 +28,19 @@ const siblingPath = ROUTES.pieces.en;
     <PiecesMasthead locale="es" />
 
     {
-      rendered.length === 0 ? (
+      pieces.length === 0 ? (
         <p class="pieces-empty">Todavía no hay ensayos — el primero está en el banco.</p>
       ) : (
         <ol class="pieces-list">
-          {rendered.map(({ entry, Content }, i) => (
-            <PieceEntry entry={entry} locale="es" isFirst={i === 0}>
-              <Content />
-            </PieceEntry>
+          {pieces.map((entry) => (
+            <PieceEntry entry={entry} locale="es" />
           ))}
         </ol>
       )
     }
 
     {
-      rendered.length > 0 && (
+      pieces.length > 0 && (
         <footer class="pieces-foot">
           <span class="eyebrow">↺ &nbsp;ensayos más viejos en el cajón</span>
         </footer>

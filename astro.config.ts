@@ -1,5 +1,6 @@
 import { defineConfig } from 'astro/config';
 import sitemap from '@astrojs/sitemap';
+import remarkInjectMarginNotes from './src/lib/remark-inject-margin-notes';
 
 const SITE = 'https://nicolasbracigliano.com';
 
@@ -26,6 +27,18 @@ export default defineConfig({
       prefixDefaultLocale: true,
       redirectToDefaultLocale: false,
     },
+  },
+  // `markdown.remarkPlugins`: pipeline of MDAST transforms applied
+  // BEFORE markdown → HTML. `remarkInjectMarginNotes` reads
+  // `marginNotes` from the entry's frontmatter and splices each note
+  // into the markdown tree right after the heading whose computed slug
+  // matches `note.section`. This is what gives pieces marginalia in
+  // the right gutter; without it, margin notes have no inline anchor.
+  // Runs at the remark stage (not rehype) because Astro's heading-
+  // anchor IDs are added later in the pipeline — at rehype time the
+  // headings have no `id` to match against.
+  markdown: {
+    remarkPlugins: [remarkInjectMarginNotes],
   },
   // Disable Astro's dev toolbar globally. The toolbar's audits (perf,
   // a11y) duplicate what Lighthouse CI + `@axe-core/playwright` already
