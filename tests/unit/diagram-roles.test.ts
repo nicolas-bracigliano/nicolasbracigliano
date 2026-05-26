@@ -23,7 +23,7 @@ import { REGISTRY_KEYS } from '../../src/lib/diagram-registry';
 
 const REPO_ROOT = join(__dirname, '..', '..');
 const DIAGRAMS_ROOT = join(REPO_ROOT, 'src', 'components', 'diagrams');
-const PIECES_CSS = join(REPO_ROOT, 'src', 'styles', 'routes', 'pieces.css');
+const DIAGRAMS_CSS = join(REPO_ROOT, 'src', 'styles', 'diagrams.css');
 
 interface DiagramSource {
   /** Registry key (e.g. `clean-arch-rings`). */
@@ -61,8 +61,8 @@ function extractRoleClasses(source: string): string[] {
   return Array.from(found).sort();
 }
 
-function readPiecesCss(): string {
-  return readFileSync(PIECES_CSS, 'utf-8');
+function readDiagramsCss(): string {
+  return readFileSync(DIAGRAMS_CSS, 'utf-8');
 }
 
 function extractRoleBindings(css: string, wrapperClass: string): string[] {
@@ -114,7 +114,7 @@ describe('diagram role palette drift detector (PR P4)', () => {
     it(`${diagram.componentStem}: every .d-<role> class has a CSS binding`, () => {
       const source = readComponent(diagram.componentStem);
       const svgRoles = extractRoleClasses(source);
-      const cssBindings = extractRoleBindings(readPiecesCss(), diagram.wrapperClass);
+      const cssBindings = extractRoleBindings(readDiagramsCss(), diagram.wrapperClass);
       for (const role of svgRoles) {
         expect(
           cssBindings,
@@ -130,12 +130,31 @@ describe('diagram role palette drift detector (PR P4)', () => {
     });
   }
 
+  // Orphan: every `.d-<role>` binding rule in CSS must have a matching
+  // SVG class. A refactor that removes `class="d-foo"` from a diagram
+  // but leaves `.diagram--<kind> .d-foo { ... }` in CSS would otherwise
+  // pass the forward + reverse tests silently. Dead CSS rules don't
+  // cause visible bugs but rot over time; this catches them at the
+  // schema level.
+  for (const diagram of DIAGRAMS) {
+    it(`${diagram.componentStem}: every CSS binding has a matching SVG class`, () => {
+      const svgRoles = extractRoleClasses(readComponent(diagram.componentStem));
+      const cssBindings = extractRoleBindings(readDiagramsCss(), diagram.wrapperClass);
+      for (const binding of cssBindings) {
+        expect(
+          svgRoles,
+          `.${diagram.wrapperClass} binds .${binding} but the SVG has no element with that class`,
+        ).toContain(binding);
+      }
+    });
+  }
+
   // Reverse: every `--c-<name>` referenced inside a `.diagram--<kind>`
   // binding rule must be declared on the wrapper block. A typo like
   // `var(--c-arrwo)` would otherwise silently fall back to `currentColor`.
   for (const diagram of DIAGRAMS) {
     it(`${diagram.wrapperClass}: every var(--c-*) reference is declared`, () => {
-      const css = readPiecesCss();
+      const css = readDiagramsCss();
       const declared = extractDeclaredCustomProperties(css, diagram.wrapperClass);
       const referenced = extractReferencedCustomProperties(css, diagram.wrapperClass);
       for (const ref of referenced) {
