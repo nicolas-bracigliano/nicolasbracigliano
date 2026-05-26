@@ -14,6 +14,7 @@ The reference for everything about this site. Read this before changing color, c
 - **2026‑05‑22** — §11/§12/§16 brought up to current state; §17 Search + OG cards moved to shipped. Why: canonical promotion missed everything but the change-log.
 - **2026‑05‑22** — first-paint motion removed (ADR 0006). Why: incompatible with axe-core contrast checks in CI.
 - **2026‑05‑25** — §6 Hedges tightened: at most one or two hedges per paragraph; voice is curious, humble, but assertive. New §6 Punctuation subsection: no em dash (`—`) in prose. Why: the open-ended "hedges encouraged" rule produced over-hedged drafts during PR P3 calibration; an author writes about a topic because they have knowledge of it, and stacking three "probably / I think / not sure" reads as performative uncertainty.
+- **2026‑05‑26** — §9 Type committed to a two-face mapping table: notes ship in JetBrains Mono (field log), pieces ship in Newsreader 18/1.65 (slowed-down reading). Margin notes on pieces stay serif; rail position + `↳` mark carry the aside-ness. New non-goal: a third face. Cross-references added in §4 #5, §7, §15 #5. "Real pieces" moved from §17 Open questions to §17 Shipped (PR P3). Why: the face is the content signal — see PR P5.
 
 When something material changes, add a line. Keep the log short: date, what changed, why. If you can't write the _why_ in one clause, you probably shouldn't make the change.
 
@@ -69,6 +70,7 @@ Each principle is paired with a concrete test. If you can't pass the test, you'v
 
 5. **Curiosity over conclusion.**
    _Test:_ Read the headline aloud. Is it a claim or a question? Claims are fine _if_ the body opens by complicating them. If the body's first sentence is the same as the headline, rewrite one of them.
+   _Typographic expression:_ notes (claims in process) ship in mono; pieces (argued positions) ship in serif. See [§9 · Type](#9--type).
 
 6. **Performance, accessibility, security as aesthetics.**
    _Test:_ Lighthouse > 95 on every static page. Tab-key reaches every interactive element in a sensible order. No third-party requests. If any is false, fix it before publishing the next entry.
@@ -150,7 +152,7 @@ If a line is longer than five words and contains no specifics (no number, no nam
 
 ## 7 · How to write a note (the recipe)
 
-This is the bridge between _system_ and _daily use_.
+This is the bridge between _system_ and _daily use_. Notes ship in mono — see [§9 · Type](#9--type) for the two-face mapping. The mono is the field-log signal.
 
 1. **Open** `content/notes/YYYY-MM-DD-short-slug.md` in your editor.
 2. **Frontmatter:**
@@ -204,12 +206,26 @@ These exist as trade-offs, not commandments. Break them when the trade is worth 
 
 ## 9 · Type
 
-- **Display:** Newsreader (variable, 300–800). Used for H1, H2, card titles, italic accents.
-- **Body / mono:** JetBrains Mono (400 / 500 / 700). Used for body copy, labels, captions, specs, all tabular data.
+Two faces, no third. The face is part of the message.
+
+| Content type                       | Face                   | Why                                    |
+| ---------------------------------- | ---------------------- | -------------------------------------- |
+| Notes, TILs, micro-posts           | JetBrains Mono 15/1.75 | Field log — fast, dated, in-process    |
+| Pieces, long-form                  | Newsreader 18/1.65     | Slowed-down reading — argued, polished |
+| All chrome / metadata / specs      | JetBrains Mono         | Tools are part of the work             |
+| All display H1 / italics / accents | Newsreader             | Editorial voice                        |
+
+The shift from mono to serif when moving from a note to a piece is the system saying: _what you're about to read takes more time. The author has slowed down. You should too._ It's the typographic expression of [§4 principle 5 ("Curiosity over conclusion")](#4--core-principles-with-tests-not-slogans).
+
+- **Display:** Newsreader (variable, 300–800). Used for H1, H2, card titles, italic accents, **and piece body prose at 18 px / 1.65**.
+- **Body / mono:** JetBrains Mono (400 / 500 / 700). Used for notes body, all chrome (eyebrow, date, tags, foot signature), labels, captions, specs, all tabular data. Always used for `<code>` and `<pre>`, regardless of route.
 - **Fallback:** `"Iowan Old Style", Georgia, serif` and `ui-monospace, "SF Mono", Menlo, monospace`.
-- **Sizing:** Display sizes use `clamp()` between two anchor breakpoints. Body is 15 px, line-height 1.55–1.75. **See `styles.css` for the truth — don't duplicate values here.**
+- **Sizing:** Display sizes use `clamp()` between two anchor breakpoints. Notes body is 15 px, line-height 1.55–1.75. Pieces body is 18 px (1.125 rem), line-height 1.65. **See `styles.css` for the truth — don't duplicate values here.**
 - **`text-wrap: pretty`** on paragraphs. Browsers that don't support it degrade silently.
 - **Italics** are reserved for: titles of works, foreign words used as-is (_mate_, _huerta_), and editorial emphasis. Never for "important."
+- **Margin notes on pieces stay serif.** Once the prose itself is serif, the aside-ness comes from rail position, the `↳` mark, and lighter weight, not from face contrast. The rail carries the role; the face doesn't have to.
+
+**Non-goal: a third face.** Newsreader does double duty — at 18 px it reads, at 80 px it shouts. One family, two grades. Future additions need an ADR.
 
 ## 10 · Motion — three timings, one principle
 
@@ -287,7 +303,7 @@ The site has known tells. Document them so they don't repeat.
 2. **Over-symmetry.** Four cards, four crafts, four colors, four sections. Real life is asymmetric. If you find yourself rounding a count up to four for aesthetic reasons, leave three.
 3. **Looping vignettes.** Animate on mount, then rest. Continuous loops read as nervous, not alive.
 4. **Round-number self-claims.** "Twenty years of experience" reads as posture, not fact. Say _"since 2006,"_ or say nothing.
-5. **Polished notes.** A note that reads like a finished essay has betrayed its category. Move it to `/pieces` · `/ensayos` or roughen it.
+5. **Polished notes.** A note that reads like a finished essay has betrayed its category. Move it to `/pieces` · `/ensayos` or roughen it. The face change is the rule: notes are mono, pieces are serif. See [§9 · Type](#9--type).
 6. **Decorative SVG everywhere.** Two illustrations per page max. If a third tries to enter, choose between them.
 7. **Quotable closing lines.** Every section ending with a quotable summary reads as LLM-generated. Let some sections end un-resolved.
 8. **Performative completeness.** Listing every keyboard, every espresso machine, every guitar by exact model in the colofón. Pick one or two. Restraint is the brand.
@@ -305,16 +321,16 @@ The prototype loads dependencies from CDNs and uses Babel-in-browser; production
 ## 17 · Open questions
 
 1. **Real avatar.** Pick a direction from `AVATAR-OPTIONS.md` and commission or draw.
-2. **Real pieces.** `/pieces` · `/ensayos` ships with the route shell (PR P1) but no content yet. Same notebook treatment as `/notes`, longer; multiple `<MarginNote>` instances down the right rail. Content lands in PR P3 (legacy WordPress migration with tone rewrites).
-3. **Real copy.** Most body copy on Home, About, Notes, Now, and Colofón is currently invented. Replace with material Nicolas actually wrote.
-4. **Search UI.** Pagefind index is built (`postbuild` produces `dist/_pagefind/`); UI not yet wired into the layouts. Drop in a small `.astro` component on `/notes`.
-5. **Print stylesheet.** Notes and essays should print like typed letters. Dedicated `@media print` pass.
-6. **`/drafts` index.** A public list of unfinished posts — the site claims "en proceso, en público"; right now nothing demonstrates that.
+2. **Real copy.** Most body copy on Home, About, Notes, Now, and Colofón is currently invented. Replace with material Nicolas actually wrote.
+3. **Search UI.** Pagefind index is built (`postbuild` produces `dist/_pagefind/`); UI not yet wired into the layouts. Drop in a small `.astro` component on `/notes`.
+4. **Print stylesheet.** Notes and essays should print like typed letters. Dedicated `@media print` pass.
+5. **`/drafts` index.** A public list of unfinished posts — the site claims "en proceso, en público"; right now nothing demonstrates that.
 
 ### Shipped (moved out of this list)
 
 - **Search index** — Pagefind (`postbuild` script, per-language facet via `data-pagefind-filter="lang"`). UI still TODO above.
 - **OG cards** — Satori + Resvg via `src/pages/og/[collection]/[slug].png.ts`, fonts in `public/fonts/og-newsreader.ttf`.
+- **Real pieces.** `/pieces` · `/ensayos` shipped in PR P3 with four bilingual long-form pieces migrated from the legacy WordPress site. Same notebook treatment as `/notes`, longer; multiple `<MarginNote>` instances down the right rail. Body prose ships in serif (Newsreader 18 / 1.65) — see [§9 · Type](#9--type) for the two-face rule.
 
 ---
 
