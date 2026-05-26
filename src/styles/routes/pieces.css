@@ -405,6 +405,15 @@
       /* No gutter on mobile — margin notes inline below their heading. */
       padding-inline-end: 0;
     }
+    /* Narrow-viewport typography: drop body to 17px to keep the line
+       comfortable. At 360px viewport the available text width is ~281px,
+       which gives ~32 chars/line at 18px. 17px lifts that toward the
+       lower bound of serif reading comfort. Plan PR P5 risk #4. */
+    .piece-prose p,
+    .piece-prose li,
+    .piece-prose blockquote {
+      font-size: 1.0625rem;
+    }
     /* Date strip above the title (item 4 of the post-marginalia review). */
     .piece-date-top {
       display: block;
