@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { parse as parseYaml } from 'yaml';
 
 // ADR 0011: pieces follow the kernel-plus-6-sections shape. This test
 // is a loose envelope, not a tight gate — the design-system §7a recipe
@@ -12,6 +13,10 @@ import { join } from 'node:path';
 // fail a structural test that's supposed to catch accidental thinness
 // or sprawl. The §7a recipe + ADR 0011 are the binding guidance; this
 // test is the guardrail.
+//
+// Also enforces the tag pattern (ADR 0011 rule 6 / §7a step 8): 2-3
+// tags per piece, framework-first. The count is testable; "framework-
+// first ordering" is a review judgement, not enforced here.
 
 const PIECES_ROOT = join(__dirname, '..', '..', 'src', 'content', 'pieces');
 
@@ -19,6 +24,8 @@ const MIN_H2 = 6;
 const MAX_H2 = 8;
 const MIN_WORDS = 800;
 const MAX_WORDS = 1800;
+const MIN_TAGS = 2;
+const MAX_TAGS = 3;
 
 function listPieces(): string[] {
   const out: string[] = [];
@@ -39,6 +46,13 @@ function listPieces(): string[] {
 function stripFrontmatter(raw: string): string {
   const match = raw.match(/^---\n[\s\S]*?\n---\n/);
   return match ? raw.slice(match[0].length) : raw;
+}
+
+function parseTags(raw: string): string[] {
+  const match = raw.match(/^---\n([\s\S]*?)\n---\n/);
+  if (!match) return [];
+  const data = parseYaml(match[1]!) as { tags?: string[] };
+  return Array.isArray(data?.tags) ? data.tags : [];
 }
 
 function stripCode(body: string): string {
@@ -92,6 +106,17 @@ describe('piece shape — H2 count + body word count envelope (ADR 0011)', () =>
           `Below = too thin for the format; above = wrong format (push to a series).`,
       ).toBeGreaterThanOrEqual(MIN_WORDS);
       expect(words).toBeLessThanOrEqual(MAX_WORDS);
+    });
+
+    it(`${display} — tag count is ${MIN_TAGS}-${MAX_TAGS}`, () => {
+      const raw = readFileSync(file, 'utf-8');
+      const tags = parseTags(raw);
+      expect(
+        tags.length,
+        `${display} has ${tags.length} tags (${tags.join(', ')}). Recipe (ADR 0011 rule 6 / §7a step 8): ` +
+          `${MIN_TAGS}-${MAX_TAGS} tags, framework-first. Framework-first ordering is a review call; this only checks the count.`,
+      ).toBeGreaterThanOrEqual(MIN_TAGS);
+      expect(tags.length).toBeLessThanOrEqual(MAX_TAGS);
     });
   }
 });

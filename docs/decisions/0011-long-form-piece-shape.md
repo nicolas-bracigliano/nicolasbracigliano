@@ -58,10 +58,17 @@ Long-form pieces follow this structure:
 
 **Tooling** (PR V):
 
-- `tests/unit/piece-em-dash.test.ts` — assert no em dashes (`—`, U+2014) in piece body prose. Skip frontmatter (captions and ledes allow them on rare occasion).
-- `tests/unit/piece-banned-phrases.test.ts` — assert no §6 banned phrases appear in piece bodies. Advisory for the first month.
+- `tests/unit/piece-em-dash.test.ts` — assert no em dashes (`—`, U+2014) in piece body prose. Skip frontmatter (captions and ledes allow them on rare occasion). Build-failing.
+- `tests/unit/piece-banned-phrases.test.ts` — assert no §6 banned phrases appear in piece bodies. Build-failing (the catalogue is small and curated; a soft-warning test gives no CI signal).
 - `tests/unit/piece-margin-note-anchors.test.ts` — assert every `marginNotes[i].section` resolves to an H2 slug in the body. Catches the orphan-section bug surfaced during PR P5.
-- `tests/unit/piece-shape.test.ts` — assert each piece has 6–8 H2 sections and 800–1800 body words. Loose guardrail against accidental thinness or sprawl.
+- `tests/unit/piece-shape.test.ts` — assert each piece has 6–8 H2 sections, 800–1800 body words, and 2–3 tags. Loose guardrail against accidental thinness or sprawl.
+
+**Not enforced by tooling — review-only (a known gap).** The _required components_ in rule 3 (attribution paragraph, "common mistakes" section, "when-not-to-use" section, terminology disambiguation) are the most load-bearing rules in this ADR but are deliberately left to code review rather than a unit test. Two reasons:
+
+1. **Prose detection is unreliable.** "Has an attribution paragraph" can't be matched against a regex without false positives/negatives — it's a judgement about whether a paragraph names the originator + canonical reference.
+2. **Section names aren't consistent enough to slug-match.** The "when-not-to-use" section is "When this isn't the right tool" in C4/CPR/Agile but "When to reach for something else" in Rings. A heading-slug test would false-negative on legitimate variation. And there's no `kind:` frontmatter to scope a test to _framework_ pieces (vs. a future memoir/manifesto piece that wouldn't need these components).
+
+The right time to revisit: when a non-framework piece arrives and forces a `kind:` discriminator. Until then, a brittle multi-variant slug matcher would cost more than the review-enforcement it replaces.
 
 **Revisit clause.** These standards derive from four pieces. After the next 2–3 long-form additions, revisit:
 

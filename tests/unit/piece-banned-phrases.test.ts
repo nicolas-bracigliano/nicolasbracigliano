@@ -8,16 +8,15 @@ import { join } from 'node:path';
 // truth — design-system.md cross-references back to this file. Adding
 // a phrase here automatically extends the catalogue.
 //
-// **Advisory for the first month after PR V ships.** The catalogue is
-// still tuning; expect false positives. The test currently fails the
-// build to surface violations, but if a real piece needs one of these
-// phrases for a legitimate reason (quoting, irony, technical term in a
-// specific context), the right path is to (a) reword if possible,
-// (b) lift the phrase into a per-file exemption comment if it's truly
-// needed. After the catalogue stabilises (~one month + 2-3 new pieces
-// of editing experience), the false-positive rate should drop enough
-// that this test stops being painful — at that point promote to a
-// hard fail-on-CI gate.
+// **Enforced — this test fails the build.** The catalogue is small and
+// curated, and all current pieces pass clean, so the false-positive
+// risk is low. If a piece genuinely needs one of these phrases (quoting
+// the term, arguing against it, a technical-term context), the fix is
+// cheap: reword, switch the example, or — if truly unavoidable — add a
+// per-file exemption to the BANNED_PHRASES scan with a comment. There's
+// no soft-warning grace period: a unit test that never fails gives no
+// CI signal, so "advisory" would mean "useless." Enforce from day one;
+// loosen only if real false positives accumulate.
 //
 // The "round-number self-claims" rule from §6 isn't catchable with a
 // static phrase list — that's a voice judgement call left to review.
