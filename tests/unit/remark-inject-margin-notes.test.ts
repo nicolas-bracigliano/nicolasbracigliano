@@ -11,7 +11,7 @@ import remarkInjectMarginNotes from '../../src/lib/remark-inject-margin-notes';
 //      drop-cap CSS rule to target. Always runs, regardless of whether
 //      margin notes are present.
 //   2. For each `marginNotes[i]` in frontmatter, locate the H2 whose
-//      slug matches `section`, then insert an `<aside class="pull">`
+//      slug matches `section`, then insert an `<p class="pull">`
 //      raw-HTML node AFTER the last sibling before the next H2 (or end
 //      of document if the section is the last one).
 
@@ -95,7 +95,7 @@ describe('lead-p injection', () => {
 });
 
 describe('pull-quote anchor logic', () => {
-  it('inserts <aside class="pull"> at the end of the matching section', () => {
+  it('inserts <p class="pull"> at the end of the matching section', () => {
     const tree = root(
       paragraph('Kernel paragraph.'),
       heading(2, 'First section'),
@@ -111,11 +111,11 @@ describe('pull-quote anchor logic', () => {
     //   1: heading (First)
     //   2: paragraph
     //   3: paragraph
-    //   4: html <aside class="pull">
+    //   4: html <p class="pull">
     //   5: heading (Second)
     //   6: paragraph
     expect(tree.children?.[4]?.type).toBe('html');
-    expect(tree.children?.[4]?.value).toBe('<aside class="pull">Pull from first.</aside>');
+    expect(tree.children?.[4]?.value).toBe('<p class="pull">Pull from first.</p>');
     expect(tree.children?.[5]?.type).toBe('heading');
   });
 
@@ -191,7 +191,7 @@ describe('pull-quote anchor logic', () => {
     const tree = root(paragraph('Kernel.'), heading(2, 'Section'), paragraph('Body.'));
     runPlugin(tree, vfile([{ section: 'section', text: 'A < B & C > "D"' }]));
     const aside = tree.children?.find((c) => c.type === 'html');
-    expect(aside?.value).toBe('<aside class="pull">A &lt; B &amp; C &gt; &quot;D&quot;</aside>');
+    expect(aside?.value).toBe('<p class="pull">A &lt; B &amp; C &gt; &quot;D&quot;</p>');
   });
 
   it('preserves accented characters in section slugs', () => {

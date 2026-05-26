@@ -88,12 +88,12 @@ test.describe('piece editorial layout — ADR 0012', () => {
     await expect(page.locator('.piece-left')).toHaveCount(0);
   });
 
-  test('pull quotes render as `<aside class="pull">` inside the prose', async ({ page }) => {
+  test('pull quotes render as `<p class="pull">` inside the prose', async ({ page }) => {
     // Each P3 piece has 3 margin notes that the remark plugin injects
     // as pull quotes at end-of-section. The Rings piece exercises this
     // with 3 inserts; assert at least one renders on the slug page.
     await page.goto('/en/pieces/rings-i-keep-redrawing/');
-    const pulls = page.locator('.piece-prose aside.pull');
+    const pulls = page.locator('.piece-prose p.pull');
     await expect(pulls.first()).toBeVisible();
     expect(await pulls.count(), 'Rings has 3 margin notes -> 3 pull quotes').toBeGreaterThanOrEqual(
       1,
