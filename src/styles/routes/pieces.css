@@ -437,6 +437,180 @@
     margin-block: 2.5rem;
   }
 
+  /* ─── Diagrams: per-role palette (PR P4) ──────────────────────────── */
+
+  /* Each diagram component is a <figure class="diagram diagram--<kind>">.
+     Per ADR 0012 the diagrams stay pure-SVG / no-JS / CSP-safe. P4 adds
+     a per-role colour palette using CSS custom properties — each role
+     in the SVG carries a `.d-<role>` class; the matching `.diagram--<kind>`
+     rule declares the role-to-token mapping via `--c-<role>` and binds
+     it to `stroke` / `fill` properties on the role element.
+
+     Why CSS (not SVG presentation attributes): `var()` references in
+     `stroke=""` / `fill=""` attributes are inconsistently honoured by
+     browsers. Putting the colour in a CSS rule that targets the role
+     class works everywhere and degrades gracefully (un-styled SVGs
+     inherit `currentColor` from the figure's `color`). */
+
+  .diagram {
+    color: var(--ink);
+    margin-block: 0;
+  }
+  .diagram svg {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+  .diagram svg text {
+    font-family: var(--font-body);
+  }
+  .diagram figcaption {
+    margin-block-start: 0.75rem;
+    font-family: var(--font-body);
+    font-size: 0.75rem;
+    font-style: italic;
+    color: var(--ink-3);
+    text-align: center;
+    line-height: 1.5;
+    max-width: 56ch;
+    margin-inline: auto;
+  }
+
+  /* Pattern for the per-diagram role rules below:
+     - Shape-only roles set `stroke` only. The SVG's inline `fill="none"`
+       on the shape group stays in effect (CSS doesn't touch fill).
+     - Text-only roles set `fill` (text uses fill for colour).
+     - Mixed roles (paths + text in one role, e.g. `.d-arrow`) set both;
+       the paths are wrapped in an inner `<g fill="none">` inside the
+       SVG so their fill is locally blocked. Text inherits the role fill.
+     - Filled-shape roles (e.g. `.d-hub`) explicitly opt in to `fill`.
+
+     Without this discipline, CSS `fill` on a role group overrides the
+     SVG's inline `fill="none"` (CSS class rules outrank SVG presentation
+     attributes) and otherwise-outlined shapes render as filled blobs. */
+
+  /* CleanArchRings: 3 roles. Rings + their labels stay calm ink; the
+     dependency arrow + its italic label lift in accent to draw the eye
+     to the rule ("dependencies point only inward"). */
+  .diagram--rings {
+    --c-rings: var(--ink-2);
+    --c-text: var(--ink);
+    --c-arrow: var(--accent);
+  }
+  .diagram--rings .d-rings {
+    stroke: var(--c-rings);
+  }
+  .diagram--rings .d-text {
+    fill: var(--c-text);
+  }
+  .diagram--rings .d-arrow {
+    stroke: var(--c-arrow);
+    fill: var(--c-arrow);
+  }
+
+  /* CprFramework: 5 roles. The three layers carry an escalation
+     gradient — Content (calmest, ink-3) → Pattern (mid, accent-aa) →
+     Relationship (hottest, accent). Main + sub text inherit calm ink;
+     the escalation arrow + "escalates" label pick up accent to
+     reinforce the upward direction. */
+  .diagram--cpr {
+    --c-content: var(--ink-3);
+    --c-pattern: var(--accent-aa);
+    --c-relationship: var(--accent);
+    --c-text: var(--ink);
+    --c-subtext: var(--ink-3);
+    --c-arrow: var(--accent);
+  }
+  .diagram--cpr .d-content {
+    stroke: var(--c-content);
+  }
+  .diagram--cpr .d-pattern {
+    stroke: var(--c-pattern);
+  }
+  .diagram--cpr .d-relationship {
+    stroke: var(--c-relationship);
+  }
+  .diagram--cpr .d-text {
+    fill: var(--c-text);
+  }
+  .diagram--cpr .d-subtext {
+    fill: var(--c-subtext);
+  }
+  .diagram--cpr .d-arrow {
+    stroke: var(--c-arrow);
+    fill: var(--c-arrow);
+  }
+
+  /* C4Wheel: 3 roles. Outer ring + cross-dividers are the grid (calm
+     ink-2); centre hub + "C4" mark are the focal accent. Quadrant
+     labels + numbers sit on the grid. */
+  .diagram--c4-wheel {
+    --c-grid: var(--ink-2);
+    --c-hub: var(--accent);
+    --c-label: var(--ink);
+  }
+  .diagram--c4-wheel .d-grid {
+    stroke: var(--c-grid);
+  }
+  .diagram--c4-wheel .d-hub {
+    fill: var(--c-hub);
+    stroke: var(--c-hub);
+  }
+  /* "C4" mark sits on the accent-filled hub disc and reads as a
+     knock-out — `var(--bg)` is the page background in either theme,
+     so the text always contrasts with the filled disc beneath. */
+  .diagram--c4-wheel .d-hub text {
+    fill: var(--bg);
+  }
+  .diagram--c4-wheel .d-label {
+    fill: var(--c-label);
+  }
+
+  /* C4Level: 3 roles. The outer dashed boundary stays quiet (ink-3);
+     inner solid shapes + connectors sit at default ink; labels follow
+     the shapes. The level marker ("Level N · Name") shares the boundary
+     role for its calm voice; the `text`-specific selector below gives
+     it `fill` while the shape groups stay outlined. */
+  .diagram--c4-level {
+    --c-boundary: var(--ink-3);
+    --c-shape: var(--ink);
+    --c-label: var(--ink);
+  }
+  .diagram--c4-level .d-boundary {
+    stroke: var(--c-boundary);
+  }
+  .diagram--c4-level .d-boundary text {
+    fill: var(--c-boundary);
+  }
+  .diagram--c4-level .d-shape {
+    stroke: var(--c-shape);
+  }
+  .diagram--c4-level .d-label {
+    fill: var(--c-label);
+  }
+
+  /* AgileRoadKnot: 4 roles. Narrative: chaos (left) resolves to clarity
+     (right). The knot is warm/accent (chaotic), the bridge is faded
+     ink-3, the clear line resolves to ink (calm). Labels track ink-3. */
+  .diagram--road-knot {
+    --c-knot: var(--accent);
+    --c-bridge: var(--ink-3);
+    --c-clear: var(--ink);
+    --c-label: var(--ink-3);
+  }
+  .diagram--road-knot .d-knot {
+    stroke: var(--c-knot);
+  }
+  .diagram--road-knot .d-bridge {
+    stroke: var(--c-bridge);
+  }
+  .diagram--road-knot .d-clear {
+    stroke: var(--c-clear);
+  }
+  .diagram--road-knot .d-label {
+    fill: var(--c-label);
+  }
+
   /* ─── Slug page foot ──────────────────────────────────────────────── */
 
   /* Three rows: mono meta strip (written · date · read time), italic

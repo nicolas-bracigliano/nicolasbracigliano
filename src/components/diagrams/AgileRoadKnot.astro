@@ -17,19 +17,28 @@ const labelled = label !== undefined;
 >
   <svg viewBox="0 0 320 140" width="100%" height="auto" preserveAspectRatio="xMidYMid meet">
     {label && <title>{label}</title>}
-    <g fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round">
-      {/* Knotted side — three crossing curves on the left half. */}
+    {
+      /* Knotted side — three crossing curves on the left half. Warm
+        accent reads as the chaotic origin. */
+    }
+    <g class="d-knot" fill="none" stroke-width="1.4" stroke-linecap="round">
       <path d="M20 70 C 40 30, 70 110, 90 60 S 50 100, 80 70 S 100 40, 110 70"></path>
       <path d="M30 90 C 60 60, 50 30, 80 50 S 110 90, 100 70" opacity="0.7"></path>
       <path d="M40 50 C 60 80, 90 50, 100 80" opacity="0.5"></path>
-      {/* Bridge segment — slightly curved transition. */}
+    </g>
+    {/* Bridge segment — faded mid-tone, the transition. */}
+    <g class="d-bridge" fill="none" stroke-width="1.4" stroke-linecap="round">
       <path d="M110 70 C 140 70, 160 65, 180 68" stroke-dasharray="3 3" opacity="0.6"></path>
-      {/* Clear side — single straight line continuing to the right. */}
+    </g>
+    {
+      /* Clear side — straight line + arrowhead. Calm ink resolves the
+        narrative ("where it should land"). */
+    }
+    <g class="d-clear" fill="none" stroke-width="1.4" stroke-linecap="round">
       <path d="M180 68 L 300 68"></path>
-      {/* Terminal marker: arrowhead at the right edge. */}
       <path d="M292 62 L 300 68 L 292 74"></path>
     </g>
-    <g fill="currentColor" font-style="italic" font-size="9" opacity="0.7">
+    <g class="d-label" font-style="italic" font-size="9" opacity="0.7">
       <text x="20" y="120">where it usually starts</text>
       <text x="300" y="120" text-anchor="end">where it should land</text>
     </g>
