@@ -16,7 +16,7 @@ The reference for everything about this site. Read this before changing color, c
 - **2026‑05‑25** — §6 Hedges tightened: at most one or two hedges per paragraph; voice is curious, humble, but assertive. New §6 Punctuation subsection: no em dash (`—`) in prose. Why: the open-ended "hedges encouraged" rule produced over-hedged drafts during PR P3 calibration; an author writes about a topic because they have knowledge of it, and stacking three "probably / I think / not sure" reads as performative uncertainty.
 - **2026‑05‑26** — §9 Type committed to a two-face mapping table: notes ship in JetBrains Mono (field log), pieces ship in Newsreader 18/1.65 (slowed-down reading). Margin notes on pieces stay serif; rail position + `↳` mark carry the aside-ness. New non-goal: a third face. Cross-references added in §4 #5, §7, §15 #5. "Real pieces" moved from §17 Open questions to §17 Shipped (PR P3). Why: the face is the content signal — see PR P5.
 - **2026‑05‑26** — `/pieces` pivots to an editorial-article layout: single column, display H1, drop cap, italic H2 with `§`, inline pull quotes. Full rationale + alternatives in [ADR 0012](./decisions/0012-pieces-editorial-layout.md). Why: serif body without an editorial layout reads as "long note," not essay.
-- **2026‑05‑27** — §6 gains a Banned phrases catalogue + Anecdote fidelity rule. New §7a "How to write a piece (the recipe)" with the kernel-plus-six-sections shape, required components, length window, tag pattern, bilingual rules. §9 gains a Diagrams subsection lifting PR P4's role-class pattern. ADR 0011 documents the piece shape with the four P3 pieces as worked examples. Four build-failing unit tests (em dash, banned phrases, margin-note anchors, piece shape) enforce the rules. Why: the four P3 pieces independently converged on the same shape — codifying it lets future pieces match without re-deriving, and the tests catch silent drift.
+- **2026‑05‑27** — §6 gains a Banned phrases catalogue + Anecdote fidelity rule. New §7a "How to write a piece (the recipe)" with the kernel-plus-six-sections shape, required components, length window, tag pattern, bilingual rules. New §7b "Reviewing a piece (the reflection pass)" — a post-draft checklist for the writer AND the LLM to consult and reflect against. §9 gains a Diagrams subsection lifting PR P4's role-class pattern. ADR 0011 documents the piece shape with the four P3 pieces as worked examples. Why: the four P3 pieces independently converged on the same shape; codifying it as a reflective guide (not a CI gate) lets future pieces match without re-deriving, while keeping the judgement with the writer.
 
 When something material changes, add a line. Keep the log short: date, what changed, why. If you can't write the _why_ in one clause, you probably shouldn't make the change.
 
@@ -150,7 +150,7 @@ The voice has a no-go list. These read as posture, not voice, and a piece contai
 
 Why these specifically: each carries a register the site rejects — keynote-speaker self-presentation, polished-LinkedIn evergreen, conference-bio inflation. The list isn't exhaustive (good prose rewards specificity over rule-following); it's a tripwire.
 
-Enforced via `tests/unit/piece-banned-phrases.test.ts` — a build-failing check. The catalogue is small and curated; if a piece genuinely needs one of these phrases (quoting it, arguing against it), reword, switch the example, or add a per-file exemption with a comment. There's no soft-warning grace period: a test that never fails gives no signal.
+This is a reflection list, not a lint gate (see §7b). After a draft exists, scan it against this catalogue. A hit isn't an automatic fail — sometimes you're quoting the phrase or arguing against it — but it's a prompt to stop and ask: am I leaning on the wrong register here?
 
 ### Anecdote fidelity (for migrated or rewritten work)
 
@@ -237,7 +237,7 @@ The mirror of §7, for long-form. Pieces are arguments — slower, polished, str
    - **When this isn't the right tool** section — three to four concrete cases where the framework is overkill or wrong.
    - **Terminology disambiguation** where names collide with adjacent industry terms (e.g., C4 Container ≠ Docker; Scrum ≠ agile).
 
-5. **Length:** body 1200–1500 words. Below = too thin for the format; above = wrong format (push to a series, not a single piece). Asserted loosely by `tests/unit/piece-shape.test.ts` (800–1800 envelope).
+5. **Length:** body 1200–1500 words. Below = too thin for the format; above = wrong format (push to a series, not a single piece).
 
 6. **Bilingual:** ES = **parallel composition, not translation**. Rioplatense markers required: `vos`/`sos`, `escribís`/`mencioná`/`tomá`-style conjugations, `pileta`/`huerta`/`tipo`. Applies to body, captions, ledes, margin-note text, all frontmatter strings — a reviewer reading only the frontmatter shouldn't be able to spot which language was "the original."
 
@@ -248,15 +248,51 @@ The mirror of §7, for long-form. Pieces are arguments — slower, polished, str
    - `[c4-model, software-architecture, diagrams]` / `[c4-model, arquitectura-de-software, diagramas]`
    - `[crucial-conversations, communication, feedback]` / `[crucial-conversations, comunicación, feedback]`
 
-9. **Margin notes → pull quotes.** 3 per piece. Each anchored to a real H2 (the anchor validator at `tests/unit/piece-margin-note-anchors.test.ts` catches orphans). Each ≤180 chars (schema-enforced). Distributed structurally, not stacked at the closing. Voice = self-aware aside, often hedging or self-deprecating, never editorial. **Orphan policy:** when removing a section, drop the matching `marginNotes` entry, or restore the section.
+9. **Margin notes → pull quotes.** 3 per piece. Each anchored to a real H2 by its slug — the remark plugin silently skips an anchor that matches no heading, so a typo or a removed section leaves a pull quote that just doesn't render. Each ≤180 chars (schema-enforced). Distributed structurally, not stacked at the closing. Voice = self-aware aside, often hedging or self-deprecating, never editorial. **Orphan policy:** when removing a section, drop the matching `marginNotes` entry, or restore the section. (This is the most error-prone item — it's on the §7b checklist for that reason.)
 
 10. **Anecdote fidelity** when migrating from a source: see §6. Real anecdotes only — never invent specifics to fit the voice.
 
-11. **Voice rules.** Every sentence in the body passes the §6 five-word test. No em dashes in prose (`tests/unit/piece-em-dash.test.ts`). No banned phrases (`tests/unit/piece-banned-phrases.test.ts`). Hedges capped at 1–2 per paragraph.
+11. **Voice rules.** Every sentence in the body passes the §6 five-word test. No em dashes in prose. No banned phrases. Hedges capped at 1–2 per paragraph.
 
 12. **Title with optional inline italic.** The slug-page H1 renders `_word_` in the title as `<em>word</em>` via a narrow markdown-inline replacer in `PieceLayout.astro`. Use sparingly — split-italic titles work when there's a natural break in the headline (e.g., "The case for the _small static site_").
 
 The four pieces in `src/content/pieces/{en,es}/` are the worked examples. ADR 0011 captures the structural decisions that derive this recipe.
+
+## 7b · Reviewing a piece (the reflection pass)
+
+After a draft exists — and before it ships — read it once against this list. These are **prompts to reflect, not gates to pass.** A "no" isn't an automatic failure; it's a question worth sitting with. The point is to catch the things that are easy to miss in the writing and obvious in the reading.
+
+This pass is also what the LLM runs when it writes or reviews a piece: walk the list, flag what it notices, and explain its reasoning rather than silently "fixing" things. The writer decides; the list informs.
+
+**Voice (§6)**
+
+- Read it aloud. Does it sound like a colleague at the bench, or a keynote? If keynote, which sentences?
+- Any em dashes in the prose? (Body only — captions and ledes are exempt.) Substitute period / comma / colon / semicolon / parens.
+- Scan the §6 banned-phrases catalogue. Any hits? If so, is the phrase load-bearing (quoting, arguing against) or lazy? Reword the lazy ones.
+- More than one or two hedges in any paragraph? Cut down to the load-bearing ones.
+- Five-word test: any line over five words with no number / name / time / place? Add a specific or cut it.
+
+**Fidelity (§6)**
+
+- If this was migrated or rewritten from a source: is every anecdote one that actually happened? No invented specifics?
+
+**Shape (ADR 0011)**
+
+- 6–7 H2 sections? If fewer, is it really a piece (vs. a note)? If more, should it be a series?
+- Body roughly 1200–1500 words? Under = too thin; over = wrong format.
+- Required components present: attribution paragraph, "common mistakes", "when this isn't the right tool", terminology disambiguation where names collide?
+
+**Structure + frontmatter**
+
+- 2–3 tags, framework-first?
+- **Does every `marginNotes[].section` match a real H2 slug in the body?** This is the easy one to get wrong — a removed or renamed section leaves a pull quote that silently doesn't render. Eyeball each anchor against the headings.
+- Diagrams reference real registry keys?
+
+**Bilingual**
+
+- Is the ES sibling a parallel composition, not a translation? Rioplatense markers throughout (`vos`/`sos`, `escribís`, `pileta`)?
+- Code-name labels (Content / Pattern / Relationship, Container, etc.) preserved in English across both?
+- Read the ES aloud, on its own — does it sound like the same person writing in the language they grew up in?
 
 ## 8 · Color
 
