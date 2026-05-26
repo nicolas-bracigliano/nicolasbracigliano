@@ -70,3 +70,28 @@ test.describe('chrome visual', () => {
     });
   });
 });
+
+test.describe('pieces visual', () => {
+  // The §9 typography commitment (notes mono / pieces serif) lives
+  // entirely in CSS. A computed-style assertion in pieces.spec.ts catches
+  // the family-name regression; this snapshot catches the rest of the
+  // visual contract — line-height, measure, margin notes, diagram-rail
+  // layout, heading proportions. If the snapshot drifts, the cause is
+  // either intentional (regenerate baseline) or a regression.
+  test('desktop piece head — Rings', async ({ page }) => {
+    await page.setViewportSize(DESKTOP_VIEWPORT);
+    await page.goto('/en/pieces/rings-i-keep-redrawing/');
+    await page.waitForLoadState('networkidle');
+    // Wait for web fonts to settle before snapshotting — Newsreader is
+    // a variable font; rendering jitter before `document.fonts.ready`
+    // would otherwise cause flaky baselines.
+    await page.evaluate(() => document.fonts.ready);
+    // Target `.piece-head` (eyebrow + display H1 + meta + lede). The
+    // full `.piece-page` would include the diagram and prose which
+    // adds a lot of pixels for no extra layout signal. The head block
+    // captures the editorial-treatment commitments densely.
+    await expect(page.locator('.piece-head')).toHaveScreenshot('piece-head-desktop.png', {
+      maxDiffPixelRatio: 0.02,
+    });
+  });
+});

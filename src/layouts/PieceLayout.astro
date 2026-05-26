@@ -1,9 +1,30 @@
 ---
+// Slug page for /en/pieces/[slug] and /es/ensayos/[slug]. Per ADR 0012
+// this is an editorial article layout (single column, centered, 820px
+// max-width). The index page still uses PieceEntry; this layout owns
+// the slug-page markup directly so the two contexts can diverge cleanly.
+//
+// Structure (top to bottom):
+//   .piece-page
+//     .piece-head           — eyebrow row (back-link + read-time),
+//                              display H1 (optional inline italic),
+//                              mono meta line, italic large lede
+//     .diagram-rail (top)   — if the piece has top-placed diagrams
+//     .piece-prose          — markdown body via <slot />, with pull quotes
+//                              injected by remark-inject-margin-notes and
+//                              the first paragraph carrying .lead-p
+//                              (drop-cap anchor)
+//     .diagram-rail (bottom)— if the piece has bottom-placed diagrams
+//     .piece-foot           — dashed top border; mono meta strip
+//                              (written + date + read-time); italic
+//                              serif signature; mono nav row with
+//                              all-pieces back-link + back-to-top
 import BaseLayout from './BaseLayout.astro';
-import PieceEntry from '@components/PieceEntry.astro';
+import DiagramRail from '@components/DiagramRail.astro';
 import type { CollectionEntry } from 'astro:content';
 import { ROUTES, type Locale } from '@lib/routes';
 import { ogImageUrlFor } from '@lib/i18n';
+import { readingTimeMinutes } from '@lib/reading-time';
 
 export interface Props {
   entry: CollectionEntry<'pieces'>;
@@ -12,11 +33,78 @@ export interface Props {
 }
 
 const { entry, path, siblingPath } = Astro.props;
-const { title, lede, lang } = entry.data;
+const { title, lede, lang, date, diagrams, minutes: minutesOverride, written } = entry.data;
 const locale = lang as Locale;
 const indexHref = ROUTES.pieces[locale];
-const indexLabel = locale === 'es' ? '↩ todos los ensayos' : '↩ all pieces';
 const ogImage = ogImageUrlFor(entry);
+
+const minutes = minutesOverride ?? (entry.body ? readingTimeMinutes(entry.body) : null);
+
+// Diagram placement: top / bottom. `after` is reserved (P4 territory).
+const inlineDiagrams = diagrams.filter((d) => d.after !== undefined);
+if (inlineDiagrams.length > 0) {
+  const keys = inlineDiagrams.map((d) => `${d.key}(after:${d.after})`).join(', ');
+  throw new Error(
+    `[PieceLayout] inline diagram placement (\`after: ...\`) is not yet ` +
+      `implemented. Piece "${title}" uses it for: ${keys}.`,
+  );
+}
+const topDiagrams = diagrams.filter((d) => d.place !== 'bottom');
+const bottomDiagrams = diagrams.filter((d) => d.place === 'bottom');
+
+// Per-locale eyebrow + meta + foot copy. Strings live in this component
+// (project convention); i18n.ts is the routing module, not a translation
+// store. The eyebrow drops the collection label per a polish review —
+// it was redundant against the back-link + the H1 underneath.
+// The em dash in `signature` is the one approved use of `—` inside a
+// piece — it's the editorial signoff convention (— Nicolas), not prose
+// body text. §6 voice rule "no em dashes in piece prose" is about
+// argument prose, not chrome surfaces; the signature is chrome. If a
+// future sweep tries to strip em dashes site-wide, exempt this string.
+const copy = {
+  en: {
+    back: '← back to pieces',
+    allPieces: '← all pieces',
+    backToTop: 'back to top ↑',
+    minLabel: 'min',
+    writtenPrefix: 'written',
+    readTimePrefix: 'read time',
+    signature: '— Nicolas',
+  },
+  es: {
+    back: '← volver a ensayos',
+    allPieces: '← todos los ensayos',
+    backToTop: 'volver arriba ↑',
+    minLabel: 'min',
+    writtenPrefix: 'escrito en',
+    readTimePrefix: 'tiempo de lectura',
+    signature: '— Nicolás',
+  },
+} as const;
+const t = copy[locale];
+
+// Date rendered as `YYYY · MM · DD` to match the mono numeric voice
+// used elsewhere on the site.
+const dateFormatter = new Intl.DateTimeFormat(locale === 'es' ? 'es-AR' : 'en-AU', {
+  year: 'numeric',
+  month: '2-digit',
+  day: '2-digit',
+});
+const dateParts = dateFormatter.formatToParts(date).filter((p) => p.type !== 'literal');
+const dateDisplay = [
+  dateParts.find((p) => p.type === 'year')?.value,
+  dateParts.find((p) => p.type === 'month')?.value,
+  dateParts.find((p) => p.type === 'day')?.value,
+]
+  .filter(Boolean)
+  .join(' · ');
+
+// Title may contain inline `_italic_` markdown per ADR 0012's split-
+// style convention (e.g. "The case for the _small static site_").
+function renderTitle(raw: string): string {
+  return raw.replace(/_([^_]+)_/g, '<em>$1</em>');
+}
+const titleHtml = renderTitle(title);
 ---
 
 <BaseLayout
@@ -27,15 +115,86 @@ const ogImage = ogImageUrlFor(entry);
   ogImage={ogImage}
   {...lede && { description: lede }}
 >
-  <section class="pieces wrap pieces--single">
-    <ol class="pieces-list">
-      <PieceEntry entry={entry} locale={locale} isStandalone={true}>
-        <slot />
-      </PieceEntry>
-    </ol>
+  <main class="piece-page" id="piece-top">
+    <header class="piece-head">
+      <p class="piece-eyebrow">
+        <a class="piece-eyebrow-back" href={indexHref} data-astro-prefetch>{t.back}</a>
+        {
+          minutes !== null && (
+            <>
+              <span class="piece-eyebrow-sep" aria-hidden="true">
+                ·
+              </span>
+              <span class="piece-eyebrow-time">
+                {minutes} {t.minLabel}
+              </span>
+            </>
+          )
+        }
+      </p>
+      <h1 class="piece-title"><Fragment set:html={titleHtml} /></h1>
+      <p class="piece-meta">
+        <time datetime={date.toISOString().split('T')[0]}>{dateDisplay}</time>
+        {
+          written && (
+            <>
+              <span class="piece-meta-sep" aria-hidden="true">
+                ·
+              </span>
+              <span class="piece-meta-written">
+                {t.writtenPrefix} {written}
+              </span>
+            </>
+          )
+        }
+      </p>
+      {lede && <p class="piece-lede">{lede}</p>}
+    </header>
 
-    <footer class="pieces-foot">
-      <a class="back-link" href={indexHref} data-astro-prefetch>{indexLabel}</a>
+    {topDiagrams.length > 0 && <DiagramRail items={topDiagrams} />}
+
+    <div class="piece-prose">
+      <slot />
+    </div>
+
+    {bottomDiagrams.length > 0 && <DiagramRail items={bottomDiagrams} />}
+
+    <footer class="piece-foot">
+      <p class="piece-foot-meta">
+        {
+          written && (
+            <>
+              <span class="piece-foot-written">
+                {t.writtenPrefix} {written}
+              </span>
+              <span class="piece-foot-sep" aria-hidden="true">
+                ·
+              </span>
+            </>
+          )
+        }
+        <time datetime={date.toISOString().split('T')[0]}>{dateDisplay}</time>
+        {
+          minutes !== null && (
+            <>
+              <span class="piece-foot-sep" aria-hidden="true">
+                ·
+              </span>
+              <span class="piece-foot-time">
+                {t.readTimePrefix} {minutes} {t.minLabel}
+              </span>
+            </>
+          )
+        }
+      </p>
+
+      <p class="piece-foot-sig">{t.signature}</p>
+
+      <nav class="piece-foot-nav" aria-label="piece navigation">
+        <a class="piece-foot-nav-link" href={indexHref} data-astro-prefetch>{t.allPieces}</a>
+        <span class="piece-foot-nav-sep" aria-hidden="true">·</span>
+        <a class="piece-foot-nav-link" href="#piece-top">{t.backToTop}</a>
+      </nav>
     </footer>
-  </section>
+  </main>
 </BaseLayout>

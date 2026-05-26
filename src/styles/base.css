@@ -24,6 +24,17 @@
   html {
     background: var(--bg);
     color: var(--ink);
+    /* Smooth anchor-link scrolling (used by the piece foot's "back to
+       top" link). `scroll-behavior` is a separate CSS property from
+       `transition` / `animation` — reset.css clamps the latter under
+       reduced-motion but not the former, so we override it explicitly
+       below. */
+    scroll-behavior: smooth;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
   }
 
   body {
@@ -184,6 +195,8 @@
   }
   .nav a {
     color: var(--ink-2);
+    font-size: 13px;
+    font-weight: 100;
     text-decoration: none;
     text-transform: lowercase;
     padding-block-end: 6px;
@@ -227,13 +240,13 @@
     display: inline-flex;
     align-items: center;
     gap: 0.2rem;
-    font-size: 0.7rem;
-    font-variant: small-caps;
+    font-size: 13px;
+    font-variant: normal;
     letter-spacing: 0.08em;
   }
   /* Outer <a> is the tap target; the visible bordered chip is the inner
-     <span class="lang-chip">. Splitting lets the tap area grow without
-     elongating the border. */
+    <span class="lang-chip">. Splitting lets the tap area grow without
+    elongating the border. */
   .lang-toggle .lang {
     display: inline-flex;
     align-items: center;
@@ -254,9 +267,9 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    min-width: 1.5rem;
-    min-height: 1.4rem;
-    padding: 0 0.4rem;
+    width: 34px;
+    height: 30px;
+    padding-bottom: 2px;
     border: 1px solid transparent;
     border-radius: 3px;
   }
@@ -280,7 +293,7 @@
     background: var(--paper);
     color: var(--accent);
     font-family: var(--font-body);
-    font-size: 0.7rem;
+    font-size: 9px;
     font-variant: small-caps;
     letter-spacing: 0.08em;
     text-transform: lowercase;

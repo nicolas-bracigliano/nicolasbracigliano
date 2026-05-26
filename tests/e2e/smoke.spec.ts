@@ -14,6 +14,15 @@ const ROUTES = [
   { path: '/es/sobre/ahora/', lang: 'es' },
   { path: '/en/colophon/', lang: 'en' },
   { path: '/es/colofón/', lang: 'es' },
+  { path: '/en/pieces/', lang: 'en' },
+  { path: '/es/ensayos/', lang: 'es' },
+  // One slug per locale to exercise the editorial slug-page layout
+  // (display H1, drop cap, italic H2 with §, inline pull quotes, foot
+  // signature) under axe-core. Covering all 8 slug pages would be
+  // over-coverage — the layout is shared, so one slug per locale is
+  // enough.
+  { path: '/en/pieces/rings-i-keep-redrawing/', lang: 'en' },
+  { path: '/es/ensayos/anillos-que-sigo-redibujando/', lang: 'es' },
 ] as const;
 
 for (const route of ROUTES) {

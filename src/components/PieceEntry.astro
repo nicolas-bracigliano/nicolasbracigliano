@@ -1,71 +1,44 @@
 ---
-// PieceEntry — long-form sibling of NoteEntry. Renders in two modes:
+// PieceEntry — index-row component. Renders one piece as a row in the
+// `/en/pieces/` and `/es/ensayos/` index lists. Per ADR 0012 the slug
+// page is owned directly by `PieceLayout.astro`; this component used to
+// double as the standalone-page renderer and no longer does.
 //
-//   - **Standalone** (slug page, `isStandalone=true`): full prose body,
-//     diagram rails top + bottom, foot with read-time. The piece title
-//     is the page's `<h1>` — plain text, NOT a link (it would link to
-//     its own page).
+// Structure (desktop):
+//   <li class="piece-row">
+//     <a class="piece-row-link" href={permalink}>
+//       <aside class="piece-row-meta">date / read-time / tags</aside>
+//       <div class="piece-row-body">
+//         <h2 class="piece-row-title"><em>title</em></h2>
+//         <p class="piece-row-deck">{lede}</p>
+//       </div>
+//     </a>
+//   </li>
 //
-//   - **Index** (list view, `isStandalone=false` default): an excerpt
-//     card — title (linked) + lede + first top diagram + kernel
-//     paragraphs + foot with read-time and a "continue reading →"
-//     link. Two explicit click targets (title and foot link) instead
-//     of the whole-card-wrap pattern; cleaner DOM, no nested-anchor
-//     constraints on the kernel paragraphs.
+// Mobile (≤720px): the grid collapses to a single column; meta flows
+// horizontally above the title row.
 //
-// Margin notes are NOT rendered here in either mode. The
-// `remark-inject-margin-notes` plugin (wired in `astro.config.ts`)
-// injects them into the markdown AST right after their anchor heading
-// at build time — they only show up on the slug page, and the index
-// excerpt cuts off before any of them would appear.
-//
-// Breakpoint behaviour at ≤ 880 px:
-//   - `.piece-left` (desktop date + tags rail) hides.
-//   - `.piece-date-top` shows date above the title.
-//   - `.piece-meta-foot` shows tags below the body.
-//   - `.piece-foot` keeps showing read-time + continue link at the bottom.
+// Tags render only here, not on the slug page (PR P5 decision 8).
 import type { CollectionEntry } from 'astro:content';
 import type { Locale } from '@lib/routes';
 import { entryRouteFor } from '@lib/i18n';
 import { readingTimeMinutes } from '@lib/reading-time';
-import DiagramRail from './DiagramRail.astro';
 
 export interface Props {
   entry: CollectionEntry<'pieces'>;
   locale: Locale;
-  /** Single-entry page (PieceLayout) vs index-list context. When true,
-   *  the body slot renders the full prose; when false, only the kernel. */
-  isStandalone?: boolean;
 }
 
-const { entry, locale, isStandalone = false } = Astro.props;
-const { date, tags, title, lede, diagrams, minutes: minutesOverride } = entry.data;
+const { entry, locale } = Astro.props;
+const { date, tags, title, lede, minutes: minutesOverride } = entry.data;
 const permalink = entryRouteFor(entry);
 const minutes = minutesOverride ?? (entry.body ? readingTimeMinutes(entry.body) : null);
 
-// Diagram placement modes per the P2 review fix (top / bottom / after).
-// `after` is reserved; if any piece sets it before the inline-rehype
-// plugin lands, fail loudly at build time rather than silently render
-// in the wrong position.
-const inlineDiagrams = diagrams.filter((d) => d.after !== undefined);
-if (inlineDiagrams.length > 0) {
-  const keys = inlineDiagrams.map((d) => `${d.key}(after:${d.after})`).join(', ');
-  throw new Error(
-    `[PieceEntry] inline diagram placement (\`after: ...\`) is not yet ` +
-      `implemented. Piece "${title}" uses it for: ${keys}. ` +
-      `Either remove \`after\` and use \`place: 'top' | 'bottom'\`, ` +
-      `or implement the rehype-inject-diagrams plugin and remove this ` +
-      `guard. (See \`src/lib/diagram-registry.ts\` for the placement-mode ` +
-      `comment block.)`,
-  );
-}
-const topDiagrams = diagrams.filter((d) => d.place !== 'bottom');
-const bottomDiagrams = diagrams.filter((d) => d.place === 'bottom');
-// The "main image" — first top diagram. Rendered on the index card as
-// the visual hook AND on the slug page as the full top rail's first
-// member. Cards without any top diagram render no image; that's an
-// authorial choice, not a layout bug.
-const indexDiagrams = topDiagrams.slice(0, 1);
+const copy = {
+  en: { minLabel: 'min' },
+  es: { minLabel: 'min' },
+} as const;
+const t = copy[locale];
 
 const dateFormatter = new Intl.DateTimeFormat(locale === 'es' ? 'es-AR' : 'en-AU', {
   year: 'numeric',
@@ -73,143 +46,50 @@ const dateFormatter = new Intl.DateTimeFormat(locale === 'es' ? 'es-AR' : 'en-AU
   day: '2-digit',
 });
 const dateParts = dateFormatter.formatToParts(date).filter((p) => p.type !== 'literal');
-const dateDisplay = `${dateParts.find((p) => p.type === 'year')?.value} · ${dateParts.find((p) => p.type === 'month')?.value} · ${dateParts.find((p) => p.type === 'day')?.value}`;
+const dateDisplay = [
+  dateParts.find((p) => p.type === 'year')?.value,
+  dateParts.find((p) => p.type === 'month')?.value,
+  dateParts.find((p) => p.type === 'day')?.value,
+]
+  .filter(Boolean)
+  .join(' · ');
 
-const readTimeLabel = locale === 'es' ? 'lectura' : 'read time';
-const minLabel = locale === 'es' ? 'min' : 'min';
-// Visible continue-reading cue inside the index card. Rendered as a
-// `<span>` (not `<a>`) because the entire card is already wrapped in
-// `<a>` — nested anchors would be invalid HTML. The cue is a visual
-// signal: hover/focus shifts its color via `.piece-card--link:hover`.
-const continueLabel = locale === 'es' ? 'seguir leyendo →' : 'continue reading →';
-
-// On the index, the piece body shows only its KERNEL — the prose
-// before the first `## ` heading, capped at three paragraphs. Kernels
-// are deliberately written as plain prose (no inline markdown, no
-// lists, no code blocks), so they render safely as escaped-text
-// paragraphs without a markdown processor. The cap protects against
-// future pieces that don't use H2 headings — they'd otherwise dump
-// their whole body into the index.
-const EXCERPT_PARAGRAPH_CAP = 3;
-const kernelParagraphs: string[] = !isStandalone
-  ? ((entry.body ?? '')
-      .split('\n## ')[0]
-      ?.trim()
-      .split(/\n\n+/)
-      .filter((p) => p.length > 0)
-      .slice(0, EXCERPT_PARAGRAPH_CAP) ?? [])
-  : [];
-
-const TitleTag = isStandalone ? 'h1' : 'h3';
+// Same inline-italic convention as PieceLayout — `_word_` in the title
+// becomes `<em>word</em>` so split-style titles ("The case for the
+// _small static site_") render as the author intended on the index too.
+function renderTitle(raw: string): string {
+  return raw.replace(/_([^_]+)_/g, '<em>$1</em>');
+}
+const titleHtml = renderTitle(title);
 ---
 
-<li class="piece">
-  <div class="piece-left">
-    <div class="piece-date">{dateDisplay}</div>
-    {
-      tags && tags.length > 0 && (
-        <div class="piece-tags">
-          {tags.map((t) => (
-            <span class="piece-tag">#{t}</span>
-          ))}
-        </div>
-      )
-    }
-  </div>
-
-  <article class="piece-body">
-    {
-      /* Mobile-only date strip — appears ABOVE the title at ≤ 880 px,
-        where the left rail is hidden. */
-    }
-    <div class="piece-date-top">{dateDisplay}</div>
-
-    {
-      /* Title: linked on the index (navigates to the slug), plain text
-        H1 on the standalone slug page (a link to self is pointless). */
-    }
-    <TitleTag class="piece-title">
+<li class="piece-row">
+  <a class="piece-row-link" href={permalink} data-astro-prefetch>
+    <aside class="piece-row-meta">
+      <time class="piece-row-date" datetime={date.toISOString().split('T')[0]}>{dateDisplay}</time>
       {
-        isStandalone ? (
-          title
-        ) : (
-          <a href={permalink} data-astro-prefetch>
-            {title}
-          </a>
+        minutes !== null && (
+          <span class="piece-row-time">
+            {minutes} {t.minLabel}
+          </span>
         )
       }
-    </TitleTag>
-    {lede && <p class="piece-lede">{lede}</p>}
+    </aside>
 
-    {
-      /* Top diagram(s). Index renders just the first one as the
-        card's "main image"; the slug page renders the full top set. */
-    }
-    {topDiagrams.length > 0 && <DiagramRail items={isStandalone ? topDiagrams : indexDiagrams} />}
-
-    {/* Standalone — full prose + bottom diagrams. */}
-    {
-      isStandalone && (
-        <>
-          <div class="piece-prose">
-            <slot />
-          </div>
-          {bottomDiagrams.length > 0 && <DiagramRail items={bottomDiagrams} />}
-        </>
-      )
-    }
-
-    {/* Index excerpt — kernel paragraphs only. */}
-    {
-      !isStandalone && kernelParagraphs.length > 0 && (
-        <div class="piece-prose piece-prose--excerpt">
-          {kernelParagraphs.map((p) => (
-            <p>{p}</p>
-          ))}
-        </div>
-      )
-    }
-
-    {
-      /* Mobile-only tag strip. Date moved above title (item 4); tags
-        stay at the foot of the body since they're secondary. */
-    }
-    {
-      tags && tags.length > 0 && (
-        <div class="piece-meta-foot">
-          <span class="piece-tags-inline">
-            {tags.map((t) => (
-              <span class="piece-tag">#{t}</span>
+    <div class="piece-row-body">
+      <h2 class="piece-row-title"><Fragment set:html={titleHtml} /></h2>
+      {lede && <p class="piece-row-deck">{lede}</p>}
+      {
+        tags && tags.length > 0 && (
+          <p class="piece-row-tags">
+            {tags.map((tag) => (
+              <span class="piece-row-tag">#{tag}</span>
             ))}
-          </span>
-        </div>
-      )
-    }
+          </p>
+        )
+      }
+    </div>
 
-    {
-      /* Foot — read-time + (on the index) a continue-reading link.
-        Visible at every breakpoint on both modes. The continue-reading
-        link's accessible name includes the piece title via a
-        visually-hidden span, so Lighthouse's link-text audit reads it
-        as a descriptive link, not a generic "continue reading". */
-    }
-    {
-      (minutes !== null || !isStandalone) && (
-        <div class="piece-foot">
-          {minutes !== null && (
-            <span>
-              {readTimeLabel} · {minutes} {minLabel}
-            </span>
-          )}
-          {minutes !== null && !isStandalone && <span class="sep">·</span>}
-          {!isStandalone && (
-            <a class="piece-continue" href={permalink}>
-              {continueLabel}
-              <span class="visually-hidden">: {title}</span>
-            </a>
-          )}
-        </div>
-      )
-    }
-  </article>
+    <span class="piece-row-arrow" aria-hidden="true">→</span>
+  </a>
 </li>

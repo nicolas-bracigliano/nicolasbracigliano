@@ -344,15 +344,31 @@ jobs:
           # (Accept-Language 302); everything else falls through to
           # the ASSETS binding with `not_found_handling = "404-page"`
           # serving `dist/404.html` for unmatched paths.
+          #
+          # Retry note: `curl --retry` only retries on 5xx + network
+          # errors, NOT on 4xx — a 404 during the post-deploy asset-
+          # propagation window would otherwise give up after one
+          # attempt. We wrap the curl call in an explicit bash retry
+          # so transient 404s (an asset uploaded a moment ago but not
+          # yet served at this edge) get a fair shake before we fail
+          # the build. Observed in run 26442160867: ES slug returned
+          # 404 while same-build EN slug returned 200 within the
+          # immediate post-deploy window; both 200 a minute later.
+          # Six attempts × 3 s delay = ~18 s tolerance per route.
           check() {
             local path="$1" expected="$2"
-            local got
-            got=$(curl -sS -o /dev/null -w '%{http_code}' --max-time 15 --retry 3 --retry-delay 2 "$URL$path")
-            if [ "$got" != "$expected" ]; then
-              echo "::error::$path expected $expected, got $got"
-              return 1
-            fi
-            echo "  $path → $got ✓"
+            local got attempt=0
+            while [ $attempt -lt 6 ]; do
+              got=$(curl -sS -o /dev/null -w '%{http_code}' --max-time 15 "$URL$path")
+              if [ "$got" = "$expected" ]; then
+                echo "  $path → $got ✓"
+                return 0
+              fi
+              attempt=$((attempt + 1))
+              sleep 3
+            done
+            echo "::error::$path expected $expected, got $got (after $attempt retries)"
+            return 1
           }
           # Worker-handled (redirect)
           check /            302 || exit 1

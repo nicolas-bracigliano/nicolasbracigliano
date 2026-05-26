@@ -4,6 +4,7 @@ slug: 'rings-i-keep-redrawing'
 lang: en
 translationKey: clean-architecture-2024-08-14
 date: 2024-08-14
+written: 'Melbourne, AU'
 status: published
 tags: [clean-architecture, software-design]
 lede: 'Five rewrites in, the rings still want to migrate outward.'

@@ -1,4 +1,14 @@
 ---
+// Margin note for the /notes route. Rendered in the right rail next to
+// the note's prose body; styled by `src/styles/routes/notes.css` via
+// the `.margin-note` class.
+//
+// **Note for future-me:** the /pieces route used to use this component
+// too, in a 3-column marginalia layout. Per ADR 0012, pieces pivoted to
+// a single-column editorial article with inline pull quotes (`<aside
+// class="pull">`) injected directly by the `remark-inject-margin-notes`
+// plugin from frontmatter. This component is now the /notes-only
+// renderer; do NOT change its markup without re-checking notes.css.
 export interface Props {
   text: string;
   mark?: string;
