@@ -4,7 +4,7 @@ slug: 'c4-four-times-in-a-row'
 lang: en
 translationKey: c4-diagrams-2024-08-01
 date: 2024-08-01
-written: 'Melbourne, in winter'
+written: 'Melbourne, AU'
 status: published
 tags: [c4-model, software-architecture, diagrams]
 lede: 'Architecture diagrams that nobody asks "what does this box mean?" afterwards.'

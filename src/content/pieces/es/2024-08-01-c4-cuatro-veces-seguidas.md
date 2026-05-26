@@ -4,7 +4,7 @@ slug: 'c4-cuatro-veces-seguidas'
 lang: es
 translationKey: c4-diagrams-2024-08-01
 date: 2024-08-01
-written: 'Melbourne, en invierno'
+written: 'Melbourne, AU'
 status: published
 tags: [c4-model, arquitectura-de-software, diagramas]
 lede: 'Diagramas de arquitectura que nadie pregunta después qué quiere decir esa caja.'
