@@ -5,7 +5,7 @@ lang: es
 translationKey: c4-diagrams-2024-08-01
 date: 2024-08-01
 status: published
-tags: [arquitectura, diagramas]
+tags: [c4-model, arquitectura-de-software, diagramas]
 lede: 'Diagramas de arquitectura que nadie pregunta después qué quiere decir esa caja.'
 marginNotes:
   - section: 'antes-de-c4'
@@ -44,11 +44,13 @@ C4 arregla la ambigüedad siendo aburridamente explícito. Cuatro formas, cuatro
 
 ## Los cuatro niveles
 
-Simon Brown los llama Context, Container, Component, Code. El nombre exacto no es lo importante; el zoom sí.
+Simon Brown desarrolló C4 a fines de los 2000 y durante los 2010, después de años de trabajo de consultoría donde había visto la misma confusión de diagramas aparecer en cliente tras cliente. La referencia pública es c4model.com; la doc es gratis, opinada y corta. Los nombres importan menos que el zoom.
 
 **Nivel 1 (Contexto de Sistema).** Tu sistema es una sola caja. Alrededor están las personas que lo usan y los sistemas externos con los que habla. Listo. Diagrama de cinco minutos, útil para cualquier persona no técnica en la sala.
 
 **Nivel 2 (Contenedor).** Acercás el zoom a la caja. Ahora ves las unidades desplegables principales: aplicación web, mobile, API, base de datos, cola de mensajes. Cada contenedor es una cosa que se puede correr por separado. Útil para cualquier ingeniero nuevo que esté tratando de entender la forma del sistema.
+
+Un "Container" de C4 no es un container de Docker. Simon Brown eligió la palabra años antes de que Docker se la apropiara, y en c4model.com lleva una década respondiendo a la confusión. Un container en C4 es cualquier cosa que corre como su propio proceso o en su propio runtime: una app web, un demonio, una función serverless, un motor de base de datos. Docker es una forma de empaquetar algunos. La colisión de terminología es desafortunada; el concepto es más viejo que el conflicto.
 
 **Nivel 3 (Componente).** Acercás el zoom a un contenedor. Ahora ves los módulos internos principales: autenticación, órdenes, pagos, reportes. Útil cuando se discute dónde tiene que vivir una feature nueva.
 
@@ -73,6 +75,30 @@ C4 no te va a decir si tu arquitectura está bien. Es una notación, no un méto
 Tampoco arregla el problema del "diagrama desactualizado". Los diagramas siguen necesitando mantenimiento; cuantos más niveles dibujás, más hay para mantener. La forma de limitarlo es dibujar el nivel más alto con el que puedas zafar. Los niveles 1 y 2 cambian despacio. El nivel 3 cambia cuando un componente importante se parte o se fusiona. El nivel 4 cambia todo el tiempo y normalmente ya está mal cuando empieza la reunión.
 
 El setup más barato, para un sistema que viene corriendo hace rato: mantené el Nivel 1 y el Nivel 2 al día. Saltate el Nivel 3 a menos que estés haciendo onboarding sobre un contenedor específico. Saltate el Nivel 4 del todo; dejá hablar al código.
+
+## Errores que sigo cometiendo
+
+Algunos en los que caí más de una vez.
+
+**Dibujar los cuatro niveles por defecto.** Tratar C4 como una checklist en vez de una herramienta de zoom. La mayoría de los sistemas sólo necesitan los Niveles 1 y 2. El Nivel 3 es una decisión por contenedor; el Nivel 4 casi nunca vale el mantenimiento. Dibujar cuatro diagramas cuando alcanzaba con uno te deja más cosas para mantener y más lugares donde se pueden ir desincronizando.
+
+**Mezclar niveles en un solo diagrama.** Poner una base de datos (contenedor de Nivel 2) al lado de una clase (código de Nivel 4) en la misma imagen. El diagrama se vuelve ilegible porque el zoom no es consistente. El valor entero de C4 es comprometerse con un zoom; mezclarlos lo colapsa de vuelta al desorden de cajas y líneas que se suponía iba a arreglar.
+
+**Codificar comportamiento con C4.** Tratar de mostrar "el usuario manda el form, después la API hace X, después Y" con cajas de C4. C4 es estructural; te dice qué existe, no qué pasa. Para comportamiento, usá un diagrama de secuencia. Las cajas no secuencian; coexisten.
+
+**Dejar que un diagrama de Nivel 3 se desactualice.** Un diagrama de componentes de Nivel 3 con seis meses de desactualización es peor que no tener diagrama, porque alguien lo va a usar de referencia y se va a equivocar. La defensa más barata es mantener los diagramas en un nivel que no cambie cada semana. El Nivel 3 es el de mayor riesgo; si no podés mantenerlo, no lo dibujes.
+
+## Cuándo esto no es la herramienta indicada
+
+C4 es buenísimo para sistemas con estructura interna que importe y con varias personas contribuyendo. Es exceso, o equivocado, en algunos casos:
+
+**Prototipos descartables.** Si el sistema capaz no existe en tres meses, no lo diagrames. Un README de un párrafo, o nada, es más honesto sobre lo que es el código.
+
+**Monolitos de un proceso con un solo contribuidor.** La estructura es "el código". El árbol de carpetas es el diagrama. C4 agrega notación para problemas que no tenés.
+
+**Documentación puramente de comportamiento.** Máquinas de estado, flujos de request, lógica de scheduling. Usá diagramas de secuencia o de estado. C4 cubre lo que está, no lo que pasa.
+
+**Como sustituto del diseño.** C4 sirve para documentar una arquitectura que ya existe, o que ya decidiste. Si estás usando cajas de C4 para decidir qué construir, estás usando una notación como herramienta de pensamiento, y hay mejores herramientas para eso: listas, prosa, un pizarrón con flechas que explícitamente todavía no significan nada.
 
 ## Cuándo parar
 

@@ -234,7 +234,7 @@
     margin-block: 0.25rem 1rem;
     /* Restate visual identity in case notes.css ever changes — keeps
        margin notes readable inside the piece prose at the right edge. */
-    font-size: 0.75rem;
+    font-size: 0.95rem;
     font-style: italic;
     font-family: var(--font-display);
     color: var(--ink-2);

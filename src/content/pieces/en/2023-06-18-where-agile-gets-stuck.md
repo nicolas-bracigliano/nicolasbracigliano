@@ -5,13 +5,15 @@ lang: en
 translationKey: agile-stuck-2023-06-18
 date: 2023-06-18
 status: published
-tags: [teamwork, agile]
+tags: [agile, scrum, teamwork]
 lede: 'The standups drift. The retros get cut. The pattern isn’t agile failing.'
 marginNotes:
   - section: 'the-standup-drift'
     text: 'If your standup is for your manager, your manager is doing the standup.'
   - section: 'what-gets-cut-first'
     text: "I've never seen a team cut their planning meeting. Always the retro."
+  - section: 'common-mistakes-i-keep-making'
+    text: "Scrum is a flavour of agile. 'We don't do agile' usually means 'we don't do Scrum.' Worth checking which one is being said."
 diagrams:
   - key: 'agile-road-knot'
     place: 'top'
@@ -47,6 +49,30 @@ Planning gets cut next, but more subtly. The meeting still happens, but it short
 Then padding goes. Sprints fill to 100% of capacity, then 110%, then 130% with the assumption that "we'll catch up." The team catches up by working late, then by cutting corners, then by introducing the kind of bugs that make the next sprint worse.
 
 Standups become status meetings, retros stop happening, planning becomes backlog-flushing, capacity inflates. None of these are agile failing. They're agile being eroded by pressure, one ceremony at a time.
+
+## Common mistakes I keep making
+
+A few patterns I've fallen into, or watched teams I was on fall into, more than once.
+
+**Treating Scrum and agile as the same thing.** Scrum is one specific framework: three roles, four ceremonies, three artefacts. Agile is older and broader; it's the values and principles of the manifesto, plus a wider set of practices that may or may not include Scrum. "We don't do agile here" usually means "we don't do Scrum." That's a different claim, and the conversation that follows is different. Worth checking which one is being said.
+
+**Velocity as a target.** Velocity is a description of how much the team got done last sprint. Useful for planning the next one. The moment it becomes a target ("the team needs to hit 40 points this sprint"), Goodhart's law kicks in: any measure that becomes a target stops being a good measure. The points get inflated, the planning value collapses, and the number stops telling you anything about reality. Velocity is a measurement, not a quota.
+
+**Treating the sprint commitment as a contract.** The sprint goal is a forecast under uncertainty. If something urgent shows up mid-sprint, the right move is to renegotiate, not to silently absorb the new work and miss the original commitment. Teams that treat the commitment as a contract end up either lying about completion or working overtime to avoid lying. Renegotiating is the cheap version of the same conversation.
+
+**Doing the ceremonies as theatre.** Going through the motions of planning, standup, review, retro because the framework says so, without the conversations the ceremonies were designed to surface. The check is whether the ceremony actually changes something the team does next. If the retro never produces a behavioural change, the retro has become theatre. The fix is rarely "more ceremonies"; usually it's "fewer, and actually do the thing."
+
+## When this isn't the right tool
+
+Scrum-style agile fits stable cross-functional teams doing incremental product development with a clear product owner. It fits worse in a few cases:
+
+**Solo work.** If you're one person, ceremonies designed for a team of five are overhead. Use the parts you find useful (a backlog, maybe a weekly retro with yourself) and skip the rest. The framework doesn't earn its weight at team size one.
+
+**Pure research or R&D.** Scrum assumes work can be split into sprintable chunks with deliverable outcomes. Research doesn't fit that shape; a sprint might end in "we learned X doesn't work, here's the next thing to try." That's a fine outcome for research and a confusing one for Scrum reporting. Different framing helps: timeboxes around questions, not around deliverables.
+
+**Fixed-scope, fixed-deadline contracts.** Agile's premise is that scope and priorities can move under new information. Contracts that lock both leave nothing for the team to negotiate. The work can still be incremental and iterative; calling that Scrum doesn't change the constraint, and pretending otherwise wastes everyone's time at the next planning meeting.
+
+**Teams with churn.** Scrum compounds value over months: the retro feeds the next retro, the team learns its own velocity, the same Scrum Master notices the same drifts and gets faster at catching them. A team that turns over every six weeks doesn't compound. The ceremonies still happen, but the institutional memory the retro builds on doesn't survive the turnover. Different problem; different tools.
 
 ## What I'd protect
 
