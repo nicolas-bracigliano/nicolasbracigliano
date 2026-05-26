@@ -16,7 +16,7 @@ The reference for everything about this site. Read this before changing color, c
 - **2026‑05‑25** — §6 Hedges tightened: at most one or two hedges per paragraph; voice is curious, humble, but assertive. New §6 Punctuation subsection: no em dash (`—`) in prose. Why: the open-ended "hedges encouraged" rule produced over-hedged drafts during PR P3 calibration; an author writes about a topic because they have knowledge of it, and stacking three "probably / I think / not sure" reads as performative uncertainty.
 - **2026‑05‑26** — §9 Type committed to a two-face mapping table: notes ship in JetBrains Mono (field log), pieces ship in Newsreader 18/1.65 (slowed-down reading). Margin notes on pieces stay serif; rail position + `↳` mark carry the aside-ness. New non-goal: a third face. Cross-references added in §4 #5, §7, §15 #5. "Real pieces" moved from §17 Open questions to §17 Shipped (PR P3). Why: the face is the content signal — see PR P5.
 - **2026‑05‑26** — `/pieces` pivots to an editorial-article layout: single column, display H1, drop cap, italic H2 with `§`, inline pull quotes. Full rationale + alternatives in [ADR 0012](./decisions/0012-pieces-editorial-layout.md). Why: serif body without an editorial layout reads as "long note," not essay.
-- **2026‑05‑27** — §6 gains a Banned phrases catalogue + Anecdote fidelity rule. New §7a "How to write a piece (the recipe)" with the kernel-plus-six-sections shape, required components, length window, tag pattern, bilingual rules. New §7b "Reviewing a piece (the reflection pass)" — a post-draft checklist for the writer AND the LLM to consult and reflect against. §9 gains a Diagrams subsection lifting PR P4's role-class pattern. ADR 0011 documents the piece shape with the four P3 pieces as worked examples. Why: the four P3 pieces independently converged on the same shape; codifying it as a reflective guide (not a CI gate) lets future pieces match without re-deriving, while keeping the judgement with the writer.
+- **2026‑05‑27** — §6 gains a Banned phrases catalogue + Anecdote fidelity rule. New §7a "How to write a piece (the recipe)" with the kernel-plus-six-sections shape, required components, length window, tag pattern, bilingual rules. New §7b "Reviewing a piece (the reflection pass)" — a post-draft checklist for the writer AND the LLM to consult and reflect against. §9 gains a Diagrams subsection lifting PR P4's role-class pattern. ADR 0011 documents the piece shape with the four P3 pieces as worked examples. One exception stays a test (`piece-margin-note-anchors`) — it's a silent-render bug, not a style call. Why: the four P3 pieces independently converged on the same shape; codifying it as a reflective guide (not a CI gate) lets future pieces match without re-deriving, while keeping the judgement with the writer.
 
 When something material changes, add a line. Keep the log short: date, what changed, why. If you can't write the _why_ in one clause, you probably shouldn't make the change.
 
@@ -248,7 +248,7 @@ The mirror of §7, for long-form. Pieces are arguments — slower, polished, str
    - `[c4-model, software-architecture, diagrams]` / `[c4-model, arquitectura-de-software, diagramas]`
    - `[crucial-conversations, communication, feedback]` / `[crucial-conversations, comunicación, feedback]`
 
-9. **Margin notes → pull quotes.** 3 per piece. Each anchored to a real H2 by its slug — the remark plugin silently skips an anchor that matches no heading, so a typo or a removed section leaves a pull quote that just doesn't render. Each ≤180 chars (schema-enforced). Distributed structurally, not stacked at the closing. Voice = self-aware aside, often hedging or self-deprecating, never editorial. **Orphan policy:** when removing a section, drop the matching `marginNotes` entry, or restore the section. (This is the most error-prone item — it's on the §7b checklist for that reason.)
+9. **Margin notes → pull quotes.** 3 per piece. Each anchored to a real H2 by its slug — the remark plugin silently skips an anchor that matches no heading, so a typo or a removed section leaves a pull quote that just doesn't render. Each ≤180 chars (schema-enforced). Distributed structurally, not stacked at the closing. Voice = self-aware aside, often hedging or self-deprecating, never editorial. **Orphan policy:** when removing a section, drop the matching `marginNotes` entry, or restore the section. This is the one piece rule backed by a test (`tests/unit/piece-margin-note-anchors.test.ts`) — it's a silent-render bug, not a style call, so it gets a hard check rather than the §7b reflection pass.
 
 10. **Anecdote fidelity** when migrating from a source: see §6. Real anecdotes only — never invent specifics to fit the voice.
 
@@ -272,10 +272,6 @@ This pass is also what the LLM runs when it writes or reviews a piece: walk the 
 - More than one or two hedges in any paragraph? Cut down to the load-bearing ones.
 - Five-word test: any line over five words with no number / name / time / place? Add a specific or cut it.
 
-**Fidelity (§6)**
-
-- If this was migrated or rewritten from a source: is every anecdote one that actually happened? No invented specifics?
-
 **Shape (ADR 0011)**
 
 - 6–7 H2 sections? If fewer, is it really a piece (vs. a note)? If more, should it be a series?
@@ -285,7 +281,7 @@ This pass is also what the LLM runs when it writes or reviews a piece: walk the 
 **Structure + frontmatter**
 
 - 2–3 tags, framework-first?
-- **Does every `marginNotes[].section` match a real H2 slug in the body?** This is the easy one to get wrong — a removed or renamed section leaves a pull quote that silently doesn't render. Eyeball each anchor against the headings.
+- **Does every `marginNotes[].section` match a real H2 slug in the body?** A removed or renamed section leaves a pull quote that silently doesn't render. This one's backed by a test (`piece-margin-note-anchors.test.ts`) since it's a correctness bug, not a style call — but eyeball it here too.
 - Diagrams reference real registry keys?
 
 **Bilingual**

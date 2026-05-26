@@ -56,7 +56,7 @@ Long-form pieces follow this structure:
 
 ## How this is applied — a reflective guide, not CI gates
 
-The standards in this ADR are a **writer's guide**, consulted after a draft exists and reflected against — not a set of build-failing unit tests. An early version of PR V shipped four unit tests (em-dash scan, banned-phrase scan, margin-note-anchor validator, shape envelope); they were removed because they turned a reflective craft into a pass/fail pipeline and pushed the judgement into CI instead of leaving it with the writer.
+The standards in this ADR are a **writer's guide**, consulted after a draft exists and reflected against — not a set of build-failing unit tests. An early version of PR V shipped four unit tests (em-dash scan, banned-phrase scan, margin-note-anchor validator, shape envelope); three were removed because they turned a reflective craft into a pass/fail pipeline and pushed editorial judgement into CI instead of leaving it with the writer. The fourth — the margin-note-anchor validator — was kept, because it catches a silent rendering bug rather than making a style call (see the bottom of this section).
 
 Where the rules live and how they're used:
 
@@ -70,7 +70,7 @@ Why a guide and not tests:
 2. **Prose detection is unreliable.** "Has an attribution paragraph" can't be regex-matched without false positives/negatives.
 3. **Section names vary legitimately.** The "when-not-to-use" section is "When this isn't the right tool" in C4/CPR/Agile but "When to reach for something else" in Rings. A slug test would false-negative on healthy variation.
 
-**The one genuinely test-shaped item** is the margin-note anchor check (every `marginNotes[].section` must match an H2 slug, or the pull quote silently doesn't render — this bit during PR P5). It's a correctness bug, not a style call. It stays on the §7b checklist as the most error-prone item; if orphan margin notes recur despite the checklist, revisit adding a narrow build-time validator just for that one case.
+**The one genuinely test-shaped item is kept as a test.** The margin-note anchor check (every `marginNotes[].section` must match an H2 slug, or the pull quote silently doesn't render — this bit during PR P5) is a correctness bug, not a style call. A human reviewer catches it only by reading the rendered page end-to-end and counting; a test catches it in milliseconds, and it's the easiest item to skim past on a checklist. So `tests/unit/piece-margin-note-anchors.test.ts` stays. It's the deliberate exception to "guide, not gates": style → §7b checklist, silent-render bug → test. (It's also still on the §7b checklist as a reminder, but the test is the real safety net.)
 
 **Revisit clause.** These standards derive from four pieces. After the next 2–3 long-form additions, revisit:
 
