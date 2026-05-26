@@ -18,14 +18,13 @@ const labelled = label !== undefined;
   <svg viewBox="0 0 240 240" width="100%" height="auto" preserveAspectRatio="xMidYMid meet">
     {label && <title>{label}</title>}
     {/* Outer circle + cross-dividers. */}
-    <g fill="none" stroke="currentColor" stroke-width="1.2">
+    <g fill="none" stroke="currentColor" stroke-width="1.5">
       <circle cx="120" cy="120" r="100"></circle>
       <line x1="20" y1="120" x2="220" y2="120"></line>
       <line x1="120" y1="20" x2="120" y2="220"></line>
     </g>
     {/* Inner reference rings hint at the zoom-in nature of the model. */}
-    <g fill="none" stroke="currentColor" stroke-width="0.6" opacity="0.5">
-      <circle cx="120" cy="120" r="68"></circle>
+    <g fill="currentColor" stroke="currentColor" stroke-width="0.6" opacity="1">
       <circle cx="120" cy="120" r="36"></circle>
     </g>
     {/* Quadrant labels — clockwise from top-left. */}
@@ -41,6 +40,11 @@ const labelled = label !== undefined;
       <text x="170" y="86">2</text>
       <text x="170" y="186">3</text>
       <text x="70" y="186">4</text>
+    </g>
+
+    {/* Centre label */}
+    <g fill="currentColor" font-size="24" text-anchor="middle">
+      <text x="120" y="128">C4</text>
     </g>
   </svg>
   {caption && <figcaption>{caption}</figcaption>}

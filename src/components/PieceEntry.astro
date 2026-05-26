@@ -3,16 +3,15 @@
 //
 //   - **Standalone** (slug page, `isStandalone=true`): full prose body,
 //     diagram rails top + bottom, foot with read-time. The piece title
-//     becomes the page's `<h1>` — plain text, NOT a link (it would
-//     link to its own page, which is the kind of self-referential
-//     mistake browsers don't enjoy).
+//     is the page's `<h1>` — plain text, NOT a link (it would link to
+//     its own page).
 //
-//   - **Index** (list view, `isStandalone=false` default): a card-style
-//     excerpt — title + lede + first top diagram + kernel paragraphs.
-//     The entire body is wrapped in a single `<a>` so the whole card
-//     is the click target; title and diagram are plain content inside
-//     the wrapper, not separate links. Keeps the index lightweight and
-//     the reader oriented; full content is one click away.
+//   - **Index** (list view, `isStandalone=false` default): an excerpt
+//     card — title (linked) + lede + first top diagram + kernel
+//     paragraphs + foot with read-time and a "continue reading →"
+//     link. Two explicit click targets (title and foot link) instead
+//     of the whole-card-wrap pattern; cleaner DOM, no nested-anchor
+//     constraints on the kernel paragraphs.
 //
 // Margin notes are NOT rendered here in either mode. The
 // `remark-inject-margin-notes` plugin (wired in `astro.config.ts`)
@@ -24,10 +23,7 @@
 //   - `.piece-left` (desktop date + tags rail) hides.
 //   - `.piece-date-top` shows date above the title.
 //   - `.piece-meta-foot` shows tags below the body.
-//   - `.piece-foot` shows read-time at the bottom.
-// On desktop (≥ 881 px), `.piece-foot` is also hidden — read-time
-// isn't useful enough to claim the column on a wide screen, and the
-// card-level link makes a per-entry "continue reading" link redundant.
+//   - `.piece-foot` keeps showing read-time + continue link at the bottom.
 import type { CollectionEntry } from 'astro:content';
 import type { Locale } from '@lib/routes';
 import { entryRouteFor } from '@lib/i18n';
@@ -81,6 +77,11 @@ const dateDisplay = `${dateParts.find((p) => p.type === 'year')?.value} · ${dat
 
 const readTimeLabel = locale === 'es' ? 'lectura' : 'read time';
 const minLabel = locale === 'es' ? 'min' : 'min';
+// Visible continue-reading cue inside the index card. Rendered as a
+// `<span>` (not `<a>`) because the entire card is already wrapped in
+// `<a>` — nested anchors would be invalid HTML. The cue is a visual
+// signal: hover/focus shifts its color via `.piece-card--link:hover`.
+const continueLabel = locale === 'es' ? 'seguir leyendo →' : 'continue reading →';
 
 // On the index, the piece body shows only its KERNEL — the prose
 // before the first `## ` heading, capped at three paragraphs. Kernels
@@ -100,20 +101,6 @@ const kernelParagraphs: string[] = !isStandalone
   : [];
 
 const TitleTag = isStandalone ? 'h1' : 'h3';
-
-// Click wrapper element: `<a>` on the index (whole card navigates),
-// `<div>` on the slug page (no link, since we ARE the page). Allows
-// one render path with conditional semantics. Title text stays plain
-// inside either wrapper — never its own link.
-const CardWrapper = isStandalone ? 'div' : 'a';
-const cardWrapperProps = isStandalone
-  ? { class: 'piece-card' }
-  : {
-      class: 'piece-card piece-card--link',
-      href: permalink,
-      'data-astro-prefetch': '',
-      'aria-label': title,
-    };
 ---
 
 <li class="piece">
@@ -130,77 +117,99 @@ const cardWrapperProps = isStandalone
     }
   </div>
 
-  <CardWrapper {...cardWrapperProps}>
-    <article class="piece-body">
-      {
-        /* Mobile-only date strip — appears ABOVE the title at ≤ 880 px,
-          where the left rail is hidden. */
-      }
-      <div class="piece-date-top">{dateDisplay}</div>
+  <article class="piece-body">
+    {
+      /* Mobile-only date strip — appears ABOVE the title at ≤ 880 px,
+        where the left rail is hidden. */
+    }
+    <div class="piece-date-top">{dateDisplay}</div>
 
-      <TitleTag class="piece-title">{title}</TitleTag>
-      {lede && <p class="piece-lede">{lede}</p>}
-
+    {
+      /* Title: linked on the index (navigates to the slug), plain text
+        H1 on the standalone slug page (a link to self is pointless). */
+    }
+    <TitleTag class="piece-title">
       {
-        /* Top diagram(s). Index renders just the first one as the
-          card's "main image"; the slug page renders the full top set. */
-      }
-      {topDiagrams.length > 0 && <DiagramRail items={isStandalone ? topDiagrams : indexDiagrams} />}
-
-      {/* Standalone — full prose + bottom diagrams. */}
-      {
-        isStandalone && (
-          <>
-            <div class="piece-prose">
-              <slot />
-            </div>
-            {bottomDiagrams.length > 0 && <DiagramRail items={bottomDiagrams} />}
-          </>
+        isStandalone ? (
+          title
+        ) : (
+          <a href={permalink} data-astro-prefetch>
+            {title}
+          </a>
         )
       }
+    </TitleTag>
+    {lede && <p class="piece-lede">{lede}</p>}
 
-      {/* Index excerpt — kernel paragraphs only. */}
-      {
-        !isStandalone && kernelParagraphs.length > 0 && (
-          <div class="piece-prose piece-prose--excerpt">
-            {kernelParagraphs.map((p) => (
-              <p>{p}</p>
+    {
+      /* Top diagram(s). Index renders just the first one as the
+        card's "main image"; the slug page renders the full top set. */
+    }
+    {topDiagrams.length > 0 && <DiagramRail items={isStandalone ? topDiagrams : indexDiagrams} />}
+
+    {/* Standalone — full prose + bottom diagrams. */}
+    {
+      isStandalone && (
+        <>
+          <div class="piece-prose">
+            <slot />
+          </div>
+          {bottomDiagrams.length > 0 && <DiagramRail items={bottomDiagrams} />}
+        </>
+      )
+    }
+
+    {/* Index excerpt — kernel paragraphs only. */}
+    {
+      !isStandalone && kernelParagraphs.length > 0 && (
+        <div class="piece-prose piece-prose--excerpt">
+          {kernelParagraphs.map((p) => (
+            <p>{p}</p>
+          ))}
+        </div>
+      )
+    }
+
+    {
+      /* Mobile-only tag strip. Date moved above title (item 4); tags
+        stay at the foot of the body since they're secondary. */
+    }
+    {
+      tags && tags.length > 0 && (
+        <div class="piece-meta-foot">
+          <span class="piece-tags-inline">
+            {tags.map((t) => (
+              <span class="piece-tag">#{t}</span>
             ))}
-          </div>
-        )
-      }
+          </span>
+        </div>
+      )
+    }
 
-      {
-        /* Mobile-only tag strip. Date moved above title (item 4); tags
-          stay at the foot of the body since they're secondary. */
-      }
-      {
-        tags && tags.length > 0 && (
-          <div class="piece-meta-foot">
-            <span class="piece-tags-inline">
-              {tags.map((t) => (
-                <span class="piece-tag">#{t}</span>
-              ))}
-            </span>
-          </div>
-        )
-      }
-
-      {
-        /* Read-time. Mobile-only via CSS — `.piece-foot` is `display:
-          none` on big screens. On the index, the card-level link is
-          the navigation affordance; on the slug page, read-time would
-          take up a desktop column for not much value. */
-      }
-      {
-        minutes !== null && (
-          <div class="piece-foot">
+    {
+      /* Foot — read-time + (on the index) a continue-reading link.
+        Visible at every breakpoint on both modes. The continue-reading
+        link's accessible name includes the piece title via a
+        visually-hidden span, so Lighthouse's link-text audit reads it
+        as a descriptive link, not a generic "continue reading". */
+    }
+    {
+      (minutes !== null || !isStandalone) && (
+        <div class="piece-foot">
+          {minutes !== null && (
             <span>
               {readTimeLabel} · {minutes} {minLabel}
             </span>
-          </div>
-        )
-      }
-    </article>
-  </CardWrapper>
+          )}
+          {minutes !== null && !isStandalone && <span class="sep">·</span>}
+          {!isStandalone && (
+            <a class="piece-continue" href={permalink}>
+              {continueLabel}
+              <span class="visually-hidden">: {title}</span>
+            </a>
+          )}
+        </div>
+      )
+    }
+  </article>
 </li>

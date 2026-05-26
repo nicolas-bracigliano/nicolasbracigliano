@@ -102,29 +102,6 @@
     letter-spacing: 0.06em;
   }
 
-  /* Card wrapper. Standalone slug pages use a `<div class="piece-card">`
-     (no link, no hover). Index entries use a `<a class="piece-card
-     piece-card--link">` — the entire body becomes the click target.
-     The title text inside is plain, not its own link (item 6). */
-  .piece-card {
-    display: block;
-    color: inherit;
-  }
-  .piece-card--link {
-    text-decoration: none;
-    border: 0;
-    transition: color var(--speed-micro);
-    cursor: pointer;
-  }
-  .piece-card--link:hover .piece-title,
-  .piece-card--link:focus-visible .piece-title {
-    color: var(--accent-aa);
-  }
-  .piece-card--link:focus-visible {
-    outline: 2px solid var(--accent-aa);
-    outline-offset: 4px;
-  }
-
   .piece-body {
     /* Right padding reserves the gutter that floated margin notes
        spill into. The prose itself stays at the design-system 78ch
@@ -148,7 +125,20 @@
     line-height: 1.12;
     margin: 0 0 0.625rem;
     color: var(--ink);
+  }
+  /* On the index, the title contains an `<a>` linking to the slug. The
+     anchor inherits the title's display register and only the colour
+     shifts on hover/focus — keeps the visual register quiet, lets the
+     reader scan a list of titles without rainbow link decoration. */
+  .piece-title a {
+    color: inherit;
+    text-decoration: none;
+    border: 0;
     transition: color var(--speed-micro);
+  }
+  .piece-title a:hover,
+  .piece-title a:focus-visible {
+    color: var(--accent-aa);
   }
   /* Standalone slug page: title is the page's <h1> and carries the
      full masthead register (no `<h1>` from a separate masthead). */
@@ -265,12 +255,43 @@
     margin-block-end: 0.25rem;
   }
 
-  /* `.piece-foot` is mobile-only (hidden on desktop). On big screens
-     the read-time isn't useful enough to claim a column on a wide
-     page, and the card-level link makes a per-entry "continue reading"
-     redundant. Visible block at ≤ 880 px via the media query below. */
+  /* `.piece-foot` — read-time strip on the slug page, read-time +
+     "continue reading →" link on the index. Visible at every
+     breakpoint on both modes; the continue-reading link is the
+     primary call to action on the index. */
   .piece-foot {
-    display: none;
+    margin-block-start: 1rem;
+    font-size: 0.6875rem;
+    letter-spacing: 0.06em;
+    color: var(--ink-3);
+    display: flex;
+    gap: 0.625rem;
+    align-items: center;
+    clear: right;
+    flex-wrap: wrap;
+  }
+  .piece-foot a {
+    color: var(--ink-2);
+    border: 0;
+    text-decoration: none;
+    transition: color var(--speed-micro);
+  }
+  .piece-foot a:hover,
+  .piece-foot a:focus-visible {
+    color: var(--accent-aa);
+    text-decoration: underline;
+  }
+  /* Continue-reading link inside the foot: accent treatment so it
+     reads as the primary action, not a muted metadata field. Compound
+     selector beats `.piece-foot a` on specificity (two classes vs
+     class + tag) — no `!important` needed. */
+  .piece-foot .piece-continue {
+    color: var(--accent-aa);
+    letter-spacing: 0.04em;
+  }
+  .piece-foot .piece-continue:hover,
+  .piece-foot .piece-continue:focus-visible {
+    color: var(--accent);
   }
 
   /* Mobile-only meta strip — tags shown at the foot of the body. Date
@@ -400,17 +421,6 @@
       display: flex;
       gap: 0.5rem;
       flex-wrap: wrap;
-    }
-    /* Foot — read-time. Visible only on mobile per item 3. */
-    .piece-foot {
-      display: flex;
-      gap: 0.625rem;
-      align-items: center;
-      margin-block-start: 0.75rem;
-      font-size: 0.6875rem;
-      letter-spacing: 0.06em;
-      color: var(--ink-3);
-      clear: right;
     }
     .piece-date {
       letter-spacing: 0.02em;
