@@ -1,6 +1,6 @@
 {
   "$schema": "https://raw.githubusercontent.com/GoogleChrome/lighthouse-ci/main/packages/utils/src/lighthouserc-schema.json",
-  "//": "Canonical full-coverage Lighthouse config: 15 URLs x 2 runs, used on main pushes + local `pnpm lhci`. PRs use the trimmed lighthouserc.pr.json (6 URLs x 1 run) for fast feedback; this file is the source of truth for the full budget post-merge. The `assert` block here and in lighthouserc.pr.json MUST stay identical — tests/unit/lighthouse-config-parity.test.ts enforces it.",
+  "//": "PR-run Lighthouse config. The canonical full-coverage config is lighthouserc.json (15 URLs x 2 runs), used on main pushes + local `pnpm lhci`. This trims to one URL per LAYOUT x 1 run so PR feedback stays fast (~1 min vs ~6). The post-merge run on main catches per-content / per-locale regressions the PR set skips. The `assert` block MUST stay identical to lighthouserc.json — tests/unit/lighthouse-config-parity.test.ts enforces it.",
   "ci": {
     "collect": {
       "staticDistDir": "./dist",
@@ -9,19 +9,10 @@
         "http://localhost/en/notes/",
         "http://localhost/en/notes/hello/",
         "http://localhost/en/works/this-site/",
-        "http://localhost/es/notas/hola/",
         "http://localhost/en/pieces/",
-        "http://localhost/es/ensayos/",
-        "http://localhost/en/pieces/rings-i-keep-redrawing/",
-        "http://localhost/es/ensayos/anillos-que-sigo-redibujando/",
-        "http://localhost/en/pieces/c4-four-times-in-a-row/",
-        "http://localhost/en/pieces/cpr-when-to-escalate/",
-        "http://localhost/en/pieces/where-agile-gets-stuck/",
-        "http://localhost/es/ensayos/c4-cuatro-veces-seguidas/",
-        "http://localhost/es/ensayos/cpr-cuando-escalar/",
-        "http://localhost/es/ensayos/donde-se-traba-lo-agil/"
+        "http://localhost/en/pieces/rings-i-keep-redrawing/"
       ],
-      "numberOfRuns": 2,
+      "numberOfRuns": 1,
       "settings": {
         "skipAudits": ["uses-http2"]
       }

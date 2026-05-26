@@ -57,6 +57,7 @@ jobs:
               - 'astro.config.*'
               - 'wrangler.toml'
               - 'lighthouserc.json'
+              - 'lighthouserc.pr.json'
               - 'package.json'
               - 'pnpm-lock.yaml'
               - 'pnpm-workspace.yaml'
@@ -142,8 +143,14 @@ jobs:
         with:
           name: dist
           path: dist
+      # PR runs use the trimmed config (6 URLs x 1 run, ~1 min) so
+      # feedback stays fast; main pushes + local `pnpm lhci` use the
+      # full canonical config (15 URLs x 2 runs). The post-merge run on
+      # main is the source of truth for the full budget. Both configs
+      # share an identical `assert` block — kept in sync by
+      # tests/unit/lighthouse-config-parity.test.ts.
       - name: Run Lighthouse CI
-        run: pnpm lhci
+        run: pnpm exec lhci autorun --config=${{ github.event_name == 'pull_request' && 'lighthouserc.pr.json' || 'lighthouserc.json' }}
       - name: Upload Lighthouse report
         if: always()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
