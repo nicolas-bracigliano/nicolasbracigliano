@@ -31,7 +31,7 @@
   .pieces-sub {
     font-size: 0.875rem;
     color: var(--ink-2);
-    max-width: 50ch;
+    max-width: 60ch;
     line-height: 1.6;
   }
 
