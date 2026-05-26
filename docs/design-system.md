@@ -16,6 +16,7 @@ The reference for everything about this site. Read this before changing color, c
 - **2026‑05‑25** — §6 Hedges tightened: at most one or two hedges per paragraph; voice is curious, humble, but assertive. New §6 Punctuation subsection: no em dash (`—`) in prose. Why: the open-ended "hedges encouraged" rule produced over-hedged drafts during PR P3 calibration; an author writes about a topic because they have knowledge of it, and stacking three "probably / I think / not sure" reads as performative uncertainty.
 - **2026‑05‑26** — §9 Type committed to a two-face mapping table: notes ship in JetBrains Mono (field log), pieces ship in Newsreader 18/1.65 (slowed-down reading). Margin notes on pieces stay serif; rail position + `↳` mark carry the aside-ness. New non-goal: a third face. Cross-references added in §4 #5, §7, §15 #5. "Real pieces" moved from §17 Open questions to §17 Shipped (PR P3). Why: the face is the content signal — see PR P5.
 - **2026‑05‑26** — `/pieces` pivots to an editorial-article layout: single column, display H1, drop cap, italic H2 with `§`, inline pull quotes. Full rationale + alternatives in [ADR 0012](./decisions/0012-pieces-editorial-layout.md). Why: serif body without an editorial layout reads as "long note," not essay.
+- **2026‑05‑27** — §6 gains a Banned phrases catalogue + Anecdote fidelity rule. New §7a "How to write a piece (the recipe)" with the kernel-plus-six-sections shape, required components, length window, tag pattern, bilingual rules. New §7b "Reviewing a piece (the reflection pass)" — a post-draft checklist for the writer AND the LLM to consult and reflect against. §9 gains a Diagrams subsection lifting PR P4's role-class pattern. ADR 0011 documents the piece shape with the four P3 pieces as worked examples. One exception stays a test (`piece-margin-note-anchors`) — it's a silent-render bug, not a style call. Why: the four P3 pieces independently converged on the same shape; codifying it as a reflective guide (not a CI gate) lets future pieces match without re-deriving, while keeping the judgement with the writer.
 
 When something material changes, add a line. Keep the log short: date, what changed, why. If you can't write the _why_ in one clause, you probably shouldn't make the change.
 
@@ -141,6 +142,27 @@ The voice is **curious, humble, but assertive**. Hedges signal that you've thoug
 
 Em dashes stay in design surfaces (mastheads, eyebrow separators, the `Bitacora —` lead-in). Those are typographic, not prose.
 
+### Banned phrases
+
+The voice has a no-go list. These read as posture, not voice, and a piece containing any of them is probably leaning on the wrong register:
+
+`beacon of`, `unlock`, `transformative`, `robust`, `best practice`, `industry-standard`, `cutting-edge`, `leverage`, `synergy`, `18+ years`, `decades of experience`, round-number self-claims of any kind.
+
+Why these specifically: each carries a register the site rejects — keynote-speaker self-presentation, polished-LinkedIn evergreen, conference-bio inflation. The list isn't exhaustive (good prose rewards specificity over rule-following); it's a tripwire.
+
+This is a reflection list, not a lint gate (see §7b). After a draft exists, scan it against this catalogue. A hit isn't an automatic fail — sometimes you're quoting the phrase or arguing against it — but it's a prompt to stop and ask: am I leaning on the wrong register here?
+
+### Anecdote fidelity (for migrated or rewritten work)
+
+When rewriting something from a source — a legacy post, an old draft, an outline — **keep the anecdotes you actually had**. Don't invent specifics to make a story land harder.
+
+This rule comes from a real failure during PR P3: the CPR piece shipped with a "deadline that clicked" anecdote that read well in the §6 voice but wasn't from the original source. The author's actual experience was a tense meeting where newer team members were visibly confused by the intensity; the rewrite substituted a 1:1 about missed deadlines because that scanned cleaner. Both are plausible. Only one is true. The reader can't tell — but YOU stop being able to use the piece honestly the moment the anecdote diverges from the source.
+
+If the source has no anecdote and the piece needs one, ask the author. Don't compose a substitute.
+
+✓ _Restore the real meeting story; trim it to the §6 voice without changing what happened._
+✗ _Compose a plausible-sounding anecdote because the original was hard to source down._
+
 ### Bilingual
 
 Reserve Spanish for words that are emphatically the right word. Use sparingly.
@@ -173,6 +195,100 @@ This is the bridge between _system_ and _daily use_. Notes ship in mono — see 
 6. **Don't backfill.** Don't date a note earlier than today. The dated stream is a story, not a portfolio.
 
 The same recipe shape applies to `/works` (add status + specs), `/now` (replace, don't append), and `/about` (rare; rewrite, don't patch).
+
+## 7a · How to write a piece (the recipe)
+
+The mirror of §7, for long-form. Pieces are arguments — slower, polished, structured. The body face is serif (per §9); the layout is editorial (per [ADR 0012](./decisions/0012-pieces-editorial-layout.md)); the shape is the kernel-plus-six-sections from [ADR 0011](./decisions/0011-long-form-piece-shape.md).
+
+1. **Open** `content/pieces/{en,es}/YYYY-MM-DD-short-slug.md`.
+
+2. **Frontmatter:**
+
+   ```yaml
+   title: 'Piece title with optional _italic_ on the second clause'
+   slug: 'short-slug'
+   lang: en
+   translationKey: your-piece-slug
+   date: 2026-05-01
+   written: 'Melbourne, AU'
+   status: draft
+   tags: [framework-name, domain, optional-third]
+   lede: 'Italic large lede, one sentence, max ~120 chars.'
+   marginNotes:
+     - section: 'h2-slug-here'
+       text: 'Pull-quote text — extracted from the section it anchors.'
+   diagrams: ['key-from-registry']
+   ```
+
+3. **Structure** (per ADR 0011): kernel paragraph + 6–7 H2 sections + closing wrap. For framework pieces the section sequence is roughly:
+   - personal-story (kernel + first H2)
+   - framework-explanation-with-attribution
+   - what-it-gets-right + what-it-doesn't-fix
+   - common-mistakes-I-keep-making
+   - when-this-isn't-the-right-tool
+   - closing wrap
+
+4. **Required components** for framework pieces:
+   - **Attribution paragraph** naming the originator + canonical reference (book or website with edition or date). Pattern:
+
+     > "[Framework] comes from _[Book/site]_ ([authors, edition, year]), a [book/site] about [one-line topic]. The [decomposition] is a [piece/whole] of a larger toolkit, but [why this piece matters]."
+
+   - **Common mistakes I keep making** section — patterns the author has fallen into more than once. Specific, hedged, owned.
+   - **When this isn't the right tool** section — three to four concrete cases where the framework is overkill or wrong.
+   - **Terminology disambiguation** where names collide with adjacent industry terms (e.g., C4 Container ≠ Docker; Scrum ≠ agile).
+
+5. **Length:** body 1200–1500 words. Below = too thin for the format; above = wrong format (push to a series, not a single piece).
+
+6. **Bilingual:** ES = **parallel composition, not translation**. Rioplatense markers required: `vos`/`sos`, `escribís`/`mencioná`/`tomá`-style conjugations, `pileta`/`huerta`/`tipo`. Applies to body, captions, ledes, margin-note text, all frontmatter strings — a reviewer reading only the frontmatter shouldn't be able to spot which language was "the original."
+
+7. **Code-name capitalisation across languages.** Framework labels stay in English even inside Spanish prose: Content / Pattern / Relationship (CPR), Container / Component (C4), Use Cases / Interface Adapters (Rings). Treated as proper nouns, capitalised, preserved verbatim across siblings.
+
+8. **Tags:** 2–3, framework-first. EN keeps the framework as an English noun phrase; ES keeps the English loanword + translates the domain term. Worked examples:
+   - `[clean-architecture, software-design]` / `[clean-architecture, diseño-de-software]`
+   - `[c4-model, software-architecture, diagrams]` / `[c4-model, arquitectura-de-software, diagramas]`
+   - `[crucial-conversations, communication, feedback]` / `[crucial-conversations, comunicación, feedback]`
+
+9. **Margin notes → pull quotes.** 3 per piece. Each anchored to a real H2 by its slug — the remark plugin silently skips an anchor that matches no heading, so a typo or a removed section leaves a pull quote that just doesn't render. Each ≤180 chars (schema-enforced). Distributed structurally, not stacked at the closing. Voice = self-aware aside, often hedging or self-deprecating, never editorial. **Orphan policy:** when removing a section, drop the matching `marginNotes` entry, or restore the section. This is the one piece rule backed by a test (`tests/unit/piece-margin-note-anchors.test.ts`) — it's a silent-render bug, not a style call, so it gets a hard check rather than the §7b reflection pass.
+
+10. **Anecdote fidelity** when migrating from a source: see §6. Real anecdotes only — never invent specifics to fit the voice.
+
+11. **Voice rules.** Every sentence in the body passes the §6 five-word test. No em dashes in prose. No banned phrases. Hedges capped at 1–2 per paragraph.
+
+12. **Title with optional inline italic.** The slug-page H1 renders `_word_` in the title as `<em>word</em>` via a narrow markdown-inline replacer in `PieceLayout.astro`. Use sparingly — split-italic titles work when there's a natural break in the headline (e.g., "The case for the _small static site_").
+
+The four pieces in `src/content/pieces/{en,es}/` are the worked examples. ADR 0011 captures the structural decisions that derive this recipe.
+
+## 7b · Reviewing a piece (the reflection pass)
+
+After a draft exists — and before it ships — read it once against this list. These are **prompts to reflect, not gates to pass.** A "no" isn't an automatic failure; it's a question worth sitting with. The point is to catch the things that are easy to miss in the writing and obvious in the reading.
+
+This pass is also what the LLM runs when it writes or reviews a piece: walk the list, flag what it notices, and explain its reasoning rather than silently "fixing" things. The writer decides; the list informs.
+
+**Voice (§6)**
+
+- Read it aloud. Does it sound like a colleague at the bench, or a keynote? If keynote, which sentences?
+- Any em dashes in the prose? (Body only — captions and ledes are exempt.) Substitute period / comma / colon / semicolon / parens.
+- Scan the §6 banned-phrases catalogue. Any hits? If so, is the phrase load-bearing (quoting, arguing against) or lazy? Reword the lazy ones.
+- More than one or two hedges in any paragraph? Cut down to the load-bearing ones.
+- Five-word test: any line over five words with no number / name / time / place? Add a specific or cut it.
+
+**Shape (ADR 0011)**
+
+- 6–7 H2 sections? If fewer, is it really a piece (vs. a note)? If more, should it be a series?
+- Body roughly 1200–1500 words? Under = too thin; over = wrong format.
+- Required components present: attribution paragraph, "common mistakes", "when this isn't the right tool", terminology disambiguation where names collide?
+
+**Structure + frontmatter**
+
+- 2–3 tags, framework-first?
+- **Does every `marginNotes[].section` match a real H2 slug in the body?** A removed or renamed section leaves a pull quote that silently doesn't render. This one's backed by a test (`piece-margin-note-anchors.test.ts`) since it's a correctness bug, not a style call — but eyeball it here too.
+- Diagrams reference real registry keys?
+
+**Bilingual**
+
+- Is the ES sibling a parallel composition, not a translation? Rioplatense markers throughout (`vos`/`sos`, `escribís`, `pileta`)?
+- Code-name labels (Content / Pattern / Relationship, Container, etc.) preserved in English across both?
+- Read the ES aloud, on its own — does it sound like the same person writing in the language they grew up in?
 
 ## 8 · Color
 
@@ -226,11 +342,33 @@ The shift from mono to serif when moving from a note to a piece is the system sa
 - **`text-wrap: pretty`** on paragraphs. Browsers that don't support it degrade silently.
 - **Italics** are reserved for: titles of works, foreign words used as-is (_mate_, _huerta_), and editorial emphasis. Never for "important."
 - **Piece body weight is intentionally fractional** (`font-weight: 360`). Newsreader's named grades are 300/400/500/600/700; 360 sits between Light and Regular and reads as airy/editorial without going anemic against the heavier display H1. Set via the local `--prose-text-weight` custom property on `.piece-prose`; if a future style sweep tries to consolidate prose rules into a single 400-weight default, this is the regression risk to watch.
-- **Pull quotes** (`<aside class="pull">`) — italic serif at `clamp(22 px, 2.4vw, 28 px)`, line-height 1.35, accent left-border, indented 1.5 rem from the prose column. Injected by `remark-inject-margin-notes` at the end of each section (before the next H2), per ADR 0012. Replaces the old marginalia-rail aside.
+- **Pull quotes** (`<p class="pull">`) — italic serif at `clamp(22 px, 2.4vw, 28 px)`, line-height 1.35, accent left-border, indented 1.5 rem from the prose column. Injected by `remark-inject-margin-notes` at the end of each section (before the next H2), per ADR 0012. Replaces the old marginalia-rail aside. Markup is `<p>` not `<aside>` — `<aside>` is a landmark element and N>1 siblings need unique aria-labels (html-validate's `unique-landmark` rule); pieces have 3 pull quotes by design, so the landmark semantic doesn't fit. Pull quotes are typographic emphasis inside prose, not page-level asides.
 - **Drop cap** — first paragraph of a piece's body only, identified by the `.lead-p` class injected by the remark plugin. `::first-letter` at 4.5 em, accent-coloured. Reduced-motion users keep the shape and lose the accent colour (drops to `var(--ink)`).
 - **`§` H2 marker** — italic H2 headings on pieces get a `::before { content: "§" }` floated left of the heading in accent, upright. Mobile (≤ 720 px) collapses the marker to above the heading.
 
 **Non-goal: a third face.** Newsreader does double duty — at 18 px it reads, at 80 px it shouts. One family, two grades. Future additions need an ADR (and need to refute ADR 0012's non-goal explicitly).
+
+### Diagrams
+
+Per ADR 0012, each diagram component is a `<figure class="diagram diagram--<kind>">`, pure SVG, no JS, CSP-safe. Per-role colour palette lives in `src/styles/diagrams.css` (a component-scoped stylesheet, imported from `base.css` alongside the per-route files).
+
+**Pattern discipline** (documented inline in `diagrams.css`):
+
+- **Shape-only roles** set `stroke` only. The SVG's inline `fill="none"` on the shape group stays in effect (CSS doesn't touch fill).
+- **Text-only roles** set `fill` (text uses fill for colour).
+- **Mixed roles** (paths + text in one role, e.g. `.d-arrow`) wrap the paths in an inner `<g fill="none">` inside the SVG so the role's fill cascades only to text.
+- **Filled-shape roles** (e.g. `.d-hub`) explicitly opt in to `fill`.
+
+Without this discipline, CSS `fill` on a role group overrides the SVG's inline `fill="none"` (CSS class rules outrank SVG presentation attributes) and otherwise-outlined shapes render as filled blobs.
+
+**Canonical naming** for role classes:
+
+- `.d-label` for text-bearing roles across all diagrams.
+- `.d-sublabel` for italic secondary text.
+- Diagram-specific roles for shapes (`.d-rings`, `.d-knot`, `.d-shape`, `.d-boundary`, etc.).
+- Don't introduce diagram-specific synonyms for the canonical names.
+
+Drift coverage in `tests/unit/diagram-roles.test.ts` enforces the schema in three directions: forward (every SVG `.d-<role>` has a CSS binding), reverse (every `var(--c-*)` reference is declared), and orphan (every CSS binding rule has a matching SVG class). Visual snapshots in `tests/e2e/visual.spec.ts` lock the palette across themes.
 
 ## 10 · Motion — three timings, one principle
 
