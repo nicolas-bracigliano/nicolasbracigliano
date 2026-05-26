@@ -3,8 +3,12 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 
 // PR CI splits the Lighthouse config in two:
-//   - lighthouserc.json     — canonical, 15 URLs x 2 runs (main + local)
-//   - lighthouserc.pr.json  — trimmed, 6 URLs x 1 run (PR feedback)
+//   - lighthouserc.json     — canonical, 16 URLs x 2 runs (main + local)
+//   - lighthouserc.pr.json  — trimmed, 6 URLs x 2 runs (PR feedback)
+//
+// The speed-up comes from auditing fewer URLs on PRs (one per layout),
+// not from cutting runs: both keep numberOfRuns: 2 so median-of-2 timing
+// smooths single-run noise and the gate doesn't flake.
 //
 // Only `collect.url` and `collect.numberOfRuns` may differ. The `assert`
 // block (the actual budget — score thresholds, Core Web Vitals,
@@ -14,8 +18,8 @@ import { join } from 'node:path';
 // blocks so the configs can't drift.
 //
 // Also pins the intended shape of each config (URL counts, run counts)
-// so an accidental edit — e.g. bumping the PR config back to 15 URLs,
-// defeating the speed-up — fails loudly.
+// so an accidental edit — e.g. bumping the PR config back to the full
+// URL list, defeating the speed-up — fails loudly.
 
 const ROOT = join(__dirname, '..', '..');
 
@@ -47,16 +51,19 @@ describe('lighthouse config parity (PR vs canonical)', () => {
     expect(pr.ci.upload).toEqual(canonical.ci.upload);
   });
 
-  it('PR config is the fast one: fewer URLs, a single run', () => {
-    // The whole point of the split. If these invert, the speed-up is gone.
+  it('PR config is the fast one: fewer URLs, same run count', () => {
+    // The speed-up is fewer URLs, not fewer runs. If the URL counts
+    // invert, the speed-up is gone.
     expect(pr.ci.collect.url.length).toBeLessThan(canonical.ci.collect.url.length);
-    expect(pr.ci.collect.numberOfRuns).toBe(1);
     // Guard the trimmed set stays trim — one URL per layout, ~6.
     expect(pr.ci.collect.url.length).toBeLessThanOrEqual(7);
+    // PR keeps the same run count as main (median-of-2, no flake) — never more.
+    expect(pr.ci.collect.numberOfRuns).toBe(canonical.ci.collect.numberOfRuns);
+    expect(pr.ci.collect.numberOfRuns).toBe(2);
   });
 
   it('PR URL set covers each distinct layout once', () => {
-    // Representative coverage: home, notes index, note slug, works slug,
+    // Representative coverage: home, notes index, note slug, about page,
     // pieces index, piece slug. If a new route/layout ships, add one
     // representative URL here so the PR run still exercises it.
     const prUrls = pr.ci.collect.url;
@@ -64,7 +71,7 @@ describe('lighthouse config parity (PR vs canonical)', () => {
       'http://localhost/en/', // home
       'http://localhost/en/notes/', // notes index
       'http://localhost/en/notes/hello/', // note slug
-      'http://localhost/en/works/this-site/', // works slug
+      'http://localhost/en/about/', // about page
       'http://localhost/en/pieces/', // pieces index
       'http://localhost/en/pieces/rings-i-keep-redrawing/', // piece slug
     ];
