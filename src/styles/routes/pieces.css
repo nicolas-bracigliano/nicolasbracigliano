@@ -129,9 +129,6 @@
     letter-spacing: 0.06em;
     margin: 0;
   }
-  .piece-row-tag::before {
-    content: '';
-  }
   .piece-row-arrow {
     align-self: start;
     margin-top: 0.5rem;
@@ -542,6 +539,11 @@
   @media (max-width: 480px) {
     .piece-prose {
       --prose-text-size: 1.0625rem;
+      /* Weight 360 reads fine at desktop in 18px, but at phone size
+         (17px on a low-DPI screen in daylight) the same fractional
+         grade goes thin. Bump back to 400 for legibility — same
+         glyph shapes, more contrast against the paper. */
+      --prose-text-weight: 400;
     }
     .piece-prose > .lead-p::first-letter {
       font-size: 3.75em;

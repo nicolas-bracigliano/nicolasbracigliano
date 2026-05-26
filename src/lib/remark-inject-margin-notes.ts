@@ -112,16 +112,22 @@ function buildPullQuoteHtml(note: MarginNote): string {
   return `<aside class="pull">${escapeHtml(note.text)}</aside>`;
 }
 
-/** Mark the first paragraph node in the top-level children array with
- *  `class="lead-p"` via mdast's `data.hProperties.className`. Idempotent
- *  — running twice produces the same result. */
+/** Mark the lead paragraph with `class="lead-p"` via mdast's
+ *  `data.hProperties.className`. Idempotent — running twice produces
+ *  the same result.
+ *
+ *  Constraint: the lead paragraph must be the very FIRST top-level
+ *  child of the tree. If the piece opens with a heading (no kernel
+ *  paragraph above the first H2), no class is injected — the drop cap
+ *  would otherwise land on the first paragraph INSIDE the first
+ *  section, which reads as a typo. The piece simply gets no drop cap
+ *  in that case, which is the right fallback. */
 function markLeadParagraph(tree: MdastNode): void {
-  if (!tree.children) return;
-  const firstParagraph = tree.children.find((c) => c.type === 'paragraph') as
-    | (MdastNode & WithHProperties)
-    | undefined;
-  if (!firstParagraph) return;
-  const data = (firstParagraph.data = firstParagraph.data ?? {});
+  if (!tree.children || tree.children.length === 0) return;
+  const first = tree.children[0];
+  if (!first || first.type !== 'paragraph') return;
+  const para = first as MdastNode & WithHProperties;
+  const data = (para.data = para.data ?? {});
   const hProperties = (data.hProperties = data.hProperties ?? {});
   const existing = hProperties.className;
   if (typeof existing === 'string' && existing.includes('lead-p')) return;

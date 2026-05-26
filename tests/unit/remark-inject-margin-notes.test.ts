@@ -63,6 +63,20 @@ describe('lead-p injection', () => {
     expect(tree.children?.[0]?.data).toBeUndefined();
   });
 
+  it('does NOT mark a paragraph that comes after a heading (no kernel = no drop cap)', () => {
+    // If a piece opens with `## Section` instead of a kernel paragraph,
+    // the first <p> in the doc lives inside section 1. Targeting that
+    // paragraph with `.lead-p` would put the drop cap on the wrong
+    // element. Plugin's contract: lead-p only when the FIRST top-level
+    // child is a paragraph.
+    const tree = root(heading(2, 'Opening section'), paragraph('First paragraph of section 1.'));
+    runPlugin(tree, vfile());
+    // The paragraph at index 1 gets no class; the piece simply has no
+    // drop cap in this layout. CSS rule `.piece-prose > .lead-p::first-letter`
+    // never fires, which is the desired fallback.
+    expect(tree.children?.[1]?.data).toBeUndefined();
+  });
+
   it('skips already-classed paragraphs (idempotent)', () => {
     const tree = root(paragraph('Opening.'));
     if (tree.children?.[0]) {
