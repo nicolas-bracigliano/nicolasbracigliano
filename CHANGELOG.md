@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.9.0](https://github.com/nicolas-bracigliano/nicolasbracigliano/compare/v1.8.0...v1.9.0) (2026-05-26)
+
+
+### Features
+
+* **diagrams:** multi-colour diagrams via per-role CSS custom properties ([#75](https://github.com/nicolas-bracigliano/nicolasbracigliano/issues/75)) ([e617305](https://github.com/nicolas-bracigliano/nicolasbracigliano/commit/e617305ace35e257926a68de0ef977c854a3738d))
+* **pieces:** editorial layout for slowed-down reading ([#74](https://github.com/nicolas-bracigliano/nicolasbracigliano/issues/74)) ([16c5298](https://github.com/nicolas-bracigliano/nicolasbracigliano/commit/16c52985fb87de38bba8ecb8fd45fabf4d46a6af))
+* **pieces:** migrate four legacy posts with rewrites and translations ([#72](https://github.com/nicolas-bracigliano/nicolasbracigliano/issues/72)) ([9231ff8](https://github.com/nicolas-bracigliano/nicolasbracigliano/commit/9231ff806cc24616e336a070aa7e388d5c570487))
+
 ## [1.8.0](https://github.com/nicolas-bracigliano/nicolasbracigliano/compare/v1.7.6...v1.8.0) (2026-05-25)
 
 
