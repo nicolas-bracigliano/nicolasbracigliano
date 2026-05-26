@@ -1,0 +1,528 @@
+/* ============================================================== essays index */
+
+.essays-head {
+  padding-top: clamp(40px, 6vw, 80px);
+  max-width: 720px;
+  margin-bottom: 48px;
+}
+.essays-h1 {
+  font-family: var(--font-serif);
+  font-weight: 400;
+  font-size: clamp(40px, 5.6vw, 76px);
+  line-height: 1.04;
+  letter-spacing: -0.02em;
+  margin: 12px 0 18px;
+  text-wrap: pretty;
+  font-optical-sizing: auto;
+}
+.essays-sub {
+  font-size: 14px;
+  color: var(--ink-2);
+  max-width: 56ch;
+  line-height: 1.7;
+}
+
+.essays-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.essay-row {
+  border-top: 1px solid var(--rule);
+  position: relative;
+}
+.essay-row:first-child {
+  border-top: 0;
+}
+.essay-row.is-draft {
+  opacity: 0.78;
+}
+
+.essay-row-link {
+  display: grid;
+  grid-template-columns: 180px minmax(0, 1fr);
+  gap: 40px;
+  padding: 36px 8px 36px 8px;
+  background: none !important;
+  text-decoration: none;
+  transition:
+    padding 320ms cubic-bezier(0.2, 0.7, 0.2, 1),
+    background 220ms ease;
+}
+.essay-row-link:hover {
+  padding-left: 18px;
+  background: color-mix(in oklab, var(--paper) 60%, transparent);
+}
+
+.essay-row-meta {
+  text-align: right;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--ink-3);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  align-items: flex-end;
+  padding-top: 6px;
+  letter-spacing: 0.04em;
+}
+.essay-row-date {
+  font-variant-numeric: tabular-nums;
+  color: var(--ink-2);
+}
+.essay-row-time {
+  color: var(--ink-3);
+}
+.essay-row-status {
+  margin-top: 4px;
+  padding: 1px 8px;
+  background: color-mix(in oklab, var(--accent) 10%, transparent);
+  color: var(--accent);
+  border: 1px solid color-mix(in oklab, var(--accent) 30%, var(--rule));
+  border-radius: 999px;
+  font-size: 9.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+}
+
+.essay-row-body {
+  max-width: 60ch;
+}
+
+.essay-row-title {
+  font-family: var(--font-serif);
+  font-weight: 400;
+  font-size: clamp(28px, 3.2vw, 36px);
+  letter-spacing: -0.012em;
+  line-height: 1.12;
+  color: var(--ink);
+  margin: 0 0 10px;
+  text-wrap: pretty;
+  font-optical-sizing: auto;
+  transition: color 220ms ease;
+}
+.essay-row-link:hover .essay-row-title {
+  color: var(--accent);
+}
+
+.essay-row-deck {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: clamp(16px, 1.6vw, 18px);
+  line-height: 1.5;
+  color: var(--ink-2);
+  margin: 0 0 16px;
+  text-wrap: pretty;
+}
+
+.essay-row-tags {
+  display: flex;
+  gap: 12px;
+  align-items: baseline;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--ink-3);
+  letter-spacing: 0.06em;
+}
+.essay-row-arrow {
+  margin-left: auto;
+  color: var(--ink-3);
+  transition:
+    transform 220ms ease,
+    color 200ms ease;
+}
+.essay-row-link:hover .essay-row-arrow {
+  transform: translate(4px, -2px);
+  color: var(--accent);
+}
+
+.essays-foot {
+  text-align: center;
+  margin: 56px 0 0;
+  color: var(--ink-3);
+}
+
+@media (max-width: 720px) {
+  .essay-row-link {
+    grid-template-columns: 1fr;
+    gap: 14px;
+    padding: 28px 4px;
+  }
+  .essay-row-meta {
+    flex-direction: row;
+    text-align: left;
+    align-items: baseline;
+    gap: 14px;
+    padding-top: 0;
+  }
+}
+
+main.essay-page {
+  --section-hue: var(--ink);
+  padding-top: clamp(60px, 8vw, 120px);
+  padding-bottom: clamp(80px, 8vw, 140px);
+}
+
+.essay {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 0 clamp(20px, 4vw, 40px);
+}
+
+/* ----- head ---------------------------------------------------------- */
+
+.essay-head {
+  margin-bottom: 56px;
+  max-width: 62ch;
+}
+.essay-head .eyebrow a {
+  background-image: none !important;
+  color: var(--ink-3);
+  padding-bottom: 0;
+}
+.essay-head .eyebrow a:hover {
+  color: var(--accent);
+}
+
+.essay-h1 {
+  font-family: var(--font-serif);
+  font-weight: 400;
+  font-size: clamp(46px, 6.2vw, 88px);
+  line-height: 1.02;
+  letter-spacing: -0.022em;
+  color: var(--ink);
+  margin: 18px 0 28px;
+  text-wrap: pretty;
+  font-optical-sizing: auto;
+}
+
+.essay-meta {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  color: var(--ink-3);
+  margin: 0 0 36px;
+}
+.essay-meta .muted {
+  color: var(--ink-3);
+}
+.essay-meta time {
+  color: var(--ink-2);
+  font-variant-numeric: tabular-nums;
+}
+
+.essay-lede {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-weight: 400;
+  font-size: clamp(20px, 2.2vw, 24px);
+  line-height: 1.45;
+  letter-spacing: -0.005em;
+  color: var(--ink-2);
+  max-width: 56ch;
+  margin: 0;
+  text-wrap: pretty;
+  font-optical-sizing: auto;
+}
+
+/* ----- body — the actual reading face -------------------------------- */
+
+.essay-body {
+  max-width: 62ch;
+  font-family: var(--font-serif);
+  font-size: 18px;
+  font-weight: 400;
+  line-height: 1.65;
+  letter-spacing: 0;
+  color: var(--ink);
+  font-optical-sizing: auto;
+  /* the variable axis picks the right grade automatically */
+}
+
+.essay-body p {
+  margin: 0 0 1.2em;
+  text-wrap: pretty;
+  hyphens: auto;
+  -webkit-hyphens: auto;
+  hanging-punctuation: first;
+}
+
+/* drop cap — only on the first paragraph after the lede */
+.essay-body > .lead-p::first-letter {
+  font-family: var(--font-serif);
+  font-weight: 400;
+  font-size: 4.5em;
+  line-height: 0.88;
+  float: left;
+  margin: 0.06em 0.08em 0 -0.03em;
+  color: var(--accent);
+  font-optical-sizing: auto;
+}
+
+/* H2 — italic, calm, never shouting */
+.essay-body h2 {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-weight: 400;
+  font-size: clamp(26px, 2.6vw, 32px);
+  line-height: 1.2;
+  letter-spacing: -0.012em;
+  color: var(--ink);
+  margin: 64px 0 24px;
+  position: relative;
+  padding-left: 0;
+  text-wrap: balance;
+  font-optical-sizing: auto;
+}
+.essay-body h2::before {
+  content: '§';
+  position: absolute;
+  left: -1.4em;
+  top: 0.04em;
+  font-style: normal;
+  font-size: 0.7em;
+  color: var(--accent);
+}
+@media (max-width: 720px) {
+  .essay-body h2::before {
+    left: 0;
+    top: -1.2em;
+    position: absolute;
+  }
+  .essay-body h2 {
+    padding-top: 0;
+  }
+}
+
+/* italicized emphasis — Newsreader's italic is the move */
+.essay-body em {
+  font-style: italic;
+  color: inherit;
+}
+
+/* inline code — quieter than before. Pulled back from terracotta so the
+ * accent stays semantic. Same family as block code for visual consistency. */
+.essay-body code {
+  font-family: var(--font-mono);
+  font-size: 0.9em;
+  padding: 1px 6px;
+  background: var(--bg-2);
+  border-radius: 2px;
+  color: var(--ink);
+  letter-spacing: 0;
+}
+
+/* block-level code — a "quoted passage in a different voice".
+ * The two-gray strategy: code itself in --ink, comments/strings in --ink-3.
+ * No keyword color, no operator color. Reads as typeset, not as IDE. */
+.essay-body .codeblock {
+  position: relative;
+  margin: 36px 0 40px;
+}
+.essay-body .codeblock pre {
+  font-family: var(--font-mono);
+  font-size: 13.5px;
+  line-height: 1.65;
+  letter-spacing: 0;
+  color: var(--ink);
+  background: var(--paper);
+  border-left: 2px solid var(--accent);
+  padding: 18px 20px 18px 22px;
+  margin: 0;
+  overflow-x: auto;
+  white-space: pre;
+  border-radius: 0;
+  tab-size: 2;
+}
+/* code element inside the block resets — no inline pill style */
+.essay-body .codeblock pre code {
+  background: none;
+  padding: 0;
+  color: inherit;
+  font-size: inherit;
+  border-radius: 0;
+}
+
+/* two-gray syntax: comments + strings drop to --ink-3, everything else stays --ink */
+.essay-body .codeblock .tok-c,
+.essay-body .codeblock .tok-s {
+  color: var(--ink-3);
+}
+
+.essay-body .codeblock-lang {
+  position: absolute;
+  top: -9px;
+  right: 14px;
+  background: var(--bg);
+  padding: 0 8px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  line-height: 1;
+  user-select: none;
+}
+
+.essay-body .codeblock-caption {
+  font-family: var(--font-mono);
+  font-style: italic;
+  font-size: 11.5px;
+  color: var(--ink-3);
+  text-align: right;
+  margin: -28px 4px 36px 0;
+  letter-spacing: 0.04em;
+}
+
+/* diff styling — two-tone, accent for added, olive for removed. No red/green. */
+.essay-body .codeblock pre .diff-add {
+  display: block;
+  margin: 0 -20px 0 -22px;
+  padding: 0 20px 0 22px;
+  background: color-mix(in oklab, var(--accent) 8%, transparent);
+  position: relative;
+}
+.essay-body .codeblock pre .diff-add::before {
+  content: '+';
+  position: absolute;
+  left: 6px;
+  color: var(--accent);
+  font-weight: 500;
+}
+.essay-body .codeblock pre .diff-rem {
+  display: block;
+  margin: 0 -20px 0 -22px;
+  padding: 0 20px 0 22px;
+  background: color-mix(in oklab, var(--olive) 8%, transparent);
+  position: relative;
+  text-decoration: line-through;
+  text-decoration-color: color-mix(in oklab, var(--olive) 60%, transparent);
+  text-decoration-thickness: 1px;
+}
+.essay-body .codeblock pre .diff-rem::before {
+  content: '−';
+  position: absolute;
+  left: 6px;
+  color: var(--olive);
+  font-weight: 500;
+  text-decoration: none;
+}
+
+@media (max-width: 720px) {
+  .essay-body .codeblock pre {
+    font-size: 12.5px;
+    padding: 16px;
+  }
+  .essay-body .codeblock pre .diff-add,
+  .essay-body .codeblock pre .diff-rem {
+    margin: 0 -16px;
+    padding: 0 16px;
+  }
+}
+
+/* pull quote */
+.essay-body .pull {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-weight: 400;
+  font-size: clamp(22px, 2.4vw, 28px);
+  line-height: 1.35;
+  letter-spacing: -0.005em;
+  color: var(--ink-2);
+  border-left: 2px solid var(--accent);
+  padding: 4px 0 4px 24px;
+  margin: 36px 0 36px 24px;
+  max-width: 52ch;
+  font-optical-sizing: auto;
+}
+@media (max-width: 640px) {
+  .essay-body .pull {
+    margin-left: 0;
+    padding-left: 16px;
+  }
+}
+
+.essay-body .essay-out {
+  margin-top: 2em;
+  font-size: 1.05em;
+  color: var(--ink-2);
+}
+.essay-body .essay-out .serif-italic {
+  font-family: var(--font-serif);
+  font-style: italic;
+}
+
+/* ----- foot ---------------------------------------------------------- */
+
+.essay-foot {
+  max-width: 62ch;
+  margin-top: 80px;
+  padding-top: 28px;
+  border-top: 1px dashed var(--rule);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--ink-3);
+}
+.essay-foot-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: baseline;
+  letter-spacing: 0.04em;
+}
+.essay-foot-meta .muted {
+  color: var(--ink-3);
+}
+.essay-foot-meta time {
+  color: var(--ink-2);
+  font-variant-numeric: tabular-nums;
+}
+.essay-foot-meta .sep {
+  opacity: 0.5;
+}
+
+.essay-foot-sig {
+  margin-top: 14px;
+  font-family: var(--font-serif);
+  font-size: 22px;
+  font-style: italic;
+  color: var(--ink);
+}
+
+.essay-nav {
+  margin-top: 28px;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  font-size: 12px;
+  letter-spacing: 0.04em;
+}
+.essay-nav .sep {
+  opacity: 0.5;
+}
+
+/* ----- "reading mode" — auto-fade ambient chrome --------------------- */
+
+html[data-reading='true'] .scroll-thread {
+  opacity: 0.35;
+  transition: opacity 520ms cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+html[data-reading='true'] .scroll-thread:hover {
+  opacity: 1;
+}
+
+@media (max-width: 720px) {
+  html[data-reading='true'] .chrome-foot-rail {
+    /* When the reader is reading, the foot rail stays out of the way unless
+     * they explicitly scroll up. The Chrome JS already handles dy < 0 reveal. */
+    opacity: 0.92;
+  }
+}
+
+/* Honor reduced motion — no transitions on h2 §-mark, drop cap, etc. */
+@media (prefers-reduced-motion: reduce) {
+  .essay-body > .lead-p::first-letter {
+    color: var(--ink);
+  }
+}

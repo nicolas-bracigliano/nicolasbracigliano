@@ -56,6 +56,11 @@ const bottomDiagrams = diagrams.filter((d) => d.place === 'bottom');
 // (project convention); i18n.ts is the routing module, not a translation
 // store. The eyebrow drops the collection label per a polish review —
 // it was redundant against the back-link + the H1 underneath.
+// The em dash in `signature` is the one approved use of `—` inside a
+// piece — it's the editorial signoff convention (— Nicolas), not prose
+// body text. §6 voice rule "no em dashes in piece prose" is about
+// argument prose, not chrome surfaces; the signature is chrome. If a
+// future sweep tries to strip em dashes site-wide, exempt this string.
 const copy = {
   en: {
     back: '← back to pieces',
@@ -64,6 +69,7 @@ const copy = {
     minLabel: 'min',
     writtenPrefix: 'written',
     readTimePrefix: 'read time',
+    signature: '— Nicolas',
   },
   es: {
     back: '← volver a ensayos',
@@ -72,6 +78,7 @@ const copy = {
     minLabel: 'min',
     writtenPrefix: 'escrito en',
     readTimePrefix: 'tiempo de lectura',
+    signature: '— Nicolás',
   },
 } as const;
 const t = copy[locale];
@@ -98,11 +105,6 @@ function renderTitle(raw: string): string {
   return raw.replace(/_([^_]+)_/g, '<em>$1</em>');
 }
 const titleHtml = renderTitle(title);
-
-// Signature shown in the foot. Editorial voice — first name only,
-// italic serif. Author can later override per piece if needed; for now
-// it's a global string baked into the layout.
-const signature = '— Nicolas';
 ---
 
 <BaseLayout
@@ -186,7 +188,7 @@ const signature = '— Nicolas';
         }
       </p>
 
-      <p class="piece-foot-sig">{signature}</p>
+      <p class="piece-foot-sig">{t.signature}</p>
 
       <nav class="piece-foot-nav" aria-label="piece navigation">
         <a class="piece-foot-nav-link" href={indexHref} data-astro-prefetch>{t.allPieces}</a>

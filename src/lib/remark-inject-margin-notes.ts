@@ -138,9 +138,11 @@ function markLeadParagraph(tree: MdastNode): void {
  *  aren't part of the contract. */
 function injectAtSectionEnds(tree: MdastNode, notesBySection: Map<string, MarginNote[]>): void {
   if (!tree.children) return;
-  // Collect pending inserts as { afterIndex, node } pairs first, then
-  // apply them in reverse order so earlier indices stay valid.
-  const inserts: Array<{ afterIndex: number; node: MdastNode }> = [];
+  // Group pending inserts by insertion index so multiple notes for the
+  // same section splice as a single batch (preserves author order).
+  // Splicing one-at-a-time at the same index reverses the author order
+  // because each splice pushes the previous insert one position later.
+  const insertsByIndex = new Map<number, MdastNode[]>();
   for (let i = 0; i < tree.children.length; i++) {
     const child = tree.children[i];
     if (!child || child.type !== 'heading' || child.depth !== 2) continue;
@@ -158,20 +160,20 @@ function injectAtSectionEnds(tree: MdastNode, notesBySection: Map<string, Margin
         break;
       }
     }
-    // Insert each pull quote immediately before `endIndex` (i.e. after
-    // the section's last paragraph). Multiple notes for one section
-    // land in author-supplied order.
+    const insertAfter = endIndex - 1;
+    const batch = insertsByIndex.get(insertAfter) ?? [];
     for (const note of notes) {
-      inserts.push({
-        afterIndex: endIndex - 1,
-        node: { type: 'html', value: buildPullQuoteHtml(note) },
-      });
+      batch.push({ type: 'html', value: buildPullQuoteHtml(note) });
     }
+    insertsByIndex.set(insertAfter, batch);
   }
-  // Apply inserts in reverse so earlier indices are unaffected.
-  inserts.sort((a, b) => b.afterIndex - a.afterIndex);
-  for (const { afterIndex, node } of inserts) {
-    tree.children.splice(afterIndex + 1, 0, node);
+  // Apply batches in reverse index order so earlier indices stay valid
+  // across mutations.
+  const sortedIndices = Array.from(insertsByIndex.keys()).sort((a, b) => b - a);
+  for (const afterIndex of sortedIndices) {
+    const batch = insertsByIndex.get(afterIndex);
+    if (!batch || batch.length === 0) continue;
+    tree.children.splice(afterIndex + 1, 0, ...batch);
   }
 }
 

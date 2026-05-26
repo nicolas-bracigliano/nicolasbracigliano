@@ -62,6 +62,5 @@ Concrete commitments:
 
 ## References
 
-- Prototype CSS at `Prototype/styles-pieces.css` (locally archived; not committed to the repo).
+- Prototype CSS — committed alongside this ADR at [`0012-prototype-styles.css`](./0012-prototype-styles.css). The shipped `src/styles/routes/pieces.css` adapts this spec to the project's `.piece-*` class convention (ADR 0010 keeps the EN slug as `pieces`, not `essays`); the prototype's class names (`.essay-body`, `.essays-list`) map to `.piece-prose`, `.pieces-list > .piece-row`.
 - ADR 0010 — asymmetric bilingual route naming.
-- PR P5 expanded plan in `/Users/nicolas/.claude/plans/lets-review-the-plan-valiant-mccarthy.md`.

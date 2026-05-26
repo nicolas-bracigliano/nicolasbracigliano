@@ -24,6 +24,10 @@
   html {
     background: var(--bg);
     color: var(--ink);
+    /* Smooth anchor-link scrolling (used by the piece foot's "back to
+       top" link). `prefers-reduced-motion` opt-out lives in reset.css
+       which clamps animations site-wide. */
+    scroll-behavior: smooth;
   }
 
   body {
@@ -184,6 +188,7 @@
   }
   .nav a {
     color: var(--ink-2);
+    font-size: 14px;
     text-decoration: none;
     text-transform: lowercase;
     padding-block-end: 6px;

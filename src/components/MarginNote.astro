@@ -1,20 +1,22 @@
 ---
-// Pull-quote (formerly "margin note"). Per ADR 0012, the /pieces route
-// pivoted from a 3-column marginalia layout to a centered editorial
-// article; the rail-anchored aside became an inline pull quote. The
-// component name stays for back-compat — the frontmatter API still
-// reads `marginNotes: [{ section, text }]` and the remark plugin
-// (`src/lib/remark-inject-margin-notes.ts`) emits the same `<aside
-// class="pull">` markup this component renders.
+// Margin note for the /notes route. Rendered in the right rail next to
+// the note's prose body; styled by `src/styles/routes/notes.css` via
+// the `.margin-note` class.
 //
-// `mark` is preserved on the prop interface for back-compat with any
-// caller still passing it; it's ignored. Pull quotes carry emphasis
-// through serif italic + the accent left-border, not a glyph.
+// **Note for future-me:** the /pieces route used to use this component
+// too, in a 3-column marginalia layout. Per ADR 0012, pieces pivoted to
+// a single-column editorial article with inline pull quotes (`<aside
+// class="pull">`) injected directly by the `remark-inject-margin-notes`
+// plugin from frontmatter. This component is now the /notes-only
+// renderer; do NOT change its markup without re-checking notes.css.
 export interface Props {
   text: string;
   mark?: string;
 }
-const { text } = Astro.props;
+const { text, mark = '↳' } = Astro.props;
 ---
 
-<aside class="pull">{text}</aside>
+<div class="margin-note">
+  <span class="margin-mark" aria-hidden="true">{mark}</span>
+  <p>{text}</p>
+</div>
