@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.9.1](https://github.com/nicolas-bracigliano/nicolasbracigliano/compare/v1.9.0...v1.9.1) (2026-05-26)
+
+
+### Documentation
+
+* **design-system:** codify voice and piece-shape standards as a writer's guide ([#76](https://github.com/nicolas-bracigliano/nicolasbracigliano/issues/76)) ([9ab4c44](https://github.com/nicolas-bracigliano/nicolasbracigliano/commit/9ab4c449017e41a18c650950df31e14a21ddb291))
+
 ## [1.9.0](https://github.com/nicolas-bracigliano/nicolasbracigliano/compare/v1.8.0...v1.9.0) (2026-05-26)
 
 
