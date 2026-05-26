@@ -42,6 +42,7 @@
     "test:watch": "vitest",
     "test:e2e": "playwright test",
     "lhci": "lhci autorun",
+    "lhci:pr-config": "node scripts/lighthouse-pr-config.mjs",
     "subset-fonts": "node scripts/subset-fonts.mjs",
     "postbuild": "pagefind --site dist --output-subdir _pagefind",
     "verify:fast": "pnpm typecheck && pnpm lint && pnpm lint:actions && pnpm format:check && pnpm test",

@@ -1,6 +1,6 @@
 {
   "$schema": "https://raw.githubusercontent.com/GoogleChrome/lighthouse-ci/main/packages/utils/src/lighthouserc-schema.json",
-  "//": "Canonical full-coverage Lighthouse config: 16 URLs x 2 runs, used on main pushes + local `pnpm lhci`. PRs use the trimmed lighthouserc.pr.json (6 URLs x 2 runs) for fast feedback; this file is the source of truth for the full budget post-merge. The `assert` block here and in lighthouserc.pr.json MUST stay identical — tests/unit/lighthouse-config-parity.test.ts enforces it.",
+  "//": "Canonical full-coverage Lighthouse config and the single source of truth for the budget: 16 URLs x 2 runs, used on main pushes + local `pnpm lhci`. PRs run a trimmed config (6 URLs x 2 runs) GENERATED from this file by scripts/lighthouse-pr-config.mjs — the assert block, settings, runs and upload are inherited verbatim, so a PR can't pass a looser budget than main. Edit budgets here only. Generator contract is pinned by tests/unit/lighthouse-pr-config.test.ts.",
   "ci": {
     "collect": {
       "staticDistDir": "./dist",
