@@ -87,6 +87,12 @@ const pieces = defineCollection({
       /** Manual reading-time override; if omitted, PieceEntry computes
        *  from `entry.body`. Same convention as notes. */
       minutes: z.number().int().positive().optional(),
+      /** Optional editorial "PLACE, in SEASON" suffix for the slug-page
+       *  meta line — rendered as `DATE · written in <written>`. Per ADR
+       *  0012, author-supplied; the layout omits the suffix gracefully
+       *  when absent. Localised per piece (EN: "Melbourne, in autumn";
+       *  ES: "Melbourne, en otoño"). */
+      written: z.string().optional(),
       marginNotes: z
         .array(
           z.object({

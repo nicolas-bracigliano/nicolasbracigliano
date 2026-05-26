@@ -15,6 +15,7 @@ The reference for everything about this site. Read this before changing color, c
 - **2026‑05‑22** — first-paint motion removed (ADR 0006). Why: incompatible with axe-core contrast checks in CI.
 - **2026‑05‑25** — §6 Hedges tightened: at most one or two hedges per paragraph; voice is curious, humble, but assertive. New §6 Punctuation subsection: no em dash (`—`) in prose. Why: the open-ended "hedges encouraged" rule produced over-hedged drafts during PR P3 calibration; an author writes about a topic because they have knowledge of it, and stacking three "probably / I think / not sure" reads as performative uncertainty.
 - **2026‑05‑26** — §9 Type committed to a two-face mapping table: notes ship in JetBrains Mono (field log), pieces ship in Newsreader 18/1.65 (slowed-down reading). Margin notes on pieces stay serif; rail position + `↳` mark carry the aside-ness. New non-goal: a third face. Cross-references added in §4 #5, §7, §15 #5. "Real pieces" moved from §17 Open questions to §17 Shipped (PR P3). Why: the face is the content signal — see PR P5.
+- **2026‑05‑26** — `/pieces` visual metaphor changes from "marginalia notebook, longer" to "editorial article" (§3 + §17). §9 gains drop-cap, pull-quote, and `§` H2-marker rules; the prior "margin notes stay serif because the rail carries the aside-ness" decision is superseded (the rail is gone). Margin notes are now inline `<aside class="pull">` pull quotes injected at end-of-section by the remark plugin. Index redesigned as a row-list. New `written:` optional frontmatter field for the "in PLACE, in SEASON" meta suffix. Full rationale + alternatives in [ADR 0012](./decisions/0012-pieces-editorial-layout.md). Why: serif body without an editorial layout reads as "long note," not as essay; the layout has to earn the face.
 
 When something material changes, add a line. Keep the log short: date, what changed, why. If you can't write the _why_ in one clause, you probably shouldn't make the change.
 
@@ -40,15 +41,16 @@ Negative-space rules. These prevent more feature creep than positive ones.
 
 Each route gets a distinct visual metaphor. This is what makes the system feel hand-built rather than templated. Promote this to the top of your mind before anything else.
 
-| Route       | Treatment                   | Visual metaphor                                      |
-| ----------- | --------------------------- | ---------------------------------------------------- |
-| `/`         | Workshop bench              | Vignette grid of what's on the bench right now       |
-| `/now`      | Numbered bench tour         | Calm column, one detailed update per craft           |
-| `/notes`    | Marginalia notebook         | Dated entries, left-margin tags, right-margin asides |
-| `/works`    | Index-card catalog          | Stackable cards with status dots and spec lists      |
-| `/about`    | Editorial article + sidebar | Body copy with §-section marks + facts cards         |
-| `/colophon` | Typewriter credits roll     | Monospace key-value blocks + ASCII signature         |
-| `/404`      | Misplaced letter            | Single illustration, calm copy, ways back            |
+| Route       | Treatment                   | Visual metaphor                                                     |
+| ----------- | --------------------------- | ------------------------------------------------------------------- |
+| `/`         | Workshop bench              | Vignette grid of what's on the bench right now                      |
+| `/now`      | Numbered bench tour         | Calm column, one detailed update per craft                          |
+| `/notes`    | Marginalia notebook         | Dated entries, left-margin tags, right-margin asides                |
+| `/pieces`   | Editorial article           | Centered single column, display title, drop cap, inline pull quotes |
+| `/works`    | Index-card catalog          | Stackable cards with status dots and spec lists                     |
+| `/about`    | Editorial article + sidebar | Body copy with §-section marks + facts cards                        |
+| `/colophon` | Typewriter credits roll     | Monospace key-value blocks + ASCII signature                        |
+| `/404`      | Misplaced letter            | Single illustration, calm copy, ways back                           |
 
 Routes share the type and palette systems. They share nothing else by force. **If a new route doesn't have a distinct metaphor, it doesn't belong in the nav.**
 
@@ -223,9 +225,11 @@ The shift from mono to serif when moving from a note to a piece is the system sa
 - **Sizing:** Display sizes use `clamp()` between two anchor breakpoints. Notes body is 15 px, line-height 1.55–1.75. Pieces body is 18 px (1.125 rem), line-height 1.65. **See `styles.css` for the truth — don't duplicate values here.**
 - **`text-wrap: pretty`** on paragraphs. Browsers that don't support it degrade silently.
 - **Italics** are reserved for: titles of works, foreign words used as-is (_mate_, _huerta_), and editorial emphasis. Never for "important."
-- **Margin notes on pieces stay serif.** Once the prose itself is serif, the aside-ness comes from rail position, the `↳` mark, and lighter weight, not from face contrast. The rail carries the role; the face doesn't have to.
+- **Pull quotes** (`<aside class="pull">`) — italic serif at `clamp(22 px, 2.4vw, 28 px)`, line-height 1.35, accent left-border, indented 1.5 rem from the prose column. Injected by `remark-inject-margin-notes` at the end of each section (before the next H2), per ADR 0012. Replaces the old marginalia-rail aside.
+- **Drop cap** — first paragraph of a piece's body only, identified by the `.lead-p` class injected by the remark plugin. `::first-letter` at 4.5 em, accent-coloured. Reduced-motion users keep the shape and lose the accent colour (drops to `var(--ink)`).
+- **`§` H2 marker** — italic H2 headings on pieces get a `::before { content: "§" }` floated left of the heading in accent, upright. Mobile (≤ 720 px) collapses the marker to above the heading.
 
-**Non-goal: a third face.** Newsreader does double duty — at 18 px it reads, at 80 px it shouts. One family, two grades. Future additions need an ADR.
+**Non-goal: a third face.** Newsreader does double duty — at 18 px it reads, at 80 px it shouts. One family, two grades. Future additions need an ADR (and need to refute ADR 0012's non-goal explicitly).
 
 ## 10 · Motion — three timings, one principle
 
@@ -330,7 +334,7 @@ The prototype loads dependencies from CDNs and uses Babel-in-browser; production
 
 - **Search index** — Pagefind (`postbuild` script, per-language facet via `data-pagefind-filter="lang"`). UI still TODO above.
 - **OG cards** — Satori + Resvg via `src/pages/og/[collection]/[slug].png.ts`, fonts in `public/fonts/og-newsreader.ttf`.
-- **Real pieces.** `/pieces` · `/ensayos` shipped in PR P3 with four bilingual long-form pieces migrated from the legacy WordPress site. Same notebook treatment as `/notes`, longer; multiple `<MarginNote>` instances down the right rail. Body prose ships in serif (Newsreader 18 / 1.65) — see [§9 · Type](#9--type) for the two-face rule.
+- **Real pieces.** `/pieces` · `/ensayos` shipped in PR P3 with four bilingual long-form pieces migrated from the legacy WordPress site. PR P5 pivoted the visual treatment from "marginalia notebook, longer" to **editorial article** — centered single column at `max-width: 760px`, display H1, italic large lede, drop cap on the first paragraph, italic H2 with floated `§` marker, inline pull quotes replacing the right-rail margin notes, redesigned row-list index with hover-slide. See [§9 · Type](#9--type) for the two-face rule and [ADR 0012](./decisions/0012-pieces-editorial-layout.md) for the pivot rationale.
 
 ---
 

@@ -1,29 +1,15 @@
 @layer routes {
-  /* ─── Pieces: Long-form sibling of /notes (design system §3, §17) ──
-     Two-column grid (date/tags rail · prose body). The body reserves
-     a right-gutter padding zone that floated margin notes spill into
-     on desktop. Notes themselves are injected into the prose by the
-     `remark-inject-margin-notes` plugin (wired in `astro.config.ts`)
-     right after the heading whose anchor matches `note.section` — so
-     they sit visually next to the section they annotate, not at the
-     top of the article.
+  /* ─── Pieces: editorial article layout (design system §3, §9, §17) ──
+     Per ADR 0012 the /pieces route is an editorial article: single
+     column, 760px wrapper centered, 62ch prose measure. The 3-column
+     marginalia layout (P1-P3) is replaced; margin notes are now inline
+     pull quotes injected after the last paragraph of each section. The
+     index is a row-list with hover-slide. */
 
-     Why floats, not a separate column: a separate `.piece-right` rail
-     puts all notes at the same vertical baseline (top of body). For
-     pieces with N>1 notes, the rail was either overlap-prone under
-     sticky positioning, or visually disconnected from the section
-     each note belongs to. Floating each note into the right gutter
-     from its anchor heading solves both — document flow gives the
-     note its vertical position automatically.
-
-     Mobile (≤ 880 px): the gutter goes away. Notes lose their float
-     and inline naturally between the heading and the next paragraph,
-     reading like an indented aside. `.piece-left` (date + tags)
-     hides; the same data renders inside `.piece-meta-foot` below the
-     body so the reader still sees it. */
+  /* ─── Index page (`/en/pieces/`, `/es/ensayos/`) ──────────────────── */
 
   .pieces.wrap {
-    max-width: 1180px;
+    max-width: 960px;
     margin-inline: auto;
     padding-inline: var(--gutter);
   }
@@ -40,6 +26,7 @@
     line-height: 1.04;
     letter-spacing: -0.02em;
     margin: 0.75rem 0 1rem;
+    font-optical-sizing: auto;
   }
   .pieces-sub {
     font-size: 0.875rem;
@@ -48,135 +35,289 @@
     line-height: 1.6;
   }
 
-  /* Empty-state — rendered until the first piece lands (PR P3). The
-     workshop "bench" vocabulary picks up from the home masthead's
-     bench cards and `/about/now`'s bench tour. */
-  .pieces-empty {
-    font-family: var(--font-display);
-    font-style: italic;
-    font-size: 1.0625rem;
-    color: var(--ink-2);
-    max-width: 50ch;
-    line-height: 1.6;
-    margin-block-start: 1rem;
-  }
-
+  /* Row-list. Each row is a single anchor with grid columns: meta on
+     the left, body on the right, trailing arrow that translates on
+     hover. Hover slides the row right and tints the background. */
   .pieces-list {
     list-style: none;
     margin: 0;
     padding: 0;
   }
-
-  .piece {
-    display: grid;
-    grid-template-columns: 180px minmax(0, 1fr);
-    gap: 2.5rem;
-    padding-block: 3rem;
-    border-block-start: 1px solid var(--rule);
+  .piece-row {
+    border-top: 1px solid var(--rule);
     position: relative;
   }
-  .piece:first-child {
-    border-block-start: 0;
-    padding-block-start: 0;
+  .piece-row:first-child {
+    border-top: 0;
   }
-
-  .piece-left {
-    text-align: end;
+  .piece-row-link {
+    display: grid;
+    grid-template-columns: 180px minmax(0, 1fr) auto;
+    gap: 2.5rem;
+    padding: 2.25rem 0.5rem;
+    background: none;
+    text-decoration: none;
+    color: inherit;
+    transition:
+      padding 320ms cubic-bezier(0.2, 0.7, 0.2, 1),
+      background 220ms ease;
+  }
+  .piece-row-link:hover,
+  .piece-row-link:focus-visible {
+    padding-inline-start: 1.125rem;
+    background: color-mix(in oklab, var(--paper) 60%, transparent);
+  }
+  .piece-row-meta {
+    text-align: right;
+    font-family: var(--font-body);
     font-size: 0.6875rem;
     color: var(--ink-3);
-  }
-  .piece-date {
-    font-variant-numeric: tabular-nums;
-    letter-spacing: 0.04em;
-    white-space: nowrap;
-  }
-  .piece-tags {
-    margin-block-start: 0.5rem;
     display: flex;
     flex-direction: column;
-    gap: 0.125rem;
+    gap: 0.25rem;
     align-items: flex-end;
+    padding-top: 0.375rem;
+    letter-spacing: 0.04em;
   }
-  .piece-tag {
-    font-size: 0.625rem;
-    letter-spacing: 0.06em;
+  .piece-row-date {
+    font-variant-numeric: tabular-nums;
+    color: var(--ink-2);
   }
-
-  .piece-body {
-    /* Right padding reserves the gutter that floated margin notes
-       spill into. The prose itself stays at the design-system 78ch
-       measure via .piece-prose's max-width, so this padding is the
-       margin gutter, not a wider line length. */
-    padding-inline-end: 280px;
+  .piece-row-time {
+    color: var(--ink-3);
+  }
+  .piece-row-body {
+    max-width: 60ch;
     min-inline-size: 0;
   }
+  .piece-row-title {
+    font-family: var(--font-display);
+    font-weight: 400;
+    font-size: clamp(1.75rem, 3.2vw, 2.25rem);
+    letter-spacing: -0.012em;
+    line-height: 1.12;
+    color: var(--ink);
+    margin: 0 0 0.625rem;
+    text-wrap: pretty;
+    font-optical-sizing: auto;
+    transition: color 220ms ease;
+  }
+  .piece-row-title em {
+    font-style: italic;
+    color: inherit;
+  }
+  .piece-row-link:hover .piece-row-title,
+  .piece-row-link:focus-visible .piece-row-title {
+    color: var(--accent);
+  }
+  .piece-row-deck {
+    font-family: var(--font-display);
+    font-style: italic;
+    font-size: clamp(1rem, 1.6vw, 1.125rem);
+    line-height: 1.5;
+    color: var(--ink-2);
+    margin: 0 0 1rem;
+    text-wrap: pretty;
+  }
+  .piece-row-tags {
+    display: flex;
+    gap: 0.75rem;
+    align-items: baseline;
+    font-family: var(--font-body);
+    font-size: 0.6875rem;
+    color: var(--ink-3);
+    letter-spacing: 0.06em;
+    margin: 0;
+  }
+  .piece-row-tag::before {
+    content: '';
+  }
+  .piece-row-arrow {
+    align-self: start;
+    margin-top: 0.5rem;
+    color: var(--ink-3);
+    font-family: var(--font-display);
+    transition:
+      transform 220ms ease,
+      color 200ms ease;
+  }
+  .piece-row-link:hover .piece-row-arrow,
+  .piece-row-link:focus-visible .piece-row-arrow {
+    transform: translate(4px, -2px);
+    color: var(--accent);
+  }
+  .pieces-empty {
+    font-size: 0.9375rem;
+    color: var(--ink-3);
+    margin-block: 2rem;
+  }
+  .pieces-foot {
+    text-align: center;
+    margin: 3.5rem 0 0;
+    color: var(--ink-3);
+  }
 
-  /* Mobile-only date strip above the title (item 4). Hidden on
-     desktop because `.piece-left` shows the same info on the rail. */
-  .piece-date-top {
-    display: none;
+  /* ─── Slug page (`/en/pieces/[slug]`, `/es/ensayos/[slug]`) ──────── */
+
+  .piece-page {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: clamp(3.75rem, 8vw, 7.5rem) clamp(1.25rem, 4vw, 2.5rem) clamp(5rem, 8vw, 8.75rem);
+  }
+
+  .piece-head {
+    margin-bottom: 3.5rem;
+    max-width: 62ch;
+  }
+  .piece-eyebrow {
+    font-family: var(--font-body);
+    font-size: 0.75rem;
+    letter-spacing: 0.06em;
+    color: var(--ink-3);
+    margin: 0 0 1.125rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    align-items: baseline;
+  }
+  .piece-eyebrow-back {
+    color: var(--ink-3);
+    text-decoration: none;
+    transition: color 220ms ease;
+  }
+  .piece-eyebrow-back:hover,
+  .piece-eyebrow-back:focus-visible {
+    color: var(--accent);
+  }
+  .piece-eyebrow-sep {
+    opacity: 0.5;
+  }
+  .piece-eyebrow-label {
+    color: var(--ink-2);
+  }
+  .piece-eyebrow-time {
+    color: var(--ink-3);
+    font-variant-numeric: tabular-nums;
   }
 
   .piece-title {
     font-family: var(--font-display);
     font-weight: 400;
-    font-size: 2rem;
-    letter-spacing: -0.01em;
-    line-height: 1.12;
-    margin: 0 0 0.625rem;
+    font-size: clamp(2.875rem, 6.2vw, 5.5rem);
+    line-height: 1.02;
+    letter-spacing: -0.022em;
     color: var(--ink);
+    margin: 1.125rem 0 1.75rem;
+    text-wrap: pretty;
+    font-optical-sizing: auto;
   }
-  /* On the index, the title contains an `<a>` linking to the slug. The
-     anchor inherits the title's display register and only the colour
-     shifts on hover/focus — keeps the visual register quiet, lets the
-     reader scan a list of titles without rainbow link decoration. */
-  .piece-title a {
+  /* `_italic_` in the title's frontmatter becomes `<em>...</em>` via
+     the small inline replacer in PieceLayout. Italic Newsreader is the
+     intended treatment for the split-style display title. */
+  .piece-title em {
+    font-style: italic;
     color: inherit;
-    text-decoration: none;
-    border: 0;
-    transition: color var(--speed-micro);
   }
-  .piece-title a:hover,
-  .piece-title a:focus-visible {
-    color: var(--accent-aa);
+
+  .piece-meta {
+    font-family: var(--font-body);
+    font-size: 0.75rem;
+    letter-spacing: 0.06em;
+    color: var(--ink-3);
+    margin: 0 0 2.25rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    align-items: baseline;
   }
-  /* Standalone slug page: title is the page's <h1> and carries the
-     full masthead register (no `<h1>` from a separate masthead). */
-  .pieces--single .piece-title {
-    font-size: clamp(2.25rem, 4.4vw, 3rem);
-    letter-spacing: -0.015em;
-    line-height: 1.08;
-    margin-block-end: 0.875rem;
+  .piece-meta time {
+    color: var(--ink-2);
+    font-variant-numeric: tabular-nums;
   }
+  .piece-meta-sep {
+    opacity: 0.5;
+  }
+
   .piece-lede {
     font-family: var(--font-display);
     font-style: italic;
-    font-size: 1.125rem;
+    font-weight: 400;
+    font-size: clamp(1.25rem, 2.2vw, 1.5rem);
+    line-height: 1.45;
+    letter-spacing: -0.005em;
     color: var(--ink-2);
-    margin: 0 0 1.25rem;
-    line-height: 1.5;
+    max-width: 56ch;
+    margin: 0;
+    text-wrap: pretty;
+    font-optical-sizing: auto;
   }
+
+  /* ─── Body — the reading face ─────────────────────────────────────── */
+
+  /* Single knob for prose font-size; the narrow-viewport rule below
+     redefines `--prose-text-size` on this wrapper, not on each text
+     rule, so p / li / blockquote stay in lockstep. */
   .piece-prose {
-    max-width: 78ch;
-  }
-  /* Piece body: serif at 18px / 1.65 per §9 of docs/design-system.md.
-     The shift from mono to serif is the content signal — see PR P5. */
-  .piece-prose p {
+    --prose-text-size: 1.125rem;
+    max-width: 62ch;
     font-family: var(--font-display);
-    font-size: 1.125rem;
+    font-optical-sizing: auto;
+    /* the variable axis picks the right grade for the rendered size */
+  }
+  .piece-prose p {
+    font-size: var(--prose-text-size);
     line-height: 1.65;
     color: var(--ink);
-    margin: 0 0 1rem;
+    margin: 0 0 1.2em;
     text-wrap: pretty;
+    hyphens: auto;
+    -webkit-hyphens: auto;
+    hanging-punctuation: first;
   }
-  .piece-prose h2 {
+  /* Drop cap. Targets the first paragraph of the body, which the
+     remark plugin marks with `class="lead-p"`. `::first-letter` is
+     read out by screen readers as part of the paragraph word; no
+     separate accessibility step needed. Reduced-motion users keep the
+     shape but lose the accent color. */
+  .piece-prose > .lead-p::first-letter {
     font-family: var(--font-display);
     font-weight: 400;
-    font-size: 1.5rem;
-    line-height: 1.25;
-    margin: 2rem 0 0.75rem;
-    letter-spacing: -0.005em;
-    clear: right; /* never start a section beside a floated margin note */
+    font-size: 4.5em;
+    line-height: 0.88;
+    float: left;
+    margin: 0.06em 0.08em 0 -0.03em;
+    color: var(--accent);
+    font-optical-sizing: auto;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .piece-prose > .lead-p::first-letter {
+      color: var(--ink);
+    }
+  }
+
+  /* H2 — italic, calm, with a floated `§` marker in accent. Mobile
+     stacks the marker above the heading. */
+  .piece-prose h2 {
+    font-family: var(--font-display);
+    font-style: italic;
+    font-weight: 400;
+    font-size: clamp(1.625rem, 2.6vw, 2rem);
+    line-height: 1.2;
+    letter-spacing: -0.012em;
+    color: var(--ink);
+    margin: 4rem 0 1.5rem;
+    position: relative;
+    text-wrap: balance;
+    font-optical-sizing: auto;
+  }
+  .piece-prose h2::before {
+    content: '§';
+    position: absolute;
+    left: -1.4em;
+    top: 0.04em;
+    font-style: normal;
+    font-size: 0.7em;
+    color: var(--accent);
   }
   .piece-prose h3 {
     font-family: var(--font-display);
@@ -184,23 +325,22 @@
     font-style: italic;
     font-size: 1.1875rem;
     margin: 1.5rem 0 0.5rem;
-    clear: right;
   }
+
   .piece-prose ul,
   .piece-prose ol {
     padding-inline-start: 1.25rem;
-    margin: 0 0 1rem;
+    margin: 0 0 1.2em;
   }
   .piece-prose li {
-    font-family: var(--font-display);
-    font-size: 1.125rem;
+    font-size: var(--prose-text-size);
     line-height: 1.65;
     margin-block-end: 0.375rem;
     text-wrap: pretty;
   }
   .piece-prose blockquote {
     font-family: var(--font-display);
-    font-size: 1.125rem;
+    font-size: var(--prose-text-size);
     line-height: 1.65;
     margin: 1.25rem 0;
     padding-inline-start: 1rem;
@@ -208,19 +348,48 @@
     color: var(--ink-2);
     font-style: italic;
   }
-  /* Forward defence: code and pre stay mono regardless of route, per
-     §9 ("two faces, no third"). No piece currently uses code blocks,
-     but the rule is documented now so the first one that does renders
-     correctly. */
-  .piece-prose code,
+  .piece-prose em {
+    font-style: italic;
+    color: inherit;
+  }
+
+  /* Inline code pill — quieter than the foundation's plain mono.
+     `--bg-2` background reads as "quoted in a different voice" without
+     stealing the accent (which stays semantic for §-marker and drop
+     cap). 0.9em compensates for mono's wider glyphs at matching point
+     size. */
+  .piece-prose code {
+    font-family: var(--font-body);
+    font-size: 0.9em;
+    padding: 1px 6px;
+    background: var(--bg-2);
+    border-radius: 2px;
+    color: var(--ink);
+    letter-spacing: 0;
+  }
+  /* Forward defence: block `<pre>` stays mono regardless of route. P6
+     adds the full block-code treatment (lang label, two-gray syntax,
+     diff styling); this rule guarantees a sensible default until then. */
   .piece-prose pre {
     font-family: var(--font-body);
     font-size: 0.875em;
+    color: var(--ink);
+    background: var(--bg-2);
+    padding: 1rem 1.25rem;
+    margin: 1.5rem 0;
+    overflow-x: auto;
   }
+  .piece-prose pre code {
+    background: none;
+    padding: 0;
+    font-size: inherit;
+    border-radius: 0;
+  }
+
   /* `---` in markdown → ornament divider (same vocabulary as notes). */
   .piece-prose hr {
     border: 0;
-    margin: 2rem auto;
+    margin: 2.5rem auto;
     height: 0.75rem;
     width: 5rem;
     background-image: radial-gradient(circle, var(--accent-aa) 1.5px, transparent 1.8px);
@@ -229,226 +398,133 @@
     opacity: 0.7;
   }
 
-  /* ─── Inline margin notes (injected by rehype) ────────────────────
-     Each `.margin-note--inline` is a sibling of the heading whose
-     anchor matched. On desktop, float right into the body's reserved
-     gutter via a positive margin (the body already has 280px right
-     padding, so we negate part of that with a right-margin pull).
-     The selector chain beats `.margin-note` in notes.css regardless
-     of import order (more specific). */
-  .piece-prose .margin-note--inline {
-    /* Override notes.css's sticky positioning explicitly. */
-    position: static;
-    inset-block-start: auto;
-    transform: none;
+  /* ─── Pull quote (`<aside class="pull">`) ─────────────────────────── */
 
-    float: right;
-    clear: right;
-    width: 220px;
-    margin-inline-start: 1.5rem;
-    margin-inline-end: -260px;
-    margin-block: 0.25rem 1rem;
-    /* Restate visual identity in case notes.css ever changes — keeps
-       margin notes readable inside the piece prose at the right edge. */
-    font-size: 0.95rem;
-    font-style: italic;
+  /* Inline pull quote injected by `remark-inject-margin-notes` after the
+     last paragraph of each section (per ADR 0012). Italic serif, accent
+     left-border, indented from the left edge of the prose column so the
+     quote reads as a deliberate extraction. */
+  .piece-prose .pull {
     font-family: var(--font-display);
+    font-style: italic;
+    font-weight: 400;
+    font-size: clamp(1.375rem, 2.4vw, 1.75rem);
+    line-height: 1.35;
+    letter-spacing: -0.005em;
     color: var(--ink-2);
-    padding: 0.5rem 0.75rem;
-    border-inline-start: 1px solid var(--accent-aa);
-    background: color-mix(in oklab, var(--accent) 4%, transparent);
-    line-height: 1.5;
+    border-inline-start: 2px solid var(--accent);
+    padding: 0.25rem 0 0.25rem 1.5rem;
+    margin: 2.25rem 0 2.25rem 1.5rem;
+    max-width: 52ch;
+    font-optical-sizing: auto;
   }
-  .piece-prose .margin-note--inline p {
-    margin: 0;
-    font-size: inherit;
-    line-height: inherit;
-  }
-  .piece-prose .margin-note--inline .margin-mark {
-    display: block;
-    color: var(--accent-aa);
-    font-size: 0.875rem;
-    margin-block-end: 0.25rem;
+  @media (max-width: 640px) {
+    .piece-prose .pull {
+      margin-inline-start: 0;
+      padding-inline-start: 1rem;
+    }
   }
 
-  /* `.piece-foot` — read-time strip on the slug page, read-time +
-     "continue reading →" link on the index. Visible at every
-     breakpoint on both modes; the continue-reading link is the
-     primary call to action on the index. */
+  /* ─── Diagram rail (slug page) ────────────────────────────────────── */
+
+  /* The DiagramRail component renders inside .piece-page but outside
+     .piece-prose; constrain its width to match the prose column. */
+  .piece-page > .diagram-rail {
+    max-width: 62ch;
+    margin-block: 2.5rem;
+  }
+
+  /* ─── Slug page foot ──────────────────────────────────────────────── */
+
   .piece-foot {
-    margin-block-start: 1rem;
-    font-size: 0.6875rem;
-    letter-spacing: 0.06em;
+    max-width: 62ch;
+    margin-top: 5rem;
+    padding-top: 1.75rem;
+    border-top: 1px dashed var(--rule);
+    font-family: var(--font-body);
+    font-size: 0.75rem;
     color: var(--ink-3);
+  }
+  .piece-foot-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    align-items: baseline;
+    letter-spacing: 0.04em;
+  }
+  .piece-foot-meta time {
+    color: var(--ink-2);
+    font-variant-numeric: tabular-nums;
+  }
+  .piece-foot-sep {
+    opacity: 0.5;
+  }
+  .piece-foot-sig {
+    margin-top: 0.875rem;
+    font-family: var(--font-display);
+    font-size: 1.375rem;
+    font-style: italic;
+    color: var(--ink);
+  }
+  .piece-nav {
+    margin-top: 1.75rem;
     display: flex;
     gap: 0.625rem;
     align-items: center;
-    clear: right;
-    flex-wrap: wrap;
-  }
-  .piece-foot a {
-    color: var(--ink-2);
-    border: 0;
-    text-decoration: none;
-    transition: color var(--speed-micro);
-  }
-  .piece-foot a:hover,
-  .piece-foot a:focus-visible {
-    color: var(--accent-aa);
-    text-decoration: underline;
-  }
-  /* Continue-reading link inside the foot: accent treatment so it
-     reads as the primary action, not a muted metadata field. Compound
-     selector beats `.piece-foot a` on specificity (two classes vs
-     class + tag) — no `!important` needed. */
-  .piece-foot .piece-continue {
-    color: var(--accent-aa);
+    font-size: 0.75rem;
     letter-spacing: 0.04em;
   }
-  .piece-foot .piece-continue:hover,
-  .piece-foot .piece-continue:focus-visible {
+  .piece-nav-index {
+    color: var(--ink-3);
+    text-decoration: none;
+    transition: color 220ms ease;
+  }
+  .piece-nav-index:hover,
+  .piece-nav-index:focus-visible {
     color: var(--accent);
   }
 
-  /* Mobile-only meta strip — tags shown at the foot of the body. Date
-     moved above the title via `.piece-date-top` (item 4 of the post-
-     marginalia review). Hidden on desktop because `.piece-left` shows
-     the same info. */
-  .piece-meta-foot {
-    display: none;
-  }
+  /* ─── Mobile breakpoints ──────────────────────────────────────────── */
 
-  /* ─── Diagram styling ───────────────────────────────────────────
-     SVG `<text>` font comes from a CSS rule, not an SVG presentation
-     attribute (`font-family="var(...)"` was patchy across rendering
-     paths). `.diagram svg text` keeps the CSS-variable resolution
-     reliable. Per-text font-size stays inline (varies per diagram). */
-  .diagram-rail {
-    display: flex;
-    flex-direction: column;
-    gap: 1.5rem;
-    margin: 1.5rem 0 2rem;
-  }
-  .diagram {
-    margin: 0;
-    color: var(--ink-2);
-    max-width: 100%;
-  }
-  .diagram svg {
-    display: block;
-    margin-inline: auto;
-    max-width: 32rem;
-  }
-  .diagram svg text {
-    font-family: var(--font-display);
-  }
-  .diagram figcaption {
-    font-family: var(--font-display);
-    font-style: italic;
-    font-size: 0.8125rem;
-    color: var(--ink-3);
-    text-align: center;
-    margin-block-start: 0.5rem;
-    line-height: 1.45;
-    max-width: 32rem;
-    margin-inline: auto;
-  }
-  /* Per-kind tints — picked so each diagram carries a colour that
-     fits its content. Restored after the marginalia-rewrite rewrote
-     pieces.css and dropped them; this is what makes diagrams look
-     drawn rather than black-line printouts. */
-  .diagram--rings {
-    color: var(--ink-blue);
-  }
-  .diagram--c4-wheel,
-  .diagram--c4-level {
-    color: var(--ink-blue);
-  }
-  .diagram--cpr {
-    color: var(--accent-aa);
-  }
-  .diagram--road-knot {
-    color: var(--mate);
-  }
-
-  .pieces-foot {
-    text-align: center;
-    margin-block-start: 4rem;
-    color: var(--ink-3);
-    font-size: 0.75rem;
-  }
-  .pieces-foot .back-link {
-    color: var(--ink-2);
-    border: 0;
-    text-decoration: none;
-    letter-spacing: 0.04em;
-    transition: color var(--speed-micro);
-  }
-  .pieces-foot .back-link:hover,
-  .pieces-foot .back-link:focus-visible {
-    color: var(--accent-aa);
-  }
-
-  .pieces--single .pieces-list {
-    padding-block-start: clamp(2.5rem, 6vw, 5rem);
-  }
-
-  @media (max-width: 880px) {
-    .piece {
-      grid-template-columns: 1fr;
-      gap: 1.125rem;
+  @media (max-width: 720px) {
+    /* Slug page: tighten outer padding; collapse `§` to above heading. */
+    .piece-page {
+      padding-block: clamp(2.5rem, 8vw, 5rem);
     }
-    .piece-left {
+    .piece-prose h2::before {
+      position: absolute;
+      left: 0;
+      top: -1.2em;
+    }
+    /* Index: collapse the row grid to a single column; meta flows
+       horizontally above the title row. */
+    .piece-row-link {
+      grid-template-columns: 1fr;
+      gap: 0.875rem;
+      padding-block: 1.75rem;
+    }
+    .piece-row-meta {
+      flex-direction: row;
+      text-align: left;
+      align-items: baseline;
+      gap: 0.875rem;
+      padding-top: 0;
+    }
+    .piece-row-arrow {
       display: none;
     }
-    .piece-body {
-      /* No gutter on mobile — margin notes inline below their heading. */
-      padding-inline-end: 0;
+  }
+
+  /* Phone-only typography tune. At ~360 px the prose column is too
+     narrow for 18 px serif to settle into the comfort zone; 17 px
+     restores rhythm. Tablets (481-720 px) stay at 18 px — the column
+     is wider and the larger size carries the editorial intent better. */
+  @media (max-width: 480px) {
+    .piece-prose {
+      --prose-text-size: 1.0625rem;
     }
-    /* Narrow-viewport typography: drop body to 17px to keep the line
-       comfortable. At 360px viewport the available text width is ~281px,
-       which gives ~32 chars/line at 18px. 17px lifts that toward the
-       lower bound of serif reading comfort. Plan PR P5 risk #4. */
-    .piece-prose p,
-    .piece-prose li,
-    .piece-prose blockquote {
-      font-size: 1.0625rem;
-    }
-    /* Date strip above the title (item 4 of the post-marginalia review). */
-    .piece-date-top {
-      display: block;
-      font-size: 0.6875rem;
-      letter-spacing: 0.04em;
-      color: var(--ink-3);
-      margin-block-end: 0.5rem;
-      font-variant-numeric: tabular-nums;
-    }
-    .piece-prose .margin-note--inline {
-      float: none;
-      clear: none;
-      width: auto;
-      margin-inline: 0;
-      margin-block: 1rem;
-    }
-    /* Mobile tags strip at the foot of the body. Date isn't repeated
-       here — it lives above the title via `.piece-date-top`. */
-    .piece-meta-foot {
-      display: flex;
-      gap: 1rem;
-      align-items: baseline;
-      flex-wrap: wrap;
-      margin-block-start: 1.25rem;
-      font-size: 0.6875rem;
-      letter-spacing: 0.04em;
-      color: var(--ink-3);
-    }
-    .piece-meta-foot .piece-tags-inline {
-      display: flex;
-      gap: 0.5rem;
-      flex-wrap: wrap;
-    }
-    .piece-date {
-      letter-spacing: 0.02em;
+    .piece-prose > .lead-p::first-letter {
+      font-size: 3.75em;
     }
   }
 }

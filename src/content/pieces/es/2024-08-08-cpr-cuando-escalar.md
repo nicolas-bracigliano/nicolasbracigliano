@@ -4,6 +4,7 @@ slug: 'cpr-cuando-escalar'
 lang: es
 translationKey: cpr-communication-2024-08-08
 date: 2024-08-08
+written: 'Melbourne, en invierno'
 status: published
 tags: [crucial-conversations, comunicación, feedback]
 lede: 'Tres niveles. La mayoría de las conversaciones de trabajo se traban en el equivocado.'

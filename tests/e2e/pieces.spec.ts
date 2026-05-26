@@ -1,11 +1,14 @@
 import { test, expect } from '@playwright/test';
 
-// Piece slug-page smoke tests. The C4 piece is the heaviest in the
-// collection — five diagrams (one top, four bottom) plus ~2300 words
-// of prose — so any layout regression in the diagram rail or the
-// long-form prose first shows up there. These tests run at the
-// design system's narrow mobile target (360 × 740) so the
-// foot-stack mobile fallback for the right rail is also exercised.
+// Piece slug-page + index smoke tests. Updated for PR P5 / ADR 0012:
+//   - Slug page is the editorial layout (single column, 760 px wrapper,
+//     display H1, italic lede, drop cap, italic H2 with `§` marker,
+//     inline pull quotes, dashed-border foot).
+//   - Index is the row-list (`.piece-row` siblings, each a single link).
+//
+// The C4 piece is the heaviest in the collection — five diagrams, ~2300
+// words of prose — so layout regressions show up there first. Mobile
+// suite runs at the design system's narrow target (360 × 740).
 
 test.describe('C4 piece — mobile layout', () => {
   test.use({ viewport: { width: 360, height: 740 } });
@@ -20,15 +23,8 @@ test.describe('C4 piece — mobile layout', () => {
     await expect(diagrams).toHaveCount(5);
   });
 
-  test('all 5 diagram SVGs are visible (none collapsed by the mobile rail rule)', async ({
-    page,
-  }) => {
+  test('all 5 diagram SVGs are visible at narrow viewport', async ({ page }) => {
     await page.goto('/en/pieces/c4-four-times-in-a-row/');
-    // `.piece-right` is the margin-note rail; it moves below the prose
-    // at ≤880 px but the `.diagram-rail` (the diagram container) is
-    // independent and must stay visible at every breakpoint. Catches
-    // an accidental `.diagram-rail { display: none }` under a media
-    // query — the kind of regression a future CSS sweep could ship.
     const svgs = page.locator('.diagram-rail svg');
     await expect(svgs).toHaveCount(5);
     for (let i = 0; i < 5; i++) {
@@ -52,46 +48,125 @@ test.describe('C4 piece — mobile layout', () => {
   });
 });
 
-test.describe('piece entry — index click targets', () => {
+test.describe('piece index — row-list click targets', () => {
   test.use({ viewport: { width: 1280, height: 800 } });
 
-  test('the title is a link on the index (navigates to the slug)', async ({ page }) => {
+  test('every row is a single link to the piece slug', async ({ page }) => {
     await page.goto('/en/pieces/');
-    const titleLinks = page.locator('.piece-title a');
-    const count = await titleLinks.count();
-    expect(count, 'every piece title on the index has a link').toBeGreaterThanOrEqual(4);
+    const rows = page.locator('.piece-row .piece-row-link');
+    const count = await rows.count();
+    expect(count, 'every piece on the index renders as a row').toBeGreaterThanOrEqual(4);
     for (let i = 0; i < count; i++) {
-      const href = await titleLinks.nth(i).getAttribute('href');
-      expect(href, `title ${i}: href should point at the piece slug`).toMatch(/\/en\/pieces\/\S+/);
-    }
-  });
-
-  test('the foot has a continue-reading link with the title in its accessible name', async ({
-    page,
-  }) => {
-    await page.goto('/en/pieces/');
-    // Each `.piece-continue` is a foot link; its accessible name combines
-    // "continue reading →" with a visually-hidden `: <title>` span so
-    // Lighthouse's link-text audit sees descriptive text, not the same
-    // generic string on every entry.
-    const continueLinks = page.locator('.piece-foot .piece-continue');
-    const count = await continueLinks.count();
-    expect(count, 'every piece on the index has a foot link').toBeGreaterThanOrEqual(4);
-    for (let i = 0; i < count; i++) {
-      const link = continueLinks.nth(i);
-      const accessibleText = (await link.textContent())?.trim() ?? '';
-      expect(
-        accessibleText,
-        `foot link ${i} should include a title beyond the generic continue-reading text`,
-      ).toMatch(/(continue reading|seguir leyendo)\s*→?\s*:\s*\S+/i);
+      const href = await rows.nth(i).getAttribute('href');
+      expect(href, `row ${i}: href should point at the piece slug`).toMatch(/\/en\/pieces\/\S+/);
     }
   });
 
   test('the slug-page title is NOT a link to itself', async ({ page }) => {
     await page.goto('/en/pieces/rings-i-keep-redrawing/');
-    // On the slug page the title is the page's <h1>; making it link to
-    // itself would be a self-referential noop. Plain text only.
+    // The slug-page title is plain text (PieceLayout renders the H1
+    // directly via `set:html`); the index-row title still wraps the
+    // whole row in a link, but that link is at the row level, not on
+    // the title element itself.
     await expect(page.locator('.piece-title a')).toHaveCount(0);
     await expect(page.locator('h1.piece-title')).toHaveCount(1);
+  });
+});
+
+test.describe('piece editorial layout — ADR 0012', () => {
+  // Locks the structural contracts of the editorial layout. A future
+  // refactor that accidentally reintroduces the marginalia rail, the
+  // floated-right margin-note, or loses the `§` heading marker would
+  // silently revert ADR 0012; these assertions catch each case.
+  test.use({ viewport: { width: 1280, height: 800 } });
+
+  test('no `.piece-left` rail exists on the slug page', async ({ page }) => {
+    // The 3-column grid is gone per ADR 0012. The date + tags rail
+    // moved to the meta line above the title (date) and the index
+    // (tags). If this comes back, the layout has regressed.
+    await page.goto('/en/pieces/rings-i-keep-redrawing/');
+    await expect(page.locator('.piece-left')).toHaveCount(0);
+  });
+
+  test('pull quotes render as `<aside class="pull">` inside the prose', async ({ page }) => {
+    // Each P3 piece has 3 margin notes that the remark plugin injects
+    // as pull quotes at end-of-section. The Rings piece exercises this
+    // with 3 inserts; assert at least one renders on the slug page.
+    await page.goto('/en/pieces/rings-i-keep-redrawing/');
+    const pulls = page.locator('.piece-prose aside.pull');
+    await expect(pulls.first()).toBeVisible();
+    expect(await pulls.count(), 'Rings has 3 margin notes -> 3 pull quotes').toBeGreaterThanOrEqual(
+      1,
+    );
+  });
+
+  test('piece H2 has a `§` marker via the `::before` pseudo-element', async ({ page }) => {
+    await page.goto('/en/pieces/rings-i-keep-redrawing/');
+    const markerContent = await page
+      .locator('.piece-prose h2')
+      .first()
+      .evaluate((el) => {
+        // `getComputedStyle(el, '::before').content` returns the quoted
+        // string from the rule (e.g. `"§"`). Strip surrounding quotes
+        // and assert the character.
+        const raw = getComputedStyle(el, '::before').content;
+        return raw.replace(/^["']|["']$/g, '');
+      });
+    expect(markerContent, 'piece H2 must carry a `§` accent marker').toBe('§');
+  });
+
+  test('the eyebrow back-link points at the pieces index (per locale)', async ({ page }) => {
+    await page.goto('/en/pieces/rings-i-keep-redrawing/');
+    const enBack = page.locator('.piece-eyebrow-back');
+    await expect(enBack).toHaveAttribute('href', '/en/pieces/');
+
+    await page.goto('/es/ensayos/anillos-que-sigo-redibujando/');
+    const esBack = page.locator('.piece-eyebrow-back');
+    await expect(esBack).toHaveAttribute('href', '/es/ensayos/');
+  });
+
+  test('the lead paragraph carries `.lead-p` for the drop-cap rule', async ({ page }) => {
+    // The remark plugin marks the first body paragraph with `class="lead-p"`
+    // so `.piece-prose > .lead-p::first-letter` can target it. A future
+    // plugin that sneaks a sibling ahead of the first `<p>` would
+    // silently move the class; this test pins the contract.
+    await page.goto('/en/pieces/rings-i-keep-redrawing/');
+    await expect(page.locator('.piece-prose > p.lead-p')).toHaveCount(1);
+  });
+});
+
+test.describe('piece typography — §9 two-face rule', () => {
+  // Locks the design-system §9 commitment that piece body prose renders
+  // in Newsreader (serif) while chrome stays in JetBrains Mono. A future
+  // refactor that consolidates `.piece-prose p` and `.note-prose p` into
+  // a shared `.prose p` would silently revert the rule without breaking
+  // any other test; this assertion catches that.
+  test('piece prose body renders in Newsreader (serif)', async ({ page }) => {
+    await page.goto('/en/pieces/rings-i-keep-redrawing/');
+    const family = await page
+      .locator('.piece-prose p')
+      .first()
+      .evaluate((el) => getComputedStyle(el).fontFamily);
+    expect(family, 'piece prose body must use --font-display (Newsreader)').toMatch(/Newsreader/);
+  });
+
+  test('piece chrome (eyebrow + meta) stays in JetBrains Mono', async ({ page }) => {
+    await page.goto('/en/pieces/rings-i-keep-redrawing/');
+    // The chrome surfaces (eyebrow, meta, foot signature meta) carry the
+    // field-log voice. They stay mono regardless of route per §9.
+    const eyebrowFamily = await page
+      .locator('.piece-eyebrow')
+      .first()
+      .evaluate((el) => getComputedStyle(el).fontFamily);
+    expect(eyebrowFamily, 'piece eyebrow must use --font-body (JetBrains Mono)').toMatch(
+      /JetBrains Mono/,
+    );
+    const metaFamily = await page
+      .locator('.piece-meta')
+      .first()
+      .evaluate((el) => getComputedStyle(el).fontFamily);
+    expect(metaFamily, 'piece meta line must use --font-body (JetBrains Mono)').toMatch(
+      /JetBrains Mono/,
+    );
   });
 });

@@ -4,6 +4,7 @@ slug: 'where-agile-gets-stuck'
 lang: en
 translationKey: agile-stuck-2023-06-18
 date: 2023-06-18
+written: 'Melbourne, in winter'
 status: published
 tags: [agile, scrum, teamwork]
 lede: 'The standups drift. The retros get cut. The pattern isn’t agile failing.'

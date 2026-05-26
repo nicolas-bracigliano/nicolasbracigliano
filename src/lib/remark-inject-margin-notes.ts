@@ -1,14 +1,29 @@
-// Remark plugin: inject margin-note HTML elements into markdown right
-// after the heading whose computed slug matches `marginNotes[i].section`
-// in the frontmatter. Wired in `astro.config.ts`.
+// Remark plugin: inject editorial elements into a piece's markdown AST
+// at build time. Two responsibilities, both wired in `astro.config.ts`:
+//
+//   1. PULL QUOTES (formerly "margin notes"). For each
+//      `marginNotes: [{ section, text }]` frontmatter entry, find the H2
+//      whose computed slug matches `section`, then insert an
+//      `<aside class="pull">` AFTER the last paragraph of that section
+//      (i.e. immediately before the next H2 at the same level, or before
+//      the end of the document if the section is last). This anchor
+//      logic matches the prototype's pull-quote placement, where the
+//      quote summarises or extracts from the section above rather than
+//      introducing it.
+//
+//   2. LEAD-PARAGRAPH CLASS. The first paragraph of the body gets
+//      `class="lead-p"` so the drop-cap rule (§9, `.piece-prose >
+//      .lead-p::first-letter`) can target it without relying on
+//      `:first-of-type` (which is fragile against future remark plugins
+//      that might inject siblings ahead of the first `<p>`).
 //
 // Why REMARK, not rehype: Astro's heading-anchor IDs (`<h2 id="...">`)
 // are added LATER in the pipeline than user rehype plugins. A user-
 // stage rehype plugin sees `<h2>` elements with no `id` attribute, so
 // matching against `note.section` is impossible. Running at the remark
 // stage means we have the heading's TEXT (not yet slugified) and can
-// compute the same slug Astro will eventually emit, then insert an
-// HTML element as a sibling of the heading.
+// compute the same slug Astro will eventually emit, then insert HTML
+// elements at the right position in the tree.
 //
 // Slug algorithm: matches github-slugger's behaviour closely enough for
 // the heading texts we use (plain prose with apostrophes, commas, and
@@ -26,6 +41,9 @@
 interface MarginNote {
   section: string;
   text: string;
+  /** Reserved from the marginalia era. Ignored by the pull-quote
+   *  rendering — the `↳` glyph no longer appears; emphasis is carried
+   *  by type weight and the accent left-border. */
   mark?: string;
 }
 
@@ -41,6 +59,15 @@ interface MdastNode {
   value?: string;
   children?: MdastNode[];
 }
+
+/** Internal shape we cast to when writing `data.hProperties.className`.
+ *  Each mdast node type has its own data shape; we only ever read/write
+ *  the `hProperties` slot on a paragraph node here. Kept as a local
+ *  type so the public `MdastNode` interface stays minimal and the cast
+ *  is documented at the point of use. */
+type WithHProperties = {
+  data?: { hProperties?: { className?: string } };
+};
 
 interface VFile {
   data?: {
@@ -71,7 +98,7 @@ function slugify(text: string): string {
 }
 
 /** Escape a string for safe interpolation inside an HTML text content
- *  context. Margin note text is plain prose from frontmatter; escaping
+ *  context. Pull-quote text is plain prose from frontmatter; escaping
  *  ampersands, angle brackets, and quotes is the conservative move. */
 function escapeHtml(s: string): string {
   return s
@@ -81,46 +108,78 @@ function escapeHtml(s: string): string {
     .replace(/"/g, '&quot;');
 }
 
-function buildMarginNoteHtml(note: MarginNote): string {
-  const mark = escapeHtml(note.mark ?? '↳');
-  const text = escapeHtml(note.text);
-  return (
-    `<div class="margin-note margin-note--inline">` +
-    `<span class="margin-mark" aria-hidden="true">${mark}</span>` +
-    `<p>${text}</p>` +
-    `</div>`
-  );
+function buildPullQuoteHtml(note: MarginNote): string {
+  return `<aside class="pull">${escapeHtml(note.text)}</aside>`;
 }
 
-function injectAfterHeadings(node: MdastNode, notesBySection: Map<string, MarginNote[]>): void {
-  if (!node.children) return;
-  let i = 0;
-  while (i < node.children.length) {
-    const child = node.children[i];
-    if (!child) {
-      i++;
-      continue;
-    }
-    if (child.type === 'heading') {
-      const slug = slugify(nodeText(child as MdastInlineNode));
-      const notes = notesBySection.get(slug);
-      if (notes && notes.length > 0) {
-        const inserts: MdastNode[] = notes.map((n) => ({
-          type: 'html',
-          value: buildMarginNoteHtml(n),
-        }));
-        node.children.splice(i + 1, 0, ...inserts);
-        i += inserts.length + 1;
-        continue;
+/** Mark the first paragraph node in the top-level children array with
+ *  `class="lead-p"` via mdast's `data.hProperties.className`. Idempotent
+ *  — running twice produces the same result. */
+function markLeadParagraph(tree: MdastNode): void {
+  if (!tree.children) return;
+  const firstParagraph = tree.children.find((c) => c.type === 'paragraph') as
+    | (MdastNode & WithHProperties)
+    | undefined;
+  if (!firstParagraph) return;
+  const data = (firstParagraph.data = firstParagraph.data ?? {});
+  const hProperties = (data.hProperties = data.hProperties ?? {});
+  const existing = hProperties.className;
+  if (typeof existing === 'string' && existing.includes('lead-p')) return;
+  hProperties.className = existing ? `${existing} lead-p` : 'lead-p';
+}
+
+/** Insert pull quotes at the end of each section. For each match in
+ *  `notesBySection`, walk forward from the matching H2 to find the
+ *  index just before the next H2 of equal-or-shallower depth (or end of
+ *  document), then splice an `<aside class="pull">` node at that index.
+ *
+ *  Only operates on the top-level children. Pull quotes are an editorial
+ *  affordance for sectioned long-form prose; nested injection points
+ *  aren't part of the contract. */
+function injectAtSectionEnds(tree: MdastNode, notesBySection: Map<string, MarginNote[]>): void {
+  if (!tree.children) return;
+  // Collect pending inserts as { afterIndex, node } pairs first, then
+  // apply them in reverse order so earlier indices stay valid.
+  const inserts: Array<{ afterIndex: number; node: MdastNode }> = [];
+  for (let i = 0; i < tree.children.length; i++) {
+    const child = tree.children[i];
+    if (!child || child.type !== 'heading' || child.depth !== 2) continue;
+    const slug = slugify(nodeText(child as MdastInlineNode));
+    const notes = notesBySection.get(slug);
+    if (!notes || notes.length === 0) continue;
+    // Find the end of this section: the index of the next H2 (or any
+    // shallower heading), or `tree.children.length` if this is the last
+    // section.
+    let endIndex = tree.children.length;
+    for (let j = i + 1; j < tree.children.length; j++) {
+      const sibling = tree.children[j];
+      if (sibling && sibling.type === 'heading' && (sibling.depth ?? Infinity) <= 2) {
+        endIndex = j;
+        break;
       }
     }
-    injectAfterHeadings(child, notesBySection);
-    i++;
+    // Insert each pull quote immediately before `endIndex` (i.e. after
+    // the section's last paragraph). Multiple notes for one section
+    // land in author-supplied order.
+    for (const note of notes) {
+      inserts.push({
+        afterIndex: endIndex - 1,
+        node: { type: 'html', value: buildPullQuoteHtml(note) },
+      });
+    }
+  }
+  // Apply inserts in reverse so earlier indices are unaffected.
+  inserts.sort((a, b) => b.afterIndex - a.afterIndex);
+  for (const { afterIndex, node } of inserts) {
+    tree.children.splice(afterIndex + 1, 0, node);
   }
 }
 
 export default function remarkInjectMarginNotes() {
   return (tree: MdastNode, file: VFile): void => {
+    // Always mark the lead paragraph — independent of margin-note presence.
+    markLeadParagraph(tree);
+
     const marginNotes = file.data?.astro?.frontmatter?.marginNotes ?? [];
     if (marginNotes.length === 0) return;
 
@@ -133,6 +192,6 @@ export default function remarkInjectMarginNotes() {
     }
     if (notesBySection.size === 0) return;
 
-    injectAfterHeadings(tree, notesBySection);
+    injectAtSectionEnds(tree, notesBySection);
   };
 }
