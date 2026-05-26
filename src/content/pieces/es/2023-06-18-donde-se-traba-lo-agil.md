@@ -4,7 +4,7 @@ slug: 'donde-se-traba-lo-agil'
 lang: es
 translationKey: agile-stuck-2023-06-18
 date: 2023-06-18
-written: 'Melbourne, AU'
+written: 'Melbourne, en otoño'
 status: published
 tags: [agile, scrum, equipo]
 lede: 'Los standups se desvían. Las retros se cortan. El patrón no es ágil fallando.'
