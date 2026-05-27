@@ -1,5 +1,5 @@
 ---
-import { getEntry } from 'astro:content';
+import { getEntry, render } from 'astro:content';
 import BaseLayout from '@layouts/BaseLayout.astro';
 import AboutMasthead from '@components/AboutMasthead.astro';
 import AboutPortrait from '@components/AboutPortrait.astro';
@@ -14,6 +14,7 @@ const entry = await getEntry('pages', 'es/about');
 if (!entry) throw new Error('Missing pages/es/about');
 const sibling = await getSibling(entry);
 const { title, lede } = entry.data;
+const { Content } = await render(entry);
 
 const path = ROUTES.about.es;
 const siblingPath = sibling ? entryRouteFor(sibling) : null;
@@ -42,51 +43,7 @@ const today = new Intl.DateTimeFormat('es-AR', {
 
     <div class="about-grid">
       <article class="about-prose">
-        <h2>Cómo llegué hasta acá</h2>
-        <p>
-          Crecí en Argentina, alrededor de una cocina donde siempre había alguien cebando <em
-            >mate</em
-          > y un tío afinando la guitarra. Aprendí a programar con un libro que mi viejo trajo de una
-          imprenta. Lo primero que hice fue una base de datos chica para llevar la biblioteca familiar.
-          En cierto sentido, vengo haciendo variaciones de eso desde entonces.
-        </p>
-        <p>
-          Melbourne es casa desde 2014. La luz acá es más suave. Las estaciones están invertidas, lo
-          que me encanta porque me da la excusa para sembrar en noviembre y mirar caer las hojas en
-          mayo.
-        </p>
-
-        <h2>En qué trabajo</h2>
-        <p>
-          De día: ingeniería senior en un equipo de producto chico. Sirvo más en lugares donde el
-          trabajo es transversal y el sistema lleva un rato en pie — soy bueno entendiendo por qué
-          algo es como es antes de decidir que debería ser distinto.
-        </p>
-        <p>
-          Fuera de horario: sitios estáticos chicos, un goteo constante de <a href="/es/obras/"
-            >objetos imprimibles en 3D</a
-          >, alguna pieza de audio cada tanto, y una discusión permanente con una huerta. Todo
-          documentado en alguna parte de este sitio.
-        </p>
-
-        <h2>Cómo trabajo</h2>
-        <p>
-          Escribo antes de construir. Prototipo con papel, después con la herramienta más barata que
-          pruebe la idea. Llevo changelogs. Prefiero entregar un 70% útil que pulir un 100% que
-          nunca sale del banco. Pienso que la tipografía y el espacio en blanco importan más o menos
-          tanto como los diagramas de arquitectura.
-        </p>
-        <p>
-          Trabajo en problemas difíciles con gente amable, en inglés o en español, en cosas que le
-          contaría con orgullo a mi vieja.
-        </p>
-
-        <h2>Cómo escribirme</h2>
-        <p>
-          La mejor forma es por mail: <a href={`mailto:${SITE_EMAIL}`}>{SITE_EMAIL}</a>. Leo todo,
-          contesto la mayoría, y respondo más rápido a los mensajes cortos y específicos. Si
-          escribís sobre alguno de los proyectos del sitio, mencioná cuál.
-        </p>
+        <Content />
         <p class="about-out">
           <span class="serif-italic">— Nicolás</span> · Melbourne · {today}
         </p>
@@ -96,6 +53,8 @@ const today = new Intl.DateTimeFormat('es-AR', {
         <AboutPortrait locale="es" />
 
         <FactsCard title="Datos y cifras">
+          <FactsRow dt="nombre">Nicolás · griego, “victoria del pueblo”</FactsRow>
+          <FactsRow dt="se dice">ni-co-LÁS</FactsRow>
           <FactsRow dt="de">Buenos Aires, Argentina</FactsRow>
           <FactsRow dt="en">Melbourne, AU</FactsRow>
           <FactsRow dt="lat / lng">−37.81 / 144.96</FactsRow>

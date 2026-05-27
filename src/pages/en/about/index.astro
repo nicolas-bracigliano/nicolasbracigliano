@@ -1,5 +1,5 @@
 ---
-import { getEntry } from 'astro:content';
+import { getEntry, render } from 'astro:content';
 import BaseLayout from '@layouts/BaseLayout.astro';
 import AboutMasthead from '@components/AboutMasthead.astro';
 import AboutPortrait from '@components/AboutPortrait.astro';
@@ -14,6 +14,7 @@ const entry = await getEntry('pages', 'en/about');
 if (!entry) throw new Error('Missing pages/en/about');
 const sibling = await getSibling(entry);
 const { title, lede } = entry.data;
+const { Content } = await render(entry);
 
 const path = ROUTES.about.en;
 const siblingPath = sibling ? entryRouteFor(sibling) : null;
@@ -42,50 +43,7 @@ const today = new Intl.DateTimeFormat('en-AU', {
 
     <div class="about-grid">
       <article class="about-prose">
-        <h2>How I got here</h2>
-        <p>
-          I grew up in Argentina, around a kitchen where someone was always brewing <em>mate</em> and
-          an uncle was always tuning a guitar. I learned to program from a book my dad brought home from
-          a print shop. The first thing I built was a small database to track the family library. I have,
-          in some sense, been building variations of that ever since.
-        </p>
-        <p>
-          Melbourne has been home since 2014. The light here is gentler. The seasons are inverted,
-          which I love because it gives me an excuse to garden in November and watch leaves fall in
-          May.
-        </p>
-
-        <h2>What I work on</h2>
-        <p>
-          Day job: senior engineering at a small product team. Most useful in places where the work
-          is cross-functional and the system has been around for a while — good at understanding why
-          something is the way it is before deciding it should be different.
-        </p>
-        <p>
-          Off the clock: small static sites, a steady drip of <a href="/en/works/"
-            >3D-printable objects</a
-          >, the occasional audio piece, and an ongoing argument with a vegetable patch. Everything
-          is documented somewhere on this site.
-        </p>
-
-        <h2>How I work</h2>
-        <p>
-          I write before I build. I prototype with paper, then with the cheapest tool that proves
-          the idea. I keep changelogs. I prefer shipping a useful 70% over polishing a 100% that
-          never leaves the bench. I think type and white space matter about as much as architecture
-          diagrams.
-        </p>
-        <p>
-          I'll work on hard problems with kind people, in either English or Spanish, for things I'd
-          be proud to tell my mother about.
-        </p>
-
-        <h2>Get in touch</h2>
-        <p>
-          The best way is email: <a href={`mailto:${SITE_EMAIL}`}>{SITE_EMAIL}</a>. I read
-          everything, reply to most things, and respond fastest to short, specific messages. If
-          you're writing about one of the projects on this site, mention which one.
-        </p>
+        <Content />
         <p class="about-out">
           <span class="serif-italic">— Nicolás</span> · Melbourne · {today}
         </p>
@@ -95,6 +53,8 @@ const today = new Intl.DateTimeFormat('en-AU', {
         <AboutPortrait locale="en" />
 
         <FactsCard title="Facts & figures">
+          <FactsRow dt="name">Nicolás · Greek, “victory of the people”</FactsRow>
+          <FactsRow dt="say">nee-koh-LAHS</FactsRow>
           <FactsRow dt="from">Buenos Aires, Argentina</FactsRow>
           <FactsRow dt="based in">Melbourne, AU</FactsRow>
           <FactsRow dt="lat / lng">−37.81 / 144.96</FactsRow>
