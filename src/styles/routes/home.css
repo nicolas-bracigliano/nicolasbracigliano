@@ -215,6 +215,14 @@
     position: relative;
     background: transparent;
   }
+  /* The bench grid is two columns. With an odd number of items the last
+     card would sit alone in its final row, leaving a ragged open cell to
+     its right; span it across both columns so any count (1–6, per
+     BENCH_MAX in src/lib/bench-items.ts) reads as a deliberate full-width
+     row. Inert at ≤720px where the grid is already a single column. */
+  .bench-card:last-child:nth-child(odd) {
+    grid-column: 1 / -1;
+  }
   .bench-card::before {
     content: '';
     position: absolute;

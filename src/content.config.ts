@@ -8,6 +8,9 @@ import { z } from 'astro/zod';
 // the inferred TS types from the same source — no parallel
 // hand-written `NowPageItem` interface to drift.
 import { nowItemSchema, NOW_ITEM_COUNT } from './lib/now-items';
+// Home-page "currently on the bench" items — same pattern as now-items:
+// schema here, inferred kind union in BenchCard.astro, both from one source.
+import { benchItemSchema, BENCH_MIN, BENCH_MAX } from './lib/bench-items';
 
 const base = z.object({
   title: z.string().min(1).max(80),
@@ -182,7 +185,16 @@ const pages = defineCollection({
       ogOverride: image().optional(),
     };
     return z.discriminatedUnion('slug', [
-      base.extend({ slug: z.literal('home'), ...common }),
+      base.extend({
+        slug: z.literal('home'),
+        ...common,
+        /** Required on the home variant — the "currently on the bench"
+         *  cards. Bounded to BENCH_MIN..BENCH_MAX (1..6) so a content
+         *  edit that empties or overflows the bench fails Zod at build
+         *  time. Each item's shape (incl. kind-conditional captions) is
+         *  validated by `benchItemSchema` in `src/lib/bench-items.ts`. */
+        bench: z.array(benchItemSchema).min(BENCH_MIN).max(BENCH_MAX),
+      }),
       base.extend({ slug: z.literal('about'), ...common }),
       base.extend({ slug: z.literal('colophon'), ...common }),
       base.extend({

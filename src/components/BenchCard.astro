@@ -9,30 +9,36 @@
 // matching kind. The four together stay under ~150 LOC and tree-shake as
 // one unit when the home page splits at build time.
 
-export type BenchKind = 'code' | 'guitar' | 'garden' | 'print';
+// Kind union is owned by `src/lib/bench-items.ts` (the same source the
+// content schema validates against) so the component and the frontmatter
+// can't drift on the set of kinds.
+import type { BenchItemKind } from '@lib/bench-items';
 
 export interface Props {
-  kind: BenchKind;
-  /** Eyebrow tag — e.g. "01 · code" / "01 · código". */
+  kind: BenchItemKind;
+  /** Eyebrow tag — e.g. "01 · code" / "01 · código". The number is
+   *  derived from bench position by the home page; this is the final
+   *  formatted string. */
   tag: string;
   /** Headline of the bench item, set in serif. */
   title: string;
   /** Descriptive prose underneath. */
   line: string;
-  /** Caption baked into the seedling vignette ("tomate" / "tomato"). */
-  seedlingTag?: string;
-  /** Caption baked into the guitar vignette (mode + piece + bar). */
-  guitarLabel?: string;
+  /** Caption baked into the seedling vignette ("tomate" / "tomato").
+   *  Required for `kind: 'garden'` by the content schema; `| undefined`
+   *  because the home page maps every bench item through one call site
+   *  and TS can't correlate kind → caption presence (the schema does). */
+  seedlingTag?: string | undefined;
+  /** Caption baked into the guitar vignette (mode + piece + bar).
+   *  Required for `kind: 'guitar'` by the content schema; `| undefined`
+   *  for the same call-site reason as seedlingTag above. */
+  guitarLabel?: string | undefined;
 }
 
-const {
-  kind,
-  tag,
-  title,
-  line,
-  seedlingTag = 'tomate',
-  guitarLabel = 'A m | Milonga del Ángel · bar 9',
-} = Astro.props;
+// No fallback defaults: the captions are kind-conditionally required in
+// `benchItemSchema`, so an omission fails the build rather than silently
+// injecting a wrong-locale string here.
+const { kind, tag, title, line, seedlingTag, guitarLabel } = Astro.props;
 ---
 
 <article class={`bench-card bench-card--${kind}`}>
