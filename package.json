@@ -1,6 +1,6 @@
 {
   "name": "nicolasbracigliano-com",
-  "version": "1.10.0",
+  "version": "1.10.1",
   "private": true,
   "description": "Personal site — colophon, bilingual (en/es), Astro 6 on Cloudflare Workers Static Assets.",
   "homepage": "https://nicolasbracigliano.com",

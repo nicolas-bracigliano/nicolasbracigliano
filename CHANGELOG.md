@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.10.1](https://github.com/nicolas-bracigliano/nicolasbracigliano/compare/v1.10.0...v1.10.1) (2026-05-27)
+
+
+### Bug Fixes
+
+* **diagrams:** raise CPR sublabel to ink-2 for legibility ([#82](https://github.com/nicolas-bracigliano/nicolasbracigliano/issues/82)) ([ac04ab4](https://github.com/nicolas-bracigliano/nicolasbracigliano/commit/ac04ab4766c2504f0bcb4b413b36058120058c35))
+
 ## [1.10.0](https://github.com/nicolas-bracigliano/nicolasbracigliano/compare/v1.9.2...v1.10.0) (2026-05-27)
 
 
