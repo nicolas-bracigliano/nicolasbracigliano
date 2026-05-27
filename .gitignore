@@ -23,6 +23,8 @@ coverage/
 playwright-report/
 test-results/
 .lighthouseci/
+# generated from lighthouserc.json by scripts/lighthouse-pr-config.mjs
+lighthouserc.pr.generated.json
 
 # build artefacts
 *.log

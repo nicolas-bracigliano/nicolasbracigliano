@@ -142,8 +142,18 @@ jobs:
         with:
           name: dist
           path: dist
+      # PR runs use a trimmed config (6 URLs x 2 runs, ~2 min) generated
+      # from canonical lighthouserc.json so feedback stays fast; main
+      # pushes + local `pnpm lhci` use the full config (16 URLs x 2 runs).
+      # The speed-up is fewer URLs, not fewer runs — median-of-2 keeps the
+      # gate from flaking. The generated PR config inherits canonical's
+      # budget verbatim, so it can't drift. Post-merge run on main is the
+      # source of truth. Generator contract: lighthouse-pr-config.test.ts.
+      - name: Generate trimmed PR Lighthouse config
+        if: github.event_name == 'pull_request'
+        run: pnpm lhci:pr-config
       - name: Run Lighthouse CI
-        run: pnpm lhci
+        run: pnpm exec lhci autorun --config=${{ github.event_name == 'pull_request' && 'lighthouserc.pr.generated.json' || 'lighthouserc.json' }}
       - name: Upload Lighthouse report
         if: always()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1

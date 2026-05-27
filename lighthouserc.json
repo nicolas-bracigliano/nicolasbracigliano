@@ -1,5 +1,6 @@
 {
   "$schema": "https://raw.githubusercontent.com/GoogleChrome/lighthouse-ci/main/packages/utils/src/lighthouserc-schema.json",
+  "//": "Canonical full-coverage Lighthouse config and the single source of truth for the budget: 16 URLs x 2 runs, used on main pushes + local `pnpm lhci`. PRs run a trimmed config (6 URLs x 2 runs) GENERATED from this file by scripts/lighthouse-pr-config.mjs — the assert block, settings, runs and upload are inherited verbatim, so a PR can't pass a looser budget than main. Edit budgets here only. Generator contract is pinned by tests/unit/lighthouse-pr-config.test.ts.",
   "ci": {
     "collect": {
       "staticDistDir": "./dist",
@@ -7,15 +8,16 @@
         "http://localhost/en/",
         "http://localhost/en/notes/",
         "http://localhost/en/notes/hello/",
-        "http://localhost/en/works/this-site/",
         "http://localhost/es/notas/hola/",
+        "http://localhost/en/works/this-site/",
+        "http://localhost/en/about/",
         "http://localhost/en/pieces/",
         "http://localhost/es/ensayos/",
         "http://localhost/en/pieces/rings-i-keep-redrawing/",
-        "http://localhost/es/ensayos/anillos-que-sigo-redibujando/",
         "http://localhost/en/pieces/c4-four-times-in-a-row/",
         "http://localhost/en/pieces/cpr-when-to-escalate/",
         "http://localhost/en/pieces/where-agile-gets-stuck/",
+        "http://localhost/es/ensayos/anillos-que-sigo-redibujando/",
         "http://localhost/es/ensayos/c4-cuatro-veces-seguidas/",
         "http://localhost/es/ensayos/cpr-cuando-escalar/",
         "http://localhost/es/ensayos/donde-se-traba-lo-agil/"
