@@ -6,6 +6,8 @@ translationKey: now
 date: 2026-05-23
 status: published
 lede: "What's on the bench right now."
+# The full "on the bench" detail. The home page (src/content/pages/en/home.md)
+# shows a 4-card teaser of these same subjects — keep the two in sync.
 items:
   - kind: code
     where: 'on the bench · code'

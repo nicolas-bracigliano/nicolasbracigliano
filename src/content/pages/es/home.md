@@ -10,6 +10,8 @@ lede: 'Ingeniero de software senior en Melbourne. Código, guitarra, huerta, caf
 # "NN ·" de la posición, así que agregá/sacá/reordená sin tocar código.
 # benchItemSchema (src/lib/bench-items.ts) valida: guitar necesita
 # guitarLabel, garden necesita seedlingTag.
+# Es un resumen corto; los temas se solapan con /now (sobre/ahora) — si
+# cambia lo que estás haciendo, actualizá los dos.
 bench:
   - kind: code
     label: 'código'

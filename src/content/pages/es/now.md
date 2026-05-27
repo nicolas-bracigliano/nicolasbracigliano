@@ -6,6 +6,9 @@ translationKey: now
 date: 2026-05-23
 status: published
 lede: 'Lo que hay sobre la mesa ahora.'
+# El detalle completo de "lo que hay sobre la mesa". El home
+# (src/content/pages/es/home.md) muestra un resumen de 4 tarjetas de
+# estos mismos temas — mantené los dos sincronizados.
 items:
   - kind: code
     where: 'sobre la mesa · código'

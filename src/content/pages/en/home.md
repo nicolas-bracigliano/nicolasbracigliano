@@ -10,6 +10,8 @@ lede: 'Senior software engineer in Melbourne. Code, guitar, garden, coffee, and 
 # derives the "NN ·" number from position, so add/remove/reorder freely.
 # Validated by benchItemSchema (src/lib/bench-items.ts): guitar items
 # need guitarLabel, garden items need seedlingTag.
+# A terse teaser; the subjects overlap /now (about/now) — if what you're
+# working on changes, update both.
 bench:
   - kind: code
     label: 'code'
