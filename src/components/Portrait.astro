@@ -1,4 +1,19 @@
 ---
+// Linocut self-portrait (ink + mate-gourd terracotta), used on the home
+// masthead and the About page. Inline rather than a raster so the ink
+// follows the theme: the path's `currentColor` resolves to `--portrait-ink`
+// (consumers set it to `--ink`, flipping Día↔Noche); the accent path keeps
+// its native `--portrait-accent` (#c45a24). ~52KB minified — a deliberate
+// exception to design-system §13's 32KB inline-SVG cap.
+//
+// REGENERATING: the two <path>s below are SVGO output hand-spliced into
+// this wrapper. From the source linocut SVG:
+//   npx svgo -p 0 --multipass source.svg -o out.svg
+// then replace the two paths in the <g> with out.svg's (path 1 = ink,
+// `fill="currentColor"`; path 2 = accent, `fill="var(--portrait-accent…)"`).
+// The wrapper (props, <svg> attrs, <style>) is hand-maintained; don't
+// overwrite it with raw SVGO output.
+
 export interface Props {
   class?: string;
   title?: string;
