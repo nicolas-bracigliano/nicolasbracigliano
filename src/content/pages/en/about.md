@@ -12,11 +12,11 @@ lede: 'Senior software engineer in Melbourne, working in public, in process.'
 
 I grew up in Argentina, in a kitchen where there was always _mate_ on the table. When I turned seven, I traded the birthday party for a computer. My parents were surprised, but I had thought it through, and they went along with it.
 
-It came with a book about DOS and QBasic, and I read it the way other kids read comics. What caught me, eventually, wasn't the games, though I typed `qbasic /run gorilla.bas` more often than I'd admit. It was realising I could change what the machine did, not just use it. I've been doing variations of that ever since.
+It came with a book about DOS and QBasic, and I read it the way other kids read comics. What caught me, eventually, wasn't the games, though I typed `qbasic /run gorillas.bas` more often than I'd admit. It was realising I could change what the machine did, not just use it. I've been doing variations of that ever since.
 
 ## What I work on
 
-Day job: senior engineering at a small product team. I'm most useful where the work is cross-functional and the system has been around for a while. I'm good at understanding why something is the way it is before deciding it should be different.
+Day job: senior engineering on a cybersecurity product. It's good work, and the people are exceptional, which I don't say lightly. I'm most useful where the work is cross-functional and the system has been around for a while. I'm good at understanding why something is the way it is before deciding it should be different.
 
 Off the clock: small static sites, a steady drip of [3D-printable objects](/en/works/), the occasional audio piece, and an ongoing argument with a vegetable patch. Everything is documented somewhere on this site.
 

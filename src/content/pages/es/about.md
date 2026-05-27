@@ -12,11 +12,11 @@ lede: 'Ingeniero de software senior en Melbourne, trabajando en público, en pro
 
 Crecí en Argentina, en una cocina donde siempre había _mate_ sobre la mesa. Cuando cumplí siete, cambié la fiesta de cumpleaños por una computadora. Mis viejos se sorprendieron, pero lo tenía pensado, y me siguieron la corriente.
 
-Venía con un libro de DOS y QBasic, y lo leí como otros chicos leen historietas. Lo que me enganchó, al final, no fueron los juegos, aunque tecleé `qbasic /run gorilla.bas` más veces de las que admitiría. Fue darme cuenta de que podía cambiar lo que la máquina hacía, no solo usarla. Vengo haciendo variaciones de eso desde entonces.
+Venía con un libro de DOS y QBasic, y lo leí como otros chicos leen historietas. Lo que me enganchó, al final, no fueron los juegos, aunque tecleé `qbasic /run gorillas.bas` más veces de las que admitiría. Fue darme cuenta de que podía cambiar lo que la máquina hacía, no solo usarla. Vengo haciendo variaciones de eso desde entonces.
 
 ## En qué trabajo
 
-De día: ingeniería senior en un equipo de producto chico. Sirvo más en los lugares donde el trabajo es transversal y el sistema lleva un rato en pie. Soy bueno para entender por qué algo es como es antes de decidir que debería ser distinto.
+De día: ingeniería senior en un producto de ciberseguridad. Es buen laburo, y la gente con la que lo hago es excepcional, algo que no digo a la ligera. Sirvo más en los lugares donde el trabajo es transversal y el sistema lleva un rato en pie. Soy bueno para entender por qué algo es como es antes de decidir que debería ser distinto.
 
 Fuera de horario: sitios estáticos chicos, un goteo constante de [objetos imprimibles en 3D](/es/obras/), alguna pieza de audio cada tanto, y una discusión permanente con una huerta. Todo documentado en alguna parte de este sitio.
 
