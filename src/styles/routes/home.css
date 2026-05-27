@@ -49,10 +49,6 @@
       display: none;
     }
   }
-  .masthead-portrait {
-    position: relative;
-    color: var(--ink-3);
-  }
   .masthead-portrait-art {
     /* Ink follows the theme; the mate-gourd accent keeps its native
        terracotta via the component's `--portrait-accent` default. */
