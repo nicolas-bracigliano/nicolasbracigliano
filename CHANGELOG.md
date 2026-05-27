@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.9.2](https://github.com/nicolas-bracigliano/nicolasbracigliano/compare/v1.9.1...v1.9.2) (2026-05-27)
+
+
+### CI / Tooling
+
+* **lighthouse:** cut PR Lighthouse runtime with a trimmed PR config ([#78](https://github.com/nicolas-bracigliano/nicolasbracigliano/issues/78)) ([184cff8](https://github.com/nicolas-bracigliano/nicolasbracigliano/commit/184cff802a48cd85a12ce5072bd9d684cfb1982c))
+
 ## [1.9.1](https://github.com/nicolas-bracigliano/nicolasbracigliano/compare/v1.9.0...v1.9.1) (2026-05-26)
 
 
