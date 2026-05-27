@@ -310,6 +310,17 @@
     opacity: 1;
     transform: translateY(0);
   }
+  /* Touch / no-hover devices can't reveal the pill on hover, so the cards
+     would otherwise be silently tappable. Stand the pill up at rest there
+     as a persistent "see /now →" affordance — the reserved foot band
+     already holds it, so there's no shift. Hover-capable devices keep the
+     clean reveal-on-hover. */
+  @media (hover: none) {
+    .bench-card-peek {
+      opacity: 1;
+      transform: none;
+    }
+  }
 
   .bench-card-art {
     display: flex;
