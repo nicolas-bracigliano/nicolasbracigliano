@@ -32,16 +32,6 @@ const latest: LatestItem[] = [
   .sort((a, b) => +b.entry.data.date - +a.entry.data.date)
   .slice(0, 4);
 
-// "viernes, 22 de mayo" — lowercase, matches prototype's bench header.
-const benchDate = new Intl.DateTimeFormat('es-AR', {
-  weekday: 'long',
-  day: 'numeric',
-  month: 'long',
-  timeZone: 'Australia/Melbourne',
-})
-  .format(new Date())
-  .toLowerCase();
-
 const elsewhere = [
   { label: 'github', href: 'https://github.com/nicolas-bracigliano' },
   { label: 'maker world', href: 'https://makerworld.com/en/@NicoBrachi' },
@@ -101,7 +91,9 @@ const reading = [{ title: 'Nexus', author: 'Yuval Noah Harari' }];
     <section class="bench" aria-labelledby="bench-h">
       <header class="bench-head">
         <span class="eyebrow" id="bench-h">En el banco ahora</span>
-        <span class="bench-date">{benchDate}</span>
+        <a class="bench-tour-link" href={ROUTES.now.es} data-astro-prefetch>
+          tour completo del escritorio →
+        </a>
       </header>
       <ul class="bench-grid">
         {
@@ -114,6 +106,8 @@ const reading = [{ title: 'Nexus', author: 'Yuval Noah Harari' }];
                 line={b.line}
                 seedlingTag={b.seedlingTag}
                 guitarLabel={b.guitarLabel}
+                href={ROUTES.now.es}
+                peekLabel="ver /ahora →"
               />
             </li>
           ))

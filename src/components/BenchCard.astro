@@ -1,8 +1,11 @@
 ---
 // Home-page "currently on the bench" vignette card (design system §3 + §11).
-// One per craft. The card is a status display, not a link — navigation
-// happens through the Latest entries row below the bench and the chrome
-// nav above it. Keeping the bench unlinked lets the vignettes breathe.
+// One per craft. Each card is a clickable entry point to /now — the four
+// cards are four doors into the same "what's on the bench" page. The whole
+// card is a stretched link (`.bench-card-link::before { inset: 0 }`, the
+// same pattern as WorkCard): the <a> wraps only the title for a meaningful
+// accessible name, while a "see /now →" peek pill + accent dot are revealed
+// on hover/focus.
 //
 // Vignettes are inlined here (not extracted to separate component files)
 // because they're tightly coupled — each one only exists inside its
@@ -33,12 +36,17 @@ export interface Props {
    *  Required for `kind: 'guitar'` by the content schema; `| undefined`
    *  for the same call-site reason as seedlingTag above. */
   guitarLabel?: string | undefined;
+  /** Destination for the whole-card link — the localized /now route,
+   *  passed in so this component stays locale-agnostic. */
+  href: string;
+  /** Hover/focus peek-pill label, e.g. "see /now →" / "ver /ahora →". */
+  peekLabel: string;
 }
 
 // No fallback defaults: the captions are kind-conditionally required in
 // `benchItemSchema`, so an omission fails the build rather than silently
 // injecting a wrong-locale string here.
-const { kind, tag, title, line, seedlingTag, guitarLabel } = Astro.props;
+const { kind, tag, title, line, seedlingTag, guitarLabel, href, peekLabel } = Astro.props;
 ---
 
 <article class={`bench-card bench-card--${kind}`}>
@@ -133,7 +141,11 @@ const { kind, tag, title, line, seedlingTag, guitarLabel } = Astro.props;
 
   <div class="bench-card-text">
     <span class="bench-tag">{tag}</span>
-    <h3 class="bench-title">{title}</h3>
+    <h3 class="bench-title">
+      <a class="bench-card-link" href={href} data-astro-prefetch>{title}</a>
+    </h3>
     <p class="bench-line">{line}</p>
   </div>
+
+  <span class="bench-card-peek" aria-hidden="true">{peekLabel}</span>
 </article>
