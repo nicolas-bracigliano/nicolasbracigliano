@@ -85,14 +85,14 @@
   /* CprFramework: 5 roles + sublabel. The three layers carry an
      escalation gradient — Content (calmest, ink-3) → Pattern (mid,
      accent-aa) → Relationship (hottest, accent). Main labels + italic
-     subtitles take calm ink / ink-3; the escalation arrow + "escalates"
+     subtitles take calm ink / ink-2; the escalation arrow + "escalates"
      label pick up accent to reinforce the upward direction. */
   .diagram--cpr {
     --c-content: var(--ink-3);
     --c-pattern: var(--accent-aa);
     --c-relationship: var(--accent);
     --c-label: var(--ink);
-    --c-sublabel: var(--ink-3);
+    --c-sublabel: var(--ink-2);
     --c-arrow: var(--accent);
   }
   .diagram--cpr .d-content {
