@@ -1,33 +1,14 @@
 // Unit tests for the home page's "currently on the bench" schema.
 // Validates the `bench:` frontmatter on
 // `src/content/pages/{en,es}/home.md` against the Zod schema in
-// `src/lib/bench-items.ts` BEFORE the full Astro build runs — catches a
-// malformed YAML edit in ~150 ms instead of waiting for the e2e suite or
-// production traffic to surface an empty/wrong-locale card.
-//
-// Same approach + `yaml` devDependency rationale as `now-items.test.ts`:
-// parsing the frontmatter directly avoids pulling Astro's content-layer
-// virtual modules into vitest, and the schema itself stays Astro-free.
+// `src/lib/bench-items.ts` before the full Astro build runs — catches a
+// malformed YAML edit (or a missing kind-conditional caption) in ~150 ms
+// instead of at e2e or in production. Frontmatter loading lives in
+// ./helpers/frontmatter (shared with now-items.test.ts).
 
-import { readFile } from 'node:fs/promises';
-import { fileURLToPath } from 'node:url';
-import { resolve } from 'node:path';
-import { parse as parseYaml } from 'yaml';
 import { describe, expect, it } from 'vitest';
 import { benchItemSchema, benchItemKinds, BENCH_MIN, BENCH_MAX } from '../../src/lib/bench-items';
-
-const ROOT = resolve(fileURLToPath(import.meta.url), '../../..');
-
-async function loadFrontmatter(relPath: string): Promise<Record<string, unknown>> {
-  const text = await readFile(resolve(ROOT, relPath), 'utf-8');
-  // YAML frontmatter sits between the first two `---` fences.
-  const segments = text.split(/^---$/m);
-  const yamlBlock = segments[1];
-  if (!yamlBlock) {
-    throw new Error(`No frontmatter in ${relPath}`);
-  }
-  return parseYaml(yamlBlock) as Record<string, unknown>;
-}
+import { loadFrontmatter } from './helpers/frontmatter';
 
 describe.each([
   ['src/content/pages/en/home.md', 'en'],
