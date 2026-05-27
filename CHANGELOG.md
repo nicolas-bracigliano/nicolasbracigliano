@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.10.0](https://github.com/nicolas-bracigliano/nicolasbracigliano/compare/v1.9.2...v1.10.0) (2026-05-27)
+
+
+### Features
+
+* **about:** move prose to content-driven markdown + integrate legacy bio ([#80](https://github.com/nicolas-bracigliano/nicolasbracigliano/issues/80)) ([c29d56e](https://github.com/nicolas-bracigliano/nicolasbracigliano/commit/c29d56e6904c3d532b8a55cab99a9e457a43d9d0))
+
 ## [1.9.2](https://github.com/nicolas-bracigliano/nicolasbracigliano/compare/v1.9.1...v1.9.2) (2026-05-27)
 
 
