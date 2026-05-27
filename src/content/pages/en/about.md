@@ -18,13 +18,13 @@ It came with a book about DOS and QBasic, and I read it the way other kids read 
 
 Day job: senior engineering on a cybersecurity product. What keeps me in it is the stakes: when the work holds, people and organisations are safer for it, and that doesn't get old. The people I do it with are exceptional, which I don't say lightly.
 
-Off the clock: small static sites (excuses to write code), a steady drip of [3D-printable objects](/en/works/), weekly time with the guitar, and an ongoing argument with my fruit trees and hedges. Everything is documented somewhere on this site.
+Off the clock: small projects (excuses to write code), a steady drip of [3D-printable objects](/en/works/), weekly time with the guitar, and an ongoing argument with my fruit trees and hedges. Everything is documented somewhere on this site.
 
 ## How I work
 
 I write before I build. I prototype with paper, then with the cheapest tool that proves the idea. I keep changelogs. I prefer shipping a useful 70% over polishing a 100% that never leaves the bench. Some of that calm comes from my time as a lifesaver, where the first job is not to panic before anyone else does.
 
-I think type and white space matter about as much as architecture diagrams. I'll work on hard problems with kind people, in either English or Spanish, for things I'd be proud to tell my mother about.
+I think type and white space matter about as much as architecture diagrams. I'll work on hard problems with kind people, for things I'd be proud to tell my mother about.
 
 ## For the record
 

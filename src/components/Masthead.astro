@@ -9,8 +9,10 @@
 // lands (Phase 3); the markup wrapping it stays stable so swapping
 // the inner SVG for an <Image /> is a one-line change.
 
+import Portrait from '@components/Portrait.astro';
+
 export interface Props {
-  /** Caption beneath the portrait (e.g. "retrato · pendiente"). */
+  /** Caption beneath the portrait. */
   portraitCaption: string;
 }
 
@@ -20,33 +22,8 @@ const { portraitCaption } = Astro.props;
 <section class="masthead">
   <div class="masthead-grid">
     <aside class="masthead-portrait" aria-hidden="true">
-      {
-        /* Placeholder monogram — replaced by a real ink-line portrait in Phase 3.
-          Outer <aside> + caption are the launch-ready shell. */
-      }
-      <svg viewBox="0 0 220 220" width="220" height="220" class="portrait-mono">
-        <rect
-          x="0.5"
-          y="0.5"
-          width="219"
-          height="219"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="1"
-          stroke-dasharray="3 4"
-          opacity="0.55"></rect>
-        <text
-          x="110"
-          y="138"
-          text-anchor="middle"
-          font-family="var(--font-display)"
-          font-size="120"
-          font-weight="400"
-          fill="currentColor"
-          letter-spacing="-4">NB</text
-        >
-      </svg>
-      <p class="portrait-caption">{portraitCaption}</p>
+      <Portrait class="masthead-portrait-art" />
+      {portraitCaption && <p class="portrait-caption">{portraitCaption}</p>}
     </aside>
 
     <div class="masthead-text">

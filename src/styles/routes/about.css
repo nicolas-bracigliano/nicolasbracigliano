@@ -181,17 +181,19 @@
   }
 
   .about-portrait {
+    margin: 0;
     text-align: center;
     padding: 1.125rem;
     background: var(--paper);
     border: 1px solid var(--rule);
     border-radius: 2px;
   }
-  .about-portrait-mono {
+  .about-portrait-art {
+    /* Ink follows the theme (flips Día/Noche); the mate-gourd accent keeps
+       its native terracotta via the component's `--portrait-accent` default. */
+    --portrait-ink: var(--ink);
     inline-size: 100%;
     block-size: auto;
-    aspect-ratio: 1;
-    max-inline-size: 11.25rem;
   }
   .about-portrait-caption {
     font-family: var(--font-display);

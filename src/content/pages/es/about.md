@@ -24,7 +24,7 @@ Fuera de horario: pequeños proyectos (excusas para escribir código), un consta
 
 Escribo antes de construir. Prototipo con papel, después con la herramienta más barata que pruebe la idea. Llevo changelogs. Prefiero entregar un 70% útil que pulir un 100% que nunca sale del banco. Parte de esa calma viene de haber sido guardavidas: lo primero es no entrar en pánico antes que nadie.
 
-Pienso que la tipografía y el espacio en blanco importan más o menos tanto como los diagramas de arquitectura. Trabajo en problemas difíciles con gente amable, en inglés o en español, en cosas que le contaría con orgullo a mi vieja.
+Pienso que la tipografía y el espacio en blanco importan más o menos tanto como los diagramas de arquitectura. Trabajo en problemas difíciles con gente amable, en cosas que le contaría con orgullo a mi vieja.
 
 ## Para que conste
 
