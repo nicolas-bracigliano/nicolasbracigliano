@@ -1,47 +1,13 @@
 // Unit tests for the /now route's content schema. Validates the
-// frontmatter on `src/content/pages/{en,es}/now.md` against the
-// Zod schema in `src/lib/now-items.ts` BEFORE the full Astro
-// build runs — catches a malformed YAML edit in ~150 ms instead
-// of waiting for the e2e suite to render the page (~6 s) or
-// production traffic to show empty cards.
-//
-// Why parse YAML directly instead of going through Astro's
-// content layer: `astro:content`'s `getCollection` is a virtual
-// module that needs the full Astro build graph (loaders, the
-// content store, image resolution). Pulling that into vitest
-// would either require a custom test environment or stubbing
-// the entire content runtime — both heavier than the 150 ms
-// payoff we're after.
-//
-// The `yaml` package is the cost of this choice: it's a
-// transitive dep already (via @astrojs/check → language-server
-// → yaml-language-server, pinned to ^2.8.3 by the
-// security-overrides PR), so promoting it to a direct devDep is
-// ~50 KB of node_modules and zero new transitives. The schema
-// itself stays Astro-free in `src/lib/now-items.ts`.
+// frontmatter on `src/content/pages/{en,es}/now.md` against the Zod
+// schema in `src/lib/now-items.ts` before the full Astro build runs.
+// Frontmatter loading lives in ./helpers/frontmatter (shared with
+// bench-items.test.ts), where the direct-YAML-parse rationale is
+// documented.
 
-import { readFile } from 'node:fs/promises';
-import { fileURLToPath } from 'node:url';
-import { resolve } from 'node:path';
-import { parse as parseYaml } from 'yaml';
 import { describe, expect, it } from 'vitest';
 import { nowItemSchema, NOW_ITEM_COUNT, nowItemKinds } from '../../src/lib/now-items';
-
-const ROOT = resolve(fileURLToPath(import.meta.url), '../../..');
-
-async function loadFrontmatter(relPath: string): Promise<Record<string, unknown>> {
-  const text = await readFile(resolve(ROOT, relPath), 'utf-8');
-  // YAML frontmatter sits between the first two `---` fences. We
-  // split on `\n---\n` rather than `/---/` so a stray `---` inside
-  // a YAML string doesn't false-positive.
-  const segments = text.split(/^---$/m);
-  // segments: ['', '<yaml>', '<body>']
-  const yamlBlock = segments[1];
-  if (!yamlBlock) {
-    throw new Error(`No frontmatter in ${relPath}`);
-  }
-  return parseYaml(yamlBlock) as Record<string, unknown>;
-}
+import { loadFrontmatter } from './helpers/frontmatter';
 
 describe.each([
   ['src/content/pages/en/now.md', 'en'],

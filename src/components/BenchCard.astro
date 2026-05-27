@@ -1,38 +1,52 @@
 ---
 // Home-page "currently on the bench" vignette card (design system §3 + §11).
-// One per craft. The card is a status display, not a link — navigation
-// happens through the Latest entries row below the bench and the chrome
-// nav above it. Keeping the bench unlinked lets the vignettes breathe.
+// One per craft. Each card is a clickable entry point to /now — the four
+// cards are four doors into the same "what's on the bench" page. The whole
+// card is a stretched link (`.bench-card-link::before { inset: 0 }`, the
+// same pattern as WorkCard): the <a> wraps only the title for a meaningful
+// accessible name, while a "see /now →" peek pill + accent dot are revealed
+// on hover/focus.
 //
 // Vignettes are inlined here (not extracted to separate component files)
 // because they're tightly coupled — each one only exists inside its
 // matching kind. The four together stay under ~150 LOC and tree-shake as
 // one unit when the home page splits at build time.
 
-export type BenchKind = 'code' | 'guitar' | 'garden' | 'print';
+// Kind union is owned by `src/lib/bench-items.ts` (the same source the
+// content schema validates against) so the component and the frontmatter
+// can't drift on the set of kinds.
+import type { BenchItemKind } from '@lib/bench-items';
 
 export interface Props {
-  kind: BenchKind;
-  /** Eyebrow tag — e.g. "01 · code" / "01 · código". */
+  kind: BenchItemKind;
+  /** Eyebrow tag — e.g. "01 · code" / "01 · código". The number is
+   *  derived from bench position by the home page; this is the final
+   *  formatted string. */
   tag: string;
   /** Headline of the bench item, set in serif. */
   title: string;
   /** Descriptive prose underneath. */
   line: string;
-  /** Caption baked into the seedling vignette ("tomate" / "tomato"). */
-  seedlingTag?: string;
-  /** Caption baked into the guitar vignette (mode + piece + bar). */
-  guitarLabel?: string;
+  /** Caption baked into the seedling vignette ("tomate" / "tomato").
+   *  Required for `kind: 'garden'` by the content schema; `| undefined`
+   *  because the home page maps every bench item through one call site
+   *  and TS can't correlate kind → caption presence (the schema does). */
+  seedlingTag?: string | undefined;
+  /** Caption baked into the guitar vignette (mode + piece + bar).
+   *  Required for `kind: 'guitar'` by the content schema; `| undefined`
+   *  for the same call-site reason as seedlingTag above. */
+  guitarLabel?: string | undefined;
+  /** Destination for the whole-card link — the localized /now route,
+   *  passed in so this component stays locale-agnostic. */
+  href: string;
+  /** Hover/focus peek-pill label, e.g. "see /now →" / "ver /ahora →". */
+  peekLabel: string;
 }
 
-const {
-  kind,
-  tag,
-  title,
-  line,
-  seedlingTag = 'tomate',
-  guitarLabel = 'A m | Milonga del Ángel · bar 9',
-} = Astro.props;
+// No fallback defaults: the captions are kind-conditionally required in
+// `benchItemSchema`, so an omission fails the build rather than silently
+// injecting a wrong-locale string here.
+const { kind, tag, title, line, seedlingTag, guitarLabel, href, peekLabel } = Astro.props;
 ---
 
 <article class={`bench-card bench-card--${kind}`}>
@@ -40,12 +54,13 @@ const {
     {
       kind === 'code' &&
         // prettier-ignore
-        <pre class="terminal-vig" aria-hidden="true">{`$ ssg build
-  reading  /content     14 files
-  parsing  markdown     ok
-  hashing  assets       ok
-  writing  /public      14 pages
-  ╰─ built in 84ms ✓`}<span class="caret" /></pre>
+        <pre class="terminal-vig" aria-hidden="true">{`$ pnpm build
+  ├─ Indexed  2 languages
+  ├─ Indexed  37 pages
+  ├─ Indexed  3380 words
+  ├─ Indexed  0 filters
+  ├─ Indexed  0 sorts
+  ╰─ Completed in 4.94s. ✓`}<span class="caret" /></pre>
     }
 
     {
@@ -127,7 +142,11 @@ const {
 
   <div class="bench-card-text">
     <span class="bench-tag">{tag}</span>
-    <h3 class="bench-title">{title}</h3>
+    <h3 class="bench-title">
+      <a class="bench-card-link" href={href} data-astro-prefetch>{title}</a>
+    </h3>
     <p class="bench-line">{line}</p>
   </div>
+
+  <span class="bench-card-peek" aria-hidden="true">{peekLabel}</span>
 </article>

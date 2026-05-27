@@ -183,12 +183,19 @@
     padding-block-end: 1rem;
     margin-block-end: 1.5rem;
   }
-  .bench-date {
+  /* Header CTA — "full bench tour →" to /now (replaces the old date).
+     Mirrors the Latest-entries "all entries →" header link convention. */
+  .bench-tour-link {
     font-size: 0.7rem;
-    color: var(--ink-3);
-    letter-spacing: 0.1em;
+    letter-spacing: 0.12em;
     text-transform: uppercase;
-    font-feature-settings: 'tnum';
+    color: var(--ink-2);
+    text-decoration: none;
+    white-space: nowrap;
+  }
+  .bench-tour-link:hover,
+  .bench-tour-link:focus-visible {
+    color: var(--accent-aa);
   }
   .bench-grid {
     list-style: none;
@@ -208,12 +215,25 @@
   .bench-card {
     border-inline-end: 1px dashed var(--rule);
     border-block-end: 1px dashed var(--rule);
-    padding: 1.75rem;
+    /* Extra bottom padding reserves a clear band for the "see /now →" peek
+       pill so it sits below the prose instead of over it. The band is
+       always present (not added on hover) to avoid a layout shift. */
+    padding: 1.75rem 1.75rem 3.5rem;
     display: grid;
     grid-template-rows: 140px auto;
     gap: 1.25rem;
     position: relative;
     background: transparent;
+  }
+  /* The bench grid is two columns. With an odd number of items the last
+     card would sit alone in its final row, leaving a ragged open cell to
+     its right; span it across both columns so any count (1–6, per
+     BENCH_MAX in src/lib/bench-items.ts) reads as a deliberate full-width
+     row. The grid items are the <li>s (the .bench-card article fills
+     each), so `grid-column` must target the <li>, not the card. Inert at
+     ≤720px where the grid is already a single column. */
+  .bench-grid > li:last-child:nth-child(odd) {
+    grid-column: 1 / -1;
   }
   .bench-card::before {
     content: '';
@@ -225,7 +245,83 @@
     border-radius: 50%;
     background: var(--accent);
     opacity: 0;
+    transition: opacity 200ms ease;
   }
+
+  /* Whole-card link to /now. Stretched-link pattern (same as WorkCard):
+     the <a> wraps only the title for a meaningful accessible name, and its
+     `::before { inset: 0 }` extends the click target over the whole card
+     (`.bench-card` is positioned, so it's the containing block). */
+  .bench-card-link {
+    color: inherit;
+    text-decoration: none;
+  }
+  .bench-card-link::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+  }
+  .bench-card-link:focus-visible::before {
+    outline: 2px solid var(--accent);
+    outline-offset: -3px;
+  }
+
+  /* Hover / keyboard-focus: a faint warm tint, the accent dot, the title
+     lifting to accent, and the "see /now →" peek pill all come up together
+     so the whole card reads as a single live affordance. */
+  .bench-card:hover,
+  .bench-card:focus-within {
+    background: color-mix(in oklab, var(--accent) 4%, transparent);
+  }
+  .bench-card:hover::before,
+  .bench-card:focus-within::before {
+    opacity: 1;
+  }
+  .bench-card:hover .bench-title,
+  .bench-card:focus-within .bench-title {
+    color: var(--accent-aa);
+  }
+
+  /* "see /now →" peek pill, bottom-right — hidden until hover/focus.
+     Decorative (the title link already carries the destination), hence
+     aria-hidden in markup + pointer-events:none so clicks fall through to
+     the stretched card link beneath it. */
+  .bench-card-peek {
+    position: absolute;
+    inset-block-end: 1.1rem;
+    inset-inline-end: 1.5rem;
+    z-index: 1;
+    font-size: 0.7rem;
+    letter-spacing: 0.04em;
+    color: var(--accent-aa);
+    background: var(--bg);
+    border: 1px solid color-mix(in oklab, var(--accent) 40%, var(--rule));
+    border-radius: 999px;
+    padding: 0.25rem 0.7rem;
+    opacity: 0;
+    transform: translateY(4px);
+    transition:
+      opacity 200ms ease,
+      transform 200ms ease;
+    pointer-events: none;
+  }
+  .bench-card:hover .bench-card-peek,
+  .bench-card:focus-within .bench-card-peek {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  /* Touch / no-hover devices can't reveal the pill on hover, so the cards
+     would otherwise be silently tappable. Stand the pill up at rest there
+     as a persistent "see /now →" affordance — the reserved foot band
+     already holds it, so there's no shift. Hover-capable devices keep the
+     clean reveal-on-hover. */
+  @media (hover: none) {
+    .bench-card-peek {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
   .bench-card-art {
     display: flex;
     align-items: center;
@@ -295,15 +391,13 @@
     width: 100%;
     height: 100%;
     display: flex;
-    align-items: center;
   }
   .terminal-vig .caret {
-    display: inline-block;
+    display: block;
     width: 7px;
     height: 12px;
     background: var(--terminal-fg);
-    margin-inline-start: 4px;
-    vertical-align: -1px;
+    margin-inline-start: -80px;
   }
 
   /* Vignette canvases share padding rules */
