@@ -16,9 +16,9 @@ It came with a book about DOS and QBasic, and I read it the way other kids read 
 
 ## What I work on
 
-Day job: senior engineering on a cybersecurity product. It's good work, and the people are exceptional, which I don't say lightly. I'm most useful where the work is cross-functional and the system has been around for a while. I'm good at understanding why something is the way it is before deciding it should be different.
+Day job: senior engineering on a cybersecurity product. I truly love it, and the people are exceptional, which I don't say lightly.
 
-Off the clock: small static sites, a steady drip of [3D-printable objects](/en/works/), the occasional audio piece, and an ongoing argument with a vegetable patch. Everything is documented somewhere on this site.
+Off the clock: small static sites (excuses to write code), a steady drip of [3D-printable objects](/en/works/), weekly time with the guitar, and an ongoing argument with my fruit trees and hedges. Everything is documented somewhere on this site.
 
 ## How I work
 

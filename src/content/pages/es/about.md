@@ -16,9 +16,9 @@ Venía con un libro de DOS y QBasic, y lo leí como otros chicos leen historieta
 
 ## En qué trabajo
 
-De día: ingeniería senior en un producto de ciberseguridad. Es buen laburo, y la gente con la que lo hago es excepcional, algo que no digo a la ligera. Sirvo más en los lugares donde el trabajo es transversal y el sistema lleva un rato en pie. Soy bueno para entender por qué algo es como es antes de decidir que debería ser distinto.
+De día: ingeniero senior trabajando en un producto de ciberseguridad. Me encanta el laburo, y la gente con la que lo hago es excepcional, algo que no digo a la ligera.
 
-Fuera de horario: sitios estáticos chicos, un goteo constante de [objetos imprimibles en 3D](/es/obras/), alguna pieza de audio cada tanto, y una discusión permanente con una huerta. Todo documentado en alguna parte de este sitio.
+Fuera de horario: pequeños proyectos (excusas para escribir código), un constante flujo de [objetos imprimibles en 3D](/es/obras/), mis momentos semanales con mi guitarra, y una discusión permanente con mis árboles frutales y mis ligustros. Todo documentado en alguna parte de este sitio.
 
 ## Cómo trabajo
 
