@@ -12,15 +12,15 @@ lede: 'Lo que hay sobre la mesa ahora.'
 items:
   - kind: code
     where: 'sobre la mesa · código'
-    title: 'Reescribiendo ssg en Rust'
-    prose: 'El generador de sitios que construye esta página era un script de Node. Sigue funcionando, pero quería saber qué cosas no sabía — así que lo estoy portando. El plan: parser de markdown, frontmatter, un hasher de assets, un constructor de feeds. Día tres. El compilador me enseña más que el runtime alguna vez.'
+    title: 'Reescribiendo mi sitio en Astro'
+    prose: 'Mi sitio anterior usaba WordPress, lo construi en 2022 y no lo toqué más. Dejó de representarme bastante antes de que lo admitiera. Hacía rato que tenía ganas de tocar Astro, así que rehacerlo fue la excusa perfecta. De cero esta vez.'
     detail:
-      - dt: 'progreso'
-        dd: 'parser ✓ · feed ✓ · pipeline de assets (wip)'
-      - dt: 'líneas'
-        dd: '~640 / meta ~800'
+      - dt: 'stack'
+        dd: 'Astro · Cloudflare Workers'
+      - dt: 'peso'
+        dd: '100 Lighthouse · ~11 KB / página'
       - dt: 'aprendí'
-        dd: 'Result<T, E> como herramienta de diseño'
+        dd: 'lo poco que necesita de JS'
   - kind: guitar
     where: 'entre las manos · guitarra'
     title: 'Compases 9–16 de la Milonga del Ángel'

@@ -54,12 +54,13 @@ const { kind, tag, title, line, seedlingTag, guitarLabel, href, peekLabel } = As
     {
       kind === 'code' &&
         // prettier-ignore
-        <pre class="terminal-vig" aria-hidden="true">{`$ ssg build
-  reading  /content     14 files
-  parsing  markdown     ok
-  hashing  assets       ok
-  writing  /public      14 pages
-  ╰─ built in 84ms ✓`}<span class="caret" /></pre>
+        <pre class="terminal-vig" aria-hidden="true">{`$ pnpm build
+  ├─ Indexed  2 languages
+  ├─ Indexed  37 pages
+  ├─ Indexed  3380 words
+  ├─ Indexed  0 filters
+  ├─ Indexed  0 sorts
+  ╰─ Completed in 4.94s. ✓`}<span class="caret" /></pre>
     }
 
     {

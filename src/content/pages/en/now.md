@@ -11,15 +11,15 @@ lede: "What's on the bench right now."
 items:
   - kind: code
     where: 'on the bench · code'
-    title: 'Rewriting ssg in Rust'
-    prose: "The site generator that builds this page was a Node script. It still works, but I wanted to know what I didn't know — so I'm porting it. The plan: markdown parser, frontmatter, an asset hasher, a feed builder. Day three. The compiler is teaching me more than the runtime ever did."
+    title: 'Rewriting my personal site in Astro'
+    prose: "My last site was WordPress, built in 2022 and left alone since. It stopped looking like me a while before I admitted it. I'd been curious about [Astro] for a while, so the rebuild was the excuse to learn it. From scratch this time."
     detail:
-      - dt: 'progress'
-        dd: 'parser ✓ · feed ✓ · asset pipeline (wip)'
-      - dt: 'loc'
-        dd: '~640 / target ~800'
+      - dt: 'stack'
+        dd: 'Astro · Cloudflare Workers'
+      - dt: 'weight'
+        dd: '100 Lighthouse · ~11 KB / page'
       - dt: 'learned'
-        dd: 'Result<T, E> as a design tool'
+        dd: 'how little JS it needs'
   - kind: guitar
     where: 'in my hands · guitar'
     title: 'Bars 9–16 of Milonga del Ángel'

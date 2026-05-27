@@ -15,8 +15,8 @@ lede: 'Senior software engineer in Melbourne. Code, guitar, garden, coffee, and 
 bench:
   - kind: code
     label: 'code'
-    title: 'A small static-site generator'
-    line: "Markdown in, Lighthouse 100 out. Day three of rewriting it in Rust, mostly to find out what I don't know."
+    title: 'A personal static-site'
+    line: 'Markdown in, Lighthouse 100 out. Day five of rewriting it in Astro, mostly to try something new.'
   - kind: guitar
     label: 'guitar'
     title: 'Learning Milonga del Ángel'

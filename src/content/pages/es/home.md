@@ -15,8 +15,8 @@ lede: 'Ingeniero de software senior en Melbourne. Código, guitarra, huerta, caf
 bench:
   - kind: code
     label: 'código'
-    title: 'Un pequeño generador de sitios estáticos'
-    line: 'Markdown entra, Lighthouse 100 sale. Día tres reescribiéndolo en Rust, sobre todo para descubrir lo que no sé.'
+    title: 'Un sitios estático personal'
+    line: 'Entra markdown, sale Lighthouse 100. Día cinco reescribiéndolo en Astro, mas que nada para probar algo diferente.'
   - kind: guitar
     label: 'guitarra'
     title: 'Aprendiendo Milonga del Ángel'
