@@ -424,6 +424,7 @@ If you're publishing without one of these in place, write it down. Don't ship an
 
 - **Format.** SVG for icons + decorative illustration. AVIF (or WebP fallback) for photographs. PNG only when alpha is required and AVIF won't do.
 - **Max dimensions.** Hero/photo images ≤ 1600 px wide, served via `<picture>` with at least two breakpoints. Inline SVGs cap at 32 KB minified.
+- **Portrait exception.** The linocut self-portrait (`Portrait.astro`, on Home + About) is a deliberate inline SVG (~52 KB minified, ~16 KB gzipped) that exceeds the 32 KB cap. It stays inline rather than a raster so the ink follows the theme via `currentColor`/`--portrait-ink` (Día↔Noche) while the mate-gourd accent keeps its native terracotta (`--portrait-accent`). The cost is paid knowingly: the `document:size` Lighthouse budget for the generic page set is raised from 20 KB to 27 KB to fit it (Home lands ~21 KB, About ~20 KB; `total:size` stays ≤ 50 KB). If a future portrait is photographic, rasterise to AVIF instead.
 - **Originals.** Source files (`.afdesign`, `.skp`, `.kra`, RAW photos) live in `/assets/_originals` and are git-LFS'd. Never inline an original.
 - **Naming.** Lowercase, hyphen-separated, dated when relevant: `2026-05-tray-rev5.avif`, not `Final Tray Photo (3) v2.png`.
 - **Alt text.** Mandatory on every photographic image. Describes the _content_, not the file. Decorative SVGs use `aria-hidden="true"` instead.

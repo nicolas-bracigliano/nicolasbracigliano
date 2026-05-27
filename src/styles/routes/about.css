@@ -141,6 +141,15 @@
     text-decoration-style: dashed;
     text-underline-offset: 2px;
   }
+  /* Inline command/code. The prose is already mono (--font-body), so the
+     pill reads as a literal command via a subtle tint, not a face change. */
+  .about-prose code {
+    font-family: var(--font-body);
+    font-size: 0.9em;
+    padding: 1px 6px;
+    background: var(--bg-2);
+    border-radius: 2px;
+  }
   /* `.about-prose .about-out` (specificity 020) cleanly beats the
      surrounding `.about-prose p` rule (011) without `!important`.
      Earlier passes used `.about-out` alone (010) and reached for
@@ -172,17 +181,19 @@
   }
 
   .about-portrait {
+    margin: 0;
     text-align: center;
     padding: 1.125rem;
     background: var(--paper);
     border: 1px solid var(--rule);
     border-radius: 2px;
   }
-  .about-portrait-mono {
+  .about-portrait-art {
+    /* Ink follows the theme (flips Día/Noche); the mate-gourd accent keeps
+       its native terracotta via the component's `--portrait-accent` default. */
+    --portrait-ink: var(--ink);
     inline-size: 100%;
     block-size: auto;
-    aspect-ratio: 1;
-    max-inline-size: 11.25rem;
   }
   .about-portrait-caption {
     font-family: var(--font-display);

@@ -49,14 +49,13 @@
       display: none;
     }
   }
-  .masthead-portrait {
-    position: relative;
-    color: var(--ink-3);
-  }
-  .portrait-mono {
+  .masthead-portrait-art {
+    /* Ink follows the theme; the mate-gourd accent keeps its native
+       terracotta via the component's `--portrait-accent` default. */
+    --portrait-ink: var(--ink);
     width: 220px;
-    height: 220px;
     max-width: 100%;
+    height: auto;
   }
   .portrait-caption {
     margin-block-start: 0.75rem;
