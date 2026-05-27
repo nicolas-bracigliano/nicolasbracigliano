@@ -141,6 +141,15 @@
     text-decoration-style: dashed;
     text-underline-offset: 2px;
   }
+  /* Inline command/code. The prose is already mono (--font-body), so the
+     pill reads as a literal command via a subtle tint, not a face change. */
+  .about-prose code {
+    font-family: var(--font-body);
+    font-size: 0.9em;
+    padding: 1px 6px;
+    background: var(--bg-2);
+    border-radius: 2px;
+  }
   /* `.about-prose .about-out` (specificity 020) cleanly beats the
      surrounding `.about-prose p` rule (011) without `!important`.
      Earlier passes used `.about-out` alone (010) and reached for

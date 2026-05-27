@@ -10,9 +10,9 @@ lede: 'Senior software engineer in Melbourne, working in public, in process.'
 
 ## How I got here
 
-I grew up in Argentina, around a kitchen where someone was always brewing _mate_ and an uncle was always tuning a guitar. For my seventh birthday I asked for a small computer instead of a party. I learned to program from a book my dad brought home from a print shop, and the first thing I built was a small database to track the family library. I have, in some sense, been building variations of that ever since.
+I grew up in Argentina, in a kitchen where there was always _mate_ on the table. When I turned seven, I traded the birthday party for a computer. My parents were surprised, but I had thought it through, and they went along with it.
 
-Melbourne has been home since 2014. The light here is gentler. The seasons are inverted, which I love because it gives me an excuse to garden in November and watch leaves fall in May.
+It came with a book about DOS and QBasic, and I read it the way other kids read comics. What caught me, eventually, wasn't the games, though I typed `qbasic /run gorilla.bas` more often than I'd admit. It was realising I could change what the machine did, not just use it. I've been doing variations of that ever since.
 
 ## What I work on
 
@@ -29,5 +29,7 @@ I think type and white space matter about as much as architecture diagrams. I'll
 ## Get in touch
 
 The best way is email: [hola@nicolasbracigliano.com](mailto:hola@nicolasbracigliano.com). I read everything, reply to most things, and respond fastest to short, specific messages. If you're writing about one of the projects on this site, mention which one.
+
+## For the record
 
 I drink espresso late and sleep fine. I swim most mornings. I read slowly. None of this is on the résumé.

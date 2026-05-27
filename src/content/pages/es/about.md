@@ -10,9 +10,9 @@ lede: 'Ingeniero de software senior en Melbourne, trabajando en público, en pro
 
 ## Cómo llegué hasta acá
 
-Crecí en Argentina, alrededor de una cocina donde siempre había alguien cebando _mate_ y un tío afinando la guitarra. Para mi cumpleaños de siete le pedí a mis viejos una computadora chica en lugar de una fiesta. Aprendí a programar con un libro que mi viejo trajo de una imprenta, y lo primero que hice fue una base de datos chica para llevar la biblioteca de casa. En cierto sentido, vengo haciendo variaciones de eso desde entonces.
+Crecí en Argentina, en una cocina donde siempre había _mate_ sobre la mesa. Cuando cumplí siete, cambié la fiesta de cumpleaños por una computadora. Mis viejos se sorprendieron, pero lo tenía pensado, y me siguieron la corriente.
 
-Melbourne es casa desde 2014. La luz acá es más suave. Las estaciones están invertidas, lo que me encanta porque me da la excusa para sembrar en noviembre y mirar caer las hojas en mayo.
+Venía con un libro de DOS y QBasic, y lo leí como otros chicos leen historietas. Lo que me enganchó, al final, no fueron los juegos, aunque tecleé `qbasic /run gorilla.bas` más veces de las que admitiría. Fue darme cuenta de que podía cambiar lo que la máquina hacía, no solo usarla. Vengo haciendo variaciones de eso desde entonces.
 
 ## En qué trabajo
 
@@ -29,5 +29,7 @@ Pienso que la tipografía y el espacio en blanco importan más o menos tanto com
 ## Cómo escribirme
 
 La mejor forma es por mail: [hola@nicolasbracigliano.com](mailto:hola@nicolasbracigliano.com). Leo todo, contesto la mayoría, y respondo más rápido a los mensajes cortos y específicos. Si escribís sobre alguno de los proyectos del sitio, mencioná cuál.
+
+## Para que conste
 
 Tomo café tarde y duermo bien. Nado casi todas las mañanas. Leo despacio. Nada de esto está en el currículum.
