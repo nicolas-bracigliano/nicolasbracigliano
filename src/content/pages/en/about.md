@@ -10,7 +10,7 @@ lede: 'Senior software engineer in Melbourne, working in public, in process.'
 
 ## How I got here
 
-I grew up in Argentina, in a kitchen where there was always _mate_ on the table. When I turned seven, I traded the birthday party for a computer. My parents were surprised, but I had thought it through, and they went along with it.
+I grew up in Argentina, in a house where there was always _mate_ on the table. When I turned seven, I traded the birthday party for a computer. My parents were surprised, but I had thought it through, and they went along with it.
 
 It came with a book about DOS and QBasic, and I read it the way other kids read comics. What caught me, eventually, wasn't the games, though I typed `qbasic /run gorillas.bas` more often than I'd admit. It was realising I could change what the machine did, not just use it. I've been doing variations of that ever since.
 
@@ -28,4 +28,4 @@ I think type and white space matter about as much as architecture diagrams. I'll
 
 ## For the record
 
-I drink espresso late and sleep fine. I swim most mornings. I read slowly. None of this is on the résumé.
+I drink espresso late and sleep fine. I workout most mornings. I read slowly. None of this is on the resume.
