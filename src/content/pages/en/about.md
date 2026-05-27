@@ -16,7 +16,7 @@ It came with a book about DOS and QBasic, and I read it the way other kids read 
 
 ## What I work on
 
-Day job: senior engineering on a cybersecurity product. I truly love it, and the people are exceptional, which I don't say lightly.
+Day job: senior engineering on a cybersecurity product. What keeps me in it is the stakes: when the work holds, people and organisations are safer for it, and that doesn't get old. The people I do it with are exceptional, which I don't say lightly.
 
 Off the clock: small static sites (excuses to write code), a steady drip of [3D-printable objects](/en/works/), weekly time with the guitar, and an ongoing argument with my fruit trees and hedges. Everything is documented somewhere on this site.
 
@@ -25,10 +25,6 @@ Off the clock: small static sites (excuses to write code), a steady drip of [3D-
 I write before I build. I prototype with paper, then with the cheapest tool that proves the idea. I keep changelogs. I prefer shipping a useful 70% over polishing a 100% that never leaves the bench. Some of that calm comes from my time as a lifesaver, where the first job is not to panic before anyone else does.
 
 I think type and white space matter about as much as architecture diagrams. I'll work on hard problems with kind people, in either English or Spanish, for things I'd be proud to tell my mother about.
-
-## Get in touch
-
-The best way is email: [hola@nicolasbracigliano.com](mailto:hola@nicolasbracigliano.com). I read everything, reply to most things, and respond fastest to short, specific messages. If you're writing about one of the projects on this site, mention which one.
 
 ## For the record
 
