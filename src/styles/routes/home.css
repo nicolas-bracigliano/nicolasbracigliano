@@ -215,7 +215,10 @@
   .bench-card {
     border-inline-end: 1px dashed var(--rule);
     border-block-end: 1px dashed var(--rule);
-    padding: 1.75rem;
+    /* Extra bottom padding reserves a clear band for the "see /now →" peek
+       pill so it sits below the prose instead of over it. The band is
+       always present (not added on hover) to avoid a layout shift. */
+    padding: 1.75rem 1.75rem 3.5rem;
     display: grid;
     grid-template-rows: 140px auto;
     gap: 1.25rem;
@@ -285,7 +288,7 @@
      the stretched card link beneath it. */
   .bench-card-peek {
     position: absolute;
-    inset-block-end: 1.5rem;
+    inset-block-end: 1.1rem;
     inset-inline-end: 1.5rem;
     z-index: 1;
     font-size: 0.7rem;
@@ -293,8 +296,8 @@
     color: var(--accent-aa);
     background: var(--bg);
     border: 1px solid color-mix(in oklab, var(--accent) 40%, var(--rule));
-    border-radius: 2px;
-    padding: 0.2rem 0.55rem;
+    border-radius: 999px;
+    padding: 0.25rem 0.7rem;
     opacity: 0;
     transform: translateY(4px);
     transition:
