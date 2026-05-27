@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.11.0](https://github.com/nicolas-bracigliano/nicolasbracigliano/compare/v1.10.1...v1.11.0) (2026-05-27)
+
+
+### Features
+
+* **home:** drive bench + latest entries from content ([#83](https://github.com/nicolas-bracigliano/nicolasbracigliano/issues/83)) ([36e40a6](https://github.com/nicolas-bracigliano/nicolasbracigliano/commit/36e40a6e31c5109293fc9092c180582adaa26ea9))
+
 ## [1.10.1](https://github.com/nicolas-bracigliano/nicolasbracigliano/compare/v1.10.0...v1.10.1) (2026-05-27)
 
 
