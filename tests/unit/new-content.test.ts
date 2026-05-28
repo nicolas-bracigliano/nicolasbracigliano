@@ -1,4 +1,8 @@
-import { describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { mkdtemp, readFile, rm } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+import { parse as parseYaml } from 'yaml';
 import {
   slugify,
   todayIso,
@@ -8,6 +12,10 @@ import {
   buildPieceMarkdown,
   buildWorkMarkdown,
   replaceNowItem,
+  makeScriptedContext,
+  scaffoldNote,
+  scaffoldPiece,
+  scaffoldWork,
 } from '../../scripts/new-content.ts';
 
 // Pure helpers from `scripts/new-content.ts`. The CLI shell (readline
@@ -332,5 +340,191 @@ items:
   it('throws when the frontmatter has no items key', () => {
     const bad = `---\ntitle: 'X'\nslug: 'x'\n---\n`;
     expect(() => replaceNowItem(bad, 0, newItem)).toThrow(/items.*missing/);
+  });
+});
+
+describe('yamlString input hardening', () => {
+  it('throws on inputs containing newlines', () => {
+    expect(() => yamlString('a\nb')).toThrow(/control characters/);
+  });
+
+  it('throws on inputs containing tab or carriage return', () => {
+    expect(() => yamlString('a\tb')).toThrow(/control characters/);
+    expect(() => yamlString('a\rb')).toThrow(/control characters/);
+  });
+
+  it('accepts ordinary printable strings (incl. high-Unicode)', () => {
+    expect(() => yamlString('café · 12')).not.toThrow();
+    expect(() => yamlString('a — b')).not.toThrow();
+  });
+});
+
+// End-to-end coverage for the CLI dispatch — uses `makeScriptedContext`
+// to drive each scaffold function with canned answers + a temp content
+// root, then re-parses the written files to assert frontmatter shape
+// + Zod-compatible content. Catches regressions in prompt sequence,
+// validation order, and dispatch wiring that the pure-helper tests
+// above can't see.
+
+interface Fm {
+  title: string;
+  slug: string;
+  lang: 'en' | 'es';
+  translationId: string;
+  status: string;
+  tags?: string[];
+  kind?: string;
+  lifecycle?: string;
+  written?: string;
+}
+
+function fmOf(text: string): Fm {
+  const m = text.match(/^---\n([\s\S]*?)\n---/);
+  if (!m || !m[1]) throw new Error('no frontmatter fence');
+  return parseYaml(m[1]) as Fm;
+}
+
+describe('scaffoldNote (end-to-end via ScriptedContext)', () => {
+  let tempRoot: string;
+
+  it('writes both EN and ES files with a shared translationId', async () => {
+    const ctx = makeScriptedContext(
+      [
+        'Hello',
+        'Hola',
+        '', // EN slug default (slugified title)
+        '', // ES slug default
+        '2099-01-01',
+        'craft',
+        'oficio',
+        '', // optional EN lede
+        '', // optional ES lede
+        'code', // optional kind
+      ],
+      tempRoot,
+    );
+    const result = await scaffoldNote(ctx);
+
+    expect(result.paths).toHaveLength(2);
+    const en = fmOf(await readFile(result.paths[0]!, 'utf-8'));
+    const es = fmOf(await readFile(result.paths[1]!, 'utf-8'));
+
+    expect(en.slug).toBe('hello');
+    expect(es.slug).toBe('hola');
+    expect(en.translationId).toBe('hello-2099-01-01');
+    expect(es.translationId).toBe('hello-2099-01-01');
+    expect(en.lang).toBe('en');
+    expect(es.lang).toBe('es');
+    expect(en.status).toBe('draft');
+    expect(en.kind).toBe('code');
+  });
+
+  it('refuses to overwrite an existing file', async () => {
+    const answers = ['Hello', 'Hola', '', '', '2099-01-01', 'craft', 'oficio', '', '', ''];
+    await scaffoldNote(makeScriptedContext(answers, tempRoot));
+    await expect(scaffoldNote(makeScriptedContext(answers, tempRoot))).rejects.toThrow(
+      /refusing to overwrite/,
+    );
+  });
+
+  beforeEach(async () => {
+    tempRoot = await mkdtemp(join(tmpdir(), 'scaffold-test-'));
+  });
+  afterEach(async () => {
+    await rm(tempRoot, { recursive: true, force: true });
+  });
+});
+
+describe('scaffoldPiece (end-to-end)', () => {
+  let tempRoot: string;
+
+  it('writes both files with marginNotes/diagrams as empty arrays + written field', async () => {
+    const ctx = makeScriptedContext(
+      [
+        'Rings',
+        'Anillos',
+        '',
+        '',
+        '2099-01-01',
+        'clean-architecture',
+        'arquitectura-limpia',
+        '',
+        '',
+        'in Melbourne, in autumn',
+        'en Melbourne, en otoño',
+      ],
+      tempRoot,
+    );
+    const result = await scaffoldPiece(ctx);
+
+    const en = await readFile(result.paths[0]!, 'utf-8');
+    expect(en).toContain('marginNotes: []');
+    expect(en).toContain('diagrams: []');
+    expect(en).toContain("written: 'in Melbourne, in autumn'");
+  });
+
+  beforeEach(async () => {
+    tempRoot = await mkdtemp(join(tmpdir(), 'scaffold-test-'));
+  });
+  afterEach(async () => {
+    await rm(tempRoot, { recursive: true, force: true });
+  });
+});
+
+describe('scaffoldWork (end-to-end)', () => {
+  let tempRoot: string;
+
+  it('emits flat filename (no date prefix) + slug-as-translationId', async () => {
+    const ctx = makeScriptedContext(
+      [
+        'Smoke Work',
+        'Obra de Humo',
+        '',
+        '',
+        '2099-01-01',
+        'craft',
+        'oficio',
+        'code',
+        'shipping',
+        '07',
+        '',
+        '',
+      ],
+      tempRoot,
+    );
+    const result = await scaffoldWork(ctx);
+
+    expect(result.paths[0]).toMatch(/works\/en\/smoke-work\.md$/);
+    expect(result.paths[1]).toMatch(/works\/es\/obra-de-humo\.md$/);
+
+    const en = fmOf(await readFile(result.paths[0]!, 'utf-8'));
+    expect(en.translationId).toBe('smoke-work');
+    expect(en.kind).toBe('code');
+    expect(en.lifecycle).toBe('shipping');
+  });
+
+  beforeEach(async () => {
+    tempRoot = await mkdtemp(join(tmpdir(), 'scaffold-test-'));
+  });
+  afterEach(async () => {
+    await rm(tempRoot, { recursive: true, force: true });
+  });
+});
+
+describe('makeScriptedContext', () => {
+  it('throws clearly when scripted answers run out', async () => {
+    const ctx = makeScriptedContext(['Hello'], '/tmp');
+    await ctx.ask({ question: 'first' });
+    await expect(ctx.ask({ question: 'second' })).rejects.toThrow(/out of answers/);
+  });
+
+  it('throws on an invalid answer rather than retrying (fail-loud)', async () => {
+    const ctx = makeScriptedContext(['not-a-valid-kind'], '/tmp');
+    await expect(
+      ctx.ask({
+        question: 'kind',
+        validate: (v) => (v === 'code' ? null : 'must be code'),
+      }),
+    ).rejects.toThrow(/invalid answer/);
   });
 });
