@@ -16,18 +16,7 @@
 // layer.
 
 import { z } from 'astro/zod';
-import { NOW_KINDS, type NowKind } from './content-kinds';
-
-/** The six bench kinds. Each value drives both the route's CSS
- *  modifier (`.now-{kind}` for the per-kind colour tint) and the
- *  Spanish/English copy that surrounds the item. Order is the
- *  display order on the /now page.
- *
- *  Re-exported from `./content-kinds` (the site-wide source of truth)
- *  under the legacy names so existing consumers — the schema, the
- *  test suite, NowItem.astro — keep working unchanged. */
-export const nowItemKinds = NOW_KINDS;
-export type NowItemKind = NowKind;
+import { NOW_KINDS } from './content-kinds';
 
 /** One row of an item's detail `<dl>`. `dt` is the term label,
  *  `dd` the description. Names mirror the rendered HTML so the
@@ -44,7 +33,7 @@ export type NowItemDetailRow = z.infer<typeof nowItemDetailSchema>;
  *  accidental row deletion at Zod-validation time rather than
  *  at e2e or — worse — at production render. */
 export const nowItemSchema = z.object({
-  kind: z.enum(nowItemKinds),
+  kind: z.enum(NOW_KINDS),
   where: z.string().min(1),
   title: z.string().min(1),
   prose: z.string().min(1),

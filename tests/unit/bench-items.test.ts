@@ -7,7 +7,8 @@
 // ./helpers/frontmatter (shared with now-items.test.ts).
 
 import { describe, expect, it } from 'vitest';
-import { benchItemSchema, benchItemKinds, BENCH_MIN, BENCH_MAX } from '../../src/lib/bench-items';
+import { benchItemSchema, BENCH_MIN, BENCH_MAX } from '../../src/lib/bench-items';
+import { BENCH_KINDS } from '../../src/lib/content-kinds';
 import { loadFrontmatter } from './helpers/frontmatter';
 
 describe.each([
@@ -40,7 +41,7 @@ describe.each([
     const fm = await loadFrontmatter(path);
     const items = fm.bench as Array<{ kind: string }>;
     items.forEach((i) => {
-      expect(benchItemKinds).toContain(i.kind);
+      expect(BENCH_KINDS).toContain(i.kind);
     });
     // Locale-marker so failures across both files don't blur.
     expect(locale).toMatch(/^(en|es)$/);

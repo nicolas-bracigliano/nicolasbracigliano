@@ -65,7 +65,8 @@ const notes = defineCollection({
         ogOverride: image().optional(),
       })
       .refine((d) => DATED_TRANSLATION_ID.test(d.translationId), {
-        message: 'translationId must match `<slug>-<YYYY-MM-DD>` (notes pair via EN slug + date)',
+        message:
+          'translationId shape must be <kebab-case>-<YYYY-MM-DD>; cross-locale pairing is enforced by tests/unit/bilingual-pairs.test.ts',
         path: ['translationId'],
       }),
 });
@@ -98,7 +99,8 @@ const works = defineCollection({
         ogOverride: image().optional(),
       })
       .refine((d) => SLUG_TRANSLATION_ID.test(d.translationId), {
-        message: 'translationId must match `<slug>` for works (kebab-case, no date suffix)',
+        message:
+          'translationId shape must be kebab-case with no date suffix; cross-locale pairing is enforced by tests/unit/bilingual-pairs.test.ts',
         path: ['translationId'],
       }),
 });
@@ -194,7 +196,8 @@ const pieces = defineCollection({
         ogOverride: image().optional(),
       })
       .refine((d) => DATED_TRANSLATION_ID.test(d.translationId), {
-        message: 'translationId must match `<slug>-<YYYY-MM-DD>` (pieces pair via EN slug + date)',
+        message:
+          'translationId shape must be <kebab-case>-<YYYY-MM-DD>; cross-locale pairing is enforced by tests/unit/bilingual-pairs.test.ts',
         path: ['translationId'],
       }),
 });
@@ -207,6 +210,12 @@ const pieces = defineCollection({
 // and how the home / about / colophon pages get a guarantee that
 // `items` ISN'T present (a stray `items:` accidentally added to
 // home.md fails Zod validation, loudly, at build time).
+//
+// No `translationId` refinement on pages by design: pages are a
+// fixed closed set (PAGE_SLUGS in `lib/routes.ts`) and use the
+// slug as the id verbatim (`home`, `about`, …). The page-slugs
+// drift test enforces existence in both locales; a format check
+// would be redundant.
 //
 // Adding a new page (e.g. /pieces) when the route gets its own
 // pages-collection entry: append the slug to `PAGE_SLUGS` in `lib/routes.ts`,

@@ -20,13 +20,17 @@ const counts: Record<WorkKind | 'all', number> = {
 };
 for (const e of entries) counts[e.data.kind] += 1;
 
+// Filter labels are user-facing copy, intentionally decoupled from the
+// internal kind taxonomy: `kind: 'guitar'` is the schema's stable id
+// (aligned with bench/now), but the chip reads "music" because the
+// works page is about the medium, not the instrument.
 const labels = {
-  en: { all: 'everything', code: 'code', print: '3D prints', guitar: 'guitar', garden: 'garden' },
+  en: { all: 'everything', code: 'code', print: '3D prints', guitar: 'music', garden: 'garden' },
   es: {
     all: 'todo',
     code: 'código',
     print: 'impresiones 3D',
-    guitar: 'guitarra',
+    guitar: 'música',
     garden: 'huerta',
   },
 } as const;

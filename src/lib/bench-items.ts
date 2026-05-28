@@ -10,15 +10,7 @@
 // unit-testable in plain vitest without spinning up the content layer.
 
 import { z } from 'astro/zod';
-import { BENCH_KINDS, type BenchKind } from './content-kinds';
-
-/** The bench kinds. Each value selects a BenchCard vignette
- *  (`.bench-card--<kind>`) and the inline SVG it renders. Re-exported
- *  from `./content-kinds` (the site-wide source of truth) under the
- *  legacy names so existing consumers keep working without rename
- *  churn. */
-export const benchItemKinds = BENCH_KINDS;
-export type BenchItemKind = BenchKind;
+import { BENCH_KINDS } from './content-kinds';
 
 /** One bench item.
  *
@@ -37,7 +29,7 @@ export type BenchItemKind = BenchKind;
  *  silently appear on an English card if a caption were omitted. */
 export const benchItemSchema = z
   .object({
-    kind: z.enum(benchItemKinds),
+    kind: z.enum(BENCH_KINDS),
     label: z.string().min(1),
     title: z.string().min(1),
     line: z.string().min(1),

@@ -12,13 +12,13 @@
 // matching kind. The four together stay under ~150 LOC and tree-shake as
 // one unit when the home page splits at build time.
 
-// Kind union is owned by `src/lib/bench-items.ts` (the same source the
+// Kind union is owned by `src/lib/content-kinds.ts` (the same source the
 // content schema validates against) so the component and the frontmatter
 // can't drift on the set of kinds.
-import type { BenchItemKind } from '@lib/bench-items';
+import type { BenchKind } from '@lib/content-kinds';
 
 export interface Props {
-  kind: BenchItemKind;
+  kind: BenchKind;
   /** Eyebrow tag — e.g. "01 · code" / "01 · código". The number is
    *  derived from bench position by the home page; this is the final
    *  formatted string. */
