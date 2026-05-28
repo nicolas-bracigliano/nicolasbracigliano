@@ -3,7 +3,7 @@
 // kind is the `Record<LatestKind, …>` parameter (a compile error, caught
 // by `astro check` in verify:fast) — these tests cover the runtime
 // behaviour that types can't: the sort, the cap, and that a recent piece
-// actually surfaces (the regression flagged in the PR #83 review).
+// actually surfaces.
 
 import { describe, expect, it } from 'vitest';
 import { buildLatest, LATEST_KINDS, LATEST_LIMIT } from '../../src/lib/latest-entries';
@@ -32,8 +32,8 @@ describe('buildLatest', () => {
   });
 
   it('lets a recent piece into the feed (pieces participate)', () => {
-    // The PR #83 review flagged this exact behaviour as unguarded: a
-    // newly-dated piece must reach the feed, not be filtered to notes/works.
+    // A newly-dated piece must reach the feed, not be filtered out as
+    // if the feed were notes/works-only.
     const result = buildLatest({
       note: [entry('n', '2026-01-01')],
       work: [entry('w', '2026-01-02')],

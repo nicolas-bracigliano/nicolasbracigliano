@@ -124,25 +124,30 @@ export async function discoverEntries(contentRoot: string): Promise<ContentEntry
 }
 
 async function listMarkdown(dir: string): Promise<string[]> {
+  // ENOENT is acceptable (a collection without an es/ subdir, etc).
+  // Any other error (EACCES, EIO, …) bubbles — silent empty arrays
+  // would let CI's smoke pass against an unreadable content tree.
+  let entries;
   try {
-    const entries = await readdir(dir, { withFileTypes: true });
-    const out: string[] = [];
-    for (const e of entries) {
-      if (e.isFile() && e.name.endsWith('.md')) {
-        out.push(join(dir, e.name));
-      } else if (e.isDirectory()) {
-        // Directory-shaped entry: <slug>/index.md beside the slug's assets.
-        const inner = join(dir, e.name);
-        const innerEntries = await readdir(inner).catch(() => []);
-        for (const f of innerEntries) {
-          if (f.endsWith('.md')) out.push(join(inner, f));
-        }
+    entries = await readdir(dir, { withFileTypes: true });
+  } catch (err) {
+    if (err instanceof Error && 'code' in err && err.code === 'ENOENT') return [];
+    throw err;
+  }
+  const out: string[] = [];
+  for (const e of entries) {
+    if (e.isFile() && e.name.endsWith('.md')) {
+      out.push(join(dir, e.name));
+    } else if (e.isDirectory()) {
+      // Directory-shaped entry: <slug>/index.md beside the slug's assets.
+      const inner = join(dir, e.name);
+      const innerEntries = await readdir(inner);
+      for (const f of innerEntries) {
+        if (f.endsWith('.md')) out.push(join(inner, f));
       }
     }
-    return out;
-  } catch {
-    return [];
   }
+  return out;
 }
 
 async function fetchStatus(url: string): Promise<number | null> {

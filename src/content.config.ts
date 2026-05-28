@@ -61,7 +61,6 @@ const notes = defineCollection({
         minutes: z.number().int().positive().optional(),
         aside: z.string().optional(),
         hero: image().optional(),
-        ogOverride: image().optional(),
       })
       .refine((d) => DATED_TRANSLATION_ID.test(d.translationId), {
         message:
@@ -75,7 +74,6 @@ const works = defineCollection({
   schema: ({ image }) =>
     base
       .extend({
-        repo: z.url().optional(),
         specs: z.record(z.string(), z.string()).default({}),
         /** Medium category — drives both the works-page filter buttons and
          *  the *default* WorkCard art vignette when `art` is unset. Subset
@@ -89,7 +87,6 @@ const works = defineCollection({
          *  catalog flavour — "№ 07" reads like an entry in a hand-kept ledger. */
         number: z.string().optional(),
         hero: image().optional(),
-        ogOverride: image().optional(),
       })
       .refine((d) => SLUG_TRANSLATION_ID.test(d.translationId), {
         message:
@@ -100,7 +97,6 @@ const works = defineCollection({
 
 // `pieces` (EN) · `ensayos` (ES) — long-form route. The collection
 // name follows the EN slug per ADR 0010. Schema extends `base` with:
-//   - `series` — optional grouping for multi-part pieces
 //   - `marginNotes` — array of section-anchored asides; pieces have
 //     N>1 by design (compared to notes' single optional `aside`).
 //     Each note's text is plain text, max 180 chars; if longer, the
@@ -115,7 +111,6 @@ const pieces = defineCollection({
   schema: ({ image }) =>
     base
       .extend({
-        series: z.string().optional(),
         /** Manual reading-time override; if omitted, PieceEntry computes
          *  from `entry.body`. Same convention as notes. */
         minutes: z.number().int().positive().optional(),
@@ -186,7 +181,6 @@ const pieces = defineCollection({
           )
           .default([]),
         hero: image().optional(),
-        ogOverride: image().optional(),
       })
       .refine((d) => DATED_TRANSLATION_ID.test(d.translationId), {
         message:
@@ -222,7 +216,6 @@ const pages = defineCollection({
   schema: ({ image }) => {
     const common = {
       hero: image().optional(),
-      ogOverride: image().optional(),
     };
     return z.discriminatedUnion('slug', [
       base.extend({
