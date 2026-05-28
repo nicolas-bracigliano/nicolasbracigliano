@@ -40,7 +40,6 @@ function note(opts: {
       date: new Date('2026-05-21'),
       status: opts.status ?? 'published',
       tags: [],
-      glyph: 'none',
     },
   } as unknown as AnyEntry;
 }

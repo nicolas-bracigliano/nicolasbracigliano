@@ -1,0 +1,19 @@
+---
+// Default vignette for `kind: garden` works. Plot rows + seedling dots.
+---
+
+<svg viewBox="0 0 200 140" width="100%" height="100%" role="img" aria-label="garden plot vignette">
+  <title>garden plot</title>
+  <g fill="none" stroke="currentColor" stroke-width="1">
+    <rect x="20" y="60" width="160" height="60"></rect>
+    {
+      [1, 2, 3].map((i) => (
+        <line x1={20 + i * 40} x2={20 + i * 40} y1="60" y2="120" opacity="0.3" />
+      ))
+    }
+    <line x1="20" x2="180" y1="90" y2="90" opacity="0.3"></line>
+    <circle cx="40" cy="75" r="3" fill="currentColor" stroke="none"></circle>
+    <circle cx="80" cy="75" r="3" fill="currentColor" stroke="none"></circle>
+    <circle cx="160" cy="105" r="3" fill="currentColor" stroke="none"></circle>
+  </g>
+</svg>

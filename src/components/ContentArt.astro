@@ -1,0 +1,93 @@
+---
+// One dispatcher for the entry's visual: render the per-entry `hero:`
+// SVG/image if set, else fall back to a per-kind default from the
+// registry. Replaces the old `WorkArt.astro` (giant variant switch)
+// and `NoteGlyph.astro` (smaller variant switch) with a single
+// hero-or-default pattern that scales to per-entry expression.
+//
+// Surface (vignette vs glyph) is inferred from `entry.collection` —
+// works render at vignette size into a `.work-art--<kind>` wrapper,
+// notes render at glyph size into a `.note-glyph.g-<kind>` wrapper.
+// The wrapper classes are deliberately kept (not renamed) so the
+// route stylesheets (`routes/works.css`, `base.css`) don't need to
+// change with this PR — only the JSX upstream of them.
+//
+// `kind` on notes is optional; when absent, ContentArt renders
+// nothing. Works always have a kind (schema default `'code'`).
+//
+// `hero:` is an Astro `image()` schema field, resolved relative to
+// the entry's source file at content-load time. Co-locating
+// per-entry SVG inside the entry directory (e.g. `this-site/art.svg`
+// next to `this-site/index.md`) is the convention; nothing here
+// hard-codes a path.
+
+import type { CollectionEntry } from 'astro:content';
+import { Image } from 'astro:assets';
+import type { WorkKind, NoteKind } from '@lib/content-kinds';
+// Per-kind default art. Adding a new kind's default is two touch
+// points: drop a component into `./art/{vignettes,glyphs}/`, add a
+// line to the matching map below. Kept inline here (vs a separate
+// `art-registry.ts`) because routing `.astro` imports through a `.ts`
+// file breaks the pre-commit `tsc` hook — `astro check` understands
+// .astro, plain tsc doesn't, and the hook uses tsc for speed.
+import CodeVignette from './art/vignettes/Code.astro';
+import GuitarVignette from './art/vignettes/Guitar.astro';
+import GardenVignette from './art/vignettes/Garden.astro';
+import PrintVignette from './art/vignettes/Print.astro';
+import CodeGlyph from './art/glyphs/Code.astro';
+import GuitarGlyph from './art/glyphs/Guitar.astro';
+import GardenGlyph from './art/glyphs/Garden.astro';
+import CoffeeGlyph from './art/glyphs/Coffee.astro';
+
+// `satisfies Record<…>` (not `: Record<…>`) is load-bearing: it gives
+// the maps a missing-kind compile-time check (adding a kind to
+// WORK_KINDS without adding a vignette is a build error) while keeping
+// each value's inferred component type intact for the JSX call site.
+const WORK_VIGNETTES = {
+  code: CodeVignette,
+  guitar: GuitarVignette,
+  garden: GardenVignette,
+  print: PrintVignette,
+} satisfies Record<WorkKind, unknown>;
+
+const NOTE_GLYPHS = {
+  code: CodeGlyph,
+  guitar: GuitarGlyph,
+  garden: GardenGlyph,
+  coffee: CoffeeGlyph,
+} satisfies Record<NoteKind, unknown>;
+
+export interface Props {
+  entry: CollectionEntry<'works'> | CollectionEntry<'notes'>;
+}
+
+const { entry } = Astro.props;
+const { hero } = entry.data;
+
+// Inline the discriminator so TS narrows `entry.data.kind` through
+// each branch. A separate `isWork` local doesn't carry the narrowing
+// into property accesses — which is what produced the
+// `kind as keyof typeof X` cast pattern in earlier drafts.
+//
+// `wrapperClass === null` is the "render nothing" signal: a note
+// without a `kind:` field. Works always have a kind (schema default
+// `'code'`) so the works branch always populates both.
+let wrapperClass: string | null = null;
+let Default: (typeof WORK_VIGNETTES)[WorkKind] | (typeof NOTE_GLYPHS)[NoteKind] | null = null;
+
+if (entry.collection === 'works') {
+  wrapperClass = `work-art work-art--${entry.data.kind}`;
+  Default = WORK_VIGNETTES[entry.data.kind];
+} else if (entry.data.kind) {
+  wrapperClass = `note-glyph g-${entry.data.kind}`;
+  Default = NOTE_GLYPHS[entry.data.kind];
+}
+---
+
+{
+  wrapperClass && (
+    <div class={wrapperClass} aria-hidden="true">
+      {hero ? <Image src={hero} alt="" /> : Default && <Default />}
+    </div>
+  )
+}

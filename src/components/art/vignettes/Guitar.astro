@@ -1,0 +1,17 @@
+---
+// Default vignette for `kind: guitar` works. Stylized waveform —
+// 40 deterministic bars (the seed is `i`, not `Math.random`, so
+// visual snapshots stay stable across builds).
+---
+
+<svg viewBox="0 0 200 140" width="100%" height="100%" role="img" aria-label="waveform vignette">
+  <title>waveform</title>
+  <g fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round">
+    {
+      Array.from({ length: 40 }).map((_, i) => {
+        const h = 18 + Math.abs(Math.sin(i * 0.5)) * 36 + (i % 7) * 2;
+        return <line x1={10 + i * 4.5} x2={10 + i * 4.5} y1={70 - h / 2} y2={70 + h / 2} />;
+      })
+    }
+  </g>
+</svg>

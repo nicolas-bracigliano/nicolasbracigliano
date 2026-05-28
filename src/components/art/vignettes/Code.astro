@@ -1,0 +1,16 @@
+---
+// Default vignette for `kind: code` works. Terminal build log. Sized to
+// fill its container via viewBox-less `<pre>`; the route stylesheet
+// (`routes/works.css`) sizes the wrapper. Inlined SVG/text so the
+// vignette stays zero-request and `currentColor` flows through.
+---
+
+<pre
+  class="work-art-terminal"
+  role="img"
+  aria-label="terminal build log">{`$ build   ──────────────╮
+  ✓ scaffolded site     │
+  ✓ /content             │
+  ✓ /public              │
+  ✓ feed.xml             │
+  ── ready ──────────────╯`}</pre>

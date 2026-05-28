@@ -180,15 +180,20 @@ This is the bridge between _system_ and _daily use_. Notes ship in mono — see 
 
 1. **Open** `content/notes/YYYY-MM-DD-short-slug.md` in your editor.
 2. **Frontmatter:**
+
    ```yaml
    date: 2026-05-21
    tags: [garden] # 1–3 lowercase
-   glyph: garden # or code | guitar | coffee | none
+   kind: garden # or code | guitar | coffee — omit for no glyph
    lede: 'One line of italic context.'
    minutes: 2 # estimate read time honestly
    lang: en
    aside: '(optional) one line for the right margin'
+   hero: ./art.svg # optional per-entry SVG; replaces the kind-default glyph
    ```
+
+   `kind` selects a default glyph from the art registry (see [ADR 0013](./decisions/0013-per-entry-art.md)). To ship bespoke art, move the note into its own directory (`<slug>/index.md` + `<slug>/art.svg`) and set `hero: ./art.svg`.
+
 3. **Body.** Write in markdown. The first paragraph is the most important. Use the `rule` keyword on its own line to insert the dotted ornament when a real section break is earned. Avoid the temptation to add subheadings — notes are short enough to live without them.
 4. **Status check.** Before publishing, read aloud. If you can't say it conversationally, it's still an essay. Wait, or move it to `/pieces` · `/ensayos`.
 5. **No previewing in production.** Notes get pushed when they are _almost_ right. Polish happens after they exist in public.
@@ -218,7 +223,10 @@ The mirror of §7, for long-form. Pieces are arguments — slower, polished, str
      - section: 'h2-slug-here'
        text: 'Pull-quote text — extracted from the section it anchors.'
    diagrams: ['key-from-registry']
+   hero: ./art.svg # optional per-entry SVG; co-located with the piece
    ```
+
+   Pieces accept the same `hero:` per-entry override that notes and works do — see [ADR 0013](./decisions/0013-per-entry-art.md). Pieces don't render a default vignette today, so `hero:` is the only path to ship piece art.
 
 3. **Structure** (per ADR 0011): kernel paragraph + 6–7 H2 sections + closing wrap. For framework pieces the section sequence is roughly:
    - personal-story (kernel + first H2)
