@@ -353,6 +353,15 @@ describe('yamlString input hardening', () => {
     expect(() => yamlString('a\rb')).toThrow(/control characters/);
   });
 
+  it('throws on lesser-known control chars (BEL, NUL, DEL)', () => {
+    // Locks the fix: an earlier version of the regex inadvertently
+    // contained literal control bytes that only caught \n/\t/\r by
+    // accident — these less-common cases would have slipped through.
+    expect(() => yamlString('a\x00b')).toThrow(/control characters/);
+    expect(() => yamlString('a\x07b')).toThrow(/control characters/);
+    expect(() => yamlString('a\x7fb')).toThrow(/control characters/);
+  });
+
   it('accepts ordinary printable strings (incl. high-Unicode)', () => {
     expect(() => yamlString('café · 12')).not.toThrow();
     expect(() => yamlString('a — b')).not.toThrow();
