@@ -2,11 +2,19 @@
 // below. Pure TS so this file imports cleanly from the content schema,
 // components, and tests alike.
 
-export const CONTENT_KINDS = ['code', 'guitar', 'garden', 'print', 'coffee', 'read'] as const;
+export const CONTENT_KINDS = [
+  'code',
+  'guitar',
+  'garden',
+  'print',
+  'coffee',
+  'read',
+  'home',
+] as const;
 export type ContentKind = (typeof CONTENT_KINDS)[number];
 
 /** Subset valid for `works` — deliverables, not activities (no coffee/read). */
-export const WORK_KINDS = ['code', 'guitar', 'garden', 'print'] as const;
+export const WORK_KINDS = ['code', 'guitar', 'garden', 'print', 'home'] as const;
 export type WorkKind = (typeof WORK_KINDS)[number];
 
 /** Subset valid for home-page `bench` items — matches WORK_KINDS by design. */
