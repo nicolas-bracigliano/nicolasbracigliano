@@ -2,7 +2,7 @@
 title: 'CPR: when to escalate a conversation'
 slug: 'cpr-when-to-escalate'
 lang: en
-translationKey: cpr-communication-2024-08-08
+translationId: cpr-communication-2024-08-08
 date: 2024-08-08
 written: 'in Melbourne, in winter'
 status: published

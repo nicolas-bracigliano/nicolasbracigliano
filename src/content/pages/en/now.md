@@ -2,7 +2,7 @@
 title: 'Now'
 slug: 'now'
 lang: en
-translationKey: now
+translationId: now
 date: 2026-05-23
 status: published
 lede: "What's on the bench right now."

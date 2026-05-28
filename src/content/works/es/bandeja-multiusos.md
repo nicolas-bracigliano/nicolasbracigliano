@@ -2,7 +2,7 @@
 title: 'Bandeja multiusos'
 slug: 'bandeja-multiusos'
 lang: es
-translationKey: catch-all-tray
+translationId: catch-all-tray
 date: 2026-04-12
 status: published
 tags: [print, escritorio]

@@ -6,7 +6,8 @@
 // documented.
 
 import { describe, expect, it } from 'vitest';
-import { nowItemSchema, NOW_ITEM_COUNT, nowItemKinds } from '../../src/lib/now-items';
+import { nowItemSchema, NOW_ITEM_COUNT } from '../../src/lib/now-items';
+import { NOW_KINDS } from '../../src/lib/content-kinds';
 import { loadFrontmatter } from './helpers/frontmatter';
 
 describe.each([
@@ -41,7 +42,7 @@ describe.each([
     const seenKinds = items.map((i) => i.kind);
     expect(new Set(seenKinds).size).toBe(NOW_ITEM_COUNT);
     seenKinds.forEach((k) => {
-      expect(nowItemKinds).toContain(k);
+      expect(NOW_KINDS).toContain(k);
     });
     // Locale-marker so failures across both files don't blur.
     expect(locale).toMatch(/^(en|es)$/);

@@ -2,7 +2,7 @@
 title: 'Este sitio'
 slug: 'este-sitio'
 lang: es
-translationKey: this-site
+translationId: this-site
 date: 2026-05-21
 status: published
 tags: [code]

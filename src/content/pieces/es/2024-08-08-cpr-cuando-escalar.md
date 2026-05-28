@@ -2,7 +2,7 @@
 title: 'CPR: cuándo escalar una conversación'
 slug: 'cpr-cuando-escalar'
 lang: es
-translationKey: cpr-communication-2024-08-08
+translationId: cpr-communication-2024-08-08
 date: 2024-08-08
 written: 'Melbourne, en invierno'
 status: published

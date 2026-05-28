@@ -2,7 +2,7 @@
 title: 'Ahora'
 slug: 'now'
 lang: es
-translationKey: now
+translationId: now
 date: 2026-05-23
 status: published
 lede: 'Lo que hay sobre la mesa ahora.'

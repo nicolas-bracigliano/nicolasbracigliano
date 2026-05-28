@@ -2,7 +2,7 @@
 title: 'TIL: text-wrap: pretty'
 slug: 'text-wrap-pretty'
 lang: es
-translationKey: text-wrap-pretty-2026-05-18
+translationId: text-wrap-pretty-2026-05-18
 date: 2026-05-18
 status: published
 tags: [til, css]
