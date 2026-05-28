@@ -39,12 +39,10 @@ import GuitarGlyph from './art/glyphs/Guitar.astro';
 import GardenGlyph from './art/glyphs/Garden.astro';
 import CoffeeGlyph from './art/glyphs/Coffee.astro';
 
-// Maps are not annotated with `Record<…>` because Astro component
-// imports have distinct inferred types per file, and the eslint
-// .astro context doesn't recognise typescript-eslint rules. Using
-// inferred object types lets each entry stay type-aware while the
-// JSX call site (`<Default />`) treats the value as a renderable
-// component without a custom alias.
+// `satisfies Record<…>` (not `: Record<…>`) is load-bearing: it gives
+// the maps a missing-kind compile-time check (adding a kind to
+// WORK_KINDS without adding a vignette is a build error) while keeping
+// each value's inferred component type intact for the JSX call site.
 const WORK_VIGNETTES = {
   code: CodeVignette,
   guitar: GuitarVignette,
@@ -64,30 +62,30 @@ export interface Props {
 }
 
 const { entry } = Astro.props;
+const { hero } = entry.data;
 
-// The two branches narrow `entry.data` (works has `kind: WorkKind`
-// always-present, notes has `kind: NoteKind | undefined`). Discriminate
-// up-front so the rest of the file is straight-line.
-const isWork = entry.collection === 'works';
-const kind = entry.data.kind;
-const hero = entry.data.hero;
+// Inline the discriminator so TS narrows `entry.data.kind` through
+// each branch. A separate `isWork` local doesn't carry the narrowing
+// into property accesses — which is what produced the
+// `kind as keyof typeof X` cast pattern in earlier drafts.
+//
+// `wrapperClass === null` is the "render nothing" signal: a note
+// without a `kind:` field. Works always have a kind (schema default
+// `'code'`) so the works branch always populates both.
+let wrapperClass: string | null = null;
+let Default: (typeof WORK_VIGNETTES)[WorkKind] | (typeof NOTE_GLYPHS)[NoteKind] | null = null;
 
-const wrapperClass = isWork ? `work-art work-art--${kind}` : `note-glyph g-${kind}`;
-
-// Pick the default component. For works `kind` is always set; for
-// notes it may be undefined, in which case we render nothing.
-const Default = isWork
-  ? WORK_VIGNETTES[kind as keyof typeof WORK_VIGNETTES]
-  : kind
-    ? NOTE_GLYPHS[kind as keyof typeof NOTE_GLYPHS]
-    : null;
-
-// Notes with no kind set → nothing rendered. Works always render.
-const shouldRender = isWork || Boolean(kind);
+if (entry.collection === 'works') {
+  wrapperClass = `work-art work-art--${entry.data.kind}`;
+  Default = WORK_VIGNETTES[entry.data.kind];
+} else if (entry.data.kind) {
+  wrapperClass = `note-glyph g-${entry.data.kind}`;
+  Default = NOTE_GLYPHS[entry.data.kind];
+}
 ---
 
 {
-  shouldRender && (
+  wrapperClass && (
     <div class={wrapperClass} aria-hidden="true">
       {hero ? <Image src={hero} alt="" /> : Default && <Default />}
     </div>
