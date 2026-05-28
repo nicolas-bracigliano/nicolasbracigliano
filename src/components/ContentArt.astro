@@ -1,0 +1,95 @@
+---
+// One dispatcher for the entry's visual: render the per-entry `hero:`
+// SVG/image if set, else fall back to a per-kind default from the
+// registry. Replaces the old `WorkArt.astro` (giant variant switch)
+// and `NoteGlyph.astro` (smaller variant switch) with a single
+// hero-or-default pattern that scales to per-entry expression.
+//
+// Surface (vignette vs glyph) is inferred from `entry.collection` —
+// works render at vignette size into a `.work-art--<kind>` wrapper,
+// notes render at glyph size into a `.note-glyph.g-<kind>` wrapper.
+// The wrapper classes are deliberately kept (not renamed) so the
+// route stylesheets (`routes/works.css`, `base.css`) don't need to
+// change with this PR — only the JSX upstream of them.
+//
+// `kind` on notes is optional; when absent, ContentArt renders
+// nothing. Works always have a kind (schema default `'code'`).
+//
+// `hero:` is an Astro `image()` schema field, resolved relative to
+// the entry's source file at content-load time. Co-locating
+// per-entry SVG inside the entry directory (e.g. `this-site/art.svg`
+// next to `this-site/index.md`) is the convention; nothing here
+// hard-codes a path.
+
+import type { CollectionEntry } from 'astro:content';
+import { Image } from 'astro:assets';
+import type { WorkKind, NoteKind } from '@lib/content-kinds';
+// Per-kind default art. Adding a new kind's default is two touch
+// points: drop a component into `./art/{vignettes,glyphs}/`, add a
+// line to the matching map below. Kept inline here (vs a separate
+// `art-registry.ts`) because routing `.astro` imports through a `.ts`
+// file breaks the pre-commit `tsc` hook — `astro check` understands
+// .astro, plain tsc doesn't, and the hook uses tsc for speed.
+import CodeVignette from './art/vignettes/Code.astro';
+import GuitarVignette from './art/vignettes/Guitar.astro';
+import GardenVignette from './art/vignettes/Garden.astro';
+import PrintVignette from './art/vignettes/Print.astro';
+import CodeGlyph from './art/glyphs/Code.astro';
+import GuitarGlyph from './art/glyphs/Guitar.astro';
+import GardenGlyph from './art/glyphs/Garden.astro';
+import CoffeeGlyph from './art/glyphs/Coffee.astro';
+
+// Maps are not annotated with `Record<…>` because Astro component
+// imports have distinct inferred types per file, and the eslint
+// .astro context doesn't recognise typescript-eslint rules. Using
+// inferred object types lets each entry stay type-aware while the
+// JSX call site (`<Default />`) treats the value as a renderable
+// component without a custom alias.
+const WORK_VIGNETTES = {
+  code: CodeVignette,
+  guitar: GuitarVignette,
+  garden: GardenVignette,
+  print: PrintVignette,
+} satisfies Record<WorkKind, unknown>;
+
+const NOTE_GLYPHS = {
+  code: CodeGlyph,
+  guitar: GuitarGlyph,
+  garden: GardenGlyph,
+  coffee: CoffeeGlyph,
+} satisfies Record<NoteKind, unknown>;
+
+export interface Props {
+  entry: CollectionEntry<'works'> | CollectionEntry<'notes'>;
+}
+
+const { entry } = Astro.props;
+
+// The two branches narrow `entry.data` (works has `kind: WorkKind`
+// always-present, notes has `kind: NoteKind | undefined`). Discriminate
+// up-front so the rest of the file is straight-line.
+const isWork = entry.collection === 'works';
+const kind = entry.data.kind;
+const hero = entry.data.hero;
+
+const wrapperClass = isWork ? `work-art work-art--${kind}` : `note-glyph g-${kind}`;
+
+// Pick the default component. For works `kind` is always set; for
+// notes it may be undefined, in which case we render nothing.
+const Default = isWork
+  ? WORK_VIGNETTES[kind as keyof typeof WORK_VIGNETTES]
+  : kind
+    ? NOTE_GLYPHS[kind as keyof typeof NOTE_GLYPHS]
+    : null;
+
+// Notes with no kind set → nothing rendered. Works always render.
+const shouldRender = isWork || Boolean(kind);
+---
+
+{
+  shouldRender && (
+    <div class={wrapperClass} aria-hidden="true">
+      {hero ? <Image src={hero} alt="" /> : Default && <Default />}
+    </div>
+  )
+}

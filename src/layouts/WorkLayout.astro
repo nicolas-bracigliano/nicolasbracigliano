@@ -1,6 +1,6 @@
 ---
 import BaseLayout from './BaseLayout.astro';
-import WorkArt from '@components/WorkArt.astro';
+import ContentArt from '@components/ContentArt.astro';
 import type { CollectionEntry } from 'astro:content';
 import { ROUTES, type Locale } from '@lib/routes';
 import { ogImageUrlFor } from '@lib/i18n';
@@ -12,7 +12,7 @@ export interface Props {
 }
 
 const { entry, path, siblingPath } = Astro.props;
-const { title, date, lede, lang, kind, art, lifecycle, number, specs } = entry.data;
+const { title, date, lede, lang, kind, lifecycle, number, specs } = entry.data;
 const locale = lang as Locale;
 const specEntries = Object.entries(specs);
 const ogImage = ogImageUrlFor(entry);
@@ -39,7 +39,7 @@ const dateDisplay = dateFormatter.format(date).toLowerCase();
 >
   <section class="works wrap work-detail">
     <article class="work-detail-card">
-      <WorkArt kind={kind} {...art && { art }} />
+      <ContentArt entry={entry} />
 
       <div class="work-card-meta">
         <span class="work-card-no">{number ? `№ ${number}` : ''}</span>

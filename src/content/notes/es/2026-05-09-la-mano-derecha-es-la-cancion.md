@@ -6,7 +6,7 @@ translationId: right-hand-is-the-song-2026-05-09
 date: 2026-05-09
 status: published
 tags: [guitarra]
-glyph: guitar
+kind: guitar
 aside: 'loop a 62 bpm por ~30 min. mañana: 68.'
 lede: 'Compás 9 de Milonga del Ángel, o: por qué las digitaciones son políticas.'
 ---

@@ -13,7 +13,7 @@ import { nowItemSchema, NOW_ITEM_COUNT } from './lib/now-items';
 import { benchItemSchema, BENCH_MIN, BENCH_MAX } from './lib/bench-items';
 // Site-wide kind taxonomy. Per-collection subsets (`WORK_KINDS` etc.)
 // are imported below where they're used.
-import { WORK_KINDS } from './lib/content-kinds';
+import { WORK_KINDS, NOTE_KINDS } from './lib/content-kinds';
 
 const base = z.object({
   title: z.string().min(1).max(80),
@@ -57,7 +57,10 @@ const notes = defineCollection({
   schema: ({ image }) =>
     base
       .extend({
-        glyph: z.enum(['garden', 'code', 'guitar', 'coffee', 'none']).default('none'),
+        /** Optional kind — selects a default decorative glyph from the
+         *  art registry (`src/lib/art-registry.ts`). Omit for no glyph
+         *  (was `glyph: 'none'` under the old enum). See ADR 0013. */
+        kind: z.enum(NOTE_KINDS).optional(),
         /** Manual override; if omitted, NoteEntry computes from `entry.body`. */
         minutes: z.number().int().positive().optional(),
         aside: z.string().optional(),
@@ -83,12 +86,6 @@ const works = defineCollection({
          *  of the site-wide ContentKind taxonomy (see
          *  `src/lib/content-kinds.ts`). */
         kind: z.enum(WORK_KINDS).default('code'),
-        /** Specific art vignette for this work. When unset, WorkArt falls
-         *  back to the kind-default. Adding a new variant: extend this enum
-         *  and add a matching block in `src/components/WorkArt.astro`. */
-        art: z
-          .enum(['terminal', 'font-specimen', 'tray', 'capo', 'knob', 'waveform', 'garden-plot'])
-          .optional(),
         /** Work lifecycle — distinct from `status` (publish-state). Renders as
          *  a coloured dot + label in the WorkCard foot. */
         lifecycle: z.enum(['shipping', 'ongoing', 'draft', 'archived']).default('shipping'),

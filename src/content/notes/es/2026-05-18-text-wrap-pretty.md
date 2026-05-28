@@ -6,7 +6,7 @@ translationId: text-wrap-pretty-2026-05-18
 date: 2026-05-18
 status: published
 tags: [til, css]
-glyph: code
+kind: code
 aside: 'probado · chromium 124 · firefox 126 · safari 17.4. todos contentos.'
 lede: 'Una propiedad CSS que vale mil <br>.'
 ---

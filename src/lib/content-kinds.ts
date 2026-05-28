@@ -38,3 +38,12 @@ export type BenchKind = WorkKind;
  *  (coffee, reading) that don't ship. */
 export const NOW_KINDS = CONTENT_KINDS;
 export type NowKind = ContentKind;
+
+/** Subset valid for the `notes` collection's optional `kind:` field.
+ *  Replaces the old `glyph:` enum — a note's kind selects a small
+ *  decorative glyph from the registry (`src/lib/art-registry.ts`).
+ *  Notes may omit `kind:` (no glyph rendered). `print` and `read` are
+ *  absent because no glyph is registered for them yet — expand both
+ *  this tuple and the registry to add one. */
+export const NOTE_KINDS = ['code', 'guitar', 'garden', 'coffee'] as const;
+export type NoteKind = (typeof NOTE_KINDS)[number];
