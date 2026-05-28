@@ -38,6 +38,7 @@
     "lint:actions": "scripts/lint-workflow-pins.sh",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
+    "new": "node scripts/new-content.ts",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:e2e": "playwright test",
