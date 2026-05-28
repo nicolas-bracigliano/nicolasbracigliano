@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.11.1](https://github.com/nicolas-bracigliano/nicolasbracigliano/compare/v1.11.0...v1.11.1) (2026-05-28)
+
+
+### Refactors
+
+* **home:** guard the Latest-entries feed kinds at compile time ([#86](https://github.com/nicolas-bracigliano/nicolasbracigliano/issues/86)) ([d6a6d7f](https://github.com/nicolas-bracigliano/nicolasbracigliano/commit/d6a6d7f94f24c4755aec10638deda02ab7cb3b48))
+
 ## [1.11.0](https://github.com/nicolas-bracigliano/nicolasbracigliano/compare/v1.10.1...v1.11.0) (2026-05-27)
 
 
