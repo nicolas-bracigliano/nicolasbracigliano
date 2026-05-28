@@ -17,5 +17,16 @@
   if (!theme && window.matchMedia) {
     theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'noche' : 'dia';
   }
-  document.documentElement.dataset.theme = theme || 'dia';
+  theme = theme || 'dia';
+  document.documentElement.dataset.theme = theme;
+
+  /* Sync the toggle's aria-checked the moment the DOM finishes
+   * parsing — the SSR ships `aria-checked="false"` (a default the
+   * server can't personalise), so screen readers landing on a
+   * `noche` user would otherwise hear the wrong state until
+   * `chrome.ts` runs on `astro:page-load`. */
+  document.addEventListener('DOMContentLoaded', function () {
+    var btn = document.getElementById('theme-toggle');
+    if (btn) btn.setAttribute('aria-checked', String(theme === 'noche'));
+  });
 })();

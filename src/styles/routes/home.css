@@ -544,24 +544,6 @@
     max-width: none;
   }
 
-  /* `.page` + `.page-head` are the article-width wrappers used by
-     PageLayout (about / now etc). `.lede` is the italic intro paragraph
-     used by PageLayout and the 404. Other former occupants of this
-     block (`.work`, `.work-head`, `.meta`, `.specs`, `.status`,
-     `.card-list`, `.card`) were removed when WorkLayout and the works
-     index were re-skinned to the Index-card catalog vocabulary; see
-     `.work-card-*` / `.work-detail-*` further down. */
-  .page {
-    max-width: var(--measure);
-  }
-  .page-head {
-    margin-block-end: 1.5rem;
-  }
-  .lede {
-    color: var(--ink-2);
-    margin-block-start: 0.5rem;
-  }
-
   /* Global tone-down utility. The codebase has been using
      `<span class="muted">…</span>` for dimmed inline text (date
      trailers, link suffixes, bilingual separators) since the

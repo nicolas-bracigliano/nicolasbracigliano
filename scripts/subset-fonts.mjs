@@ -43,7 +43,9 @@ const OG_FONT = {
 };
 
 async function download(url, destPath) {
-  const res = await fetch(url);
+  // 30 s bounded — a hung jsdelivr CDN would otherwise stall the dev
+  // task indefinitely.
+  const res = await fetch(url, { signal: AbortSignal.timeout(30_000) });
   if (!res.ok) throw new Error(`Failed to fetch ${url}: ${res.status}`);
   const buf = Buffer.from(await res.arrayBuffer());
   await writeFile(destPath, buf);
