@@ -341,6 +341,15 @@ jobs:
       # a botched Astro build, a worker.ts regression, or a
       # Cloudflare-side asset-binding hiccup before traffic hits
       # the real domain.
+      #
+      # The route list is derived at runtime from `src/lib/routes.ts`
+      # (static page routes) + `src/content/**/*.md` (published
+      # entries from notes / pieces / works). No hardcoded path list
+      # to drift. The retry-on-4xx behaviour (per CLAUDE.md gotcha:
+      # Workers Static Assets has a brief post-deploy propagation
+      # window where a just-uploaded URL 404s while siblings serve)
+      # lives in the script — `curl --retry` doesn't retry 4xx, so
+      # the script hand-rolls 6 attempts × 3 s delay per route.
       - name: Smoke test (routes)
         env:
           URL: ${{ steps.deploy.outputs.deployment-url }}
@@ -349,83 +358,7 @@ jobs:
             echo "::warning::wrangler-action did not emit a deployment-url — skipping smoke test"
             exit 0
           fi
-          echo "Smoke-testing $URL"
-          # Map of "path => expected status". The Worker handles `/`
-          # (Accept-Language 302); everything else falls through to
-          # the ASSETS binding with `not_found_handling = "404-page"`
-          # serving `dist/404.html` for unmatched paths.
-          #
-          # Retry note: `curl --retry` only retries on 5xx + network
-          # errors, NOT on 4xx — a 404 during the post-deploy asset-
-          # propagation window would otherwise give up after one
-          # attempt. We wrap the curl call in an explicit bash retry
-          # so transient 404s (an asset uploaded a moment ago but not
-          # yet served at this edge) get a fair shake before we fail
-          # the build. Observed in run 26442160867: ES slug returned
-          # 404 while same-build EN slug returned 200 within the
-          # immediate post-deploy window; both 200 a minute later.
-          # Six attempts × 3 s delay = ~18 s tolerance per route.
-          check() {
-            local path="$1" expected="$2"
-            local got attempt=0
-            while [ $attempt -lt 6 ]; do
-              got=$(curl -sS -o /dev/null -w '%{http_code}' --max-time 15 "$URL$path")
-              if [ "$got" = "$expected" ]; then
-                echo "  $path → $got ✓"
-                return 0
-              fi
-              attempt=$((attempt + 1))
-              sleep 3
-            done
-            echo "::error::$path expected $expected, got $got (after $attempt retries)"
-            return 1
-          }
-          # Worker-handled (redirect)
-          check /            302 || exit 1
-          # Static asset matches (route entries Astro built)
-          check /en/         200 || exit 1
-          check /es/         200 || exit 1
-          check /en/notes/   200 || exit 1
-          check /en/works/   200 || exit 1
-          check /en/pieces/  200 || exit 1
-          check /en/pieces/rings-i-keep-redrawing/ 200 || exit 1
-          check /en/about/   200 || exit 1
-          check /en/colophon/ 200 || exit 1
-          check /es/notas/   200 || exit 1
-          check /es/obras/   200 || exit 1
-          check /es/ensayos/ 200 || exit 1
-          check /es/ensayos/anillos-que-sigo-redibujando/ 200 || exit 1
-          check /es/sobre/   200 || exit 1
-          # `colofón` in percent-encoded form — curl sends the literal
-          # UTF-8 byte for `ó`, and Cloudflare normalizes that to the
-          # `%C3%B3n` form via a 307 redirect, breaking the immediate-
-          # status assertion. Hitting the canonical encoded URL directly
-          # is equivalent (Astro's `_redirects` also points the unaccented
-          # variant `/es/colofon` here).
-          check /es/colof%C3%B3n/ 200 || exit 1
-          # 404 fallback: unmatched path serves dist/404.html with
-          # HTTP 404. Confirms `not_found_handling = "404-page"` is
-          # honoured at the Workers Static Assets layer.
-          check /this-path-does-not-exist-12345/ 404 || exit 1
-          echo "Smoke test passed (16 routes)"
-
-          # Body content sanity: status codes alone don't catch a
-          # broken Astro build that produces empty HTML. Fetch
-          # `/en/` and assert a known marker shows up — title tag
-          # AND the site's wordmark from the chrome. Cheap; would
-          # have caught a hypothetical "Astro emitted empty pages
-          # after a refactor" regression that ships 200s.
-          echo "Body content sanity at /en/"
-          body=$(curl -sS --max-time 15 --retry 3 --retry-delay 2 "$URL/en/")
-          if ! echo "$body" | grep -q '<title>'; then
-            echo "::error::/en/ response missing <title> — broken Astro build?"
-            exit 1
-          fi
-          if ! echo "$body" | grep -q 'Bracigliano'; then
-            echo "::error::/en/ response missing 'Bracigliano' — broken Astro build?"
-            exit 1
-          fi
-          echo "  body contains <title> + wordmark ✓"
+          node scripts/smoke-routes.ts "$URL"
       # Security headers verification: every header declared in
       # `public/_headers` must reach the browser. Catches the
       # `_headers` file silently dropping (Astro not copying it),

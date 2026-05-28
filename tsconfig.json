@@ -3,7 +3,11 @@
   "compilerOptions": {
     "noUncheckedIndexedAccess": true,
     "verbatimModuleSyntax": true,
-    "allowImportingTsExtensions": false,
+    // `true` restores the astro/strictest base behaviour. Node 24's
+    // TS-strip loader (used by `scripts/smoke-routes.ts`) requires
+    // explicit `.ts` extensions in imports — `noEmit` is on, so this
+    // flag is safe (the compiler doesn't have to invent output paths).
+    "allowImportingTsExtensions": true,
     // TS 6 deprecated `baseUrl`; declare it explicitly so paths still resolve
     // relative to the project root, and silence the deprecation warning.
     "baseUrl": ".",
