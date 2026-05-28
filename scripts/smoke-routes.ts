@@ -15,10 +15,8 @@
 //
 // Retry-on-4xx gotcha (per CLAUDE.md): Cloudflare Workers Static
 // Assets has a brief propagation window where a just-deployed URL
-// 404s while siblings serve. `curl --retry` doesn't retry 4xx —
-// so we hand-roll the retry loop here too. Six attempts × 3 s
-// delay = ~18 s tolerance per route, matching the bash behaviour
-// that replaced this used to have.
+// 404s while siblings serve. Six attempts × 3 s delay = ~18 s
+// tolerance per route.
 
 import { readdir, readFile } from 'node:fs/promises';
 import { join, dirname } from 'node:path';
