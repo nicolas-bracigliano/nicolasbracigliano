@@ -1,7 +1,7 @@
 ---
 // Home-page "Latest entries" section (design system §3 + §11). Mixes
-// notes and works in one chronological list, with a kind-pill prefix
-// so the reader can scan the type at a glance.
+// notes, works, and pieces in one chronological list, with a kind-pill
+// prefix so the reader can scan the type at a glance.
 //
 // Row shape per prototype: `[pill] [date] [title] [arrow]` — 4-column
 // grid that collapses to 3 columns below 640px (date drops, pill keeps
@@ -9,8 +9,10 @@
 
 import type { CollectionEntry } from 'astro:content';
 import { entryRouteFor } from '@lib/i18n';
-
-export type LatestKind = 'note' | 'work' | 'piece';
+// `LatestKind` is owned by `@lib/latest-entries` (the same source
+// `buildLatest` keys on), so these pill labels can't drift from the
+// feed's kind set.
+import type { LatestKind } from '@lib/latest-entries';
 
 export type LatestItem = {
   entry: CollectionEntry<'notes'> | CollectionEntry<'works'> | CollectionEntry<'pieces'>;

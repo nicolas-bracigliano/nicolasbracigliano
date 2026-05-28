@@ -3,13 +3,14 @@ import { getCollection, getEntry } from 'astro:content';
 import BaseLayout from '@layouts/BaseLayout.astro';
 import Masthead from '@components/Masthead.astro';
 import BenchCard from '@components/BenchCard.astro';
-import LatestEntries, { type LatestItem } from '@components/LatestEntries.astro';
+import LatestEntries from '@components/LatestEntries.astro';
 import FieldNotesSidebar from '@components/FieldNotesSidebar.astro';
 import Coffee from '@components/Coffee.astro';
 import Mate from '@components/Mate.astro';
 import { ROUTES } from '@lib/routes';
 import { getSibling, entryRouteFor } from '@lib/i18n';
 import { assertHomeEntry } from '@lib/bench-items';
+import { buildLatest } from '@lib/latest-entries';
 
 const entry = await getEntry('pages', 'es/home');
 if (!entry) throw new Error('Missing pages/es/home');
@@ -19,18 +20,14 @@ assertHomeEntry(entry);
 const sibling = await getSibling(entry);
 const { title, lede, bench } = entry.data;
 
+// Latest across notes + works + pieces, newest first. buildLatest keys on
+// every feed kind, so dropping a collection here is a compile error.
 const [notes, works, pieces] = await Promise.all([
   getCollection('notes', (e) => e.data.lang === 'es' && e.data.status === 'published'),
   getCollection('works', (e) => e.data.lang === 'es' && e.data.status === 'published'),
   getCollection('pieces', (e) => e.data.lang === 'es' && e.data.status === 'published'),
 ]);
-const latest: LatestItem[] = [
-  ...notes.map((e) => ({ entry: e, kind: 'note' as const })),
-  ...works.map((e) => ({ entry: e, kind: 'work' as const })),
-  ...pieces.map((e) => ({ entry: e, kind: 'piece' as const })),
-]
-  .sort((a, b) => +b.entry.data.date - +a.entry.data.date)
-  .slice(0, 4);
+const latest = buildLatest({ note: notes, work: works, piece: pieces });
 
 const elsewhere = [
   { label: 'github', href: 'https://github.com/nicolas-bracigliano' },
