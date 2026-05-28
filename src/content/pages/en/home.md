@@ -22,11 +22,10 @@ bench:
     title: 'Learning Milonga del Ángel'
     line: 'Piazzolla. The right-hand fingering is a puzzle box. I keep looping bars 9–16 at half speed.'
     guitarLabel: 'A m | Milonga del Ángel · bar 9'
-  - kind: garden
-    label: 'garden'
-    title: 'Tomatoes vs. Melbourne October'
-    line: 'Black Russian, San Marzano, a punnet of basil. The pollinators showed up two weeks early.'
-    seedlingTag: 'tomato'
+  - kind: home
+    label: 'home'
+    title: 'Stone & Wood'
+    line: 'Wooden shell around the TV, with a landscape electric fire and a stone shelf.'
   - kind: print
     label: '3d'
     title: 'A modular catch-all tray'
