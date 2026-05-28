@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.13.0](https://github.com/nicolas-bracigliano/nicolasbracigliano/compare/v1.12.0...v1.13.0) (2026-05-28)
+
+
+### Features
+
+* **scripts:** pnpm new — scaffold bilingual content ([#93](https://github.com/nicolas-bracigliano/nicolasbracigliano/issues/93)) ([1488135](https://github.com/nicolas-bracigliano/nicolasbracigliano/commit/148813599058c504bcb3f48a086733cef9144e2d))
+
 ## [1.12.0](https://github.com/nicolas-bracigliano/nicolasbracigliano/compare/v1.11.2...v1.12.0) (2026-05-28)
 
 
