@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.11.2](https://github.com/nicolas-bracigliano/nicolasbracigliano/compare/v1.11.1...v1.11.2) (2026-05-28)
+
+
+### Refactors
+
+* **content:** unify ContentKind and rename translationKey to translationId ([#88](https://github.com/nicolas-bracigliano/nicolasbracigliano/issues/88)) ([60ab7b5](https://github.com/nicolas-bracigliano/nicolasbracigliano/commit/60ab7b58a59380141049c4c7f71f6fdca4fdbb3d))
+
 ## [1.11.1](https://github.com/nicolas-bracigliano/nicolasbracigliano/compare/v1.11.0...v1.11.1) (2026-05-28)
 
 
