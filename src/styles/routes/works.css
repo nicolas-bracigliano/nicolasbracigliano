@@ -211,7 +211,7 @@
     background: color-mix(in oklab, var(--ink-blue) 8%, var(--bg-2));
     color: var(--ink-blue);
   }
-  .work-art--music {
+  .work-art--guitar {
     background: color-mix(in oklab, var(--accent) 14%, var(--bg-2));
     color: var(--accent-aa);
   }
@@ -229,47 +229,6 @@
     padding: 0.875rem;
     inline-size: 100%;
   }
-  /* font-specimen art: big serif `Aa` plus a tiny list of glyph samples
-     + meta. Used by works that are about type, hand-written CSS, or
-     the site itself. Theme follows the work's kind (the wrapper's
-     `.work-art--${kind}` class colours the text). */
-  .work-art-type {
-    display: flex;
-    align-items: center;
-    gap: 0.875rem;
-    padding-inline: 1.125rem;
-    inline-size: 100%;
-  }
-  .work-art-type-big {
-    font-family: var(--font-display);
-    font-style: italic;
-    font-size: 4.25rem;
-    line-height: 1;
-    color: currentColor;
-  }
-  .work-art-type-list {
-    font-size: 0.625rem;
-    line-height: 1.6;
-    color: var(--ink-2);
-  }
-  .work-art-type-list em {
-    font-family: var(--font-display);
-    font-style: italic;
-    color: var(--ink);
-  }
-  /* When `font-specimen` lands on a code-kind work the wrapper bg is the
-     dark `--terminal-bg` from `.work-art--code`. Force light text so the
-     specimen reads. */
-  .work-art--code .work-art-type-list {
-    color: var(--terminal-fg);
-  }
-  .work-art--code .work-art-type-list em {
-    color: var(--terminal-fg);
-  }
-  .work-art--code .work-art-type-list .muted {
-    color: color-mix(in oklab, var(--terminal-fg) 60%, transparent);
-  }
-
   .work-card-meta {
     display: flex;
     justify-content: space-between;

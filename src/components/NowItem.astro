@@ -12,10 +12,6 @@
 // validator and the component prop types can't drift.
 
 import type { NowPageItem } from '@lib/now-items';
-// Re-exported for callers that already import these names from
-// this component. Future callers should import directly from
-// `@lib/now-items`; these re-exports exist for backward compat.
-export type { NowItemKind, NowItemDetailRow, NowPageItem } from '@lib/now-items';
 
 export interface Props extends NowPageItem {
   /** 1-based ordinal — `1` becomes "№ 01". Named `position` rather

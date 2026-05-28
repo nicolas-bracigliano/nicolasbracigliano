@@ -1,5 +1,33 @@
 # Changelog
 
+## [1.13.0](https://github.com/nicolas-bracigliano/nicolasbracigliano/compare/v1.12.0...v1.13.0) (2026-05-28)
+
+
+### Features
+
+* **scripts:** pnpm new — scaffold bilingual content ([#93](https://github.com/nicolas-bracigliano/nicolasbracigliano/issues/93)) ([1488135](https://github.com/nicolas-bracigliano/nicolasbracigliano/commit/148813599058c504bcb3f48a086733cef9144e2d))
+
+## [1.12.0](https://github.com/nicolas-bracigliano/nicolasbracigliano/compare/v1.11.2...v1.12.0) (2026-05-28)
+
+
+### Features
+
+* **content:** per-entry SVG art via hero, drop art and glyph enums ([#90](https://github.com/nicolas-bracigliano/nicolasbracigliano/issues/90)) ([baf60b8](https://github.com/nicolas-bracigliano/nicolasbracigliano/commit/baf60b8cc11efcaf52f9b118af22c1ce26ee94e9))
+
+## [1.11.2](https://github.com/nicolas-bracigliano/nicolasbracigliano/compare/v1.11.1...v1.11.2) (2026-05-28)
+
+
+### Refactors
+
+* **content:** unify ContentKind and rename translationKey to translationId ([#88](https://github.com/nicolas-bracigliano/nicolasbracigliano/issues/88)) ([60ab7b5](https://github.com/nicolas-bracigliano/nicolasbracigliano/commit/60ab7b58a59380141049c4c7f71f6fdca4fdbb3d))
+
+## [1.11.1](https://github.com/nicolas-bracigliano/nicolasbracigliano/compare/v1.11.0...v1.11.1) (2026-05-28)
+
+
+### Refactors
+
+* **home:** guard the Latest-entries feed kinds at compile time ([#86](https://github.com/nicolas-bracigliano/nicolasbracigliano/issues/86)) ([d6a6d7f](https://github.com/nicolas-bracigliano/nicolasbracigliano/commit/d6a6d7f94f24c4755aec10638deda02ab7cb3b48))
+
 ## [1.11.0](https://github.com/nicolas-bracigliano/nicolasbracigliano/compare/v1.10.1...v1.11.0) (2026-05-27)
 
 

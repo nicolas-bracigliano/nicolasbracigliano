@@ -2,7 +2,7 @@
 title: 'The rings I keep redrawing'
 slug: 'rings-i-keep-redrawing'
 lang: en
-translationKey: clean-architecture-2024-08-14
+translationId: clean-architecture-2024-08-14
 date: 2024-08-14
 written: 'in Melbourne, in winter'
 status: published

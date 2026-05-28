@@ -11,14 +11,21 @@
 // because they're tightly coupled — each one only exists inside its
 // matching kind. The four together stay under ~150 LOC and tree-shake as
 // one unit when the home page splits at build time.
+//
+// Deliberately NOT routed through ContentArt / the per-kind registry
+// (see docs/decisions/0013-per-entry-art.md). BenchCard SVGs bake
+// per-instance captions into `<text>` (`guitarLabel`, `seedlingTag`),
+// so they're not stateless per-kind defaults — refactoring them
+// through the registry would force a leaky props-by-kind abstraction
+// onto WorkCard / NoteEntry too. Keep the inline form here on purpose.
 
-// Kind union is owned by `src/lib/bench-items.ts` (the same source the
+// Kind union is owned by `src/lib/content-kinds.ts` (the same source the
 // content schema validates against) so the component and the frontmatter
 // can't drift on the set of kinds.
-import type { BenchItemKind } from '@lib/bench-items';
+import type { BenchKind } from '@lib/content-kinds';
 
 export interface Props {
-  kind: BenchItemKind;
+  kind: BenchKind;
   /** Eyebrow tag — e.g. "01 · code" / "01 · código". The number is
    *  derived from bench position by the home page; this is the final
    *  formatted string. */

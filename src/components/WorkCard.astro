@@ -2,7 +2,7 @@
 import type { CollectionEntry } from 'astro:content';
 import type { Locale } from '@lib/routes';
 import { entryRouteFor } from '@lib/i18n';
-import WorkArt from './WorkArt.astro';
+import ContentArt from './ContentArt.astro';
 
 export interface Props {
   entry: CollectionEntry<'works'>;
@@ -10,7 +10,7 @@ export interface Props {
 }
 
 const { entry, locale } = Astro.props;
-const { title, lede, kind, art, lifecycle, number, specs, date } = entry.data;
+const { title, lede, kind, lifecycle, number, specs, date } = entry.data;
 const permalink = entryRouteFor(entry);
 const specEntries = Object.entries(specs);
 
@@ -33,7 +33,7 @@ const dateDisplay = dateFormatter.format(date).toLowerCase().replace(/\s+/g, ' Â
 }
 <li class="work-card" data-kind={kind}>
   <div class="work-card-inner">
-    <WorkArt kind={kind} {...art && { art }} />
+    <ContentArt entry={entry} />
 
     <div class="work-card-meta">
       <span class="work-card-no">{number ? `â„– ${number}` : ''}</span>

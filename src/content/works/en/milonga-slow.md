@@ -2,11 +2,11 @@
 title: 'Milonga, slow'
 slug: 'milonga-slow'
 lang: en
-translationKey: milonga-slow
+translationId: milonga-slow
 date: 2026-05-09
 status: published
 tags: [music, guitar]
-kind: music
+kind: guitar
 lifecycle: draft
 number: '03'
 lede: 'A field recording of half-speed practice. Two takes, one mic, my kitchen.'

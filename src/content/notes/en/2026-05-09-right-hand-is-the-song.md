@@ -2,11 +2,11 @@
 title: 'The right hand is the song'
 slug: 'right-hand-is-the-song'
 lang: en
-translationKey: right-hand-is-the-song-2026-05-09
+translationId: right-hand-is-the-song-2026-05-09
 date: 2026-05-09
 status: draft
 tags: [guitar]
-glyph: guitar
+kind: guitar
 aside: 'looped at 62 bpm for ~30 min. tomorrow: 68.'
 lede: 'Bar 9 of Milonga del Ángel, or: why fingerings are politics.'
 ---

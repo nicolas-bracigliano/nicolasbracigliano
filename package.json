@@ -1,6 +1,6 @@
 {
   "name": "nicolasbracigliano-com",
-  "version": "1.11.0",
+  "version": "1.13.0",
   "private": true,
   "description": "Personal site — colophon, bilingual (en/es), Astro 6 on Cloudflare Workers Static Assets.",
   "homepage": "https://nicolasbracigliano.com",
@@ -38,6 +38,7 @@
     "lint:actions": "scripts/lint-workflow-pins.sh",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
+    "new": "node scripts/new-content.ts",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:e2e": "playwright test",

@@ -8,12 +8,11 @@ export const DEFAULT_LOCALE: Locale = 'en';
  *  RFC 9116 security.txt rotation, and any future "say hi" surfaces. */
 export const SITE_EMAIL = 'hola@nicolasbracigliano.com';
 
-// IMPORTANT: when adding a new route here, also update the
-// hardcoded path list in `.github/workflows/ci.yml`'s "Smoke
-// test (routes)" step. The smoke list runs `curl` against the
-// live deploy and has no module access — it can't import from
-// here. `docs/ci.md` § "Deploy specifics" flags this as a known
-// maintenance dependency.
+// Single source of truth consumed by `scripts/smoke-routes.ts`
+// (post-deploy CI smoke), the `pages` content schema, the chrome
+// nav, hreflang alternates, and the OG image route. Adding a
+// route here is mechanically picked up by all of those — no
+// parallel list to update.
 export const ROUTES = {
   home: { en: '/en/', es: '/es/' },
   notes: { en: '/en/notes/', es: '/es/notas/' },

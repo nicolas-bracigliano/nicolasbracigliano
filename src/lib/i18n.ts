@@ -34,7 +34,7 @@ export function findSiblingIn<E extends AnyEntry>(entry: E, candidates: readonly
   const targetLang: Locale = otherLocale(entry.data.lang);
   const sibling = candidates.find(
     (e) =>
-      e.data.translationKey === entry.data.translationKey &&
+      e.data.translationId === entry.data.translationId &&
       e.data.lang === targetLang &&
       e.data.status === 'published',
   );

@@ -10,14 +10,7 @@
 // unit-testable in plain vitest without spinning up the content layer.
 
 import { z } from 'astro/zod';
-
-/** The bench kinds. Each value selects a BenchCard vignette
- *  (`.bench-card--<kind>`) and the inline SVG it renders. Exported as a
- *  const tuple (not just a type) so runtime consumers — the schema, the
- *  unit test — can iterate the kinds. `BenchItemKind` is
- *  `(typeof benchItemKinds)[number]`, so type and value never drift. */
-export const benchItemKinds = ['code', 'guitar', 'garden', 'print'] as const;
-export type BenchItemKind = (typeof benchItemKinds)[number];
+import { BENCH_KINDS } from './content-kinds';
 
 /** One bench item.
  *
@@ -36,7 +29,7 @@ export type BenchItemKind = (typeof benchItemKinds)[number];
  *  silently appear on an English card if a caption were omitted. */
 export const benchItemSchema = z
   .object({
-    kind: z.enum(benchItemKinds),
+    kind: z.enum(BENCH_KINDS),
     label: z.string().min(1),
     title: z.string().min(1),
     line: z.string().min(1),

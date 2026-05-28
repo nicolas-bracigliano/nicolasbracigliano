@@ -11,12 +11,18 @@ import { nowItemSchema, NOW_ITEM_COUNT } from './lib/now-items';
 // Home-page "currently on the bench" items — same pattern as now-items:
 // schema here, inferred kind union in BenchCard.astro, both from one source.
 import { benchItemSchema, BENCH_MIN, BENCH_MAX } from './lib/bench-items';
+// Site-wide kind taxonomy. Per-collection subsets (`WORK_KINDS` etc.)
+// are imported below where they're used.
+import { WORK_KINDS, NOTE_KINDS } from './lib/content-kinds';
 
 const base = z.object({
   title: z.string().min(1).max(80),
   slug: z.string().regex(/^[a-z0-9-]+$/),
   lang: z.enum(['en', 'es']),
-  translationKey: z.string(),
+  // Stable identifier pairing locale siblings (see ADR 0003). Format
+  // is refined per collection below: notes & pieces use
+  // `<slug>-<YYYY-MM-DD>`; works use `<slug>` alone.
+  translationId: z.string(),
   date: z.coerce.date(),
   updated: z.coerce.date().optional(),
   status: z.enum(['draft', 'published', 'retired']).default('draft'),
@@ -27,6 +33,17 @@ const base = z.object({
   lede: z.string().max(160).optional(),
 });
 
+// `translationId` format is convention-bound but only partially verifiable
+// per-file: the value is built from the EN sibling's slug, so on the ES
+// file `translationId !== slug` — only the EN file's translationId can be
+// equality-checked, and even then the date refinement reads the file's
+// own date which equals the sibling's date by convention. To stay
+// build-time-safe without cross-file lookups we validate the *pattern*
+// here (catches malformed/typo'd values) and let
+// `tests/unit/bilingual-pairs.test.ts` enforce the cross-file pairing.
+const DATED_TRANSLATION_ID = /^[a-z0-9-]+-\d{4}-\d{2}-\d{2}$/;
+const SLUG_TRANSLATION_ID = /^[a-z0-9-]+$/;
+
 // Use the full relative path (minus extension) as the entry id so that
 // `pages/en/home.md` and `pages/es/home.md` don't collide on id "home".
 const pathId = ({ entry }: { entry: string }) => entry.replace(/\.md$/, '');
@@ -34,45 +51,52 @@ const pathId = ({ entry }: { entry: string }) => entry.replace(/\.md$/, '');
 const notes = defineCollection({
   loader: glob({ pattern: '**/*.md', base: './src/content/notes', generateId: pathId }),
   schema: ({ image }) =>
-    base.extend({
-      glyph: z.enum(['garden', 'code', 'guitar', 'coffee', 'none']).default('none'),
-      /** Manual override; if omitted, NoteEntry computes from `entry.body`. */
-      minutes: z.number().int().positive().optional(),
-      aside: z.string().optional(),
-      hero: image().optional(),
-      ogOverride: image().optional(),
-    }),
+    base
+      .extend({
+        /** Optional kind — selects a default decorative glyph from the
+         *  art registry (`src/lib/art-registry.ts`). Omit for no glyph
+         *  (was `glyph: 'none'` under the old enum). See ADR 0013. */
+        kind: z.enum(NOTE_KINDS).optional(),
+        /** Manual override; if omitted, NoteEntry computes from `entry.body`. */
+        minutes: z.number().int().positive().optional(),
+        aside: z.string().optional(),
+        hero: image().optional(),
+      })
+      .refine((d) => DATED_TRANSLATION_ID.test(d.translationId), {
+        message:
+          'translationId shape must be <kebab-case>-<YYYY-MM-DD>; cross-locale pairing is enforced by tests/unit/bilingual-pairs.test.ts',
+        path: ['translationId'],
+      }),
 });
 
 const works = defineCollection({
   loader: glob({ pattern: '**/*.md', base: './src/content/works', generateId: pathId }),
   schema: ({ image }) =>
-    base.extend({
-      repo: z.url().optional(),
-      specs: z.record(z.string(), z.string()).default({}),
-      /** Medium category — drives both the works-page filter buttons and
-       *  the *default* WorkCard art vignette when `art` is unset. */
-      kind: z.enum(['code', 'print', 'music', 'garden']).default('code'),
-      /** Specific art vignette for this work. When unset, WorkArt falls
-       *  back to the kind-default. Adding a new variant: extend this enum
-       *  and add a matching block in `src/components/WorkArt.astro`. */
-      art: z
-        .enum(['terminal', 'font-specimen', 'tray', 'capo', 'knob', 'waveform', 'garden-plot'])
-        .optional(),
-      /** Work lifecycle — distinct from `status` (publish-state). Renders as
-       *  a coloured dot + label in the WorkCard foot. */
-      lifecycle: z.enum(['shipping', 'ongoing', 'draft', 'archived']).default('shipping'),
-      /** Display number (e.g. "07") used in the card meta row. Keeps the
-       *  catalog flavour — "№ 07" reads like an entry in a hand-kept ledger. */
-      number: z.string().optional(),
-      hero: image().optional(),
-      ogOverride: image().optional(),
-    }),
+    base
+      .extend({
+        specs: z.record(z.string(), z.string()).default({}),
+        /** Medium category — drives both the works-page filter buttons and
+         *  the *default* WorkCard art vignette when `art` is unset. Subset
+         *  of the site-wide ContentKind taxonomy (see
+         *  `src/lib/content-kinds.ts`). */
+        kind: z.enum(WORK_KINDS).default('code'),
+        /** Work lifecycle — distinct from `status` (publish-state). Renders as
+         *  a coloured dot + label in the WorkCard foot. */
+        lifecycle: z.enum(['shipping', 'ongoing', 'draft', 'archived']).default('shipping'),
+        /** Display number (e.g. "07") used in the card meta row. Keeps the
+         *  catalog flavour — "№ 07" reads like an entry in a hand-kept ledger. */
+        number: z.string().optional(),
+        hero: image().optional(),
+      })
+      .refine((d) => SLUG_TRANSLATION_ID.test(d.translationId), {
+        message:
+          'translationId shape must be kebab-case with no date suffix; cross-locale pairing is enforced by tests/unit/bilingual-pairs.test.ts',
+        path: ['translationId'],
+      }),
 });
 
 // `pieces` (EN) · `ensayos` (ES) — long-form route. The collection
 // name follows the EN slug per ADR 0010. Schema extends `base` with:
-//   - `series` — optional grouping for multi-part pieces
 //   - `marginNotes` — array of section-anchored asides; pieces have
 //     N>1 by design (compared to notes' single optional `aside`).
 //     Each note's text is plain text, max 180 chars; if longer, the
@@ -85,80 +109,84 @@ const works = defineCollection({
 const pieces = defineCollection({
   loader: glob({ pattern: '**/*.md', base: './src/content/pieces', generateId: pathId }),
   schema: ({ image }) =>
-    base.extend({
-      series: z.string().optional(),
-      /** Manual reading-time override; if omitted, PieceEntry computes
-       *  from `entry.body`. Same convention as notes. */
-      minutes: z.number().int().positive().optional(),
-      /** Optional editorial "PLACE, in SEASON" suffix for the slug-page
-       *  meta line — rendered as `DATE · written in <written>`. Per ADR
-       *  0012, author-supplied; the layout omits the suffix gracefully
-       *  when absent. Localised per piece (EN: "Melbourne, in autumn";
-       *  ES: "Melbourne, en otoño"). */
-      written: z.string().optional(),
-      marginNotes: z
-        .array(
-          z.object({
-            section: z.string(),
-            text: z.string().max(180),
-            mark: z.string().max(2).optional(),
-          }),
-        )
-        .max(8)
-        .default([]),
-      // Diagram placements. Three rendering positions are supported:
-      //
-      //   `place: 'top'`     — between lede and prose (default; the
-      //                        establishing visual)
-      //   `place: 'bottom'`  — between prose and foot (detail/reference)
-      //   `after: '<slug>'`  — inline, immediately after a specific
-      //                        heading in the prose. The slug matches
-      //                        the heading's auto-generated anchor ID
-      //                        (Astro slugifies `## Why rings` to
-      //                        `why-rings`).
-      //
-      // The top/bottom split solves the "wall of SVG before any prose"
-      // failure mode for the average multi-diagram piece. `after` is
-      // the escape hatch for pieces that genuinely need a diagram
-      // interleaved between two specific paragraphs — kept off the
-      // hot path so the registry layer remains the simple case.
-      //
-      // `place` and `after` are mutually exclusive. Inline rendering
-      // (`after`) requires a rehype plugin that's NOT YET WIRED — the
-      // first piece that uses it ships the plugin alongside. Until
-      // then, an `after`-marked diagram throws at build time with a
-      // clear message rather than silently rendering in the wrong
-      // position. See `src/components/PieceEntry.astro` for the guard.
-      //
-      // i18n coupling: `after` references the slug of an Astro-
-      // generated heading anchor, which is derived from the heading
-      // TEXT. So the same conceptual diagram needs different `after`
-      // values per locale — the EN piece's `## Why rings` (slug
-      // `why-rings`) and the ES piece's `## Por qué los anillos`
-      // (slug `por-que-los-anillos`) reference the same diagram with
-      // different keys. Translation pairs must keep these in sync;
-      // there's no schema-level enforcement.
-      diagrams: z
-        .array(
-          z
-            .object({
-              key: z.string(),
-              place: z.enum(['top', 'bottom']).default('top'),
-              after: z
-                .string()
-                .regex(/^[a-z0-9-]+$/, 'after must be a kebab-case heading anchor slug')
-                .optional(),
-              caption: z.string().max(120).optional(),
-            })
-            .refine((d) => !(d.after !== undefined && d.place !== 'top'), {
-              message:
-                'diagram entries may set `place` OR `after`, not both — `after` implies inline placement',
+    base
+      .extend({
+        /** Manual reading-time override; if omitted, PieceEntry computes
+         *  from `entry.body`. Same convention as notes. */
+        minutes: z.number().int().positive().optional(),
+        /** Optional editorial "PLACE, in SEASON" suffix for the slug-page
+         *  meta line — rendered as `DATE · written in <written>`. Per ADR
+         *  0012, author-supplied; the layout omits the suffix gracefully
+         *  when absent. Localised per piece (EN: "Melbourne, in autumn";
+         *  ES: "Melbourne, en otoño"). */
+        written: z.string().optional(),
+        marginNotes: z
+          .array(
+            z.object({
+              section: z.string(),
+              text: z.string().max(180),
+              mark: z.string().max(2).optional(),
             }),
-        )
-        .default([]),
-      hero: image().optional(),
-      ogOverride: image().optional(),
-    }),
+          )
+          .max(8)
+          .default([]),
+        // Diagram placements. Three rendering positions are supported:
+        //
+        //   `place: 'top'`     — between lede and prose (default; the
+        //                        establishing visual)
+        //   `place: 'bottom'`  — between prose and foot (detail/reference)
+        //   `after: '<slug>'`  — inline, immediately after a specific
+        //                        heading in the prose. The slug matches
+        //                        the heading's auto-generated anchor ID
+        //                        (Astro slugifies `## Why rings` to
+        //                        `why-rings`).
+        //
+        // The top/bottom split solves the "wall of SVG before any prose"
+        // failure mode for the average multi-diagram piece. `after` is
+        // the escape hatch for pieces that genuinely need a diagram
+        // interleaved between two specific paragraphs — kept off the
+        // hot path so the registry layer remains the simple case.
+        //
+        // `place` and `after` are mutually exclusive. Inline rendering
+        // (`after`) requires a rehype plugin that's NOT YET WIRED — the
+        // first piece that uses it ships the plugin alongside. Until
+        // then, an `after`-marked diagram throws at build time with a
+        // clear message rather than silently rendering in the wrong
+        // position. See `src/components/PieceEntry.astro` for the guard.
+        //
+        // i18n coupling: `after` references the slug of an Astro-
+        // generated heading anchor, which is derived from the heading
+        // TEXT. So the same conceptual diagram needs different `after`
+        // values per locale — the EN piece's `## Why rings` (slug
+        // `why-rings`) and the ES piece's `## Por qué los anillos`
+        // (slug `por-que-los-anillos`) reference the same diagram with
+        // different keys. Translation pairs must keep these in sync;
+        // there's no schema-level enforcement.
+        diagrams: z
+          .array(
+            z
+              .object({
+                key: z.string(),
+                place: z.enum(['top', 'bottom']).default('top'),
+                after: z
+                  .string()
+                  .regex(/^[a-z0-9-]+$/, 'after must be a kebab-case heading anchor slug')
+                  .optional(),
+                caption: z.string().max(120).optional(),
+              })
+              .refine((d) => !(d.after !== undefined && d.place !== 'top'), {
+                message:
+                  'diagram entries may set `place` OR `after`, not both — `after` implies inline placement',
+              }),
+          )
+          .default([]),
+        hero: image().optional(),
+      })
+      .refine((d) => DATED_TRANSLATION_ID.test(d.translationId), {
+        message:
+          'translationId shape must be <kebab-case>-<YYYY-MM-DD>; cross-locale pairing is enforced by tests/unit/bilingual-pairs.test.ts',
+        path: ['translationId'],
+      }),
 });
 
 // `pages` collection: one Zod variant per known page slug, joined
@@ -169,6 +197,12 @@ const pieces = defineCollection({
 // and how the home / about / colophon pages get a guarantee that
 // `items` ISN'T present (a stray `items:` accidentally added to
 // home.md fails Zod validation, loudly, at build time).
+//
+// No `translationId` refinement on pages by design: pages are a
+// fixed closed set (PAGE_SLUGS in `lib/routes.ts`) and use the
+// slug as the id verbatim (`home`, `about`, …). The page-slugs
+// drift test enforces existence in both locales; a format check
+// would be redundant.
 //
 // Adding a new page (e.g. /pieces) when the route gets its own
 // pages-collection entry: append the slug to `PAGE_SLUGS` in `lib/routes.ts`,
@@ -182,7 +216,6 @@ const pages = defineCollection({
   schema: ({ image }) => {
     const common = {
       hero: image().optional(),
-      ogOverride: image().optional(),
     };
     return z.discriminatedUnion('slug', [
       base.extend({

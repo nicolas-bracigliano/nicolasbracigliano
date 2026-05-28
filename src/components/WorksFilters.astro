@@ -9,30 +9,36 @@ export interface Props {
 
 const { entries, locale } = Astro.props;
 
-const KINDS = ['code', 'print', 'music', 'garden'] as const;
-type Kind = (typeof KINDS)[number];
+import { WORK_KINDS, type WorkKind } from '@lib/content-kinds';
 
-const counts: Record<Kind | 'all', number> = {
+const counts: Record<WorkKind | 'all', number> = {
   all: entries.length,
   code: 0,
   print: 0,
-  music: 0,
+  guitar: 0,
   garden: 0,
 };
 for (const e of entries) counts[e.data.kind] += 1;
 
+// Filter labels are user-facing copy, intentionally decoupled from the
+// internal kind taxonomy: `kind: 'guitar'` is the schema's stable id
+// (aligned with bench/now), but the chip reads "music" because the
+// works page is about the medium, not the instrument.
 const labels = {
-  en: { all: 'everything', code: 'code', print: '3D prints', music: 'music', garden: 'garden' },
-  es: { all: 'todo', code: 'código', print: 'impresiones 3D', music: 'música', garden: 'huerta' },
+  en: { all: 'everything', code: 'code', print: '3D prints', guitar: 'music', garden: 'garden' },
+  es: {
+    all: 'todo',
+    code: 'código',
+    print: 'impresiones 3D',
+    guitar: 'música',
+    garden: 'huerta',
+  },
 } as const;
 
 const t = labels[locale];
-const buttons = [
-  { key: 'all' as const, label: t.all },
-  { key: 'code' as const, label: t.code },
-  { key: 'print' as const, label: t.print },
-  { key: 'music' as const, label: t.music },
-  { key: 'garden' as const, label: t.garden },
+const buttons: { key: WorkKind | 'all'; label: string }[] = [
+  { key: 'all', label: t.all },
+  ...WORK_KINDS.map((k) => ({ key: k, label: t[k] })),
 ];
 
 const ariaLabel = locale === 'es' ? 'Filtros' : 'Filters';

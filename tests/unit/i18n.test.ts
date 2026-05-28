@@ -26,7 +26,7 @@ type Status = 'draft' | 'published' | 'retired';
 function note(opts: {
   lang: Lang;
   slug: string;
-  translationKey: string;
+  translationId: string;
   status?: Status;
 }): AnyEntry {
   return {
@@ -36,16 +36,15 @@ function note(opts: {
       title: opts.slug,
       slug: opts.slug,
       lang: opts.lang,
-      translationKey: opts.translationKey,
+      translationId: opts.translationId,
       date: new Date('2026-05-21'),
       status: opts.status ?? 'published',
       tags: [],
-      glyph: 'none',
     },
   } as unknown as AnyEntry;
 }
 
-function work(opts: { lang: Lang; slug: string; translationKey: string }): AnyEntry {
+function work(opts: { lang: Lang; slug: string; translationId: string }): AnyEntry {
   return {
     id: `${opts.lang}/${opts.slug}`,
     collection: 'works',
@@ -53,7 +52,7 @@ function work(opts: { lang: Lang; slug: string; translationKey: string }): AnyEn
       title: opts.slug,
       slug: opts.slug,
       lang: opts.lang,
-      translationKey: opts.translationKey,
+      translationId: opts.translationId,
       date: new Date('2026-05-21'),
       status: 'published',
       tags: [],
@@ -70,7 +69,7 @@ function page(opts: { lang: Lang; slug: string }): AnyEntry {
       title: opts.slug,
       slug: opts.slug,
       lang: opts.lang,
-      translationKey: opts.slug,
+      translationId: opts.slug,
       date: new Date('2026-05-21'),
       status: 'published',
       tags: [],
@@ -80,16 +79,16 @@ function page(opts: { lang: Lang; slug: string }): AnyEntry {
 
 describe('entryRouteFor', () => {
   it('builds the per-collection route with localized segments', () => {
-    expect(entryRouteFor(note({ lang: 'en', slug: 'hello', translationKey: 'k' }))).toBe(
+    expect(entryRouteFor(note({ lang: 'en', slug: 'hello', translationId: 'k' }))).toBe(
       '/en/notes/hello/',
     );
-    expect(entryRouteFor(note({ lang: 'es', slug: 'hola', translationKey: 'k' }))).toBe(
+    expect(entryRouteFor(note({ lang: 'es', slug: 'hola', translationId: 'k' }))).toBe(
       '/es/notas/hola/',
     );
-    expect(entryRouteFor(work({ lang: 'en', slug: 'this-site', translationKey: 'k' }))).toBe(
+    expect(entryRouteFor(work({ lang: 'en', slug: 'this-site', translationId: 'k' }))).toBe(
       '/en/works/this-site/',
     );
-    expect(entryRouteFor(work({ lang: 'es', slug: 'este-sitio', translationKey: 'k' }))).toBe(
+    expect(entryRouteFor(work({ lang: 'es', slug: 'este-sitio', translationId: 'k' }))).toBe(
       '/es/obras/este-sitio/',
     );
   });
@@ -111,10 +110,10 @@ describe('entryRouteFor', () => {
 });
 
 describe('findSiblingIn', () => {
-  const helloEn = note({ lang: 'en', slug: 'hello', translationKey: 'k1' });
-  const holaEs = note({ lang: 'es', slug: 'hola', translationKey: 'k1' });
-  const onlyEn = note({ lang: 'en', slug: 'orphan', translationKey: 'k2' });
-  const draftEs = note({ lang: 'es', slug: 'borrador', translationKey: 'k1', status: 'draft' });
+  const helloEn = note({ lang: 'en', slug: 'hello', translationId: 'k1' });
+  const holaEs = note({ lang: 'es', slug: 'hola', translationId: 'k1' });
+  const onlyEn = note({ lang: 'en', slug: 'orphan', translationId: 'k2' });
+  const draftEs = note({ lang: 'es', slug: 'borrador', translationId: 'k1', status: 'draft' });
 
   it('returns the published sibling in the other locale', () => {
     expect(findSiblingIn(helloEn, [helloEn, holaEs])).toBe(holaEs);
@@ -129,9 +128,9 @@ describe('findSiblingIn', () => {
     expect(findSiblingIn(helloEn, [helloEn, draftEs])).toBe(null);
   });
 
-  it('only matches entries with the same translationKey', () => {
+  it('only matches entries with the same translationId', () => {
     expect(
-      findSiblingIn(helloEn, [helloEn, note({ lang: 'es', slug: 'otro', translationKey: 'kX' })]),
+      findSiblingIn(helloEn, [helloEn, note({ lang: 'es', slug: 'otro', translationId: 'kX' })]),
     ).toBe(null);
   });
 });

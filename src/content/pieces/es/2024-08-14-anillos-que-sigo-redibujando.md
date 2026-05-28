@@ -2,7 +2,7 @@
 title: 'Los anillos que sigo redibujando'
 slug: 'anillos-que-sigo-redibujando'
 lang: es
-translationKey: clean-architecture-2024-08-14
+translationId: clean-architecture-2024-08-14
 date: 2024-08-14
 written: 'Melbourne, en invierno'
 status: published

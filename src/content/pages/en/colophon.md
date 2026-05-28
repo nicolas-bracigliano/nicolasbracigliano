@@ -2,7 +2,7 @@
 title: 'Colophon'
 slug: 'colophon'
 lang: en
-translationKey: colophon
+translationId: colophon
 date: 2026-05-21
 status: published
 lede: 'What this site is made of — stack, fonts, hosting, workflow, principles.'
@@ -13,5 +13,5 @@ lede: 'What this site is made of — stack, fonts, hosting, workflow, principles
   `src/pages/en/colophon/index.astro` (the Typewriter credits roll
   treatment), so any text written here would never reach the rendered
   page. This frontmatter exists only so `getSibling()` can resolve the
-  /es/colofón/ sibling via the `translationKey` field.
+  /es/colofón/ sibling via the `translationId` field.
 -->

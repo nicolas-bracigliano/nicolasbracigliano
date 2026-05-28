@@ -2,12 +2,11 @@
 title: 'This site'
 slug: 'this-site'
 lang: en
-translationKey: this-site
+translationId: this-site
 date: 2026-05-21
 status: published
 tags: [code]
 kind: code
-art: font-specimen
 lifecycle: ongoing
 number: '07'
 lede: 'The colophon you are reading.'

@@ -2,7 +2,7 @@
 title: 'Dónde se traba lo ágil'
 slug: 'donde-se-traba-lo-agil'
 lang: es
-translationKey: agile-stuck-2023-06-18
+translationId: agile-stuck-2023-06-18
 date: 2023-06-18
 written: 'Melbourne, en otoño'
 status: published

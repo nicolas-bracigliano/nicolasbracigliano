@@ -14,7 +14,7 @@ The codebase is the colophon. Every consequential choice — strict `script-src 
 
 - **Cloudflare Workers Static Assets, one tiny Worker.** [`src/worker.ts`](./src/worker.ts) handles exactly one dynamic concern, an `Accept-Language` redirect at `/`, and delegates everything else to the asset binding. `run_worker_first = true` in [`wrangler.toml`](./wrangler.toml) keeps the redirect alive past Cloudflare's `not_found_handling = "404-page"` short-circuit (a real bug the test suite now catches; the [ADR 0001 postscript](./docs/decisions/0001-cloudflare-pages.md) tells the migration story).
 
-- **Bilingual mirrored routes.** Every page exists at `/en/<slug>` and `/es/<slug>` with localised URL segments (`/en/notes/` ↔ `/es/notas/`, `/en/works/` ↔ `/es/obras/`, `/en/colophon/` ↔ `/es/colofón/`). [`src/lib/routes.ts`](./src/lib/routes.ts) is the single source of truth, [ADR 0003](./docs/decisions/0003-mirrored-bilingual-routes.md) is the rationale, and a vitest drift detector enforces that the CI smoke list stays in sync with `ROUTES`.
+- **Bilingual mirrored routes.** Every page exists at `/en/<slug>` and `/es/<slug>` with localised URL segments (`/en/notes/` ↔ `/es/notas/`, `/en/works/` ↔ `/es/obras/`, `/en/colophon/` ↔ `/es/colofón/`). [`src/lib/routes.ts`](./src/lib/routes.ts) is the single source of truth, [ADR 0003](./docs/decisions/0003-mirrored-bilingual-routes.md) is the rationale, and the post-deploy CI smoke script ([`scripts/smoke-routes.ts`](./scripts/smoke-routes.ts)) derives its route list from `ROUTES` + published content frontmatter at runtime — adding a route is one edit, not two.
 
 - **TypeScript strict, the real flags.** All four "the ones that actually catch bugs" flags are on: `exactOptionalPropertyTypes`, `noUnusedLocals`, `noUnusedParameters`, `noImplicitReturns`. [ADR 0007](./docs/decisions/0007-tsconfig-strictness-flipped.md) documents the post-bootstrap flip.
 
@@ -76,12 +76,17 @@ pnpm install
 
 pnpm dev          # astro dev on :4321
 pnpm dev:fn       # astro build + wrangler dev — exercises the / redirect via the real Worker runtime
+pnpm new          # interactive scaffold for a new note / piece / work / now-item (see Authoring content)
 pnpm verify:fast  # typecheck + lint + format:check + vitest                (~5 s)
 pnpm verify:slow  # build + html-validate + playwright + lhci               (~80 s)
 pnpm verify       # both
 ```
 
 `pnpm verify` runs the same gates as CI. If it's green locally, every required CI check will pass.
+
+### Authoring content
+
+`pnpm new` prompts you through the four bilingual content shapes — `note`, `piece` (ensayo), `work` (obra), and replacing one of the six `now`-page items. It writes both EN + ES files with `status: draft` and a `_Draft._` placeholder body; the writer fills in the real content and flips `status:` when ready. The scaffold reuses the same enums and schemas as the build, so a scaffolded entry passes `astro check` on first save. See [`docs/design-system.md`](./docs/design-system.md) §7 (notes) and §7a (pieces) for the writing recipes; [ADR 0013](./docs/decisions/0013-per-entry-art.md) for the per-entry `hero:` art contract.
 
 ### Drafts
 

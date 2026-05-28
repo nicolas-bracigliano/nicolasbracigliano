@@ -145,11 +145,15 @@ versions upload --preview-alias=preview`. Both emit a
   `deployment-url` step output that `environment.url` picks up
   and that the smoke-test job verifies.
 - Three smoke checks run after every successful deploy:
-  - **Routes**: ten paths hit with `curl`, status codes checked
-    (302 for `/`, 200 for `/en/`, `/es/`, route indexes, route
-    entries; 404 for a deliberately bogus path). The hardcoded
-    path list lives in the workflow file; update it alongside
-    `src/lib/routes.ts` when adding a new route.
+  - **Routes**: every path in `src/lib/routes.ts` plus every
+    published entry under `src/content/{notes,pieces,works}/` is
+    hit with `fetch`, status codes checked (302 for `/`, 200 for
+    everything else; 404 for a deliberately bogus path). The
+    route list is derived at runtime by `scripts/smoke-routes.ts`
+    so it tracks `routes.ts` and content additions without a
+    parallel hardcoded list. Retry-on-4xx (six attempts × 3 s)
+    handles the post-deploy asset-propagation window per the
+    CLAUDE.md gotcha.
   - **Body content**: `/en/` response must contain `<title>` and
     the wordmark string `Bracigliano`. Catches an Astro build
     that silently emitted empty pages.

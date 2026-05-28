@@ -2,7 +2,7 @@
 title: 'C4, four times in a row'
 slug: 'c4-four-times-in-a-row'
 lang: en
-translationKey: c4-diagrams-2024-08-01
+translationId: c4-diagrams-2024-08-01
 date: 2024-08-01
 written: 'in Melbourne, in winter'
 status: published
