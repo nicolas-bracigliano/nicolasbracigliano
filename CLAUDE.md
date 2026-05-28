@@ -23,5 +23,4 @@ These rules are reflective, not enforced by CI. The judgement stays with the wri
 ## Gotchas (hit these, save the next session the cycles)
 
 - **Editing `src/lib/remark-inject-margin-notes.ts` needs a cache clear.** Astro caches markdown processing in `node_modules/.astro` + `.astro`; plugin edits won't show in `pnpm dev` or `pnpm build` until you `rm -rf node_modules/.astro .astro` first.
-- **gitleaks flags slug-like example strings.** An example `translationKey` of the form `word-word-YYYY-MM-DD` in docs trips the `generic-api-key` rule (high entropy + dated pattern) and blocks the commit. Keep example slugs low-entropy and date-free (`your-piece-slug`). (This very bullet tripped it the first time — meta, but real.)
 - **The post-deploy CI smoke retries 4xx on purpose.** Cloudflare Workers Static Assets has a brief propagation window where a just-deployed URL 404s while siblings serve. `curl --retry` doesn't retry 4xx, so the smoke step uses an explicit bash retry loop. Don't "simplify" it back to `--retry`.

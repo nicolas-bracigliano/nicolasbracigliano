@@ -2,7 +2,7 @@
 title: 'Where agile keeps getting stuck'
 slug: 'where-agile-gets-stuck'
 lang: en
-translationKey: agile-stuck-2023-06-18
+translationId: agile-stuck-2023-06-18
 date: 2023-06-18
 written: 'in Melbourne, in autumn'
 status: published

@@ -2,7 +2,7 @@
 title: 'C4, cuatro veces seguidas'
 slug: 'c4-cuatro-veces-seguidas'
 lang: es
-translationKey: c4-diagrams-2024-08-01
+translationId: c4-diagrams-2024-08-01
 date: 2024-08-01
 written: 'Melbourne, en invierno'
 status: published

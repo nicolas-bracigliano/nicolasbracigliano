@@ -2,7 +2,7 @@
 title: 'Catch-all tray'
 slug: 'catch-all-tray'
 lang: en
-translationKey: catch-all-tray
+translationId: catch-all-tray
 date: 2026-04-12
 status: published
 tags: [print, desk]

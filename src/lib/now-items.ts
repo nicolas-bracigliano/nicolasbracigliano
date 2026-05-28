@@ -16,20 +16,18 @@
 // layer.
 
 import { z } from 'astro/zod';
+import { NOW_KINDS, type NowKind } from './content-kinds';
 
 /** The six bench kinds. Each value drives both the route's CSS
  *  modifier (`.now-{kind}` for the per-kind colour tint) and the
  *  Spanish/English copy that surrounds the item. Order is the
  *  display order on the /now page.
  *
- *  Exported as a const tuple (not just a type) so runtime
- *  consumers can iterate the kinds — the test suite uses it to
- *  assert that each kind appears exactly once per locale, and a
- *  future kind-picker UI could reuse it without redeclaring the
- *  list. The `NowItemKind` union below is `(typeof
- *  nowItemKinds)[number]`, so type and value always agree. */
-export const nowItemKinds = ['code', 'guitar', 'garden', 'print', 'coffee', 'read'] as const;
-export type NowItemKind = (typeof nowItemKinds)[number];
+ *  Re-exported from `./content-kinds` (the site-wide source of truth)
+ *  under the legacy names so existing consumers — the schema, the
+ *  test suite, NowItem.astro — keep working unchanged. */
+export const nowItemKinds = NOW_KINDS;
+export type NowItemKind = NowKind;
 
 /** One row of an item's detail `<dl>`. `dt` is the term label,
  *  `dd` the description. Names mirror the rendered HTML so the

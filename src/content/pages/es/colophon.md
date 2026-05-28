@@ -2,7 +2,7 @@
 title: 'Colofón'
 slug: 'colophon'
 lang: es
-translationKey: colophon
+translationId: colophon
 date: 2026-05-21
 status: published
 lede: 'De qué está hecho este sitio — pila, tipos, hospedaje, flujo, principios.'
@@ -14,5 +14,5 @@ lede: 'De qué está hecho este sitio — pila, tipos, hospedaje, flujo, princip
   de máquina de escribir"), así que cualquier texto aquí nunca llegaría
   a la página renderizada. Este frontmatter existe solo para que
   `getSibling()` pueda resolver el hermano /en/colophon/ por
-  `translationKey`.
+  `translationId`.
 -->

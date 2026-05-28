@@ -2,7 +2,7 @@
 title: 'Mapa de huerta · primavera'
 slug: 'huerta-primavera'
 lang: es
-translationKey: huerta-spring
+translationId: huerta-spring
 date: 2026-09-22
 status: published
 tags: [garden]

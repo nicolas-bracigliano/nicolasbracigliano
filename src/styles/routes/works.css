@@ -211,7 +211,7 @@
     background: color-mix(in oklab, var(--ink-blue) 8%, var(--bg-2));
     color: var(--ink-blue);
   }
-  .work-art--music {
+  .work-art--guitar {
     background: color-mix(in oklab, var(--accent) 14%, var(--bg-2));
     color: var(--accent-aa);
   }

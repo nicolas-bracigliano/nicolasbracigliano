@@ -2,7 +2,7 @@
 title: 'The right hand is the song'
 slug: 'right-hand-is-the-song'
 lang: en
-translationKey: right-hand-is-the-song-2026-05-09
+translationId: right-hand-is-the-song-2026-05-09
 date: 2026-05-09
 status: published
 tags: [guitar]

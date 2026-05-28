@@ -3,7 +3,7 @@
 //
 //   1. `kind` carries the colour theme via the wrapper class
 //      `.work-art--${kind}` (terminal-bg + terminal-fg for code,
-//      accent tint for music, mate tint for garden, ink-blue for print).
+//      accent tint for guitar, mate tint for garden, ink-blue for print).
 //   2. `art` (optional) picks which inner SVG/`<pre>` renders. If unset,
 //      we fall back to the kind-default — every code work shows
 //      `terminal`, every print shows `tray`, etc. To give a work its own
@@ -15,7 +15,7 @@
 // block below. The kind→default map only needs updating if the new
 // variant is intended to be a kind's *default*.
 
-export type WorkKind = 'code' | 'print' | 'music' | 'garden';
+export type WorkKind = 'code' | 'print' | 'guitar' | 'garden';
 
 // prettier-ignore — keep this on one line. Astro's esbuild loader (as
 // of 0.27.x) refuses to parse the multi-line `| 'foo' | 'bar'` shape
@@ -34,7 +34,7 @@ const { kind, art } = Astro.props;
 const DEFAULT_ART_FOR_KIND: Record<WorkKind, WorkArtVariant> = {
   code: 'terminal',
   print: 'tray',
-  music: 'waveform',
+  guitar: 'waveform',
   garden: 'garden-plot',
 };
 const variant: WorkArtVariant = art ?? DEFAULT_ART_FOR_KIND[kind];

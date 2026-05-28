@@ -208,7 +208,7 @@ The mirror of §7, for long-form. Pieces are arguments — slower, polished, str
    title: 'Piece title with optional _italic_ on the second clause'
    slug: 'short-slug'
    lang: en
-   translationKey: your-piece-slug
+   translationId: your-piece-slug
    date: 2026-05-01
    written: 'Melbourne, AU'
    status: draft
