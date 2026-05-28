@@ -378,6 +378,10 @@
     background: color-mix(in oklab, var(--ink-blue) 12%, var(--bg-2));
     color: var(--ink-blue);
   }
+  .bench-card--home .bench-card-art {
+    background: color-mix(in oklab, var(--accent) 8%, var(--bg-2));
+    color: var(--accent);
+  }
 
   /* Terminal vignette */
   .terminal-vig {
