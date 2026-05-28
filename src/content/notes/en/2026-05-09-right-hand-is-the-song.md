@@ -4,7 +4,7 @@ slug: 'right-hand-is-the-song'
 lang: en
 translationKey: right-hand-is-the-song-2026-05-09
 date: 2026-05-09
-status: published
+status: draft
 tags: [guitar]
 glyph: guitar
 aside: 'looped at 62 bpm for ~30 min. tomorrow: 68.'
