@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.12.0](https://github.com/nicolas-bracigliano/nicolasbracigliano/compare/v1.11.2...v1.12.0) (2026-05-28)
+
+
+### Features
+
+* **content:** per-entry SVG art via hero, drop art and glyph enums ([#90](https://github.com/nicolas-bracigliano/nicolasbracigliano/issues/90)) ([baf60b8](https://github.com/nicolas-bracigliano/nicolasbracigliano/commit/baf60b8cc11efcaf52f9b118af22c1ce26ee94e9))
+
 ## [1.11.2](https://github.com/nicolas-bracigliano/nicolasbracigliano/compare/v1.11.1...v1.11.2) (2026-05-28)
 
 
