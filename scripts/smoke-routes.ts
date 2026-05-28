@@ -23,58 +23,49 @@
 import { readdir, readFile } from 'node:fs/promises';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { parse as parseYaml } from 'yaml';
+// Relative path with explicit `.ts` extension is required: Node 24's
+// TS-strip loader doesn't honour tsconfig path aliases (no resolver
+// plugin in stock Node). Don't "fix" this back to `@lib/routes` — it
+// will break CI.
 import { ROUTES } from '../src/lib/routes.ts';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = join(__dirname, '..');
 const CONTENT_ROOT = join(REPO_ROOT, 'src', 'content');
 
-const MAX_ATTEMPTS = 6;
-const DELAY_MS = 3000;
+const ROUTE_RETRY_ATTEMPTS = 6;
+const ROUTE_RETRY_DELAY_MS = 3000;
+// Body-sanity uses a smaller budget (3× × 2 s) than route checks
+// (6× × 3 s) on purpose: route retries exist for Workers Static
+// Assets' per-asset propagation window (a just-uploaded URL may
+// 404 while siblings 200). Body sanity tests Astro build
+// correctness against a known-good route (/en/) — if that route
+// returned 200 in the route phase, the build is fine and 3 quick
+// retries is plenty to cover transient network blips.
+const BODY_RETRY_ATTEMPTS = 3;
+const BODY_RETRY_DELAY_MS = 2000;
 
-interface SmokeTarget {
+export type ContentCollection = 'notes' | 'pieces' | 'works';
+export type Locale = 'en' | 'es';
+
+export interface ContentEntry {
+  collection: ContentCollection;
+  slug: string;
+  lang: Locale;
+  status: string;
+}
+
+export interface SmokeTarget {
   path: string;
   expected: number;
 }
 
-/** Parse the YAML frontmatter block of a markdown file just well
- *  enough to read `slug`, `lang`, and `status`. The full Astro Zod
- *  validator runs at build time; here we just need the values to
- *  build a URL, so a regex line-parser is enough and avoids pulling
- *  in `yaml` as a runtime dep for the script. */
-function parseFrontmatter(text: string): Record<string, string> {
-  const match = text.match(/^---\n([\s\S]*?)\n---/);
-  if (!match || !match[1]) return {};
-  const out: Record<string, string> = {};
-  for (const line of match[1].split('\n')) {
-    const m = line.match(/^([a-zA-Z_]+):\s*['"]?([^'"#\n]+?)['"]?\s*(?:#.*)?$/);
-    if (m && m[1] && m[2]) out[m[1]] = m[2].trim();
-  }
-  return out;
-}
-
-async function listMarkdown(dir: string): Promise<string[]> {
-  try {
-    const entries = await readdir(dir, { withFileTypes: true });
-    const out: string[] = [];
-    for (const e of entries) {
-      if (e.isFile() && e.name.endsWith('.md')) out.push(join(dir, e.name));
-      else if (e.isDirectory()) {
-        // Support the directory-shaped entry layout (`<slug>/index.md`).
-        const inner = join(dir, e.name);
-        const innerEntries = await readdir(inner).catch(() => []);
-        for (const f of innerEntries) {
-          if (f.endsWith('.md')) out.push(join(inner, f));
-        }
-      }
-    }
-    return out;
-  } catch {
-    return [];
-  }
-}
-
-async function buildTargetList(): Promise<SmokeTarget[]> {
+/** Pure: given a list of discovered entries, build the full sorted
+ *  smoke-target list. Static routes from `ROUTES`, then published
+ *  content slugs, then a deliberate-404 sentinel appended last so
+ *  the CI log reads top-down. No fs, no fetch — unit-testable. */
+export function buildTargets(entries: readonly ContentEntry[]): SmokeTarget[] {
   const targets: SmokeTarget[] = [];
 
   // Worker-handled root redirect (Accept-Language based).
@@ -86,29 +77,17 @@ async function buildTargetList(): Promise<SmokeTarget[]> {
     targets.push({ path: pair.es, expected: 200 });
   }
 
-  // Published content slugs for the three content collections.
-  const collections = [
-    { key: 'notes', route: ROUTES.notes },
-    { key: 'pieces', route: ROUTES.pieces },
-    { key: 'works', route: ROUTES.works },
-  ] as const;
-
-  for (const { key, route } of collections) {
-    for (const locale of ['en', 'es'] as const) {
-      const dir = join(CONTENT_ROOT, key, locale);
-      const files = await listMarkdown(dir);
-      for (const file of files) {
-        const fm = parseFrontmatter(await readFile(file, 'utf-8'));
-        if (fm['status'] !== 'published') continue;
-        const slug = fm['slug'];
-        if (!slug) continue;
-        targets.push({ path: `${route[locale]}${slug}/`, expected: 200 });
-      }
-    }
+  // Published content slugs.
+  for (const entry of entries) {
+    if (entry.status !== 'published') continue;
+    targets.push({
+      path: `${ROUTES[entry.collection][entry.lang]}${entry.slug}/`,
+      expected: 200,
+    });
   }
 
   // Sort lexicographically so CI logs read in the same order every
-  // run — adding a new entry shows up as a clean one-line diff.
+  // run — adding an entry shows up as a clean one-line diff.
   targets.sort((a, b) => a.path.localeCompare(b.path));
 
   // Deliberate 404 fallback: confirms `not_found_handling = "404-page"`
@@ -117,6 +96,55 @@ async function buildTargetList(): Promise<SmokeTarget[]> {
   targets.push({ path: '/this-path-does-not-exist-12345/', expected: 404 });
 
   return targets;
+}
+
+/** Walk the content directory and return parsed frontmatter for
+ *  every markdown file under `<collection>/{en,es}/`. Supports both
+ *  flat (`<slug>.md`) and directory-shaped (`<slug>/index.md`)
+ *  entry layouts; Astro's content loader handles both, so the smoke
+ *  script does too. */
+export async function discoverEntries(contentRoot: string): Promise<ContentEntry[]> {
+  const out: ContentEntry[] = [];
+  const collections: ContentCollection[] = ['notes', 'pieces', 'works'];
+
+  for (const collection of collections) {
+    for (const lang of ['en', 'es'] as const) {
+      const localeDir = join(contentRoot, collection, lang);
+      const files = await listMarkdown(localeDir);
+      for (const file of files) {
+        const text = await readFile(file, 'utf-8');
+        const fmMatch = text.match(/^---\n([\s\S]*?)\n---/);
+        if (!fmMatch || !fmMatch[1]) continue;
+        const data = parseYaml(fmMatch[1]) as { slug?: string; status?: string };
+        if (typeof data.slug !== 'string' || typeof data.status !== 'string') continue;
+        out.push({ collection, lang, slug: data.slug, status: data.status });
+      }
+    }
+  }
+
+  return out;
+}
+
+async function listMarkdown(dir: string): Promise<string[]> {
+  try {
+    const entries = await readdir(dir, { withFileTypes: true });
+    const out: string[] = [];
+    for (const e of entries) {
+      if (e.isFile() && e.name.endsWith('.md')) {
+        out.push(join(dir, e.name));
+      } else if (e.isDirectory()) {
+        // Directory-shaped entry: <slug>/index.md beside the slug's assets.
+        const inner = join(dir, e.name);
+        const innerEntries = await readdir(inner).catch(() => []);
+        for (const f of innerEntries) {
+          if (f.endsWith('.md')) out.push(join(inner, f));
+        }
+      }
+    }
+    return out;
+  } catch {
+    return [];
+  }
 }
 
 async function fetchStatus(url: string): Promise<number | null> {
@@ -133,17 +161,17 @@ async function fetchStatus(url: string): Promise<number | null> {
 
 async function checkOne(baseUrl: string, target: SmokeTarget): Promise<boolean> {
   const url = `${baseUrl}${target.path}`;
-  for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
+  for (let attempt = 1; attempt <= ROUTE_RETRY_ATTEMPTS; attempt++) {
     const got = await fetchStatus(url);
     if (got === target.expected) {
       console.log(`  ${target.path} → ${got} ✓`);
       return true;
     }
-    if (attempt < MAX_ATTEMPTS) {
-      await new Promise((r) => setTimeout(r, DELAY_MS));
+    if (attempt < ROUTE_RETRY_ATTEMPTS) {
+      await new Promise((r) => setTimeout(r, ROUTE_RETRY_DELAY_MS));
     } else {
       console.error(
-        `::error::${target.path} expected ${target.expected}, got ${got ?? 'network-error'} (after ${MAX_ATTEMPTS} attempts)`,
+        `::error::${target.path} expected ${target.expected}, got ${got ?? 'network-error'} (after ${ROUTE_RETRY_ATTEMPTS} attempts)`,
       );
     }
   }
@@ -156,7 +184,7 @@ async function bodySanity(baseUrl: string): Promise<boolean> {
   // (the <title> tag + the site wordmark from the chrome).
   const url = `${baseUrl}/en/`;
   let lastErr = '';
-  for (let attempt = 1; attempt <= 3; attempt++) {
+  for (let attempt = 1; attempt <= BODY_RETRY_ATTEMPTS; attempt++) {
     try {
       const res = await fetch(url, { signal: AbortSignal.timeout(15_000) });
       if (res.ok) {
@@ -175,7 +203,7 @@ async function bodySanity(baseUrl: string): Promise<boolean> {
     } catch (e) {
       lastErr = `/en/ fetch failed: ${(e as Error).message}`;
     }
-    if (attempt < 3) await new Promise((r) => setTimeout(r, 2000));
+    if (attempt < BODY_RETRY_ATTEMPTS) await new Promise((r) => setTimeout(r, BODY_RETRY_DELAY_MS));
   }
   console.error(`::error::${lastErr}`);
   return false;
@@ -189,7 +217,8 @@ async function main(): Promise<number> {
   }
   const normalised = baseUrl.replace(/\/$/, '');
 
-  const targets = await buildTargetList();
+  const entries = await discoverEntries(CONTENT_ROOT);
+  const targets = buildTargets(entries);
   console.log(`Smoke-testing ${normalised} (${targets.length} routes)`);
 
   let failures = 0;
@@ -209,5 +238,8 @@ async function main(): Promise<number> {
   return 0;
 }
 
-const code = await main();
-process.exit(code);
+// Run as CLI only when invoked directly (not when imported by tests).
+if (import.meta.url === `file://${process.argv[1]}`) {
+  const code = await main();
+  process.exit(code);
+}
