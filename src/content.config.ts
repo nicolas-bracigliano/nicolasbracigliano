@@ -19,13 +19,9 @@ const base = z.object({
   title: z.string().min(1).max(80),
   slug: z.string().regex(/^[a-z0-9-]+$/),
   lang: z.enum(['en', 'es']),
-  // Stable identifier pairing locale siblings. Named `translationId`
-  // (not `translationKey`) so its literal name doesn't trip gitleaks'
-  // `generic-api-key` rule — the field is an ID, not a secret. See
-  // `docs/decisions/0003-mirrored-bilingual-routes.md` for the
-  // sibling-pairing contract. Format is refined per collection:
-  // notes & pieces use `<slug>-<YYYY-MM-DD>`; works use `<slug>` alone
-  // (works are long-lived and the slug is the stable identity).
+  // Stable identifier pairing locale siblings (see ADR 0003). Format
+  // is refined per collection below: notes & pieces use
+  // `<slug>-<YYYY-MM-DD>`; works use `<slug>` alone.
   translationId: z.string(),
   date: z.coerce.date(),
   updated: z.coerce.date().optional(),
