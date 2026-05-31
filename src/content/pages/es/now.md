@@ -68,6 +68,20 @@ items:
     teaser:
       label: '3d'
       line: 'Imanes en las esquinas; el hueco para el tamper de espresso por fin entra. Cinco iteraciones después.'
+  - kind: home
+    where: 'en la pared · casa'
+    title: 'Piedra & Madera'
+    prose: 'La mesa de la TV no es el mueble adecuado para una chiquita que trepa. La solución no es cambiar la mesa; es decidir que la pantalla forma parte de la pared, no algo apoyado en un mueble. Una carcasa de nogal anclada a la estructura de la pared, con el panel de 75″ encastrado adentro en lugar de apoyado encima.'
+    detail:
+      - dt: 'madera'
+        dd: 'nogal'
+      - dt: 'piedra'
+        dd: 'tbd'
+      - dt: 'medidas'
+        dd: '3 × 2.7 × 0.46 m'
+    teaser:
+      label: 'casa'
+      line: 'Carcasa de madera alrededor del TV, con un hogar apaisado y una repisa de piedra.'
   - kind: coffee
     where: 'en la taza · café + mate'
     title: 'Padre Etiopía, y Cruz de Malta'

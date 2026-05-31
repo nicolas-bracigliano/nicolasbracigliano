@@ -67,6 +67,20 @@ items:
     teaser:
       label: '3d'
       line: 'Five iterations to fit the espresso tamper. Magnets in the corners; the slot finally fits without play.'
+  - kind: home
+    where: 'on the wall · home'
+    title: 'Stone & Wood'
+    prose: "The TV stand is the wrong piece of furniture for a small person who climbs. The fix isn't a different stand; it's deciding the screen is a feature of the wall, not a thing sitting on a table. A walnut shell, anchored to the studs, with the 75″ panel framed inside it instead of perched on top."
+    detail:
+      - dt: 'wood'
+        dd: 'walnut'
+      - dt: 'stone'
+        dd: 'tbd'
+      - dt: 'size'
+        dd: '3 × 2.7 × 0.46 m'
+    teaser:
+      label: 'home'
+      line: 'Wooden shell around the TV, with a landscape fire and a stone shelf.'
   - kind: coffee
     where: 'in the cup · coffee + mate'
     title: 'Padre Ethiopia, and Cruz de Malta'
