@@ -3,8 +3,8 @@
 // inline in the two index pages) so the merge/sort/slice has one tested
 // home, and so the set of feed kinds is a single source of truth.
 //
-// Astro-free on purpose (same rationale as `now-items.ts` /
-// `bench-items.ts`): generic over the minimal `{ data: { date } }` shape
+// Astro-free on purpose (same rationale as `now-items.ts`): generic over
+// the minimal `{ data: { date } }` shape
 // it actually uses, so it's unit-testable in plain vitest without the
 // content layer, and it doesn't couple to `astro:content`.
 

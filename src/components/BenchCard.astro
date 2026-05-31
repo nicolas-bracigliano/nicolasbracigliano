@@ -50,9 +50,10 @@ export interface Props {
   peekLabel: string;
 }
 
-// No fallback defaults: the captions are kind-conditionally required in
-// `benchItemSchema`, so an omission fails the build rather than silently
-// injecting a wrong-locale string here.
+// No fallback defaults: the captions are kind-conditionally required by
+// the `teaser` refines in `nowItemSchema` (src/lib/now-items.ts), so an
+// omission fails the build rather than silently injecting a wrong-locale
+// string here.
 const { kind, tag, title, line, seedlingTag, guitarLabel, href, peekLabel } = Astro.props;
 ---
 

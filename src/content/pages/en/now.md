@@ -20,6 +20,9 @@ items:
         dd: '100 Lighthouse · ~11 KB / page'
       - dt: 'learned'
         dd: 'how little JS it needs'
+    teaser:
+      label: 'code'
+      line: 'Markdown in, Lighthouse 100 out. Day five of rewriting it in Astro, mostly to try something new.'
   - kind: guitar
     where: 'in my hands · guitar'
     title: 'Bars 9–16 of Milonga del Ángel'
@@ -31,6 +34,10 @@ items:
         dd: '62 bpm, looped 30 min'
       - dt: 'tomorrow'
         dd: '68 bpm, with dynamics'
+    teaser:
+      label: 'guitar'
+      line: "Piazzolla. I've been looping the same eight bars at half speed for three weeks."
+      guitarLabel: 'A m | Milonga del Ángel · bar 9'
   - kind: garden
     where: 'in the huerta · garden'
     title: 'Spring rotation, planted out'
@@ -42,6 +49,10 @@ items:
         dd: 'tom + bsl + chamomile'
       - dt: 'watching'
         dd: 'first fruit set ~5 weeks'
+    teaser:
+      label: 'garden'
+      line: 'Black Russian, San Marzano, a punnet of Genovese basil, chamomile, two kinds of chilli. The native bees showed up two weeks earlier than last year.'
+      seedlingTag: 'tomato'
   - kind: print
     where: 'in the slicer · 3D'
     title: 'Catch-all tray, rev 5'
@@ -53,6 +64,9 @@ items:
         dd: '0.16 mm · 4 walls'
       - dt: 'next'
         dd: 'rev 6: softer fillets'
+    teaser:
+      label: '3d'
+      line: 'Five iterations to fit the espresso tamper. Magnets in the corners; the slot finally fits without play.'
   - kind: coffee
     where: 'in the cup · coffee + mate'
     title: 'Padre Ethiopia, and Cruz de Malta'

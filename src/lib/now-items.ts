@@ -1,10 +1,11 @@
-// Single source of truth for the /now route's bench-tour items.
+// Single source of truth for the /now route's bench-tour items — and,
+// via each item's optional `teaser` + `benchItemsFrom` below, for the
+// home page's "currently on the bench" grid as well (see ADR 0014).
 // `src/content.config.ts` uses the Zod schema below to validate
 // the `items: …` frontmatter on `src/content/pages/{en,es}/now.md`;
-// `src/components/NowItem.astro` uses the inferred TypeScript
-// types for its prop interface. Either file is free to evolve —
-// the other follows automatically because both reach into this
-// module.
+// `src/components/NowItem.astro` and the home index pages use the
+// inferred TypeScript types. Either side is free to evolve — the
+// others follow automatically because all reach into this module.
 //
 // Before this extraction, the schema lived in `content.config.ts`
 // and parallel hand-written types lived in `NowItem.astro`; they
@@ -16,7 +17,7 @@
 // layer.
 
 import { z } from 'astro/zod';
-import { NOW_KINDS } from './content-kinds';
+import { NOW_KINDS, BENCH_KINDS, type BenchKind } from './content-kinds';
 
 /** One row of an item's detail `<dl>`. `dt` is the term label,
  *  `dd` the description. Names mirror the rendered HTML so the
@@ -27,26 +28,114 @@ export const nowItemDetailSchema = z.object({
 });
 export type NowItemDetailRow = z.infer<typeof nowItemDetailSchema>;
 
+/** Optional bench-teaser block. Present only on the items that also
+ *  surface on the home page's "currently on the bench" grid; `benchItemsFrom`
+ *  (below) selects the teaser'd items, while `/now` renders every item.
+ *  This is the single-source replacement for the old, separately
+ *  hand-maintained `bench:` array on `home.md` (the two drifted — see
+ *  [ADR 0014](../../docs/decisions/0014-bench-now-single-source.md)).
+ *  `label` is the localized eyebrow word (EN "code" / ES "código"; "3d"
+ *  for print). `line` is the short bench blurb shown under the title — an
+ *  explicit field (not derived from `prose`) so the author controls the
+ *  teaser cut; it reads terser than the full `prose` paragraph and may be
+ *  a verbatim lede excerpt of it. `guitarLabel` / `seedlingTag` are the
+ *  captions baked into the guitar and seedling vignettes —
+ *  kind-conditionally required by the refines below. The bench card's
+ *  title reuses the item's own `title`, so it is not duplicated here. */
+export const nowTeaserSchema = z.object({
+  label: z.string().min(1),
+  line: z.string().min(1),
+  guitarLabel: z.string().min(1).optional(),
+  seedlingTag: z.string().min(1).optional(),
+});
+export type NowTeaser = z.infer<typeof nowTeaserSchema>;
+
 /** Full item shape. Each item carries exactly three detail rows
  *  (locked via `.length(3)`); the prototype design has shipped
  *  with three since day one, and locking the count catches an
  *  accidental row deletion at Zod-validation time rather than
- *  at e2e or — worse — at production render. */
-export const nowItemSchema = z.object({
-  kind: z.enum(NOW_KINDS),
-  where: z.string().min(1),
-  title: z.string().min(1),
-  prose: z.string().min(1),
-  detail: z.array(nowItemDetailSchema).length(3),
-});
+ *  at e2e or — worse — at production render.
+ *
+ *  The optional `teaser` (above) is gated by the refines: it may only
+ *  sit on a `BENCH_KINDS` kind (the home bench has no coffee/read
+ *  vignette), and guitar/garden teasers require their vignette caption —
+ *  exactly the kind-conditional rules the retired `benchItemSchema`
+ *  used to enforce. */
+export const nowItemSchema = z
+  .object({
+    kind: z.enum(NOW_KINDS),
+    where: z.string().min(1),
+    title: z.string().min(1),
+    prose: z.string().min(1),
+    detail: z.array(nowItemDetailSchema).length(3),
+    teaser: nowTeaserSchema.optional(),
+  })
+  .refine((i) => !i.teaser || (BENCH_KINDS as readonly string[]).includes(i.kind), {
+    message: 'teaser is only valid on a bench kind (code/guitar/garden/print/home)',
+    path: ['teaser'],
+  })
+  .refine((i) => !i.teaser || i.kind !== 'guitar' || i.teaser.guitarLabel !== undefined, {
+    message: 'guitar teaser requires `guitarLabel`',
+    path: ['teaser', 'guitarLabel'],
+  })
+  .refine((i) => !i.teaser || i.kind !== 'garden' || i.teaser.seedlingTag !== undefined, {
+    message: 'garden teaser requires `seedlingTag`',
+    path: ['teaser', 'seedlingTag'],
+  });
 export type NowPageItem = z.infer<typeof nowItemSchema>;
 
-/** Fixed item count. Six is the prototype design; locking it via
- *  `.length(NOW_ITEM_COUNT)` on the schema means a content edit
- *  that drops to five (or grows to seven) fails the build, not
- *  the user's eyes. Phase-2 content rewrites that intentionally
- *  change the count update this constant + the schema together. */
-export const NOW_ITEM_COUNT = 6;
+/** Item-count bounds. Was a fixed six (one per kind) before bench
+ *  unification; relaxed to a range now that the same list feeds both the
+ *  home bench teaser and the full /now tour, so the content can grow or
+ *  shrink within reason without a schema edit. Enforced on the `items`
+ *  array in `src/content.config.ts` via `.min(NOW_ITEM_MIN).max(NOW_ITEM_MAX)`. */
+export const NOW_ITEM_MIN = 4;
+export const NOW_ITEM_MAX = 8;
+
+/** The shape the home-page bench grid consumes, derived from the teaser'd
+ *  /now items by `benchItemsFrom`. `kind` is narrowed to a BENCH_KINDS
+ *  kind (the bench has no coffee/read vignette); `title` is the now item's
+ *  own title; the rest come from its `teaser`. */
+export interface BenchItem {
+  kind: BenchKind;
+  label: string;
+  title: string;
+  line: string;
+  guitarLabel?: string | undefined;
+  seedlingTag?: string | undefined;
+}
+
+/** Runtime guard: can the bench render this kind? The `teaser` refine on
+ *  `nowItemSchema` already guarantees teaser'd items use a BENCH_KINDS
+ *  kind, but re-checking here narrows the type honestly (no `as` cast at
+ *  the call site) and defensively skips a stray item rather than handing
+ *  BenchCard a kind it has no vignette for. */
+function isBenchKind(kind: NowPageItem['kind']): kind is BenchKind {
+  return (BENCH_KINDS as readonly NowPageItem['kind'][]).includes(kind);
+}
+
+/** Derive the home page's "currently on the bench" items from the /now
+ *  items — the ones carrying a `teaser`, in document order. now.md is the
+ *  single source for both surfaces: `/now` renders every item, the bench
+ *  renders these. Kept here (not inline in the two index pages) so the
+ *  filter + BENCH_KINDS narrowing live in one unit-tested place, and the
+ *  pages stay declarative. See [ADR 0014]. */
+export function benchItemsFrom(items: readonly NowPageItem[]): BenchItem[] {
+  return items.flatMap((i) =>
+    i.teaser && isBenchKind(i.kind)
+      ? [
+          {
+            kind: i.kind,
+            label: i.teaser.label,
+            title: i.title,
+            line: i.teaser.line,
+            guitarLabel: i.teaser.guitarLabel,
+            seedlingTag: i.teaser.seedlingTag,
+          },
+        ]
+      : [],
+  );
+}
 
 /** Narrows a `pages` collection entry to the discriminated-union
  *  variant whose `slug` is `'now'`. The Zod schema in
