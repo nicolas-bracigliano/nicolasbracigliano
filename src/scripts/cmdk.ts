@@ -22,9 +22,11 @@ const els = (root: HTMLElement) => ({
   list: root.querySelector<HTMLElement>('[data-cmdk-list]'),
 });
 
-// One fetch per locale index URL, cached for the session.
-const indexCache = new Map<string, Promise<CmdkEntry[]>>();
-async function fetchFirst(urls: readonly string[]): Promise<CmdkEntry[]> {
+// One fetch per locale index URL, cached for the session. `null` means the
+// index couldn't be loaded (vs. an empty result set) — surfaced as the
+// "unavailable" notice rather than a misleading "no matches".
+const indexCache = new Map<string, Promise<CmdkEntry[] | null>>();
+async function fetchFirst(urls: readonly string[]): Promise<CmdkEntry[] | null> {
   for (const url of urls) {
     try {
       const r = await fetch(url);
@@ -33,12 +35,12 @@ async function fetchFirst(urls: readonly string[]): Promise<CmdkEntry[]> {
       /* try the next candidate */
     }
   }
-  return [];
+  return null;
 }
 
-function loadIndex(root: HTMLElement): Promise<CmdkEntry[]> {
+function loadIndex(root: HTMLElement): Promise<CmdkEntry[] | null> {
   const src = root.dataset.cmdkSrc;
-  if (!src) return Promise.resolve([]);
+  if (!src) return Promise.resolve(null);
   let cached = indexCache.get(src);
   if (!cached) {
     // `trailingSlash: 'always'` serves this `.json` endpoint at `/x.json/`
@@ -48,10 +50,20 @@ function loadIndex(root: HTMLElement): Promise<CmdkEntry[]> {
     // trailingSlash config degrades to one extra request, not a silent
     // break.
     const candidates = import.meta.env.DEV ? [`${src}/`, src] : [src, `${src}/`];
-    cached = fetchFirst(candidates);
+    cached = fetchFirst(candidates).then((r) => {
+      if (r === null) indexCache.delete(src); // don't cache a failure — let it retry
+      return r;
+    });
     indexCache.set(src, cached);
   }
   return cached;
+}
+
+// Warm the index on intent (modifier key down, or hovering/focusing a
+// trigger) so the first open paints without waiting on the fetch.
+function prefetch(): void {
+  const root = overlay();
+  if (root) void loadIndex(root);
 }
 
 // The combobox/listbox ARIA is applied here (not in the static markup) so
@@ -105,6 +117,29 @@ function setActive(root: HTMLElement, next: number): void {
   });
 }
 
+function announce(root: HTMLElement, text: string): void {
+  const status = root.querySelector('[data-cmdk-status]');
+  if (status) status.textContent = text;
+}
+
+function countLabel(root: HTMLElement, n: number): string {
+  const noun = n === 1 ? root.dataset.cmdkResultOne : root.dataset.cmdkResultMany;
+  return `${n} ${noun ?? ''}`.trim();
+}
+
+// Plain-text notice (the unavailable state) — distinct from the no-matches
+// state, which echoes the query.
+function renderNotice(root: HTMLElement, text: string): void {
+  const { input, list } = els(root);
+  if (!input || !list) return;
+  list.replaceChildren();
+  const notice = document.createElement('div');
+  notice.className = 'cmdk-empty';
+  notice.textContent = text;
+  list.append(notice);
+  input.removeAttribute('aria-activedescendant');
+}
+
 function paint(root: HTMLElement): void {
   const { input, list } = els(root);
   if (!input || !list) return;
@@ -120,6 +155,7 @@ function paint(root: HTMLElement): void {
     empty.append(em);
     list.append(empty);
     input.removeAttribute('aria-activedescendant');
+    announce(root, `${root.dataset.cmdkEmpty ?? ''}${input.value.trim()}`);
     return;
   }
 
@@ -161,6 +197,7 @@ function paint(root: HTMLElement): void {
   });
 
   setActive(root, 0);
+  announce(root, countLabel(root, results.length));
 }
 
 // Load (cached) then match the current query and repaint. A monotonic
@@ -171,6 +208,13 @@ async function refresh(root: HTMLElement): Promise<void> {
   if (!input) return;
   const index = await loadIndex(root);
   if (ticket !== seq) return;
+  if (index === null) {
+    results = [];
+    const msg = root.dataset.cmdkUnavailable ?? '';
+    renderNotice(root, msg);
+    announce(root, msg);
+    return;
+  }
   results = match(index, input.value);
   paint(root);
 }
@@ -228,6 +272,11 @@ function openEntry(e: CmdkEntry | undefined): void {
 // ── document-level wiring (attached once; survives ClientRouter swaps) ──
 
 document.addEventListener('keydown', (ev) => {
+  // Warm the index the moment the modifier goes down, before "k" arrives.
+  if (ev.key === 'Meta' || ev.key === 'Control') {
+    prefetch();
+    return;
+  }
   // Toggle from anywhere.
   if ((ev.metaKey || ev.ctrlKey) && ev.key.toLowerCase() === 'k') {
     ev.preventDefault();
@@ -303,3 +352,11 @@ document.addEventListener('mousemove', (ev) => {
   const item = ev.target.closest<HTMLElement>('.cmdk-item');
   if (item?.dataset.index) setActive(root, Number(item.dataset.index));
 });
+
+// Warm the index when a trigger is hovered or focused, so a click/Enter
+// opens to a painted list. (pointerover/focusin bubble; closest filters.)
+function prefetchOnTriggerIntent(ev: Event): void {
+  if (ev.target instanceof HTMLElement && ev.target.closest('[data-cmdk-open]')) prefetch();
+}
+document.addEventListener('pointerover', prefetchOnTriggerIntent);
+document.addEventListener('focusin', prefetchOnTriggerIntent);

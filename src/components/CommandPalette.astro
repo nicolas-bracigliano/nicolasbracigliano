@@ -26,6 +26,9 @@ const copy = {
     inputLabel: 'Search the site',
     listLabel: 'Results',
     empty: 'No matches for ',
+    unavailable: 'Search is unavailable right now.',
+    resultOne: 'result',
+    resultMany: 'results',
     move: 'move',
     open: 'open',
     close: 'close',
@@ -37,6 +40,9 @@ const copy = {
     inputLabel: 'Buscar en el sitio',
     listLabel: 'Resultados',
     empty: 'Sin resultados para ',
+    unavailable: 'La búsqueda no está disponible ahora.',
+    resultOne: 'resultado',
+    resultMany: 'resultados',
     move: 'mover',
     open: 'abrir',
     close: 'cerrar',
@@ -52,6 +58,9 @@ const t = copy[locale];
   data-cmdk-locale={locale}
   data-cmdk-src={`/cmdk/${locale}.json`}
   data-cmdk-empty={t.empty}
+  data-cmdk-unavailable={t.unavailable}
+  data-cmdk-result-one={t.resultOne}
+  data-cmdk-result-many={t.resultMany}
   data-cmdk-listlabel={t.listLabel}
   role="dialog"
   aria-modal="true"
@@ -75,6 +84,9 @@ const t = copy[locale];
     </div>
 
     <div class="cmdk-results" id="cmdk-listbox" data-cmdk-list></div>
+
+    {/* Announces the result count / state to assistive tech on each query. */}
+    <p class="visually-hidden" role="status" aria-live="polite" data-cmdk-status></p>
 
     <div class="cmdk-foot">
       <span><kbd>↑</kbd><kbd>↓</kbd> {t.move}</span>

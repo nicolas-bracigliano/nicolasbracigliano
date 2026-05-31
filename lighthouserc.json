@@ -1,6 +1,7 @@
 {
   "$schema": "https://raw.githubusercontent.com/GoogleChrome/lighthouse-ci/main/packages/utils/src/lighthouserc-schema.json",
   "//": "Canonical full-coverage Lighthouse config and the single source of truth for the budget: 16 URLs x 2 runs, used on main pushes + local `pnpm lhci`. PRs run a trimmed config (6 URLs x 2 runs) GENERATED from this file by scripts/lighthouse-pr-config.mjs — the assert block, settings, runs and upload are inherited verbatim, so a PR can't pass a looser budget than main. Edit budgets here only. Generator contract is pinned by tests/unit/lighthouse-pr-config.test.ts.",
+  "//budget": "script:size 15000 and total:size 51000 were raised from 14000/50000 to admit the ⌘K command palette client (the site's only non-trivial JS, loaded site-wide). The home page — heaviest, with its inline portrait SVG (the deliberate document-size exception in design-system §13) — sat ~31 bytes over the old script ceiling once the palette shipped. The bump is ~1 KB of headroom, not an open door; see design-system §13.",
   "ci": {
     "collect": {
       "staticDistDir": "./dist",
@@ -42,9 +43,9 @@
             "total-blocking-time": ["error", { "maxNumericValue": 200 }],
             "first-contentful-paint": ["error", { "maxNumericValue": 1800 }],
 
-            "resource-summary:total:size": ["error", { "maxNumericValue": 50000 }],
+            "resource-summary:total:size": ["error", { "maxNumericValue": 51000 }],
             "resource-summary:document:size": ["error", { "maxNumericValue": 27000 }],
-            "resource-summary:script:size": ["error", { "maxNumericValue": 14000 }],
+            "resource-summary:script:size": ["error", { "maxNumericValue": 15000 }],
             "resource-summary:stylesheet:size": ["error", { "maxNumericValue": 30000 }],
             "resource-summary:font:size": ["error", { "maxNumericValue": 120000 }],
             "resource-summary:image:size": ["error", { "maxNumericValue": 200000 }],

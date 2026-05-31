@@ -93,4 +93,21 @@ test.describe('command palette', () => {
     await expect(page.locator('.cmdk-trigger-label')).toBeHidden();
     await expect(page.locator('.cmdk-trigger-key')).toBeHidden();
   });
+
+  test('announces the result count to assistive tech', async ({ page }) => {
+    await page.goto('/en/');
+    await page.keyboard.press('Control+k');
+    // "padre" matches only the coffee /now item — exercises the singular form.
+    await page.locator('[data-cmdk-input]').fill('padre');
+    await expect(page.locator('.cmdk-item')).toHaveCount(1);
+    await expect(page.locator('[data-cmdk-status]')).toHaveText('1 result');
+  });
+
+  test('reports an unavailable state when the index fails to load', async ({ page }) => {
+    await page.route('**/cmdk/**', (route) => route.abort());
+    await page.goto('/en/');
+    await page.keyboard.press('Control+k');
+    await expect(page.locator('.cmdk-empty')).toHaveText(/unavailable/i);
+    await expect(page.locator('[data-cmdk-status]')).toHaveText(/unavailable/i);
+  });
 });
