@@ -1,9 +1,10 @@
 import { test, expect } from '@playwright/test';
 
-// ⌘K command palette. The index is inlined at build time (no network, no
-// Pagefind), so this works against `pnpm preview` and would work under dev
-// too. Covers: open affordances, the default route list, query matching +
-// grouping, keyboard navigation, and focus return on close.
+// ⌘K command palette. The index is a prerendered, same-origin JSON endpoint
+// (/cmdk/<locale>.json, no Pagefind) fetched on first open, so this works
+// against `pnpm preview` and under dev too. Covers: open affordances, the
+// default route list, query matching + grouping, keyboard navigation, and
+// focus return on close.
 //
 // Uses Control+k (the handler accepts metaKey || ctrlKey) so the shortcut
 // is platform-agnostic in CI.
