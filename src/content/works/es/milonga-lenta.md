@@ -4,10 +4,10 @@ slug: 'milonga-lenta'
 lang: es
 translationId: milonga-slow
 date: 2026-05-09
-status: published
+status: draft
 tags: [music, guitarra]
 kind: guitar
-lifecycle: draft
+lifecycle: ongoing
 number: '03'
 lede: 'Una grabación de práctica a medio tiempo. Dos tomas, un micrófono, mi cocina.'
 specs:

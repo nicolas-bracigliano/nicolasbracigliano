@@ -19,17 +19,17 @@ bench:
     line: 'Markdown in, Lighthouse 100 out. Day five of rewriting it in Astro, mostly to try something new.'
   - kind: guitar
     label: 'guitar'
-    title: 'Learning Milonga del Ángel'
-    line: 'Piazzolla. The right-hand fingering is a puzzle box. I keep looping bars 9–16 at half speed.'
-    guitarLabel: 'A m | Milonga del Ángel · bar 9'
+    title: 'Learning the basics'
+    line: 'Training left and right hand, learning the eight essential chords, bonding with the instrument.'
+    guitarLabel: '· D · A · E · Am · Em · Dm · G · C ·'
   - kind: home
     label: 'home'
     title: 'Stone & Wood'
     line: 'Wooden shell around the TV, with a landscape electric fire and a stone shelf.'
   - kind: print
     label: '3d'
-    title: 'A modular catch-all tray'
-    line: 'Magnets in the corners; the slot for the espresso tamper finally fits. Five iterations later.'
+    title: 'Custom drowner organiser'
+    line: 'Custom gridfinity bins for all tools, gadgets and everyday things. Making my OCD proud of me.'
 ---
 
 Welcome. This is the colophon — the back-of-the-house view of one maker and many crafts.
