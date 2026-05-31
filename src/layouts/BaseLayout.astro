@@ -6,6 +6,7 @@ import '@styles/animations.css';
 import { ClientRouter } from 'astro:transitions';
 import { ROUTES, buildHreflangAlternates, type Locale } from '@lib/routes';
 import { getNavItems } from '@lib/chrome-nav';
+import CommandPalette from '@components/CommandPalette.astro';
 
 export interface Props {
   title: string;
@@ -129,6 +130,28 @@ function isActive(key: keyof typeof ROUTES, currentPath: string): boolean {
         role="group"
         aria-label={locale === 'en' ? 'Preferences' : 'Preferencias'}
       >
+        <button
+          type="button"
+          class="cmdk-trigger"
+          data-cmdk-open
+          aria-label={locale === 'en' ? 'Open search (Command K)' : 'Abrir búsqueda (Command K)'}
+        >
+          <svg
+            viewBox="0 0 16 16"
+            width="14"
+            height="14"
+            aria-hidden="true"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.5"
+          >
+            <circle cx="7" cy="7" r="4.5"></circle>
+            <line x1="10.5" y1="10.5" x2="14" y2="14" stroke-linecap="round"></line>
+          </svg>
+          <span class="cmdk-trigger-label">{locale === 'en' ? 'jump to…' : 'ir a…'}</span>
+          <span class="cmdk-trigger-key" aria-hidden="true"><kbd>⌘</kbd><kbd>K</kbd></span>
+        </button>
+
         <div class="lang-toggle">
           <a
             class={`lang ${locale === 'en' ? 'on' : ''}`}
@@ -240,6 +263,8 @@ function isActive(key: keyof typeof ROUTES, currentPath: string): boolean {
         </small>
       </p>
     </footer>
+
+    <CommandPalette locale={locale} />
 
     <script>
       import '../scripts/chrome';
