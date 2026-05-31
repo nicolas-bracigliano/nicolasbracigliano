@@ -11,11 +11,12 @@
 //
 // Not unit-testable in plain vitest (imports the `astro:content` virtual
 // module); covered by the e2e in tests/e2e/cmdk.spec.ts.
-import { getCollection, type CollectionEntry } from 'astro:content';
+import { getCollection, getEntry, type CollectionEntry } from 'astro:content';
 import { ROUTES, type Locale } from './routes';
+import { assertNowEntry } from './now-items';
 
-/** Matches the kind-pill classes in cmdk.css (`k-page`/`k-note`/…). */
-export type CmdkKind = 'page' | 'note' | 'piece' | 'work';
+/** Matches the kind-pill classes in cmdk.css (`k-page`/`k-now`/…). */
+export type CmdkKind = 'page' | 'now' | 'note' | 'piece' | 'work';
 
 export interface CmdkEntry {
   kind: CmdkKind;
@@ -97,6 +98,26 @@ export async function buildCmdkIndex(locale: Locale): Promise<CmdkEntry[]> {
   const published = <E extends { data: { lang: Locale; status: string } }>(e: E): boolean =>
     e.data.lang === locale && e.data.status === 'published';
 
+  // The /now bench items (coffee, guitar, garden, reading…). They live in
+  // the page body, so they wouldn't surface from titles/ledes/tags alone —
+  // index each one with its craft `kind` as a tag and its `where` eyebrow as
+  // the subtitle, so a topical search ("coffee", "borges") jumps to /now.
+  const nowEntry = await getEntry('pages', `${locale}/now`);
+  const nowItems: CmdkEntry[] = [];
+  if (nowEntry) {
+    assertNowEntry(nowEntry);
+    for (const it of nowEntry.data.items) {
+      nowItems.push({
+        kind: 'now',
+        title: it.title,
+        sub: it.where,
+        meta: '',
+        url: ROUTES.now[locale],
+        tags: [it.kind],
+      });
+    }
+  }
+
   const [notes, works, pieces] = await Promise.all([
     getCollection('notes', published),
     getCollection('works', published),
@@ -116,6 +137,7 @@ export async function buildCmdkIndex(locale: Locale): Promise<CmdkEntry[]> {
 
   return [
     ...pages,
+    ...nowItems,
     ...works.sort(byDateDesc).map(map('work', 'works')),
     ...pieces.sort(byDateDesc).map(map('piece', 'pieces')),
     ...notes.sort(byDateDesc).map(map('note', 'notes')),

@@ -161,6 +161,11 @@
   .cmdk-pill.k-page {
     color: var(--ink-2);
   }
+  /* Routes and /now items share the neutral "structure / current" tier;
+     the pill text (page / now) tells them apart. */
+  .cmdk-pill.k-now {
+    color: var(--ink-2);
+  }
   .cmdk-pill.k-note {
     color: var(--mate);
     border-color: color-mix(in oklab, var(--mate) 30%, var(--rule));

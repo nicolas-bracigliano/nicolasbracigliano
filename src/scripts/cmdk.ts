@@ -13,7 +13,7 @@ import type { CmdkEntry, CmdkKind } from '@lib/cmdk-index';
 
 const DEFAULT_MAX = 8;
 const QUERY_MAX = 12;
-const KIND_ORDER: Record<CmdkKind, number> = { page: 0, work: 1, piece: 2, note: 3 };
+const KIND_ORDER: Record<CmdkKind, number> = { page: 0, now: 1, work: 2, piece: 3, note: 4 };
 
 let lastFocused: HTMLElement | null = null;
 let results: CmdkEntry[] = [];
@@ -62,9 +62,16 @@ function applyAria(root: HTMLElement): void {
 }
 
 function pillLabel(kind: CmdkKind, locale: string): string {
-  const en: Record<CmdkKind, string> = { page: 'page', note: 'note', piece: 'piece', work: 'work' };
+  const en: Record<CmdkKind, string> = {
+    page: 'page',
+    now: 'now',
+    note: 'note',
+    piece: 'piece',
+    work: 'work',
+  };
   const es: Record<CmdkKind, string> = {
     page: 'página',
+    now: 'ahora',
     note: 'nota',
     piece: 'ensayo',
     work: 'obra',

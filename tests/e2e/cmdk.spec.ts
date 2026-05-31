@@ -51,6 +51,19 @@ test.describe('command palette', () => {
     await expect(page.locator('.cmdk-trigger')).toBeFocused();
   });
 
+  test('a topical query surfaces the matching /now bench item (coffee → /now)', async ({
+    page,
+  }) => {
+    await page.goto('/en/');
+    await page.keyboard.press('Control+k');
+    await page.locator('[data-cmdk-input]').fill('coffee');
+    const first = page.locator('.cmdk-item').first();
+    await expect(first.locator('.cmdk-pill')).toHaveText('now');
+    await expect(first.locator('.cmdk-title')).toHaveText('Padre Ethiopia, and Cruz de Malta');
+    await page.keyboard.press('Enter');
+    await expect(page).toHaveURL(/\/en\/about\/now\/$/);
+  });
+
   test('the ES palette localizes the pills (página)', async ({ page }) => {
     await page.goto('/es/');
     await page.keyboard.press('Control+k');
