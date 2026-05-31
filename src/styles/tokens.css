@@ -58,6 +58,8 @@
     --z-chrome: 5;
     --z-skip-link: 10;
     --z-overlay: 100;
+    /* Command palette sits above everything, incl. the about-intro overlay. */
+    --z-cmdk: 200;
 
     /* Terminal palette — used by the home page's "code" bench vignette.
        Same in Día + Noche because terminals are dark in both. Picked to

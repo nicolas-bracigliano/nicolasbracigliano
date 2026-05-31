@@ -1,0 +1,292 @@
+/* ─── Command palette (⌘K) ───────────────────────────────────────────
+   Component-scoped (not a route), like diagrams.css. Adapted from the
+   prototype styles-cmdk.css to the site tokens: --font-mono → --font-body,
+   --font-serif → --font-display, --olive → --mate. Wrapped in the `routes`
+   cascade layer to match the other non-reset stylesheets. Open/close is
+   driven by the `hidden` attribute from src/scripts/cmdk.ts; motion is
+   clamped under prefers-reduced-motion by reset.css. */
+@layer routes {
+  /* `.cmdk-overlay` sets display:grid, which would beat the UA
+     `[hidden] { display: none }` — restore it explicitly. */
+  .cmdk-overlay[hidden] {
+    display: none;
+  }
+  .cmdk-scroll-lock {
+    overflow: hidden;
+  }
+
+  .cmdk-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: var(--z-cmdk, 200);
+    background: color-mix(in oklab, var(--ink) 28%, transparent);
+    backdrop-filter: blur(3px) saturate(120%);
+    -webkit-backdrop-filter: blur(3px) saturate(120%);
+    display: grid;
+    align-items: start;
+    justify-items: center;
+    padding: clamp(60px, 14vh, 160px) 20px 20px;
+    animation: cmdk-fade 220ms ease both;
+  }
+  @keyframes cmdk-fade {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  .cmdk-panel {
+    width: min(620px, 100%);
+    background: var(--paper);
+    border: 1px solid var(--rule);
+    border-radius: 4px;
+    box-shadow: 0 24px 70px color-mix(in oklab, var(--ink) 30%, transparent);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    max-height: min(560px, 76vh);
+    animation: cmdk-rise 320ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
+  }
+  @keyframes cmdk-rise {
+    from {
+      opacity: 0;
+      transform: translateY(-10px) scale(0.98);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  /* input row */
+  .cmdk-input-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px 18px;
+    border-bottom: 1px solid var(--rule);
+  }
+  .cmdk-prompt {
+    font-family: var(--font-body);
+    font-size: 18px;
+    color: var(--accent);
+    line-height: 1;
+  }
+  .cmdk-input {
+    flex: 1;
+    border: 0;
+    background: none;
+    outline: none;
+    font-family: var(--font-body);
+    font-size: 16px;
+    color: var(--ink);
+    caret-color: var(--accent);
+  }
+  .cmdk-input::placeholder {
+    color: var(--ink-3);
+  }
+  .cmdk-esc {
+    font-family: var(--font-body);
+    font-size: 10px;
+    color: var(--ink-3);
+    border: 1px solid var(--rule);
+    border-radius: 3px;
+    padding: 2px 6px;
+    letter-spacing: 0.06em;
+  }
+
+  /* results */
+  .cmdk-results {
+    overflow-y: auto;
+    padding: 6px;
+    scrollbar-width: thin;
+    scrollbar-color: var(--rule) transparent;
+  }
+  .cmdk-results::-webkit-scrollbar {
+    width: 8px;
+  }
+  .cmdk-results::-webkit-scrollbar-thumb {
+    background: var(--rule);
+    border-radius: 4px;
+    border: 2px solid transparent;
+    background-clip: content-box;
+  }
+
+  .cmdk-empty {
+    padding: 28px 18px;
+    font-family: var(--font-body);
+    font-size: 13px;
+    color: var(--ink-3);
+    text-align: center;
+  }
+  .cmdk-empty em {
+    color: var(--accent);
+    font-style: normal;
+  }
+
+  .cmdk-item {
+    width: 100%;
+    display: grid;
+    grid-template-columns: 56px 1fr auto;
+    gap: 14px;
+    align-items: baseline;
+    padding: 11px 12px;
+    border-radius: 3px;
+    text-align: left;
+    background: none;
+    transition: background 140ms ease;
+    cursor: pointer;
+  }
+  .cmdk-item.active {
+    background: var(--bg-2);
+  }
+  .cmdk-item.active .cmdk-title {
+    color: var(--accent);
+  }
+
+  .cmdk-pill {
+    font-family: var(--font-body);
+    font-size: 9.5px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+    padding: 2px 0;
+    text-align: center;
+    border: 1px solid var(--rule);
+    border-radius: 2px;
+    background: var(--paper);
+  }
+  .cmdk-pill.k-page {
+    color: var(--ink-2);
+  }
+  .cmdk-pill.k-note {
+    color: var(--mate);
+    border-color: color-mix(in oklab, var(--mate) 30%, var(--rule));
+  }
+  .cmdk-pill.k-piece {
+    color: var(--ink-blue);
+    border-color: color-mix(in oklab, var(--ink-blue) 30%, var(--rule));
+  }
+  .cmdk-pill.k-work {
+    color: var(--accent);
+    border-color: color-mix(in oklab, var(--accent) 30%, var(--rule));
+  }
+
+  .cmdk-text {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .cmdk-title {
+    font-family: var(--font-display);
+    font-size: 16px;
+    color: var(--ink);
+    letter-spacing: -0.005em;
+    transition: color 140ms ease;
+  }
+  .cmdk-sub {
+    font-family: var(--font-body);
+    font-size: 11.5px;
+    color: var(--ink-3);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .cmdk-meta {
+    font-family: var(--font-body);
+    font-size: 10.5px;
+    color: var(--ink-3);
+    letter-spacing: 0.04em;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+    align-self: center;
+  }
+
+  /* foot */
+  .cmdk-foot {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+    padding: 10px 16px;
+    border-top: 1px solid var(--rule);
+    font-family: var(--font-body);
+    font-size: 10.5px;
+    color: var(--ink-3);
+    letter-spacing: 0.04em;
+  }
+  .cmdk-foot kbd {
+    border: 1px solid var(--rule);
+    border-radius: 3px;
+    padding: 1px 5px;
+    margin-right: 2px;
+    font-size: 10px;
+    color: var(--ink-2);
+  }
+  .cmdk-foot-sig {
+    margin-left: auto;
+    color: var(--ink-3);
+    font-style: italic;
+    opacity: 0.7;
+  }
+
+  @media (max-width: 640px) {
+    .cmdk-item {
+      grid-template-columns: 48px 1fr;
+    }
+    .cmdk-meta {
+      display: none;
+    }
+    .cmdk-foot-sig {
+      display: none;
+    }
+  }
+
+  /* trigger in the chrome (desktop) */
+  .cmdk-trigger {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 4px 8px 4px 10px;
+    border: 1px solid var(--rule);
+    border-radius: 999px;
+    background: var(--paper);
+    color: var(--ink-3);
+    font-family: var(--font-body);
+    font-size: 11px;
+    letter-spacing: 0.04em;
+    transition:
+      border-color 220ms ease,
+      color 220ms ease;
+  }
+  .cmdk-trigger:hover {
+    border-color: var(--ink-3);
+    color: var(--ink);
+  }
+  .cmdk-trigger .cmdk-trigger-key {
+    display: inline-flex;
+    gap: 1px;
+  }
+  .cmdk-trigger kbd {
+    border: 1px solid var(--rule);
+    border-radius: 3px;
+    padding: 0 4px;
+    font-size: 10px;
+    line-height: 16px;
+    color: var(--ink-3);
+  }
+  /* Below the top-nav breakpoint, collapse the trigger to just the
+     magnifier icon (label + ⌘K key drop) so it fits the tight mobile
+     chrome — the foot-rail is already full with the six nav items. */
+  @media (max-width: 720px) {
+    .cmdk-trigger .cmdk-trigger-label,
+    .cmdk-trigger .cmdk-trigger-key {
+      display: none;
+    }
+    .cmdk-trigger {
+      padding: 6px;
+    }
+  }
+}

@@ -17,6 +17,7 @@ The reference for everything about this site. Read this before changing color, c
 - **2026‑05‑26** — §9 Type committed to a two-face mapping table: notes ship in JetBrains Mono (field log), pieces ship in Newsreader 18/1.65 (slowed-down reading). Margin notes on pieces stay serif; rail position + `↳` mark carry the aside-ness. New non-goal: a third face. Cross-references added in §4 #5, §7, §15 #5. "Real pieces" moved from §17 Open questions to §17 Shipped (PR P3). Why: the face is the content signal — see PR P5.
 - **2026‑05‑26** — `/pieces` pivots to an editorial-article layout: single column, display H1, drop cap, italic H2 with `§`, inline pull quotes. Full rationale + alternatives in [ADR 0012](./decisions/0012-pieces-editorial-layout.md). Why: serif body without an editorial layout reads as "long note," not essay.
 - **2026‑05‑27** — §6 gains a Banned phrases catalogue + Anecdote fidelity rule. New §7a "How to write a piece (the recipe)" with the kernel-plus-six-sections shape, required components, length window, tag pattern, bilingual rules. New §7b "Reviewing a piece (the reflection pass)" — a post-draft checklist for the writer AND the LLM to consult and reflect against. §9 gains a Diagrams subsection lifting PR P4's role-class pattern. ADR 0011 documents the piece shape with the four P3 pieces as worked examples. One exception stays a test (`piece-margin-note-anchors`) — it's a silent-render bug, not a style call. Why: the four P3 pieces independently converged on the same shape; codifying it as a reflective guide (not a CI gate) lets future pieces match without re-deriving, while keeping the judgement with the writer.
+- **2026‑05‑31** — added the **command palette (⌘K)** as the site's search (§11). A build-time, navigation-only index of titles/ledes/tags from the content collections, inlined as JSON; opens on ⌘K or a chrome _jump to…_ trigger (a magnifier icon on mobile). Why: a site-wide search box parked inside `/notes` was the wrong affordance; ⌘K is the "jump to anything" pattern a developer audience expects, and at this scale navigation beats full-text (which can slot into the same UI later).
 
 When something material changes, add a line. Keep the log short: date, what changed, why. If you can't write the _why_ in one clause, you probably shouldn't make the change.
 
@@ -398,7 +399,7 @@ Animate **into existence**, then rest. Continuous loops read as nervous, not ali
 
 Listed for orientation. The CSS files are the source of truth.
 
-- **Chrome** — sticky header. Mark (left) · Nav (center) · Lang + Day/Night (right). Day/Night is a `<button role="switch" aria-checked>` with a single SVG that animates between sun (rays + disc) and moon (disc + slid-in mask) via CSS `transform` + `opacity` keyed to `[data-theme]`. Lang is a pair of links with a disabled-style state when the sibling translation is missing.
+- **Chrome** — sticky header. Mark (left) · Nav (center) · Jump-to + Lang + Day/Night (right). Day/Night is a `<button role="switch" aria-checked>` with a single SVG that animates between sun (rays + disc) and moon (disc + slid-in mask) via CSS `transform` + `opacity` keyed to `[data-theme]`. Lang is a pair of links with a disabled-style state when the sibling translation is missing. The _"jump to…"_ (⌘K) trigger opens the command palette; on mobile it collapses to a magnifier icon (the foot-rail is already full with the six nav items).
 - **Bench card** — home page vignette card (terminal / guitar / seedling / 3D print).
 - **Latest entry row** — kind pill, date, title, arrow. Hover slides right.
 - **Note entry** — three-column grid: date + tags (left), prose (centre), aside (right).
@@ -406,6 +407,17 @@ Listed for orientation. The CSS files are the source of truth.
 - **Facts card** (About sidebar) — small-caps title, `dl` of rows, optional footer link.
 - **ASCII signature** — `╭─ NB · '26 ─╮` at the foot of Colofón.
 - **NotFound** — 404 illustration + map back.
+- **Command palette (⌘K)** — the site's search. Full contract below.
+
+### Command palette (⌘K)
+
+The site's search. Opens on ⌘K / Ctrl+K, or the _"jump to…"_ trigger in the chrome — which collapses to a magnifier icon on mobile.
+
+- **It is navigation, not full-text search — yet.** At current scale (under ~30 items) a reader scans faster than they search, so the palette indexes _titles, ledes/decks, and tags_ of every route, note, piece, and work. It's a fast "jump to", which is what a developer audience expects from ⌘K. Full-text (Pagefind) is a future "search everything" mode that can slot into this same UI.
+- **Single source of truth.** `buildCmdkIndex(locale)` (`src/lib/cmdk-index.ts`) reads the same `notes` / `works` / `pieces` content collections the routes render, plus the static route list. There is no separate index to maintain — `CommandPalette.astro` inlines the result as JSON at build time and `src/scripts/cmdk.ts` matches against it. (No network, no wasm; it works under `astro dev` too.)
+- **Matching** is substring-first, then a forgiving in-order subsequence fuzzy fallback. Results are capped (8 default / 12 on query) and grouped page → work → piece → note.
+- **In-site by default.** Every result routes in-site via the View Transitions `navigate()`. An external destination (a `↗`, new tab) is reserved for when a work carries an explicit external link — there is no such field on the works schema today, so the palette never invents a destination a card wouldn't already have.
+- **Keyboard-first + accessible.** `role="dialog"` + `aria-modal`; focus moves to the input on open and returns to the trigger on close; results are a `role="listbox"` with `aria-activedescendant`; ↑↓ move, ⏎ opens, esc closes, Tab is trapped.
 
 ## 12 · Accessibility (real, not aspirational)
 

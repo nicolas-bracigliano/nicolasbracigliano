@@ -1,0 +1,90 @@
+---
+// ⌘K command palette — the site's search ("jump to anything"). Mounted
+// once in BaseLayout so it's available on every route. Its index is a
+// small per-locale JSON file (/cmdk/<locale>.json, built by
+// src/pages/cmdk/[lang].json.ts from the content collections); the client
+// (src/scripts/cmdk.ts) fetches it once on first open and matches against
+// it. Triggers (the chrome "jump to…" button and the foot-rail magnifier)
+// live in BaseLayout and carry `data-cmdk-open`, which the script delegates
+// on.
+//
+// The combobox/listbox ARIA is applied at runtime by the script rather than
+// in this markup: the widget only behaves as a combobox once JS wires it,
+// and keeping it out of the static HTML avoids a prefer-native-element
+// false positive on an inert, empty container.
+import type { Locale } from '@lib/routes';
+
+export interface Props {
+  locale: Locale;
+}
+const { locale } = Astro.props;
+
+const copy = {
+  en: {
+    dialog: 'Search',
+    placeholder: 'jump to anything…',
+    inputLabel: 'Search the site',
+    listLabel: 'Results',
+    empty: 'No matches for ',
+    move: 'move',
+    open: 'open',
+    close: 'close',
+    sig: 'jump to anything · nicolas',
+  },
+  es: {
+    dialog: 'Buscar',
+    placeholder: 'ir a cualquier parte…',
+    inputLabel: 'Buscar en el sitio',
+    listLabel: 'Resultados',
+    empty: 'Sin resultados para ',
+    move: 'mover',
+    open: 'abrir',
+    close: 'cerrar',
+    sig: 'ir a cualquier parte · nicolás',
+  },
+} as const;
+const t = copy[locale];
+---
+
+<div
+  class="cmdk-overlay"
+  data-cmdk
+  data-cmdk-locale={locale}
+  data-cmdk-src={`/cmdk/${locale}.json`}
+  data-cmdk-empty={t.empty}
+  data-cmdk-listlabel={t.listLabel}
+  role="dialog"
+  aria-modal="true"
+  aria-label={t.dialog}
+  hidden
+>
+  <div class="cmdk-panel">
+    <div class="cmdk-input-row">
+      <span class="cmdk-prompt" aria-hidden="true">/</span>
+      <input
+        class="cmdk-input"
+        type="text"
+        autocomplete="off"
+        autocorrect="off"
+        spellcheck="false"
+        placeholder={t.placeholder}
+        aria-label={t.inputLabel}
+        data-cmdk-input
+      />
+      <span class="cmdk-esc" aria-hidden="true">esc</span>
+    </div>
+
+    <div class="cmdk-results" id="cmdk-listbox" data-cmdk-list></div>
+
+    <div class="cmdk-foot">
+      <span><kbd>↑</kbd><kbd>↓</kbd> {t.move}</span>
+      <span><kbd>⏎</kbd> {t.open}</span>
+      <span><kbd>esc</kbd> {t.close}</span>
+      <span class="cmdk-foot-sig">{t.sig}</span>
+    </div>
+  </div>
+</div>
+
+<script>
+  import '../scripts/cmdk';
+</script>

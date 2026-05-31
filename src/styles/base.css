@@ -22,6 +22,9 @@
 /* Component-scoped (not a route): the diagram base + per-role colour
    palette used by /pieces. See PR P4 + ADR 0012. */
 @import url('./diagrams.css');
+/* Component-scoped (not a route): the ⌘K command palette (the site's
+   search). See the design-system command-palette section. */
+@import url('./cmdk.css');
 
 @layer base {
   html {
