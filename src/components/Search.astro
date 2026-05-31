@@ -1,0 +1,59 @@
+---
+// Site search box, mounted on the notes index (both locales). Pagefind
+// (built by the `postbuild` step) backs it; the client logic in
+// src/scripts/search.ts lazy-loads the index on first focus, so this
+// route stays zero-JS until the reader engages. Searches the whole site,
+// filtered to the current language via the `lang` Pagefind filter set on
+// <main> in BaseLayout. Localized strings ride on data-* attributes so
+// the script (which has no Astro context) can read them.
+//
+// Dev note: /_pagefind/ only exists after `pnpm build`; under `astro dev`
+// the box renders but returns no results (the script fails quiet).
+import type { Locale } from '@lib/routes';
+
+export interface Props {
+  locale: Locale;
+}
+const { locale } = Astro.props;
+
+const copy = {
+  en: {
+    label: 'Search',
+    placeholder: 'Search the site…',
+    searching: 'Searching…',
+    empty: 'No matches.',
+  },
+  es: {
+    label: 'Buscar',
+    placeholder: 'Buscar en el sitio…',
+    searching: 'Buscando…',
+    empty: 'Sin resultados.',
+  },
+} as const;
+const t = copy[locale];
+---
+
+<search
+  class="search"
+  data-search
+  data-search-lang={locale}
+  data-msg-searching={t.searching}
+  data-msg-empty={t.empty}
+>
+  <label class="search-label" for="site-search">{t.label}</label>
+  <input
+    id="site-search"
+    class="search-input"
+    type="search"
+    autocomplete="off"
+    spellcheck="false"
+    placeholder={t.placeholder}
+    data-search-input
+  />
+  <p class="search-status" role="status" aria-live="polite" data-search-status></p>
+  <ol class="search-results" data-search-results></ol>
+
+  <script>
+    import '../scripts/search';
+  </script>
+</search>

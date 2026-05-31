@@ -228,7 +228,13 @@ function isActive(key: keyof typeof ROUTES, currentPath: string): boolean {
       </ul>
     </nav>
 
-    <main id="main">
+    {
+      /* `data-pagefind-body` scopes the Pagefind index to main content
+        (chrome/nav/footer sit outside <main>, so they're excluded);
+        `data-pagefind-filter="lang:…"` gives the per-language facet the
+        search box filters on. See src/components/Search.astro. */
+    }
+    <main id="main" data-pagefind-body data-pagefind-filter={`lang:${locale}`}>
       <slot />
     </main>
 
