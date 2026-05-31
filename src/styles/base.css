@@ -219,7 +219,7 @@
     /pieces addition — see ADR 0010), language toggle, theme toggle,
     and mark have to share one cramped header row. The labels stay;
     only the decoration drops. */
-  @media (max-width: 1030px) {
+  @media (max-width: 1130px) {
     .nav a::before {
       content: none;
     }
