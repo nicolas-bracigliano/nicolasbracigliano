@@ -31,14 +31,19 @@ const indexCache = new Map<string, Promise<CmdkEntry[]>>();
 function loadIndex(root: HTMLElement): Promise<CmdkEntry[]> {
   const src = root.dataset.cmdkSrc;
   if (!src) return Promise.resolve([]);
-  let cached = indexCache.get(src);
+  // `trailingSlash: 'always'` makes the dev server serve this `.json`
+  // endpoint at `/x.json/`, while the production build emits `/x.json`.
+  // import.meta.env.DEV is replaced at build time, so each bundle requests
+  // the form its own server answers — correct in dev and prod, no 404.
+  const url = import.meta.env.DEV ? `${src}/` : src;
+  let cached = indexCache.get(url);
   if (!cached) {
-    cached = fetch(src)
+    cached = fetch(url)
       .then((r): Promise<CmdkEntry[]> | CmdkEntry[] =>
         r.ok ? (r.json() as Promise<CmdkEntry[]>) : [],
       )
       .catch((): CmdkEntry[] => []);
-    indexCache.set(src, cached);
+    indexCache.set(url, cached);
   }
   return cached;
 }

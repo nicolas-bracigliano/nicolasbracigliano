@@ -4,9 +4,9 @@
 // small per-locale JSON file (/cmdk/<locale>.json, built by
 // src/pages/cmdk/[lang].json.ts from the content collections); the client
 // (src/scripts/cmdk.ts) fetches it once on first open and matches against
-// it. Triggers (the chrome "jump to…" button and the foot-rail magnifier)
-// live in BaseLayout and carry `data-cmdk-open`, which the script delegates
-// on.
+// it. The chrome "jump to…" trigger (a magnifier icon on mobile) carries
+// `data-cmdk-open`, which the script delegates on. Keeping the index out of
+// the page HTML keeps every page under the ~50 KB total-weight budget.
 //
 // The combobox/listbox ARIA is applied at runtime by the script rather than
 // in this markup: the widget only behaves as a combobox once JS wires it,
