@@ -26,19 +26,19 @@ items:
       line: 'Entra markdown, sale Lighthouse 100. Día cinco reescribiéndolo en Astro, más que nada para probar algo diferente.'
   - kind: guitar
     where: 'entre las manos · guitarra'
-    title: 'Compases 9–16 de la Milonga del Ángel'
+    title: 'Aprendiendo lo basico'
     prose: 'Piazzolla. Vengo loopeando los mismos ocho compases a media velocidad hace tres semanas. La mano derecha es el rompecabezas — la alternancia i/m tiene que esquivar la cuerda m con el apoyando. Bien lento se siente cómo la nota grave arrastra a la melodía atrás.'
     detail:
+      - dt: 'Acordes'
+        dd: 'D · A · E · Am · Em · Dm · G · C'
       - dt: 'meta'
-        dd: 'compás 9–16 limpio a 88 bpm'
+        dd: 'cambio rapido y precisio de acorder'
       - dt: 'hoy'
-        dd: '62 bpm, 30 min loopeado'
-      - dt: 'mañana'
-        dd: '68 bpm, con dinámicas'
+        dd: '~55 cambios por minuto, perdiendo precision hacia el final'
     teaser:
       label: 'guitarra'
-      line: 'Piazzolla. La digitación de la mano derecha es un acertijo. Loopeo los compases 9–16 a mitad de velocidad.'
-      guitarLabel: 'A m | Milonga del Ángel · compás 9'
+      line: 'Entrenando la mano izquierda y derecha, aprendiendo los ocho acordes escenciales y conectando con el instrumento'
+      guitarLabel: '· D · A · E · Am · Em · Dm · G · C ·'
   - kind: garden
     where: 'en la huerta · jardín'
     title: 'Rotación de primavera, plantada'

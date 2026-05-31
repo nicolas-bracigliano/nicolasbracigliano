@@ -25,19 +25,19 @@ items:
       line: 'Markdown in, Lighthouse 100 out. Day five of rewriting it in Astro, mostly to try something new.'
   - kind: guitar
     where: 'in my hands · guitar'
-    title: 'Bars 9–16 of Milonga del Ángel'
+    title: 'Learning the basics'
     prose: "Piazzolla. I've been looping the same eight bars at half speed for three weeks. The right hand is the puzzle — the i/m alternation has to ghost the m string through the rest stroke. Slow enough and you can feel the bass note pulling the melody behind it."
     detail:
+      - dt: 'Chords'
+        dd: 'D · A · E · Am · Em · Dm · G · C'
       - dt: 'target'
-        dd: 'bar 9–16 clean at 88 bpm'
+        dd: 'fast and accurate chord changes'
       - dt: 'today'
-        dd: '62 bpm, looped 30 min'
-      - dt: 'tomorrow'
-        dd: '68 bpm, with dynamics'
+        dd: '~55 changes per minute, losing accuracy by the end'
     teaser:
       label: 'guitar'
-      line: "Piazzolla. I've been looping the same eight bars at half speed for three weeks."
-      guitarLabel: 'A m | Milonga del Ángel · bar 9'
+      line: 'Training left and right hand, learning the eight essential chords, bonding with the instrument.'
+      guitarLabel: '· D · A · E · Am · Em · Dm · G · C ·'
   - kind: garden
     where: 'in the huerta · garden'
     title: 'Spring rotation, planted out'
