@@ -70,4 +70,27 @@ test.describe('command palette', () => {
     await expect(page.locator('[data-cmdk]')).toBeVisible();
     await expect(page.locator('.cmdk-item .cmdk-pill').first()).toHaveText('página');
   });
+
+  test('still opens after a client-side navigation (delegation survives ClientRouter)', async ({
+    page,
+  }) => {
+    await page.goto('/en/');
+    await page.keyboard.press('Control+k');
+    await page.locator('[data-cmdk-input]').fill('colophon');
+    await page.keyboard.press('Enter');
+    await expect(page).toHaveURL(/\/en\/colophon\/$/);
+    // View Transitions swapped the body; the document-level listeners must
+    // still drive the new page's (fresh) overlay.
+    await page.keyboard.press('Control+k');
+    await expect(page.locator('[data-cmdk]')).toBeVisible();
+    await expect(page.locator('[data-cmdk-input]')).toBeFocused();
+  });
+
+  test('the chrome trigger collapses to an icon on mobile', async ({ page }) => {
+    await page.setViewportSize({ width: 375, height: 700 });
+    await page.goto('/en/');
+    await expect(page.locator('.cmdk-trigger')).toBeVisible();
+    await expect(page.locator('.cmdk-trigger-label')).toBeHidden();
+    await expect(page.locator('.cmdk-trigger-key')).toBeHidden();
+  });
 });

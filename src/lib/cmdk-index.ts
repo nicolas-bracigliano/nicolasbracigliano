@@ -14,23 +14,9 @@
 import { getCollection, getEntry, type CollectionEntry } from 'astro:content';
 import { ROUTES, type Locale } from './routes';
 import { assertNowEntry } from './now-items';
-
-/** Matches the kind-pill classes in cmdk.css (`k-page`/`k-now`/…). */
-export type CmdkKind = 'page' | 'now' | 'note' | 'piece' | 'work';
-
-export interface CmdkEntry {
-  kind: CmdkKind;
-  /** Localized title (route label, or the entry's `title`). */
-  title: string;
-  /** One-line subtitle: a route deck, or the entry's `lede`. */
-  sub: string;
-  /** Right-aligned meta (entry year; empty for routes). */
-  meta: string;
-  /** In-site destination (trailing-slash, per astro config). */
-  url: string;
-  /** Lowercased tags, folded into the match haystack. */
-  tags: string[];
-}
+// Types + matching live in the Astro-free `cmdk-match` so the ranking is
+// unit-testable; this module just assembles the entries.
+import type { CmdkEntry, CmdkKind } from './cmdk-match';
 
 // The static routes, in nav order. Titles match the chrome nav labels;
 // decks are terse route descriptors.

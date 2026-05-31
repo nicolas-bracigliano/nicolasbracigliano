@@ -13,6 +13,9 @@
   }
   .cmdk-scroll-lock {
     overflow: hidden;
+    /* Reserve the now-removed scrollbar's width (set by cmdk.ts on open) so
+       locking scroll doesn't shift the page sideways. */
+    padding-right: var(--cmdk-sbw, 0);
   }
 
   .cmdk-overlay {
@@ -161,10 +164,10 @@
   .cmdk-pill.k-page {
     color: var(--ink-2);
   }
-  /* Routes and /now items share the neutral "structure / current" tier;
-     the pill text (page / now) tells them apart. */
+  /* /now items sit just below routes — a dimmer neutral than the page pill
+     so the two tiers read apart at a glance. */
   .cmdk-pill.k-now {
-    color: var(--ink-2);
+    color: var(--ink-3);
   }
   .cmdk-pill.k-note {
     color: var(--mate);

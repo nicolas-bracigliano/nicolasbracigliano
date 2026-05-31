@@ -9,11 +9,7 @@
 // interaction time. The module is hoisted (loads once); these listeners
 // persist for the session. See the design-system command-palette section.
 import { navigate } from 'astro:transitions/client';
-import type { CmdkEntry, CmdkKind } from '@lib/cmdk-index';
-
-const DEFAULT_MAX = 8;
-const QUERY_MAX = 12;
-const KIND_ORDER: Record<CmdkKind, number> = { page: 0, now: 1, work: 2, piece: 3, note: 4 };
+import { match, type CmdkEntry, type CmdkKind } from '@lib/cmdk-match';
 
 let lastFocused: HTMLElement | null = null;
 let results: CmdkEntry[] = [];
@@ -28,22 +24,32 @@ const els = (root: HTMLElement) => ({
 
 // One fetch per locale index URL, cached for the session.
 const indexCache = new Map<string, Promise<CmdkEntry[]>>();
+async function fetchFirst(urls: readonly string[]): Promise<CmdkEntry[]> {
+  for (const url of urls) {
+    try {
+      const r = await fetch(url);
+      if (r.ok) return (await r.json()) as CmdkEntry[];
+    } catch {
+      /* try the next candidate */
+    }
+  }
+  return [];
+}
+
 function loadIndex(root: HTMLElement): Promise<CmdkEntry[]> {
   const src = root.dataset.cmdkSrc;
   if (!src) return Promise.resolve([]);
-  // `trailingSlash: 'always'` makes the dev server serve this `.json`
-  // endpoint at `/x.json/`, while the production build emits `/x.json`.
-  // import.meta.env.DEV is replaced at build time, so each bundle requests
-  // the form its own server answers — correct in dev and prod, no 404.
-  const url = import.meta.env.DEV ? `${src}/` : src;
-  let cached = indexCache.get(url);
+  let cached = indexCache.get(src);
   if (!cached) {
-    cached = fetch(url)
-      .then((r): Promise<CmdkEntry[]> | CmdkEntry[] =>
-        r.ok ? (r.json() as Promise<CmdkEntry[]>) : [],
-      )
-      .catch((): CmdkEntry[] => []);
-    indexCache.set(url, cached);
+    // `trailingSlash: 'always'` serves this `.json` endpoint at `/x.json/`
+    // under `astro dev` but `/x.json` in the build. Try the form the
+    // current env answers first (import.meta.env.DEV is build-time
+    // replaced), then fall back to the other — so a future change to the
+    // trailingSlash config degrades to one extra request, not a silent
+    // break.
+    const candidates = import.meta.env.DEV ? [`${src}/`, src] : [src, `${src}/`];
+    cached = fetchFirst(candidates);
+    indexCache.set(src, cached);
   }
   return cached;
 }
@@ -77,38 +83,6 @@ function pillLabel(kind: CmdkKind, locale: string): string {
     work: 'obra',
   };
   return (locale === 'es' ? es : en)[kind];
-}
-
-// All chars of `q` appear in `hay` in order — a forgiving fuzzy fallback.
-function subsequence(hay: string, q: string): boolean {
-  let i = 0;
-  for (let h = 0; h < hay.length && i < q.length; h++) {
-    if (hay[h] === q[i]) i++;
-  }
-  return i === q.length;
-}
-
-function score(e: CmdkEntry, q: string): number {
-  const title = e.title.toLowerCase();
-  const hay = `${title} ${e.sub.toLowerCase()} ${e.tags.join(' ')}`;
-  const ti = title.indexOf(q);
-  if (ti === 0) return 100;
-  if (ti > 0) return 90 - Math.min(ti, 40);
-  if (hay.includes(q)) return 60;
-  if (subsequence(title, q)) return 40;
-  if (subsequence(hay, q)) return 20;
-  return 0;
-}
-
-function match(index: CmdkEntry[], rawQuery: string): CmdkEntry[] {
-  const q = rawQuery.trim().toLowerCase();
-  if (q === '') return index.filter((e) => e.kind === 'page').slice(0, DEFAULT_MAX);
-  return index
-    .map((e) => ({ e, s: score(e, q) }))
-    .filter((r) => r.s > 0)
-    .sort((a, b) => KIND_ORDER[a.e.kind] - KIND_ORDER[b.e.kind] || b.s - a.s)
-    .slice(0, QUERY_MAX)
-    .map((r) => r.e);
 }
 
 function setActive(root: HTMLElement, next: number): void {
@@ -201,12 +175,27 @@ async function refresh(root: HTMLElement): Promise<void> {
   paint(root);
 }
 
+// While the palette is open, make everything except it inert and lock body
+// scroll — so keyboard and screen-reader focus can't wander the page behind
+// the modal (`aria-modal` alone isn't reliably honored). The scrollbar
+// width is reserved as padding so locking doesn't shift the layout.
+function setShell(root: HTMLElement, isOpen: boolean): void {
+  const docEl = document.documentElement;
+  if (isOpen) docEl.style.setProperty('--cmdk-sbw', `${window.innerWidth - docEl.clientWidth}px`);
+  else docEl.style.removeProperty('--cmdk-sbw');
+  docEl.classList.toggle('cmdk-scroll-lock', isOpen);
+  for (const el of Array.from(document.body.children)) {
+    if (el === root || el.tagName === 'SCRIPT') continue;
+    el.toggleAttribute('inert', isOpen);
+  }
+}
+
 function open(): void {
   const root = overlay();
   if (!root || !root.hidden) return;
   lastFocused = document.activeElement instanceof HTMLElement ? document.activeElement : null;
   root.hidden = false;
-  document.documentElement.classList.add('cmdk-scroll-lock');
+  setShell(root, true);
   applyAria(root);
   const { input } = els(root);
   if (input) {
@@ -219,20 +208,19 @@ function open(): void {
 function close(): void {
   const root = overlay();
   if (!root || root.hidden) return;
+  // Lift inert before restoring focus, so the trigger is focusable again.
+  setShell(root, false);
   root.hidden = true;
-  document.documentElement.classList.remove('cmdk-scroll-lock');
   seq++; // cancel any in-flight refresh
   lastFocused?.focus();
   lastFocused = null;
 }
 
+// Every indexed entry is in-site today (the works schema has no external
+// link field — see the design-system command-palette section). When one
+// is added, branch here on an absolute URL to open it in a new tab.
 function openEntry(e: CmdkEntry | undefined): void {
   if (!e) return;
-  if (/^https?:\/\//.test(e.url)) {
-    window.open(e.url, '_blank', 'noopener');
-    close();
-    return;
-  }
   close();
   void navigate(e.url);
 }
