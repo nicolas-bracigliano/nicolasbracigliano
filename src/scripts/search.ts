@@ -55,10 +55,19 @@ function wire(root: HTMLElement): void {
       // `@vite-ignore` + a variable specifier: the bundler must not try to
       // resolve /_pagefind/ at build time (it isn't there yet). The module
       // is untyped, so assert the shape we use — the one boundary cast here.
-      loading = import(/* @vite-ignore */ PAGEFIND_URL).then((m) => {
-        pagefind = m as PagefindApi;
-        return pagefind;
-      });
+      loading = import(/* @vite-ignore */ PAGEFIND_URL).then(
+        (m) => {
+          pagefind = m as PagefindApi;
+          return pagefind;
+        },
+        (err: unknown) => {
+          // Don't cache the failure (e.g. the index 404s under `astro dev`,
+          // or a cached non-JS response): clear it so a later attempt — or
+          // a hard reload onto a real build — can retry.
+          loading = null;
+          throw err;
+        },
+      );
     }
     return loading;
   }
@@ -117,8 +126,10 @@ function wire(root: HTMLElement): void {
   });
 
   // Warm the index on first focus so the first keystroke isn't blocked on
-  // the network fetch.
-  input.addEventListener('focus', () => void loadPagefind(), { once: true });
+  // the network fetch. Best-effort: swallow a load failure here so it
+  // doesn't surface as an unhandled rejection — run() reports it as
+  // "unavailable" when the reader actually searches.
+  input.addEventListener('focus', () => void loadPagefind().catch(() => {}), { once: true });
 }
 
 function setup(): void {
