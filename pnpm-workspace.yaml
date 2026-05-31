@@ -30,10 +30,13 @@ allowBuilds:
 #                   @lhci/cli. v11 is a major bump from the
 #                   currently-resolved version; validated below
 #                   that `pnpm lhci` still runs green against it.
-# - tmp ^0.2.4    — patches GHSA-52f5-9888-hmc6 (arbitrary file
-#                   write via symlink `dir` parameter). Pulled in
-#                   twice via @lhci/cli (direct and via
-#                   inquirer → external-editor).
+# - tmp ^0.2.6    — patches GHSA-ph9p-34f9-6g65 (path traversal via
+#                   unsanitized `prefix`/`postfix` enabling directory
+#                   escape). Supersedes the earlier ^0.2.4 pin for
+#                   GHSA-52f5-9888-hmc6 (symlink `dir` write) — 0.2.5
+#                   resolved against ^0.2.4 and is still vulnerable to
+#                   the newer advisory. Pulled in twice via @lhci/cli
+#                   (direct and via inquirer → external-editor).
 #
 # Revisit when upstream releases pick up the patched transitives
 # natively — these overrides can then be removed.
@@ -41,4 +44,4 @@ allowBuilds:
 overrides:
   yaml: ^2.8.3
   uuid: ^11.1.1
-  tmp: ^0.2.4
+  tmp: ^0.2.6
