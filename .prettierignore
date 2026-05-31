@@ -3,7 +3,6 @@ dist/
 .astro/
 .wrangler/
 node_modules/
-public/_pagefind/
 coverage/
 playwright-report/
 test-results/

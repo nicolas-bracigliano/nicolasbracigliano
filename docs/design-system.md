@@ -20,6 +20,7 @@ The reference for everything about this site. Read this before changing color, c
 - **2026‑05‑31** — bench/now unified onto a single source. `now.md` items gain an optional `teaser`; the home "currently on the bench" grid is derived from the teaser'd items (`benchItemsFrom`), and `home.md`'s `bench:` array + `src/lib/bench-items.ts` are retired. Per-route treatment (§3) is unchanged — only the data plumbing. Full rationale in [ADR 0014](./decisions/0014-bench-now-single-source.md). Why: the home bench and `/now` were hand-synced and had drifted (EN bench stale against `/now`; the EN and ES benches had even diverged from each other).
 - **2026‑05‑31** — added the **command palette (⌘K)** as the site's search (§11). A navigation-only index of titles/ledes/tags built from the content collections and served as a per-locale JSON endpoint (fetched on first open); opens on ⌘K or a chrome _jump to…_ trigger (a magnifier icon on mobile). Why: a site-wide search box parked inside `/notes` was the wrong affordance; ⌘K is the "jump to anything" pattern a developer audience expects, and at this scale navigation beats full-text (which can slot into the same UI later).
 - **2026‑05‑31** — Lighthouse `script:size` / `total:size` budgets raised 14 KB / 50 KB → 15 KB / 51 KB to admit the palette client (§13). Why: the palette is the site's only non-trivial JS and loads site-wide; Home (heaviest, from the inline portrait) sat ~31 bytes over the old script ceiling once it shipped. ~1 KB of bounded headroom, documented in `lighthouserc.json` `//budget`.
+- **2026‑05‑31** — removed the dead Pagefind build path: the `postbuild` index step, the `pagefind` dependency, the CI index-sanity check, and the `/_pagefind/*` cache header + lint/codeql ignores. §17 updated (search shipped as the palette, not Pagefind). Why: the ⌘K palette replaced Pagefind as the site's search, so the `dist/_pagefind/` index was built every CI run but consumed by nothing. Full-text Pagefind stays a documented future option in §11.
 
 When something material changes, add a line. Keep the log short: date, what changed, why. If you can't write the _why_ in one clause, you probably shouldn't make the change.
 
@@ -489,13 +490,12 @@ The prototype loads dependencies from CDNs and uses Babel-in-browser; production
 
 1. **Real avatar.** Pick a direction from `AVATAR-OPTIONS.md` and commission or draw.
 2. **Real copy.** Most body copy on Home, About, Notes, Now, and Colofón is currently invented. Replace with material Nicolas actually wrote.
-3. **Search UI.** Pagefind index is built (`postbuild` produces `dist/_pagefind/`); UI not yet wired into the layouts. Drop in a small `.astro` component on `/notes`.
-4. **Print stylesheet.** Notes and essays should print like typed letters. Dedicated `@media print` pass.
-5. **`/drafts` index.** A public list of unfinished posts — the site claims "en proceso, en público"; right now nothing demonstrates that.
+3. **Print stylesheet.** Notes and essays should print like typed letters. Dedicated `@media print` pass.
+4. **`/drafts` index.** A public list of unfinished posts — the site claims "en proceso, en público"; right now nothing demonstrates that.
 
 ### Shipped (moved out of this list)
 
-- **Search index** — Pagefind (`postbuild` script, per-language facet via `data-pagefind-filter="lang"`). UI still TODO above.
+- **Search** — the ⌘K command palette (§11): a navigation index of titles/ledes/tags built from the content collections, served as a per-locale JSON endpoint and matched client-side. Replaced the earlier Pagefind approach (whose `postbuild`-built `dist/_pagefind/` index was never wired into a UI and has since been removed); full-text Pagefind remains a possible future "search everything" layer that can slot into the same palette UI.
 - **OG cards** — Satori + Resvg via `src/pages/og/[collection]/[slug].png.ts`, fonts in `public/fonts/og-newsreader.ttf`.
 - **Real pieces.** `/pieces` · `/ensayos` shipped in PR P3 with four bilingual long-form pieces migrated from the legacy WordPress site. PR P5 pivoted the visual treatment from "marginalia notebook, longer" to **editorial article** — centered single column at `max-width: 760px`, display H1, italic large lede, drop cap on the first paragraph, italic H2 with floated `§` marker, inline pull quotes replacing the right-rail margin notes, redesigned row-list index with hover-slide. See [§9 · Type](#9--type) for the two-face rule and [ADR 0012](./decisions/0012-pieces-editorial-layout.md) for the pivot rationale.
 

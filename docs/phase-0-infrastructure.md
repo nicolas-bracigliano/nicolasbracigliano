@@ -480,7 +480,8 @@ Once Phase 0 lights up, you've got two parallel tracks:
 - **Phase 2 (real content)** — drop your real bio / notes / works /
   now / colophon copy into `src/content/{pages,notes,works}/{en,es}/`.
   Mostly markdown editing, no code.
-- **Phase 3 (polish)** — Pagefind search UI on `/notes`, avatar
+- **Phase 3 (polish)** — Pagefind search UI on `/notes` (shipped
+  instead as the ⌘K command palette — see design-system §11), avatar
   integration once the SVG/AVIF asset is ready, print-stylesheet
   Phase-3 expansion (URL after-link, per-route layout tuning).
 
