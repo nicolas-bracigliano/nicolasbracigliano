@@ -265,9 +265,13 @@
     border-color: var(--ink-3);
     color: var(--ink);
   }
+  .cmdk-trigger .cmdk-trigger-label {
+    white-space: nowrap;
+  }
   .cmdk-trigger .cmdk-trigger-key {
     display: inline-flex;
     gap: 1px;
+    flex-shrink: 0;
   }
   .cmdk-trigger kbd {
     border: 1px solid var(--rule);
@@ -277,11 +281,19 @@
     line-height: 16px;
     color: var(--ink-3);
   }
-  /* Below the top-nav breakpoint, collapse the trigger to just the
-     magnifier icon (label + ⌘K key drop) so it fits the tight mobile
-     chrome — the foot-rail is already full with the six nav items. */
+  /* Midrange (≤1080): drop the "jump to…" label so the pill stops
+     crowding the nav, but keep the magnifier + ⌘K so it still reads as
+     search. */
+  @media (max-width: 1080px) {
+    .cmdk-trigger .cmdk-trigger-label {
+      display: none;
+    }
+  }
+  /* Mobile (≤720, where the top nav gives way to the foot-rail): collapse
+     to just the magnifier icon — the ⌘K key drops too. The chrome icon is
+     the search affordance here (the foot-rail is full with the six nav
+     items). */
   @media (max-width: 720px) {
-    .cmdk-trigger .cmdk-trigger-label,
     .cmdk-trigger .cmdk-trigger-key {
       display: none;
     }
