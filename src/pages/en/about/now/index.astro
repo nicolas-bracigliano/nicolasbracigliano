@@ -21,10 +21,10 @@ const path = ROUTES.now.en;
 const siblingPath = sibling ? entryRouteFor(sibling) : null;
 
 // Items live in `src/content/pages/en/now.md` as YAML frontmatter.
-// Count is locked to `NOW_ITEM_COUNT` in `src/lib/now-items.ts`
-// and validated at build time by the discriminated `pages` Zod
-// schema. A content edit that drops to five items fails the
-// build, not silently the user.
+// Count is bounded to NOW_ITEM_MIN..NOW_ITEM_MAX in `src/lib/now-items.ts`
+// and validated at build time by the discriminated `pages` Zod schema.
+// The teaser'd items also feed the home bench (single source). A content
+// edit outside the range fails the build, not silently the user.
 ---
 
 <BaseLayout

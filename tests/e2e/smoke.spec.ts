@@ -316,28 +316,35 @@ test("/about/ — intro overlay survives child animation-end events, removes its
 // above: `/en/about/now/` or `/es/sobre/ahora/` for single-locale,
 // `/now/` for both-locale assertions.
 
-test('/about/now/ — renders 6 numbered items in both locales', async ({ page }) => {
-  // The full sequence is asserted (not just first + last) so a bug
-  // that pins every item to the same number — e.g. dropping the
-  // map-index from the `position` prop — fails loudly instead of
-  // sliding past a count-and-endpoints check.
-  const expectedNums = ['№ 01', '№ 02', '№ 03', '№ 04', '№ 05', '№ 06'];
+test('/about/now/ — numbered items run a contiguous № sequence, mirrored across locales', async ({
+  page,
+}) => {
+  // The full sequence is asserted (not just first + last) so a bug that
+  // pins every item to the same number — e.g. dropping the map-index from
+  // the `position` prop — fails loudly. The item count is content-driven
+  // (a range, per now-items.ts NOW_ITEM_MIN/MAX), so derive it instead of
+  // hardcoding, and assert the two locales mirror each other.
+  const counts: number[] = [];
   for (const path of ['/en/about/now/', '/es/sobre/ahora/']) {
     await page.goto(path);
-    await expect(page.locator('.now-list .now-item')).toHaveCount(6);
     const nums = page.locator('.now-num');
-    for (let i = 0; i < expectedNums.length; i++) {
-      await expect(nums.nth(i)).toContainText(expectedNums[i]!);
+    const count = await nums.count();
+    expect(count).toBeGreaterThanOrEqual(4);
+    for (let i = 0; i < count; i++) {
+      await expect(nums.nth(i)).toContainText(`№ ${String(i + 1).padStart(2, '0')}`);
     }
+    counts.push(count);
   }
+  expect(counts[0]).toBe(counts[1]);
 });
 
-test('/about/now/ — all six per-kind classes are present and unique', async ({ page }) => {
+test('/about/now/ — every per-kind class is present and unique', async ({ page }) => {
   await page.goto('/en/about/now/');
   // The CSS keys the № tint off these — if a future refactor drops
   // a kind from the page, the visual rhythm breaks silently. Assert
-  // structurally rather than visually.
-  const kinds = ['code', 'guitar', 'garden', 'print', 'coffee', 'read'] as const;
+  // structurally rather than visually. (home shares the default accent
+  // tint with guitar/coffee — no dedicated .now-home rule needed.)
+  const kinds = ['code', 'guitar', 'garden', 'print', 'home', 'coffee', 'read'] as const;
   for (const kind of kinds) {
     await expect(page.locator(`.now-item.now-${kind}`)).toHaveCount(1);
   }
@@ -368,9 +375,10 @@ test('/en/about/now/ — each item has a detail <dl> with at least one dt/dd pai
   // grow per item; just guarantee the structural contract that every
   // item has a <dl> with content. Catches a regression where
   // NowItem's slot stops rendering the detail array.
+  const itemCount = await page.locator('.now-item').count();
   const details = page.locator('.now-item .now-detail');
-  await expect(details).toHaveCount(6);
-  for (let i = 0; i < 6; i++) {
+  await expect(details).toHaveCount(itemCount);
+  for (let i = 0; i < itemCount; i++) {
     await expect(details.nth(i).locator('dt').first()).not.toBeEmpty();
     await expect(details.nth(i).locator('dd').first()).not.toBeEmpty();
   }

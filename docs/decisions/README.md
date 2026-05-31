@@ -18,6 +18,10 @@ When in doubt about whether a decision rates an ADR, ask: **would I want to know
 | [0008](./0008-externalize-hoisted-scripts-for-csp.md) | Accepted            | Externalize every hoisted `<script>` so production CSP allows it |
 | [0009](./0009-github-actions-sha-pinning.md)          | Accepted            | Pin every GitHub Action to an immutable SHA                      |
 | [0010](./0010-asymmetric-bilingual-route-naming.md)   | Accepted            | EN/ES route slugs may diverge (refines ADR 0003)                 |
+| [0011](./0011-long-form-piece-shape.md)               | Accepted            | Long-form piece shape (kernel + six sections)                    |
+| [0012](./0012-pieces-editorial-layout.md)             | Accepted            | `/pieces` editorial-article layout                               |
+| [0013](./0013-per-entry-art.md)                       | Accepted            | Per-entry art via `hero:`, per-kind defaults from a registry     |
+| [0014](./0014-bench-now-single-source.md)             | Accepted            | `now.md` is the single source for the home bench and `/now`      |
 
 ## ADR format
 

@@ -4,7 +4,7 @@ slug: 'milonga-slow'
 lang: en
 translationId: milonga-slow
 date: 2026-05-09
-status: draft
+status: published
 tags: [music, guitar]
 kind: guitar
 lifecycle: ongoing

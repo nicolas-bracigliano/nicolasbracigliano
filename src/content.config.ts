@@ -6,11 +6,12 @@ import { z } from 'astro/zod';
 // Shared schema for the /now route's bench-tour items. Defining it
 // in `./lib/now-items` (vs inline here) lets `NowItem.astro` import
 // the inferred TS types from the same source — no parallel
-// hand-written `NowPageItem` interface to drift.
-import { nowItemSchema, NOW_ITEM_COUNT } from './lib/now-items';
-// Home-page "currently on the bench" items — same pattern as now-items:
-// schema here, inferred kind union in BenchCard.astro, both from one source.
-import { benchItemSchema, BENCH_MIN, BENCH_MAX } from './lib/bench-items';
+// hand-written `NowPageItem` interface to drift. Each item may carry an
+// optional `teaser` block; the home page renders the teaser'd items as
+// its "currently on the bench" grid, so `now.md` is the single source
+// for both surfaces (replaces the old, separately-synced `home.md`
+// `bench:` array, which had drifted from /now).
+import { nowItemSchema, NOW_ITEM_MIN, NOW_ITEM_MAX } from './lib/now-items';
 // Site-wide kind taxonomy. Per-collection subsets (`WORK_KINDS` etc.)
 // are imported below where they're used.
 import { WORK_KINDS, NOTE_KINDS } from './lib/content-kinds';
@@ -218,27 +219,22 @@ const pages = defineCollection({
       hero: image().optional(),
     };
     return z.discriminatedUnion('slug', [
-      base.extend({
-        slug: z.literal('home'),
-        ...common,
-        /** Required on the home variant — the "currently on the bench"
-         *  cards. Bounded to BENCH_MIN..BENCH_MAX (1..6) so a content
-         *  edit that empties or overflows the bench fails Zod at build
-         *  time. Each item's shape (incl. kind-conditional captions) is
-         *  validated by `benchItemSchema` in `src/lib/bench-items.ts`. */
-        bench: z.array(benchItemSchema).min(BENCH_MIN).max(BENCH_MAX),
-      }),
+      // The home variant no longer carries a `bench:` array — the home
+      // page's "currently on the bench" grid is now derived from the
+      // teaser'd items on the `now` variant below (single source).
+      base.extend({ slug: z.literal('home'), ...common }),
       base.extend({ slug: z.literal('about'), ...common }),
       base.extend({ slug: z.literal('colophon'), ...common }),
       base.extend({
         slug: z.literal('now'),
         ...common,
-        /** Required on the now variant — only the now page has
-         *  bench-tour items. Locked to `NOW_ITEM_COUNT` (6) so an
-         *  accidental row deletion fails Zod validation at build
-         *  time. Phase-2 content rewrites that intentionally
-         *  change the count update the constant + this line. */
-        items: z.array(nowItemSchema).length(NOW_ITEM_COUNT),
+        /** Required on the now variant. Feeds both the full /now tour and
+         *  (for teaser'd items) the home bench grid. Bounded to
+         *  NOW_ITEM_MIN..NOW_ITEM_MAX so a content edit that empties or
+         *  overflows the list fails Zod at build time; each item's shape
+         *  (incl. the optional teaser's kind-conditional captions) is
+         *  validated by `nowItemSchema` in `src/lib/now-items.ts`. */
+        items: z.array(nowItemSchema).min(NOW_ITEM_MIN).max(NOW_ITEM_MAX),
       }),
     ]);
   },
