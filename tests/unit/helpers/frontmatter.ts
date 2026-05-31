@@ -8,8 +8,8 @@
 // graph (loaders, the content store, image resolution). Pulling that
 // into vitest would mean a custom test environment or stubbing the whole
 // content runtime — both heavier than the payoff. The schemas under test
-// stay Astro-free (e.g. `src/lib/now-items.ts`, `src/lib/bench-items.ts`)
-// precisely so they can be exercised here.
+// stay Astro-free (e.g. `src/lib/now-items.ts`) precisely so they can be
+// exercised here.
 //
 // The `yaml` package is the cost: already a transitive dep (via
 // @astrojs/check → language-server → yaml-language-server, pinned ^2.8.3

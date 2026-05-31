@@ -4,7 +4,7 @@ slug: 'milonga-lenta'
 lang: es
 translationId: milonga-slow
 date: 2026-05-09
-status: draft
+status: published
 tags: [music, guitarra]
 kind: guitar
 lifecycle: ongoing

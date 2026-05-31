@@ -4,7 +4,7 @@ slug: 'la-mano-derecha-es-la-cancion'
 lang: es
 translationId: right-hand-is-the-song-2026-05-09
 date: 2026-05-09
-status: draft
+status: published
 tags: [guitarra]
 kind: guitar
 aside: 'loop a 62 bpm por ~30 min. mañana: 68.'
