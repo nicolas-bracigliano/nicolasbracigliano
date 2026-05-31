@@ -33,9 +33,7 @@ export interface CmdkEntry {
 }
 
 // The static routes, in nav order. Titles match the chrome nav labels;
-// decks are terse route descriptors. EN copy is from the prototype; the
-// ES decks are a parallel draft for the author to confirm (voice is the
-// writer's — see the editorial track).
+// decks are terse route descriptors.
 const PAGES: ReadonlyArray<{
   key: keyof typeof ROUTES;
   en: { title: string; deck: string };
@@ -49,7 +47,7 @@ const PAGES: ReadonlyArray<{
   {
     key: 'notes',
     en: { title: 'notes', deck: 'short field-log entries' },
-    es: { title: 'notas', deck: 'entradas cortas del cuaderno' },
+    es: { title: 'notas', deck: 'garabateando en público' },
   },
   {
     key: 'works',
