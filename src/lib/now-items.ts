@@ -17,7 +17,7 @@
 // layer.
 
 import { z } from 'astro/zod';
-import { NOW_KINDS, BENCH_KINDS, type BenchKind } from './content-kinds';
+import { NOW_KINDS, BENCH_KINDS, type BenchKind, type NowKind } from './content-kinds';
 
 /** One row of an item's detail `<dl>`. `dt` is the term label,
  *  `dd` the description. Names mirror the rendered HTML so the
@@ -27,6 +27,18 @@ export const nowItemDetailSchema = z.object({
   dd: z.string().min(1),
 });
 export type NowItemDetailRow = z.infer<typeof nowItemDetailSchema>;
+
+// The kinds the home bench can render — the BENCH_KINDS subset of the /now
+// taxonomy (the bench has no coffee/read vignette). Declared as
+// ReadonlySet<string> so `.has` accepts any NowKind without a cast:
+// BenchKind ⊆ NowKind, so the widening is sound. Used by both the teaser
+// refine on nowItemSchema and benchItemsFrom, so the rule lives in one place.
+const BENCH_KIND_SET: ReadonlySet<string> = new Set(BENCH_KINDS);
+
+/** Type guard: can the home bench render this kind? */
+function isBenchKind(kind: NowKind): kind is BenchKind {
+  return BENCH_KIND_SET.has(kind);
+}
 
 /** Optional bench-teaser block. Present only on the items that also
  *  surface on the home page's "currently on the bench" grid; `benchItemsFrom`
@@ -70,7 +82,7 @@ export const nowItemSchema = z
     detail: z.array(nowItemDetailSchema).length(3),
     teaser: nowTeaserSchema.optional(),
   })
-  .refine((i) => !i.teaser || (BENCH_KINDS as readonly string[]).includes(i.kind), {
+  .refine((i) => !i.teaser || isBenchKind(i.kind), {
     message: 'teaser is only valid on a bench kind (code/guitar/garden/print/home)',
     path: ['teaser'],
   })
@@ -103,15 +115,6 @@ export interface BenchItem {
   line: string;
   guitarLabel?: string | undefined;
   seedlingTag?: string | undefined;
-}
-
-/** Runtime guard: can the bench render this kind? The `teaser` refine on
- *  `nowItemSchema` already guarantees teaser'd items use a BENCH_KINDS
- *  kind, but re-checking here narrows the type honestly (no `as` cast at
- *  the call site) and defensively skips a stray item rather than handing
- *  BenchCard a kind it has no vignette for. */
-function isBenchKind(kind: NowPageItem['kind']): kind is BenchKind {
-  return (BENCH_KINDS as readonly NowPageItem['kind'][]).includes(kind);
 }
 
 /** Derive the home page's "currently on the bench" items from the /now

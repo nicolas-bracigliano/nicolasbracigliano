@@ -2,7 +2,7 @@
 import { getCollection, getEntry } from 'astro:content';
 import BaseLayout from '@layouts/BaseLayout.astro';
 import Masthead from '@components/Masthead.astro';
-import BenchCard from '@components/BenchCard.astro';
+import Bench from '@components/Bench.astro';
 import LatestEntries from '@components/LatestEntries.astro';
 import FieldNotesSidebar from '@components/FieldNotesSidebar.astro';
 import Coffee from '@components/Coffee.astro';
@@ -91,36 +91,7 @@ const reading = [{ title: 'Nexus', author: 'Yuval Noah Harari' }];
       </Fragment>
     </Masthead>
 
-    {
-      bench.length > 0 && (
-        <section class="bench" aria-labelledby="bench-h">
-          <header class="bench-head">
-            <span class="eyebrow" id="bench-h">
-              Currently on the bench
-            </span>
-            <a class="bench-tour-link" href={ROUTES.now.en} data-astro-prefetch>
-              full bench tour →
-            </a>
-          </header>
-          <ul class="bench-grid">
-            {bench.map((b, i) => (
-              <li>
-                <BenchCard
-                  kind={b.kind}
-                  tag={`${String(i + 1).padStart(2, '0')} · ${b.label}`}
-                  title={b.title}
-                  line={b.line}
-                  seedlingTag={b.seedlingTag}
-                  guitarLabel={b.guitarLabel}
-                  href={ROUTES.now.en}
-                  peekLabel="see /now →"
-                />
-              </li>
-            ))}
-          </ul>
-        </section>
-      )
-    }
+    <Bench items={bench} locale="en" />
 
     {
       latest.length > 0 && (
