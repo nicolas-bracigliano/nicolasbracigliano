@@ -8,7 +8,8 @@
 // the script (which has no Astro context) can read them.
 //
 // Dev note: /_pagefind/ only exists after `pnpm build`; under `astro dev`
-// the box renders but returns no results (the script fails quiet).
+// the box renders and reports the index as unavailable (vs. a misleading
+// "no matches"). Build + `pnpm preview` to exercise it for real.
 import type { Locale } from '@lib/routes';
 
 export interface Props {
@@ -22,12 +23,14 @@ const copy = {
     placeholder: 'Search the site…',
     searching: 'Searching…',
     empty: 'No matches.',
+    unavailable: "Search isn't available right now.",
   },
   es: {
     label: 'Buscar',
     placeholder: 'Buscar en el sitio…',
     searching: 'Buscando…',
     empty: 'Sin resultados.',
+    unavailable: 'La búsqueda no está disponible ahora.',
   },
 } as const;
 const t = copy[locale];
@@ -39,6 +42,7 @@ const t = copy[locale];
   data-search-lang={locale}
   data-msg-searching={t.searching}
   data-msg-empty={t.empty}
+  data-msg-unavailable={t.unavailable}
 >
   <label class="search-label" for="site-search">{t.label}</label>
   <input

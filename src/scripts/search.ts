@@ -45,6 +45,7 @@ function wire(root: HTMLElement): void {
   const lang = root.dataset.searchLang ?? 'en';
   const msgSearching = root.dataset.msgSearching ?? '';
   const msgEmpty = root.dataset.msgEmpty ?? '';
+  const msgUnavailable = root.dataset.msgUnavailable ?? '';
 
   let pagefind: PagefindApi | null = null;
   let loading: Promise<PagefindApi> | null = null;
@@ -91,11 +92,12 @@ function wire(root: HTMLElement): void {
       const results = await Promise.all(search.results.slice(0, MAX_RESULTS).map((r) => r.data()));
       if (ticket === seq) render(results);
     } catch {
-      // Index unavailable (e.g. `astro dev`, where /_pagefind/ doesn't
-      // exist). Fail quiet rather than leaving "Searching…" stuck.
+      // The index didn't load — e.g. `astro dev`, where /_pagefind/ doesn't
+      // exist yet. Say so explicitly rather than showing "no matches",
+      // which would wrongly imply the query simply found nothing.
       if (ticket === seq) {
         list.replaceChildren();
-        status.textContent = msgEmpty;
+        status.textContent = msgUnavailable;
       }
     }
   };
