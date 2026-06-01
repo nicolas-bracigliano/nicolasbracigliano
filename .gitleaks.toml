@@ -1,0 +1,24 @@
+# gitleaks config for nicolasbracigliano.com.
+#
+# Why this file exists: the scheduled `security` workflow runs
+# `gitleaks detect`, which scans the FULL git history. The `translationKey`
+# content-identifier frontmatter field was renamed to `translationId` in #88,
+# but historical commits still contain `translationKey:` lines, and gitleaks'
+# default `generic-api-key` rule fires on any `…Key` name. Those values are
+# kebab-slug content IDs (e.g. `cpr-when-to-escalate`), never secrets — the
+# documented gitleaks gotcha in CLAUDE.md. History is immutable, so the field
+# can't be renamed in past commits; allow-list the specific field assignment
+# instead. The local pre-commit hook runs `gitleaks protect --staged` (current
+# diff only) and never sees history — this config makes the full-history
+# `detect` agree without weakening either.
+
+# Keep every built-in rule; we only add an allowlist below.
+[extend]
+useDefault = true
+
+[allowlist]
+description = "translationKey/translationId is a kebab-slug content identifier, not a secret (field renamed in #88; old name persists in git history). Scoped to the field assignment with a slug value so a real high-entropy secret on any other line still trips."
+regexTarget = "line"
+regexes = [
+  '''translation(Key|Id):\s*['"]?[a-z0-9][a-z0-9-]*['"]?\s*$''',
+]
