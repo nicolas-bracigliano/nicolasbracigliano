@@ -56,18 +56,18 @@ items:
       seedlingTag: 'tomato'
   - kind: print
     where: 'in the slicer · 3D'
-    title: 'Catch-all tray, rev 5'
-    prose: "Five iterations to fit the espresso tamper. Magnets in the corners; the slot finally fits without play. The fillets are too aggressive — I'll soften them in rev 6."
+    title: 'Gridfinity bins for the tool drawer'
+    prose: 'Custom 42 mm bins, modelled in CAD to the tool: one for the calipers, one for the nozzles, labelled bins for nuts and bolts. Six so far, more to draw. Matte PLA on the Bambu.'
     detail:
-      - dt: 'material'
-        dd: 'PETG, recycled'
-      - dt: 'layer'
-        dd: '0.16 mm · 4 walls'
-      - dt: 'next'
-        dd: 'rev 6: softer fillets'
+      - dt: 'grid'
+        dd: '42 mm standard'
+      - dt: 'filament'
+        dd: 'PLA Matte · Bambu Lab P2S'
+      - dt: 'so far'
+        dd: '6 bespoke bins, drawer not done'
     teaser:
       label: '3d'
-      line: 'Five iterations to fit the espresso tamper. Magnets in the corners; the slot finally fits without play.'
+      line: 'Custom Gridfinity bins, modelled to the tool. Starting with the 3D-printing drawer.'
   - kind: home
     where: 'on the wall · home'
     title: 'Stone & Wood'

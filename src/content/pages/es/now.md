@@ -57,18 +57,18 @@ items:
       seedlingTag: 'tomate'
   - kind: print
     where: 'en el slicer · 3D'
-    title: 'Bandeja para guardar todo, rev 5'
-    prose: 'Cinco iteraciones para que entre el tamper del espresso. Imanes en las esquinas; la ranura finalmente encaja sin juego. Los fillets son demasiado agresivos — los suavizo en la rev 6.'
+    title: 'Bins Gridfinity para el cajón de herramientas'
+    prose: 'Bins de 42 mm a medida, modelados en CAD según la herramienta: uno para el calibre, otro para las boquillas, cajitas con etiqueta para tuercas y bulones. Seis hasta ahora, faltan más. PLA Matte en la Bambu.'
     detail:
-      - dt: 'material'
-        dd: 'PETG, reciclado'
-      - dt: 'capa'
-        dd: '0.16 mm · 4 paredes'
-      - dt: 'próximo'
-        dd: 'rev 6: fillets más suaves'
+      - dt: 'grilla'
+        dd: '42 mm estándar'
+      - dt: 'filamento'
+        dd: 'PLA Matte · Bambu Lab P2S'
+      - dt: 'hasta ahora'
+        dd: '6 bins a medida, cajón sin terminar'
     teaser:
       label: '3d'
-      line: 'Imanes en las esquinas; el hueco para el tamper de espresso por fin entra. Cinco iteraciones después.'
+      line: 'Bins Gridfinity a medida, modelados según la herramienta. Empezando por el cajón de impresión 3D.'
   - kind: home
     where: 'en la pared · casa'
     title: 'Piedra & Madera'
