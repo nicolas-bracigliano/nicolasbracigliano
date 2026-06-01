@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.16.0](https://github.com/nicolas-bracigliano/nicolasbracigliano/compare/v1.15.0...v1.16.0) (2026-06-01)
+
+
+### Features
+
+* **art:** redesign kind vignettes as crafted, animated illustrations ([d4de2d1](https://github.com/nicolas-bracigliano/nicolasbracigliano/commit/d4de2d1e78c17e3f4e4152a17a307c12f4954b62))
+
+
+### Refactors
+
+* **art:** unify per-kind vignettes into one shared source each ([1b9ae25](https://github.com/nicolas-bracigliano/nicolasbracigliano/commit/1b9ae25bdcf6a380fa402ba585a10459d6fa7f04))
+* **content:** comment out garden section in now.md for both English and Spanish ([1e3beb6](https://github.com/nicolas-bracigliano/nicolasbracigliano/commit/1e3beb63593c1faab08d9e9d1a311916f1d7a2c5))
+
 ## [1.15.0](https://github.com/nicolas-bracigliano/nicolasbracigliano/compare/v1.14.2...v1.15.0) (2026-06-01)
 
 
