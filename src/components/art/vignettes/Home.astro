@@ -1,29 +1,46 @@
 ---
-// Default vignette for `kind: home` works: the Stone & Wood media wall,
-// a clean front elevation measured from the reference render. The
-// signature is a tall, narrow slatted walnut panel sitting on a much
-// wider floating cabinet: crown molding; the 75″ TV framed large inside
-// the panel (it nearly fills the panel width); a full-width linear glass
-// firebox (fire contained inside) at the panel's foot; a light stone
-// countertop and a floating slatted cabinet — both far wider than the
-// panel — with an underglow; two speakers standing on the stone, out
-// beyond the panel's edges. `currentColor` is `--accent` (warm); value
-// (not hue) carries the material read — TV/firebox darkest, stone
+// `kind: home` vignette — the Stone & Wood media wall as a front
+// elevation, built to the reference: a tall slatted walnut panel on a
+// much wider floating cabinet; the 75″ TV framed inside the panel; a
+// full-width linear glass firebox (fire contained inside) on a light
+// stone countertop; speakers flanking; an underglow beneath the cabinet.
+//
+// SINGLE SOURCE for both surfaces (ADR 0013 amendment): the works registry
+// renders it via ContentArt with no props; the home bench renders the same
+// file with `class="home-vig"`, which scopes the flame flicker
+// (`.home-vig .flame`, animations.css). Flames carry `.flame` so the bench
+// can stagger them; the works copy never animates (no `.in-view`).
+//
+// Coordinate model (200×140 viewBox): the panel is x64–136 (y9.5–105),
+// the stone + cabinet span x33–167 (far wider, the signature shape). TV
+// y44–87, firebox y95–105 with flames rising off its top, stone y105–109,
+// cabinet y109–130, underglow below. `currentColor` is `--accent` (warm);
+// value (not hue) carries the material read — TV/firebox darkest, stone
 // lightest, fire brightest.
+export interface Props {
+  class?: string;
+}
+const { class: className = '' } = Astro.props;
 
-// Vertical battens, deterministic positions.
 const panelSlats = Array.from({ length: 18 }, (_, k) => 66 + k * 3.8);
 const cabinetSlats = Array.from({ length: 33 }, (_, k) => 36 + k * 4);
-// Fire tongues, contained inside the firebox.
+// Fire tongues, contained inside the firebox (peak below its top edge).
 const flames = Array.from({ length: 20 }, (_, k) => {
   const x = 69 + k * 3.2;
-  const h = k % 2 === 0 ? 4.5 : 3;
+  const h = k % 2 === 0 ? 5.5 : 3.8;
   return `M${x},104 q 1,-${h} 2,0`;
 });
 ---
 
-<svg viewBox="0 0 200 140" width="100%" height="100%" role="img" aria-label="media wall vignette">
-  <title>media wall</title>
+<svg
+  viewBox="0 0 200 140"
+  width="100%"
+  height="100%"
+  class={className}
+  role="img"
+  aria-label="media wall vignette"
+  aria-hidden="true"
+>
   <defs>
     <linearGradient id="mw-fire" x1="0" y1="1" x2="0" y2="0">
       <stop offset="0" stop-color="var(--accent)" stop-opacity="0.9"></stop>
@@ -34,7 +51,6 @@ const flames = Array.from({ length: 20 }, (_, k) => {
       <stop offset="1" stop-color="var(--accent)" stop-opacity="0"></stop>
     </linearGradient>
   </defs>
-
   <g fill="currentColor" stroke="currentColor" stroke-linejoin="round">
     {/* crown molding (wider than the panel) */}
     <rect
@@ -55,7 +71,7 @@ const flames = Array.from({ length: 20 }, (_, k) => {
       fill-opacity="0.05"
       stroke-opacity="0.4"
       stroke-width="1"></rect>
-    <g stroke-opacity="0.28" stroke-width="1">
+    <g fill="none" stroke-opacity="0.28" stroke-width="1">
       {panelSlats.map((x) => <line x1={x} x2={x} y1="10.5" y2="94.5" />)}
     </g>
 
@@ -87,12 +103,12 @@ const flames = Array.from({ length: 20 }, (_, k) => {
       width="70"
       height="10.5"
       rx="0.5"
-      fill-opacity="0.78"
+      fill-opacity="0.28"
       stroke-opacity="0.5"
       stroke-width="1"></rect>
     <rect x="67" y="97.5" width="66" height="7.5" fill="url(#mw-fire)" stroke="none"></rect>
-    <g fill="var(--accent)" stroke="none">
-      {flames.map((d) => <path d={d} fill-opacity="0.95" />)}
+    <g class="fire" fill="var(--accent)" stroke="none">
+      {flames.map((d) => <path class="flame" d={d} fill-opacity="0.95" />)}
     </g>
     <line
       x1="68"
@@ -126,7 +142,7 @@ const flames = Array.from({ length: 20 }, (_, k) => {
       fill-opacity="0.07"
       stroke-opacity="0.4"
       stroke-width="1"></rect>
-    <g stroke-opacity="0.26" stroke-width="1">
+    <g fill="none" stroke-opacity="0.26" stroke-width="1">
       {cabinetSlats.map((x) => <line x1={x} x2={x} y1="111" y2="129" />)}
     </g>
 
@@ -143,8 +159,8 @@ const flames = Array.from({ length: 20 }, (_, k) => {
       stroke-linecap="round"></line>
 
     {/* speakers standing on the stone, beyond the panel edges */}
-    <rect x="49" y="91" width="8.5" height="15" rx="4.25" fill-opacity="0.78" stroke="none"></rect>
-    <rect x="142.5" y="91" width="8.5" height="15" rx="4.25" fill-opacity="0.78" stroke="none"
+    <rect x="49" y="91" width="8.5" height="11" rx="4.25" fill-opacity="0.78" stroke="none"></rect>
+    <rect x="142.5" y="91" width="8.5" height="11" rx="4.25" fill-opacity="0.78" stroke="none"
     ></rect>
   </g>
 </svg>

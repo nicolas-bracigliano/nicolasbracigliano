@@ -1,32 +1,32 @@
 ---
 // Home-page "currently on the bench" vignette card (design system §3 + §11).
-// One per craft. Each card is a clickable entry point to /now — the four
-// cards are four doors into the same "what's on the bench" page. The whole
-// card is a stretched link (`.bench-card-link::before { inset: 0 }`, the
-// same pattern as WorkCard): the <a> wraps only the title for a meaningful
-// accessible name, while a "see /now →" peek pill + accent dot are revealed
-// on hover/focus.
+// One per craft. Each card is a clickable entry point to /now — the cards
+// are doors into the same "what's on the bench" page. The whole card is a
+// stretched link (`.bench-card-link::before { inset: 0 }`, the same pattern
+// as WorkCard): the <a> wraps only the title for a meaningful accessible
+// name, while a "see /now →" peek pill + accent dot are revealed on
+// hover/focus.
 //
-// Vignettes are inlined here (not extracted to separate component files)
-// because they're tightly coupled — each one only exists inside its
-// matching kind. The four together stay under ~150 LOC and tree-shake as
-// one unit when the home page splits at build time.
+// Art: each kind's vignette is a SINGLE shared component under
+// `art/vignettes/<Kind>.astro` (ADR 0013 amendment, 2026-06). The works
+// registry renders it stateless via ContentArt; the bench renders the same
+// file with a `-vig` class (which scopes the scroll-in animation in
+// animations.css) and, where the kind has one, a caption prop. One source
+// per kind means the two surfaces can't drift.
 //
-// Deliberately NOT routed through ContentArt / the per-kind registry
-// (see docs/decisions/0013-per-entry-art.md). BenchCard SVGs bake
-// per-instance captions into `<text>` (`guitarLabel`, `seedlingTag`),
-// so they're not stateless per-kind defaults — refactoring them
-// through the registry would force a leaky props-by-kind abstraction
-// onto WorkCard / NoteEntry too. Keep the inline form here on purpose.
+// `garden` is the deliberate exception: a catalogued garden *work* shows a
+// planted plot (`art/vignettes/Garden.astro`), while the bench shows a
+// live, growing seedling — different metaphors for "shipped" vs "on the
+// bench now" — so the seedling stays inline here with its `seedlingTag`.
 
 // Kind union is owned by `src/lib/content-kinds.ts` (the same source the
 // content schema validates against) so the component and the frontmatter
 // can't drift on the set of kinds.
 import type { BenchKind } from '@lib/content-kinds';
-// Print vignette geometry is shared with the works `Print` vignette so
-// the two can't drift (see src/lib/gridfinity-vignette.ts).
-import { bins, plane, gridLines, plateRight, plateLeft } from '@lib/gridfinity-vignette';
-import CodeFigure from './art/CodeFigure.astro';
+import CodeVignette from './art/vignettes/Code.astro';
+import GuitarVignette from './art/vignettes/Guitar.astro';
+import PrintVignette from './art/vignettes/Print.astro';
+import HomeVignette from './art/vignettes/Home.astro';
 
 export interface Props {
   kind: BenchKind;
@@ -59,65 +59,16 @@ export interface Props {
 // omission fails the build rather than silently injecting a wrong-locale
 // string here.
 const { kind, tag, title, line, seedlingTag, guitarLabel, href, peekLabel } = Astro.props;
-
-// Home vignette (the Stone & Wood media wall) — deterministic batten
-// positions and fire tongues, matching the works `Print/Home` vignette
-// language. Computed unconditionally; only the `kind === 'home'` branch
-// reads them.
-const panelSlats = Array.from({ length: 18 }, (_, k) => 66 + k * 3.8);
-const cabinetSlats = Array.from({ length: 33 }, (_, k) => 36 + k * 4);
-const flames = Array.from({ length: 20 }, (_, k) => {
-  const x = 69 + k * 3.2;
-  const h = k % 2 === 0 ? 4.5 : 3;
-  return `M${x},104 q 1,-${h} 2,0`;
-});
 ---
 
 <article class={`bench-card bench-card--${kind}`}>
   <div class="bench-card-art">
-    {kind === 'code' && <CodeFigure class="code-vig" />}
+    {kind === 'code' && <CodeVignette class="code-vig" />}
+    {kind === 'guitar' && <GuitarVignette class="guitar-vig" label={guitarLabel} />}
+    {kind === 'print' && <PrintVignette class="print-vig" />}
+    {kind === 'home' && <HomeVignette class="home-vig" />}
 
-    {
-      kind === 'guitar' && (
-        <svg viewBox="0 0 220 140" class="guitar-vig" aria-hidden="true">
-          <g fill="none" stroke="currentColor" stroke-width="1">
-            {/* fretboard + nut */}
-            <rect
-              x="20"
-              y="16"
-              width="194"
-              height="90"
-              fill="currentColor"
-              fill-opacity="0.05"
-              stroke="none"
-            />
-            <line x1="23" x2="23" y1="17" y2="105" stroke-width="3.5" opacity="0.55" />
-            {/* frets */}
-            <line x1="70" x2="70" y1="17" y2="105" stroke-width="2" opacity="0.4" />
-            <line x1="120" x2="120" y1="17" y2="105" stroke-width="2" opacity="0.4" />
-            <line x1="170" x2="170" y1="17" y2="105" stroke-width="2" opacity="0.4" />
-            {/* position-marker inlays */}
-            <circle cx="95" cy="61" r="2.6" fill="currentColor" stroke="none" opacity="0.26" />
-            <circle cx="195" cy="61" r="2.6" fill="currentColor" stroke="none" opacity="0.26" />
-            {/* strings, low → high (heavier → lighter gauge) */}
-            <line class="string s0" x1="23" x2="212" y1="24" y2="24" stroke-width="1.7" />
-            <line class="string s1" x1="23" x2="212" y1="39" y2="39" stroke-width="1.45" />
-            <line class="string s2" x1="23" x2="212" y1="54" y2="54" stroke-width="1.2" />
-            <line class="string s3" x1="23" x2="212" y1="69" y2="69" stroke-width="1" />
-            <line class="string s4" x1="23" x2="212" y1="84" y2="84" stroke-width="0.85" />
-            <line class="string s5" x1="23" x2="212" y1="99" y2="99" stroke-width="0.7" />
-            {/* fretted notes (a chord shape) */}
-            <circle cx="95" cy="39" r="4" fill="var(--accent)" stroke="none" />
-            <circle cx="145" cy="69" r="4" fill="var(--accent)" stroke="none" />
-            <circle cx="145" cy="84" r="4" fill="var(--accent)" stroke="none" />
-          </g>
-          <text x="10" y="134" fill="currentColor" font-size="9" opacity="0.6">
-            {guitarLabel}
-          </text>
-        </svg>
-      )
-    }
-
+    {/* garden stays bespoke (a growing seedling, not the works plot) */}
     {
       kind === 'garden' && (
         <svg viewBox="0 0 200 140" class="seedling-vig" aria-hidden="true">
@@ -138,201 +89,6 @@ const flames = Array.from({ length: 20 }, (_, k) => {
             >
               {seedlingTag}
             </text>
-          </g>
-        </svg>
-      )
-    }
-
-    {
-      kind === 'print' && (
-        <svg viewBox="0 0 200 140" class="print-vig" aria-hidden="true">
-          <g
-            fill="currentColor"
-            stroke="currentColor"
-            stroke-width="1"
-            stroke-linejoin="round"
-            stroke-opacity="0.85"
-          >
-            {/* baseplate thickness */}
-            <polygon points={plateRight} fill-opacity="0.34" />
-            <polygon points={plateLeft} fill-opacity="0.22" />
-
-            {/* baseplate top plane + the 42 mm grid */}
-            <polygon points={plane} fill-opacity="0.05" stroke-opacity="0.5" />
-            <g fill="none" stroke-opacity="0.22">
-              {gridLines.map((d) => (
-                <path d={d} />
-              ))}
-            </g>
-
-            {/* bins drop into the baseplate, back-to-front, on scroll-in */}
-            {bins.map((b, i) => (
-              <g class={`bin b${i}`}>
-                <polygon points={b.left} fill-opacity="0.18" />
-                <polygon points={b.right} fill-opacity="0.32" />
-                <polygon points={b.top} fill-opacity="0.1" />
-                <polygon points={b.lip} fill="none" stroke-opacity="0.5" />
-              </g>
-            ))}
-          </g>
-        </svg>
-      )
-    }
-
-    {
-      kind === 'home' && (
-        <svg viewBox="0 0 200 140" class="home-vig" aria-hidden="true">
-          <defs>
-            <linearGradient id="bf-fire" x1="0" y1="1" x2="0" y2="0">
-              <stop offset="0" stop-color="var(--accent)" stop-opacity="0.9" />
-              <stop offset="1" stop-color="var(--accent)" stop-opacity="0.06" />
-            </linearGradient>
-            <linearGradient id="bf-glow" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0" stop-color="var(--accent)" stop-opacity="0.5" />
-              <stop offset="1" stop-color="var(--accent)" stop-opacity="0" />
-            </linearGradient>
-          </defs>
-          <g fill="currentColor" stroke="currentColor" stroke-linejoin="round">
-            {/* crown molding (wider than the panel) */}
-            <rect
-              x="62"
-              y="5"
-              width="76"
-              height="4.5"
-              fill-opacity="0.1"
-              stroke-opacity="0.3"
-              stroke-width="1"
-            />
-
-            {/* tall, narrow slatted walnut panel */}
-            <rect
-              x="64"
-              y="9.5"
-              width="72"
-              height="96"
-              fill-opacity="0.05"
-              stroke-opacity="0.4"
-              stroke-width="1"
-            />
-            <g fill="none" stroke-opacity="0.28" stroke-width="1">
-              {panelSlats.map((x) => (
-                <line x1={x} x2={x} y1="10.5" y2="94.5" />
-              ))}
-            </g>
-
-            {/* 75″ TV, framed large inside the panel */}
-            <rect
-              x="69"
-              y="44"
-              width="62"
-              height="43"
-              rx="1.5"
-              fill-opacity="0.14"
-              stroke-opacity="0.45"
-              stroke-width="1"
-            />
-            <rect x="71" y="46" width="58" height="39" rx="0.5" fill-opacity="0.9" stroke="none" />
-            <rect
-              x="72.5"
-              y="47.5"
-              width="55"
-              height="36"
-              fill="none"
-              stroke="var(--bg-2)"
-              stroke-opacity="0.3"
-              stroke-width="0.5"
-            />
-
-            {/* full-width linear glass firebox — fire contained inside */}
-            <rect
-              x="65"
-              y="95"
-              width="70"
-              height="10.5"
-              rx="0.5"
-              fill-opacity="0.78"
-              stroke-opacity="0.5"
-              stroke-width="1"
-            />
-            <rect x="67" y="97.5" width="66" height="7.5" fill="url(#bf-fire)" stroke="none" />
-            <g class="fire" fill="var(--accent)" stroke="none">
-              {flames.map((d) => (
-                <path class="flame" d={d} fill-opacity="0.95" />
-              ))}
-            </g>
-            <line
-              x1="68"
-              x2="132"
-              y1="104.2"
-              y2="104.2"
-              stroke="var(--accent)"
-              stroke-opacity="0.85"
-              stroke-width="1.4"
-              stroke-linecap="round"
-            />
-
-            {/* stone countertop — far wider than the panel, rounded ends */}
-            <rect
-              x="33"
-              y="105"
-              width="134"
-              height="4.5"
-              rx="2.2"
-              fill-opacity="0.12"
-              stroke-opacity="0.4"
-              stroke-width="1"
-            />
-            <line x1="36" x2="164" y1="106" y2="106" stroke="var(--bg-2)" stroke-opacity="0.3" />
-
-            {/* floating slatted lower cabinet — wide, rounded ends */}
-            <rect
-              x="33"
-              y="109.5"
-              width="134"
-              height="21"
-              rx="4.5"
-              fill-opacity="0.07"
-              stroke-opacity="0.4"
-              stroke-width="1"
-            />
-            <g fill="none" stroke-opacity="0.26" stroke-width="1">
-              {cabinetSlats.map((x) => (
-                <line x1={x} x2={x} y1="111" y2="129" />
-              ))}
-            </g>
-
-            {/* underglow beneath the floating cabinet */}
-            <rect x="39" y="130.5" width="122" height="9" fill="url(#bf-glow)" stroke="none" />
-            <line
-              x1="39"
-              x2="161"
-              y1="130.8"
-              y2="130.8"
-              stroke="var(--accent)"
-              stroke-opacity="0.6"
-              stroke-width="1"
-              stroke-linecap="round"
-            />
-
-            {/* speakers standing on the stone, beyond the panel edges */}
-            <rect
-              x="49"
-              y="91"
-              width="8.5"
-              height="15"
-              rx="4.25"
-              fill-opacity="0.78"
-              stroke="none"
-            />
-            <rect
-              x="142.5"
-              y="91"
-              width="8.5"
-              height="15"
-              rx="4.25"
-              fill-opacity="0.78"
-              stroke="none"
-            />
           </g>
         </svg>
       )

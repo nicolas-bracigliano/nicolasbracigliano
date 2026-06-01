@@ -204,25 +204,27 @@
     }
   }
 
-  /* Fireplace flames flicker a few beats as the bench card scrolls into
-     view, then rest at full height. Transform-only (ADR 0006): scaleY
-     from the base with a tiny scaleX waver, so the tongues read as
-     living fire without a fading-pixel contrast pass. Start and end at
-     the rest state (scaleY 1) so it needs no pre-animation staging and
-     leaves the fire fully drawn if the loop never triggers. */
+  /* Fireplace flames — a continuous gentle flicker. Fire is an "alive"
+     indicator (like the masthead steam, §15's standing loop exception),
+     not bench decoration that animates-then-rests: a one-shot flicker on
+     4 px tongues is sub-pixel and reads as static, which is the opposite
+     of fire. So this loops. Transform-only (ADR 0006): scaleY from the
+     base plus a little scaleX waver, staggered across tongues for a
+     shimmer. Starts/ends at scaleY 1, so reset.css's reduced-motion clamp
+     leaves the fire fully drawn and still. */
   @keyframes flame-flicker {
     0%,
     100% {
       transform: scaleY(1);
     }
     20% {
-      transform: scaleY(1.18) scaleX(0.96);
+      transform: scaleY(1.28) scaleX(0.94);
     }
     45% {
-      transform: scaleY(0.86);
+      transform: scaleY(0.72);
     }
     70% {
-      transform: scaleY(1.1) scaleX(1.03);
+      transform: scaleY(1.15) scaleX(1.05);
     }
   }
 
@@ -450,20 +452,20 @@
       animation-delay: 330ms;
     }
 
-    /* Fireplace: the flames flicker three beats on scroll-in, then rest
-       at full height. Even/third tongues take a different tempo and a
-       small head-start so the row desyncs and reads as live fire rather
-       than a single pulsing block. */
+    /* Fireplace: the flames flicker continuously once the card is in view
+       (fire is alive — see the keyframe note). Even/third tongues run a
+       different tempo and start mid-cycle (negative delay) so the row
+       desyncs into a shimmer instead of one synchronised pulse. */
     .bench-card.in-view .home-vig .flame {
-      animation: flame-flicker 1300ms ease-in-out 3;
+      animation: flame-flicker 1100ms ease-in-out infinite;
     }
     .bench-card.in-view .home-vig .flame:nth-child(2n) {
-      animation-duration: 1500ms;
-      animation-delay: 160ms;
+      animation-duration: 1450ms;
+      animation-delay: -300ms;
     }
     .bench-card.in-view .home-vig .flame:nth-child(3n) {
-      animation-duration: 1150ms;
-      animation-delay: 320ms;
+      animation-duration: 850ms;
+      animation-delay: -550ms;
     }
 
     /* Bench card hover: paper-background swap + small accent dot fade-in

@@ -1,22 +1,32 @@
 ---
-// Default vignette for `kind: print` works: an isometric Gridfinity
-// baseplate with modular bins of different footprints and heights —
-// the 42 mm grid, the dropped-in bins, the stacking lip on top. Single-
-// colour via `currentColor` (ink-blue); depth comes from a different
-// fill-opacity per face (top lightest, sides darker). Geometry is shared
-// with the home bench vignette via `@lib/gridfinity-vignette` so the two
-// can't drift; this component just lays out the faces statically.
+// `kind: print` vignette — an isometric Gridfinity baseplate with modular
+// bins of different footprints and heights: the 42 mm grid, the dropped-in
+// bins, the stacking lip. Single-colour via `currentColor` (ink-blue);
+// depth from a different fill-opacity per face (top lightest, sides
+// darker). Projection geometry lives in `@lib/gridfinity-vignette`.
+//
+// SINGLE SOURCE for both surfaces (ADR 0013 amendment): the works registry
+// renders it via ContentArt with no props; the home bench renders the same
+// file with `class="print-vig"`, which scopes the bin-drop animation
+// (`.print-vig .bin`, animations.css). Each bin carries `.bin bN` so the
+// bench can stagger them; the works copy has the classes too but never
+// animates (no `.in-view` ancestor).
 import { bins, plane, gridLines, plateRight, plateLeft } from '@lib/gridfinity-vignette';
+export interface Props {
+  class?: string;
+}
+const { class: className = '' } = Astro.props;
 ---
 
 <svg
   viewBox="0 0 200 140"
   width="100%"
   height="100%"
+  class={className}
   role="img"
   aria-label="isometric Gridfinity bins"
+  aria-hidden="true"
 >
-  <title>Gridfinity bins</title>
   <g
     fill="currentColor"
     stroke="currentColor"
@@ -34,10 +44,10 @@ import { bins, plane, gridLines, plateRight, plateLeft } from '@lib/gridfinity-v
       {gridLines.map((d) => <path d={d} />)}
     </g>
 
-    {/* bins, back-to-front */}
+    {/* bins, back-to-front; `.bin bN` lets the bench drop them in */}
     {
-      bins.map((b) => (
-        <g>
+      bins.map((b, i) => (
+        <g class={`bin b${i}`}>
           <polygon points={b.left} fill-opacity="0.18" />
           <polygon points={b.right} fill-opacity="0.32" />
           <polygon points={b.top} fill-opacity="0.1" />

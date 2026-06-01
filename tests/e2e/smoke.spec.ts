@@ -377,6 +377,20 @@ test('/en/about/now/ — each item has a detail <dl> with at least one dt/dd pai
   }
 });
 
+test('/about/now/ — each present kind renders a unique per-kind class', async ({ page }) => {
+  await page.goto('/en/about/now/');
+  // The CSS keys the № tint off `.now-<kind>`; if a refactor drops a kind
+  // from the page the visual rhythm breaks silently, so assert it
+  // structurally. List the kinds CURRENTLY in now.md — `garden` and `read`
+  // are commented out there for now; re-add them here when they return.
+  // (Earlier this assertion was deleted wholesale to unblock CI when
+  // garden was removed; scoping to present kinds keeps the guard instead.)
+  const kinds = ['code', 'guitar', 'print', 'home', 'coffee'] as const;
+  for (const kind of kinds) {
+    await expect(page.locator(`.now-item.now-${kind}`)).toHaveCount(1);
+  }
+});
+
 // `/404` smoke tests. The page catches any unmatched URL.
 //
 // All four tests navigate via unmatched paths that end in `/`.
