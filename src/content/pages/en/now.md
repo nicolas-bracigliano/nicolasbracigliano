@@ -26,19 +26,19 @@ items:
       line: 'Markdown in, Lighthouse 100 out. Day five of rewriting it in Astro, mostly to try something new.'
   - kind: guitar
     where: 'in my hands · guitar'
-    title: 'Learning the basics'
-    prose: "Piazzolla. I've been looping the same eight bars at half speed for three weeks. The right hand is the puzzle — the i/m alternation has to ghost the m string through the rest stroke. Slow enough and you can feel the bass note pulling the melody behind it."
+    title: 'A year in, playing loud'
+    prose: "A year in. Open chords first, then riffs (Sunshine of Your Love, Come As You Are), and now whole songs (505, Black). Lately I'm practising standing up with the strap low. It changes the reach, and mostly it makes me want to play loud."
     detail:
-      - dt: 'Chords'
-        dd: 'D · A · E · Am · Em · Dm · G · C'
-      - dt: 'target'
-        dd: 'fast and accurate chord changes'
-      - dt: 'today'
-        dd: '~55 changes per minute, losing accuracy by the end'
+      - dt: 'riffs'
+        dd: 'Sunshine of Your Love · Come As You Are'
+      - dt: 'songs'
+        dd: '505 · Black'
+      - dt: 'now'
+        dd: 'learning to play standing'
     teaser:
       label: 'guitar'
-      line: 'Training left and right hand, learning the eight essential chords, bonding with the instrument.'
-      guitarLabel: '· D · A · E · Am · Em · Dm · G · C ·'
+      line: 'A year in: open chords, then riffs, now a couple of songs. Lately standing up, strap low.'
+      guitarLabel: '· Come As You Are · 505 · Black ·'
   - kind: garden
     where: 'in the huerta · garden'
     title: 'Spring rotation, planted out'
@@ -84,13 +84,13 @@ items:
       line: 'Wooden shell around the TV, with a landscape fire and a stone shelf.'
   - kind: coffee
     where: 'in the cup · coffee + mate'
-    title: 'Padre Ethiopia, and Cruz de Malta'
-    prose: 'Mornings: 20 g in, 38 g out, 28 seconds. Padre Coffee, Brunswick — a washed Ethiopia, bright and floral. Around 10:30, mate. Cruz de Malta, amargo, with hot water from the kettle on the same burner as everything else.'
+    title: 'Brimstone, and La Merced'
+    prose: 'Mornings: 22 g in, 38 g out, 28-30 seconds. Brimstone, CommonFolks Mornington, lots of chocolate, whilst also having some berry and stonefruit background. Around 10:30, mate. La Merced Monte, amargo. Lately the bottleneck is the machine, not the beans.'
     detail:
       - dt: 'beans'
-        dd: 'Padre Coffee, washed Ethiopia'
+        dd: 'Brimstone · Uganda / Kenya'
       - dt: 'mate'
-        dd: 'Cruz de Malta · amargo'
+        dd: 'La Merced Campo · amargo'
       - dt: 'ritual'
         dd: 'every morning · ~7:20'
   - kind: read

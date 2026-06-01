@@ -60,7 +60,7 @@ test.describe('command palette', () => {
     await page.locator('[data-cmdk-input]').fill('coffee');
     const first = page.locator('.cmdk-item').first();
     await expect(first.locator('.cmdk-pill')).toHaveText('now');
-    await expect(first.locator('.cmdk-title')).toHaveText('Padre Ethiopia, and Cruz de Malta');
+    await expect(first.locator('.cmdk-title')).toHaveText('Brimstone, and La Merced');
     await page.keyboard.press('Enter');
     await expect(page).toHaveURL(/\/en\/about\/now\/$/);
   });
@@ -98,8 +98,8 @@ test.describe('command palette', () => {
   test('announces the result count to assistive tech', async ({ page }) => {
     await page.goto('/en/');
     await page.keyboard.press('Control+k');
-    // "padre" matches only the coffee /now item — exercises the singular form.
-    await page.locator('[data-cmdk-input]').fill('padre');
+    // "brimstone" matches only the coffee /now item — exercises the singular form.
+    await page.locator('[data-cmdk-input]').fill('brimstone');
     await expect(page.locator('.cmdk-item')).toHaveCount(1);
     await expect(page.locator('[data-cmdk-status]')).toHaveText('1 result');
   });

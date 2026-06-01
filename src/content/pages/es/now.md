@@ -27,19 +27,19 @@ items:
       line: 'Entra markdown, sale Lighthouse 100. Día cinco reescribiéndolo en Astro, más que nada para probar algo diferente.'
   - kind: guitar
     where: 'entre las manos · guitarra'
-    title: 'Aprendiendo lo básico'
-    prose: 'Piazzolla. Vengo loopeando los mismos ocho compases a media velocidad hace tres semanas. La mano derecha es el rompecabezas — la alternancia i/m tiene que esquivar la cuerda m con el apoyando. Bien lento se siente cómo la nota grave arrastra a la melodía atrás.'
+    title: 'Un año, tocando fuerte'
+    prose: 'Un año adentro. Primero acordes abiertos, después riffs (Sunshine of Your Love, Come As You Are), y ahora temas enteros (505, Black). Últimamente practico parado, con la correa bien baja. Cambia el alcance, y sobre todo me dan ganas de tocar fuerte.'
     detail:
-      - dt: 'Acordes'
-        dd: 'D · A · E · Am · Em · Dm · G · C'
-      - dt: 'meta'
-        dd: 'cambio rápido y preciso de acordes'
-      - dt: 'hoy'
-        dd: '~55 cambios por minuto, perdiendo precisión hacia el final'
+      - dt: 'riffs'
+        dd: 'Sunshine of Your Love · Come As You Are'
+      - dt: 'temas'
+        dd: '505 · Black'
+      - dt: 'ahora'
+        dd: 'aprendiendo a tocar parado'
     teaser:
       label: 'guitarra'
-      line: 'Entrenando la mano izquierda y derecha, aprendiendo los ocho acordes esenciales y conectando con el instrumento'
-      guitarLabel: '· D · A · E · Am · Em · Dm · G · C ·'
+      line: 'Un año adentro: acordes, después riffs, ahora un par de temas. Últimamente parado, correa baja.'
+      guitarLabel: '· Come As You Are · 505 · Black ·'
   - kind: garden
     where: 'en la huerta · jardín'
     title: 'Rotación de primavera, plantada'
@@ -85,13 +85,13 @@ items:
       line: 'Carcasa de madera alrededor del TV, con un hogar apaisado y una repisa de piedra.'
   - kind: coffee
     where: 'en la taza · café + mate'
-    title: 'Padre Etiopía, y Cruz de Malta'
-    prose: 'A la mañana: 20 g entran, 38 g salen, 28 segundos. Padre Coffee, Brunswick — un Etiopía lavado, brillante y floral. Cerca de las 10:30, mate. Cruz de Malta, amargo, con agua caliente de la pava en la misma hornalla que todo lo demás.'
+    title: 'Brimstone, y La Merced'
+    prose: 'A la mañana: 22 g entran, 38 g salen, 28-30 segundos. Brimstone, CommonFolks Mornington, mucho cuerpo con notas de chocolate, y tambien algo de frutos rojos y ciruela. Cerca de las 10:30, mate. La Merced Campo, amargo. Últimamente el cuello de botella es la máquina, no los granos.'
     detail:
       - dt: 'granos'
-        dd: 'Padre Coffee, Etiopía lavado'
+        dd: 'Brimstone · Uganda / Kenia'
       - dt: 'mate'
-        dd: 'Cruz de Malta · amargo'
+        dd: 'La Merced Campo · amargo'
       - dt: 'ritual'
         dd: 'todas las mañanas · ~7:20'
   - kind: read
