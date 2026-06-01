@@ -343,18 +343,6 @@ test('/about/now/ — numbered items run a contiguous № sequence, mirrored acr
   expect(counts[0]).toBe(counts[1]);
 });
 
-test('/about/now/ — every per-kind class is present and unique', async ({ page }) => {
-  await page.goto('/en/about/now/');
-  // The CSS keys the № tint off these — if a future refactor drops
-  // a kind from the page, the visual rhythm breaks silently. Assert
-  // structurally rather than visually. (home shares the default accent
-  // tint with guitar/coffee — no dedicated .now-home rule needed.)
-  const kinds = ['code', 'guitar', 'garden', 'print', 'home', 'coffee', 'read'] as const;
-  for (const kind of kinds) {
-    await expect(page.locator(`.now-item.now-${kind}`)).toHaveCount(1);
-  }
-});
-
 test('/en/about/now/ — masthead carries the current weekday name', async ({ page }) => {
   await page.goto('/en/about/now/');
   // The masthead date is `en-AU` long-form: "friday, 23 may 2026",
@@ -386,6 +374,20 @@ test('/en/about/now/ — each item has a detail <dl> with at least one dt/dd pai
   for (let i = 0; i < itemCount; i++) {
     await expect(details.nth(i).locator('dt').first()).not.toBeEmpty();
     await expect(details.nth(i).locator('dd').first()).not.toBeEmpty();
+  }
+});
+
+test('/about/now/ — each present kind renders a unique per-kind class', async ({ page }) => {
+  await page.goto('/en/about/now/');
+  // The CSS keys the № tint off `.now-<kind>`; if a refactor drops a kind
+  // from the page the visual rhythm breaks silently, so assert it
+  // structurally. List the kinds CURRENTLY in now.md — `garden` and `read`
+  // are commented out there for now; re-add them here when they return.
+  // (Earlier this assertion was deleted wholesale to unblock CI when
+  // garden was removed; scoping to present kinds keeps the guard instead.)
+  const kinds = ['code', 'guitar', 'print', 'home', 'coffee'] as const;
+  for (const kind of kinds) {
+    await expect(page.locator(`.now-item.now-${kind}`)).toHaveCount(1);
   }
 });
 

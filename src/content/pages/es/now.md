@@ -40,35 +40,35 @@ items:
       label: 'guitarra'
       line: 'Un año adentro: acordes, después riffs, ahora un par de temas. Últimamente parado, correa baja.'
       guitarLabel: '· Come As You Are · 505 · Black ·'
-  - kind: garden
-    where: 'en la huerta · jardín'
-    title: 'Rotación de primavera, plantada'
-    prose: 'Black Russian, San Marzano, un plantín de albahaca genovesa, manzanilla, dos tipos de ají. Las abejas nativas aparecieron dos semanas antes que el año pasado. La borraja está haciendo lo suyo.'
-    detail:
-      - dt: 'cantero'
-        dd: '1.4 × 3 m elevado'
-      - dt: 'compañeras'
-        dd: 'tom + albahaca + manzanilla'
-      - dt: 'esperando'
-        dd: 'primer fruto en ~5 semanas'
-    teaser:
-      label: 'huerta'
-      line: 'Black Russian, San Marzano, un cajoncito de albahaca. Los polinizadores llegaron dos semanas antes.'
-      seedlingTag: 'tomate'
+  # - kind: garden
+  #   where: 'en la huerta · jardín'
+  #   title: 'Rotación de primavera, plantada'
+  #   prose: 'Black Russian, San Marzano, un plantín de albahaca genovesa, manzanilla, dos tipos de ají. Las abejas nativas aparecieron dos semanas antes que el año pasado. La borraja está haciendo lo suyo.'
+  #   detail:
+  #     - dt: 'cantero'
+  #       dd: '1.4 × 3 m elevado'
+  #     - dt: 'compañeras'
+  #       dd: 'tom + albahaca + manzanilla'
+  #     - dt: 'esperando'
+  #       dd: 'primer fruto en ~5 semanas'
+  #   teaser:
+  #     label: 'huerta'
+  #     line: 'Black Russian, San Marzano, un cajoncito de albahaca. Los polinizadores llegaron dos semanas antes.'
+  #     seedlingTag: 'tomate'
   - kind: print
     where: 'en el slicer · 3D'
-    title: 'Bandeja para guardar todo, rev 5'
-    prose: 'Cinco iteraciones para que entre el tamper del espresso. Imanes en las esquinas; la ranura finalmente encaja sin juego. Los fillets son demasiado agresivos — los suavizo en la rev 6.'
+    title: 'Bins Gridfinity para el cajón de herramientas'
+    prose: 'Bins de 42 mm a medida, modelados en CAD según la herramienta: uno para el calibre, otro para las boquillas, cajitas con etiqueta para tuercas y bulones. Seis hasta ahora, faltan más. PLA Matte en la Bambu.'
     detail:
-      - dt: 'material'
-        dd: 'PETG, reciclado'
-      - dt: 'capa'
-        dd: '0.16 mm · 4 paredes'
-      - dt: 'próximo'
-        dd: 'rev 6: fillets más suaves'
+      - dt: 'grilla'
+        dd: '42 mm estándar'
+      - dt: 'filamento'
+        dd: 'PLA Matte · Bambu Lab P2S'
+      - dt: 'hasta ahora'
+        dd: '6 bins a medida, cajón sin terminar'
     teaser:
       label: '3d'
-      line: 'Imanes en las esquinas; el hueco para el tamper de espresso por fin entra. Cinco iteraciones después.'
+      line: 'Bins Gridfinity a medida, modelados según la herramienta. Empezando por el cajón de impresión 3D.'
   - kind: home
     where: 'en la pared · casa'
     title: 'Piedra & Madera'
@@ -94,17 +94,17 @@ items:
         dd: 'La Merced Campo · amargo'
       - dt: 'ritual'
         dd: 'todas las mañanas · ~7:20'
-  - kind: read
-    where: 'en los oídos · leyendo y escuchando'
-    title: 'Borges en un oído, Ousterhout en el otro'
-    prose: 'Leyendo A Philosophy of Software Design despacio, sobre todo en el tranvía. Borges (El jardín de senderos que se bifurcan) en audiolibro mientras podo. The Mom Test los sábados a la tarde, al sol.'
-    detail:
-      - dt: 'papel'
-        dd: 'Borges · El jardín…'
-      - dt: 'audio'
-        dd: 'Ousterhout · A Philosophy of Software Design'
-      - dt: 'podcast'
-        dd: 'Ezra Klein, a veces'
+  # - kind: read
+  #   where: 'en los oídos · leyendo y escuchando'
+  #   title: 'Borges en un oído, Ousterhout en el otro'
+  #   prose: 'Leyendo A Philosophy of Software Design despacio, sobre todo en el tranvía. Borges (El jardín de senderos que se bifurcan) en audiolibro mientras podo. The Mom Test los sábados a la tarde, al sol.'
+  #   detail:
+  #     - dt: 'papel'
+  #       dd: 'Borges · El jardín…'
+  #     - dt: 'audio'
+  #       dd: 'Ousterhout · A Philosophy of Software Design'
+  #     - dt: 'podcast'
+  #       dd: 'Ezra Klein, a veces'
 ---
 
 <!--

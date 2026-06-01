@@ -39,35 +39,35 @@ items:
       label: 'guitar'
       line: 'A year in: open chords, then riffs, now a couple of songs. Lately standing up, strap low.'
       guitarLabel: '· Come As You Are · 505 · Black ·'
-  - kind: garden
-    where: 'in the huerta · garden'
-    title: 'Spring rotation, planted out'
-    prose: 'Black Russian, San Marzano, a punnet of Genovese basil, chamomile, two kinds of chilli. The native bees showed up two weeks earlier than last year. The borage is doing its job.'
-    detail:
-      - dt: 'plot'
-        dd: '1.4 × 3 m raised'
-      - dt: 'companions'
-        dd: 'tom + bsl + chamomile'
-      - dt: 'watching'
-        dd: 'first fruit set ~5 weeks'
-    teaser:
-      label: 'garden'
-      line: 'Black Russian, San Marzano, a punnet of Genovese basil, chamomile, two kinds of chilli. The native bees showed up two weeks earlier than last year.'
-      seedlingTag: 'tomato'
+  # - kind: garden
+  #   where: 'in the huerta · garden'
+  #   title: 'Spring rotation, planted out'
+  #   prose: 'Black Russian, San Marzano, a punnet of Genovese basil, chamomile, two kinds of chilli. The native bees showed up two weeks earlier than last year. The borage is doing its job.'
+  #   detail:
+  #     - dt: 'plot'
+  #       dd: '1.4 × 3 m raised'
+  #     - dt: 'companions'
+  #       dd: 'tom + bsl + chamomile'
+  #     - dt: 'watching'
+  #       dd: 'first fruit set ~5 weeks'
+  #   teaser:
+  #     label: 'garden'
+  #     line: 'Black Russian, San Marzano, a punnet of Genovese basil, chamomile, two kinds of chilli. The native bees showed up two weeks earlier than last year.'
+  #     seedlingTag: 'tomato'
   - kind: print
     where: 'in the slicer · 3D'
-    title: 'Catch-all tray, rev 5'
-    prose: "Five iterations to fit the espresso tamper. Magnets in the corners; the slot finally fits without play. The fillets are too aggressive — I'll soften them in rev 6."
+    title: 'Gridfinity bins for the tool drawer'
+    prose: 'Custom 42 mm bins, modelled in CAD to the tool: one for the calipers, one for the nozzles, labelled bins for nuts and bolts. Six so far, more to draw. Matte PLA on the Bambu.'
     detail:
-      - dt: 'material'
-        dd: 'PETG, recycled'
-      - dt: 'layer'
-        dd: '0.16 mm · 4 walls'
-      - dt: 'next'
-        dd: 'rev 6: softer fillets'
+      - dt: 'grid'
+        dd: '42 mm standard'
+      - dt: 'filament'
+        dd: 'PLA Matte · Bambu Lab P2S'
+      - dt: 'so far'
+        dd: '6 bespoke bins, drawer not done'
     teaser:
       label: '3d'
-      line: 'Five iterations to fit the espresso tamper. Magnets in the corners; the slot finally fits without play.'
+      line: 'Custom Gridfinity bins, modelled to the tool. Starting with the 3D-printing drawer.'
   - kind: home
     where: 'on the wall · home'
     title: 'Stone & Wood'
@@ -93,17 +93,17 @@ items:
         dd: 'La Merced Campo · amargo'
       - dt: 'ritual'
         dd: 'every morning · ~7:20'
-  - kind: read
-    where: 'in the ears · reading & listening'
-    title: 'Borges in one ear, Ousterhout in the other'
-    prose: 'Reading A Philosophy of Software Design slowly, mostly on the tram. Borges (El jardín de senderos que se bifurcan) on audiobook while pruning. The Mom Test on Saturday afternoons, in the sun.'
-    detail:
-      - dt: 'paper'
-        dd: 'Borges · El jardín…'
-      - dt: 'audio'
-        dd: 'Ousterhout · A Philosophy of Software Design'
-      - dt: 'podcast'
-        dd: 'Ezra Klein, sometimes'
+  # - kind: read
+  #   where: 'in the ears · reading & listening'
+  #   title: 'Borges in one ear, Ousterhout in the other'
+  #   prose: 'Reading A Philosophy of Software Design slowly, mostly on the tram. Borges (El jardín de senderos que se bifurcan) on audiobook while pruning. The Mom Test on Saturday afternoons, in the sun.'
+  #   detail:
+  #     - dt: 'paper'
+  #       dd: 'Borges · El jardín…'
+  #     - dt: 'audio'
+  #       dd: 'Ousterhout · A Philosophy of Software Design'
+  #     - dt: 'podcast'
+  #       dd: 'Ezra Klein, sometimes'
 ---
 
 <!--

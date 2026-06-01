@@ -57,4 +57,33 @@ The registry maps live inside `ContentArt.astro` rather than a separate `art-reg
 - **No `art:` / `glyph:` enum drift surface.** The schema is one rank smaller in both collections.
 - **Migration cost was localised.** Six notes (`glyph: X` → `kind: X`) + two works (`art: font-specimen` dropped) + four consumer files updated + two component files deleted. No content reshape required.
 
+## Amendment (2026-06) — BenchCard shares the vignette components
+
+The original decision ("BenchCard stays specialised … keeps its inline SVGs")
+was reasoned against routing the bench through the **stateless** ContentArt
+registry — which would have forced a leaky props-by-kind abstraction. That
+still holds: the bench does **not** go through the registry.
+
+What changed is that the per-kind vignette is now a **single component** at
+`src/components/art/vignettes/<Kind>.astro`, and both surfaces render _that
+file_:
+
+- ContentArt renders it statelessly for works (no props).
+- BenchCard renders the same file with a `-vig` class (which scopes the
+  scroll-in animation in `animations.css`) and, where the kind carries one, a
+  caption prop (`label` for guitar).
+
+Each vignette takes an optional `class` and (where relevant) `label`, so the
+per-instance caption lives as a prop on a per-kind component — not a generic
+mega-component. This removes the duplication that had crept in (the Stone &
+Wood media wall existed in both `vignettes/Home.astro` and inline in
+BenchCard; the guitar had drifted to two unrelated drawings) and makes "the
+works and bench art can't diverge" a structural guarantee.
+
+`guitar`, `code`, `print`, and `home` are shared this way. **`garden` is the
+deliberate exception**: a catalogued garden _work_ shows a planted plot
+(`vignettes/Garden.astro`); the bench shows a live, growing seedling (with its
+`seedlingTag`). Different metaphors for "shipped" vs "on the bench now", so the
+seedling stays inline in BenchCard on purpose.
+
 References: [ADR 0010](./0010-asymmetric-bilingual-route-naming.md) (parallel pattern for diagrams), [ADR 0011](./0011-long-form-piece-shape.md) (precedent for "content owns its expression").
