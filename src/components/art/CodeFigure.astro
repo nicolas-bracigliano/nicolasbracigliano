@@ -1,0 +1,64 @@
+---
+// Shared illustration for the `kind: code` vignette — an abstract code
+// editor: a pane with a line-number gutter and several indented, nested
+// lines of syntax (keywords in `--accent`, the rest grey), plus a
+// blinking cursor. Represents the *concept* of code, not any one project,
+// so it fits every `kind: code` entry. Used by both the works default
+// (`art/vignettes/Code.astro`) and the home bench (`BenchCard.astro`); the
+// bench adds the cursor blink on scroll-in via `.code-vig .caret` in
+// animations.css.
+//
+// Drawn as a few combined `<path>` runs (one per syntax tone) rather than
+// a rect-per-token, to keep the inline markup small — this vignette ships
+// on the home page, which sits close to its page-weight budget.
+export interface Props {
+  class?: string;
+}
+const { class: className = '' } = Astro.props;
+
+// Each `M x,y h w` is one token bar; tones are batched into one path so
+// the whole editor is ~8 elements. Indents: 40 / 48 / 56.
+const grey =
+  'M55,30 h30 M88,30 h4 M95,30 h5 M65,42 h14 M82,42 h4 M90,42 h58 M48,54 h24 M75,54 h20 M98,54 h6 M58,78 h22 M83,78 h5 M56,90 h16 M75,90 h4 M82,90 h16 M101,90 h3 M40,102 h5';
+const keyword = 'M40,30 h12 M48,42 h14 M48,78 h7';
+const comment = 'M48,66 h100';
+const lineNos = 'M22,30 h5 M22,42 h5 M22,54 h5 M22,66 h5 M22,78 h5 M22,90 h5 M22,102 h5';
+---
+
+<svg
+  viewBox="0 0 200 140"
+  width="100%"
+  height="100%"
+  class={className}
+  role="img"
+  aria-label="code editor"
+  aria-hidden="true"
+>
+  {/* editor pane */}
+  <rect
+    x="12"
+    y="16"
+    width="176"
+    height="108"
+    rx="6"
+    fill="currentColor"
+    fill-opacity="0.04"
+    stroke="currentColor"
+    stroke-opacity="0.13"></rect>
+
+  {/* gutter rule + line numbers */}
+  <g stroke="currentColor" fill="none" stroke-linecap="round">
+    <line x1="34" x2="34" y1="22" y2="118" stroke-opacity="0.14"></line>
+    <path d={lineNos} stroke-opacity="0.22" stroke-width="1.5"></path>
+  </g>
+
+  {/* code — one path per syntax tone */}
+  <g fill="none" stroke-linecap="round" stroke-width="4.4">
+    <path d={grey} stroke="currentColor" stroke-opacity="0.5"></path>
+    <path d={comment} stroke="currentColor" stroke-opacity="0.24"></path>
+    <path d={keyword} stroke="var(--accent)" stroke-opacity="0.85"></path>
+  </g>
+
+  {/* cursor on the active line */}
+  <rect class="caret" x="106" y="86.5" width="2.4" height="7" rx="0.4" fill="var(--accent)"></rect>
+</svg>

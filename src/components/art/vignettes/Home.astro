@@ -1,57 +1,150 @@
 ---
-// Default vignette for `kind: home` works.
+// Default vignette for `kind: home` works: the Stone & Wood media wall,
+// a clean front elevation measured from the reference render. The
+// signature is a tall, narrow slatted walnut panel sitting on a much
+// wider floating cabinet: crown molding; the 75″ TV framed large inside
+// the panel (it nearly fills the panel width); a full-width linear glass
+// firebox (fire contained inside) at the panel's foot; a light stone
+// countertop and a floating slatted cabinet — both far wider than the
+// panel — with an underglow; two speakers standing on the stone, out
+// beyond the panel's edges. `currentColor` is `--accent` (warm); value
+// (not hue) carries the material read — TV/firebox darkest, stone
+// lightest, fire brightest.
+
+// Vertical battens, deterministic positions.
+const panelSlats = Array.from({ length: 18 }, (_, k) => 66 + k * 3.8);
+const cabinetSlats = Array.from({ length: 33 }, (_, k) => 36 + k * 4);
+// Fire tongues, contained inside the firebox.
+const flames = Array.from({ length: 20 }, (_, k) => {
+  const x = 69 + k * 3.2;
+  const h = k % 2 === 0 ? 4.5 : 3;
+  return `M${x},104 q 1,-${h} 2,0`;
+});
 ---
 
-<svg viewBox="0 0 200 140" width="100%" height="100%" role="img" aria-label="media-wall vignette">
-  <title>media-wall</title>
-  <g fill="none" stroke="currentColor" stroke-width="1">
-    {/* crown molding */}
-    <line x1="46" x2="154" y1="14" y2="14"></line>
-    <line x1="46" x2="154" y1="17" y2="17" opacity="0.4"></line>
+<svg viewBox="0 0 200 140" width="100%" height="100%" role="img" aria-label="media wall vignette">
+  <title>media wall</title>
+  <defs>
+    <linearGradient id="mw-fire" x1="0" y1="1" x2="0" y2="0">
+      <stop offset="0" stop-color="var(--accent)" stop-opacity="0.9"></stop>
+      <stop offset="1" stop-color="var(--accent)" stop-opacity="0.06"></stop>
+    </linearGradient>
+    <linearGradient id="mw-glow" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="var(--accent)" stop-opacity="0.5"></stop>
+      <stop offset="1" stop-color="var(--accent)" stop-opacity="0"></stop>
+    </linearGradient>
+  </defs>
 
-    {/* wall panel */}
-    <path d="M52,17 L52,102 L148,102 L148,17" opacity="0.6"></path>
+  <g fill="currentColor" stroke="currentColor" stroke-linejoin="round">
+    {/* crown molding (wider than the panel) */}
+    <rect
+      x="62"
+      y="5"
+      width="76"
+      height="4.5"
+      fill-opacity="0.1"
+      stroke-opacity="0.3"
+      stroke-width="1"></rect>
 
-    {/* wall slats */}
-    {
-      Array.from({ length: 18 }).map((_, i) => (
-        <line x1={58 + i * 5} x2={58 + i * 5} y1="18" y2="100" opacity="0.3" />
-      ))
-    }
+    {/* tall, narrow slatted walnut panel */}
+    <rect
+      x="64"
+      y="9.5"
+      width="72"
+      height="96"
+      fill-opacity="0.05"
+      stroke-opacity="0.4"
+      stroke-width="1"></rect>
+    <g stroke-opacity="0.28" stroke-width="1">
+      {panelSlats.map((x) => <line x1={x} x2={x} y1="10.5" y2="94.5" />)}
+    </g>
 
-    {/* tv */}
-    <rect x="66" y="40" width="68" height="36" stroke-width="1.2" fill="currentColor"></rect>
+    {/* 75″ TV, framed large inside the panel */}
+    <rect
+      x="69"
+      y="44"
+      width="62"
+      height="43"
+      rx="1.5"
+      fill-opacity="0.14"
+      stroke-opacity="0.45"
+      stroke-width="1"></rect>
+    <rect x="71" y="46" width="58" height="39" rx="0.5" fill-opacity="0.9" stroke="none"></rect>
+    <rect
+      x="72.5"
+      y="47.5"
+      width="55"
+      height="36"
+      fill="none"
+      stroke="var(--bg-2)"
+      stroke-opacity="0.3"
+      stroke-width="0.5"></rect>
 
-    {/* fireplace slot */}
-    <rect x="60" y="91.5" width="80" height="9"></rect>
+    {/* full-width linear glass firebox — fire contained inside */}
+    <rect
+      x="65"
+      y="95"
+      width="70"
+      height="10.5"
+      rx="0.5"
+      fill-opacity="0.78"
+      stroke-opacity="0.5"
+      stroke-width="1"></rect>
+    <rect x="67" y="97.5" width="66" height="7.5" fill="url(#mw-fire)" stroke="none"></rect>
+    <g fill="var(--accent)" stroke="none">
+      {flames.map((d) => <path d={d} fill-opacity="0.95" />)}
+    </g>
+    <line
+      x1="68"
+      x2="132"
+      y1="104.2"
+      y2="104.2"
+      stroke="var(--accent)"
+      stroke-opacity="0.85"
+      stroke-width="1.4"
+      stroke-linecap="round"></line>
 
-    {/* flames */}
-    {
-      Array.from({ length: 12 }).map((_, i) => {
-        const x = 65 + i * 6;
-        const h = i % 2 === 0 ? 6 : 4;
-        return <path d={`M${x},99 q 1,-${h} 2,0`} opacity="0.55" fill="var(--accent)" />;
-      })
-    }
+    {/* stone countertop — far wider than the panel, rounded ends */}
+    <rect
+      x="33"
+      y="105"
+      width="134"
+      height="4.5"
+      rx="2.2"
+      fill-opacity="0.12"
+      stroke-opacity="0.4"
+      stroke-width="1"></rect>
+    <line x1="36" x2="164" y1="106" y2="106" stroke="var(--bg-2)" stroke-opacity="0.3"></line>
 
-    {/* speakers on the shelf */}
-    <ellipse cx="42" cy="95" rx="3.5" ry="4.5" fill="currentColor" stroke="none" opacity="0.75"
-    ></ellipse>
-    <ellipse cx="158" cy="95" rx="3.5" ry="4.5" fill="currentColor" stroke="none" opacity="0.75"
-    ></ellipse>
+    {/* floating slatted lower cabinet — wide, rounded ends */}
+    <rect
+      x="33"
+      y="109.5"
+      width="134"
+      height="21"
+      rx="4.5"
+      fill-opacity="0.07"
+      stroke-opacity="0.4"
+      stroke-width="1"></rect>
+    <g stroke-opacity="0.26" stroke-width="1">
+      {cabinetSlats.map((x) => <line x1={x} x2={x} y1="111" y2="129" />)}
+    </g>
 
-    {/* floating bench, rounded ends */}
-    <rect x="22" y="102" width="156" height="20" rx="6"></rect>
-    <line x1="22" x2="178" y1="104" y2="104" opacity="0.5" stroke-width="3"></line>
+    {/* underglow beneath the floating cabinet */}
+    <rect x="39" y="130.5" width="122" height="9" fill="url(#mw-glow)" stroke="none"></rect>
+    <line
+      x1="39"
+      x2="161"
+      y1="130.8"
+      y2="130.8"
+      stroke="var(--accent)"
+      stroke-opacity="0.6"
+      stroke-width="1"
+      stroke-linecap="round"></line>
 
-    {/* bench slats */}
-    {
-      Array.from({ length: 28 }).map((_, i) => (
-        <line x1={30 + i * 5.18} x2={30 + i * 5.18} y1="108" y2="120" opacity="0.3" />
-      ))
-    }
-
-    {/* underglow */}
-    <line x1="26" x2="174" y1="128" y2="128" stroke-dasharray="2 2" opacity="0.4"></line>
+    {/* speakers standing on the stone, beyond the panel edges */}
+    <rect x="49" y="91" width="8.5" height="15" rx="4.25" fill-opacity="0.78" stroke="none"></rect>
+    <rect x="142.5" y="91" width="8.5" height="15" rx="4.25" fill-opacity="0.78" stroke="none"
+    ></rect>
   </g>
 </svg>

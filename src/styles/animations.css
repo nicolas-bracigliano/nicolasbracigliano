@@ -174,25 +174,19 @@
     }
   }
 
-  @keyframes head-move {
+  /* Gridfinity: bins drop into the baseplate and settle (the work's own
+     line — "bins drop into baseplates and never slide around"). Transform-
+     only (ADR 0006): translateY from above with a small overshoot, then
+     rest in place. */
+  @keyframes bin-drop {
     0% {
+      transform: translateY(-13px);
+    }
+    70% {
+      transform: translateY(1.5px);
+    }
+    100% {
       transform: translateY(0);
-    }
-    50% {
-      transform: translateY(50px);
-    }
-    100% {
-      transform: translateY(100px);
-    }
-  }
-
-  @keyframes layer-fade {
-    0%,
-    100% {
-      opacity: 0.1;
-    }
-    50% {
-      opacity: 0.45;
     }
   }
 
@@ -207,6 +201,28 @@
     100% {
       opacity: 0;
       transform: translateY(-4px);
+    }
+  }
+
+  /* Fireplace flames flicker a few beats as the bench card scrolls into
+     view, then rest at full height. Transform-only (ADR 0006): scaleY
+     from the base with a tiny scaleX waver, so the tongues read as
+     living fire without a fading-pixel contrast pass. Start and end at
+     the rest state (scaleY 1) so it needs no pre-animation staging and
+     leaves the fire fully drawn if the loop never triggers. */
+  @keyframes flame-flicker {
+    0%,
+    100% {
+      transform: scaleY(1);
+    }
+    20% {
+      transform: scaleY(1.18) scaleX(0.96);
+    }
+    45% {
+      transform: scaleY(0.86);
+    }
+    70% {
+      transform: scaleY(1.1) scaleX(1.03);
     }
   }
 
@@ -229,6 +245,17 @@
   .guitar-vig .string {
     transform-origin: center;
   }
+  /* Flames scale from their base (not a fading opacity), so the pivot
+     must sit at the bottom of each tongue's box. Not motion itself —
+     just the anchor the flicker keyframe scales around. */
+  .home-vig .flame {
+    transform-box: fill-box;
+    transform-origin: bottom;
+  }
+  /* Gridfinity bins start lifted above their slots, ready to drop in. */
+  .print-vig .bin {
+    transform: translateY(-13px);
+  }
 
   /* Reduced-motion: skip the staging entirely. Set the end-states so a
      user with motion sensitivity sees fully-rendered vignettes
@@ -244,8 +271,8 @@
     .seedling-vig .leaf {
       opacity: 1;
     }
-    .print-vig .head {
-      transform: translateY(100px);
+    .print-vig .bin {
+      transform: none;
     }
   }
 
@@ -357,11 +384,11 @@
       animation-delay: 500ms;
     }
 
-    /* Terminal caret: even-step blink so it reads as a CRT cursor.
-       Eight blinks (~8.8s) then settles at opacity 1, so the caret
-       reads as a terminal cursor in the moment but doesn't twitch
+    /* Editor cursor: even-step blink so it reads as a text caret.
+       Eight blinks (~8.8s) then settles at opacity 1, so the cursor
+       reads as "writing code" in the moment but doesn't twitch
        forever. */
-    .bench-card.in-view .terminal-vig .caret {
+    .bench-card.in-view .code-vig .caret {
       animation: blink 1100ms steps(2, end) 8;
     }
 
@@ -408,32 +435,35 @@
       animation-delay: 1600ms;
     }
 
-    /* 3D print: head sweeps down once (laying the print) and rests at
-       the bottom; layer lines fade through a triangular wave then
-       settle at their static SVG opacity. */
-    .bench-card.in-view .print-vig .head {
-      animation: head-move 3800ms cubic-bezier(0.4, 0, 0.6, 1) forwards;
+    /* Gridfinity: the bins drop into the baseplate one after another,
+       back-to-front, and settle — then rest. */
+    .bench-card.in-view .print-vig .bin {
+      animation: bin-drop 620ms cubic-bezier(0.25, 0.9, 0.3, 1) forwards;
     }
-    .bench-card.in-view .print-vig .layer {
-      animation: layer-fade 3800ms ease-in-out 1;
+    .bench-card.in-view .print-vig .b1 {
+      animation-delay: 110ms;
     }
-    .bench-card.in-view .print-vig .l1 {
-      animation-delay: 120ms;
+    .bench-card.in-view .print-vig .b2 {
+      animation-delay: 220ms;
     }
-    .bench-card.in-view .print-vig .l2 {
-      animation-delay: 240ms;
+    .bench-card.in-view .print-vig .b3 {
+      animation-delay: 330ms;
     }
-    .bench-card.in-view .print-vig .l3 {
-      animation-delay: 360ms;
+
+    /* Fireplace: the flames flicker three beats on scroll-in, then rest
+       at full height. Even/third tongues take a different tempo and a
+       small head-start so the row desyncs and reads as live fire rather
+       than a single pulsing block. */
+    .bench-card.in-view .home-vig .flame {
+      animation: flame-flicker 1300ms ease-in-out 3;
     }
-    .bench-card.in-view .print-vig .l4 {
-      animation-delay: 480ms;
+    .bench-card.in-view .home-vig .flame:nth-child(2n) {
+      animation-duration: 1500ms;
+      animation-delay: 160ms;
     }
-    .bench-card.in-view .print-vig .l5 {
-      animation-delay: 600ms;
-    }
-    .bench-card.in-view .print-vig .l6 {
-      animation-delay: 720ms;
+    .bench-card.in-view .home-vig .flame:nth-child(3n) {
+      animation-duration: 1150ms;
+      animation-delay: 320ms;
     }
 
     /* Bench card hover: paper-background swap + small accent dot fade-in

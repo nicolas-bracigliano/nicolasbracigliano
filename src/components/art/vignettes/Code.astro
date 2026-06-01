@@ -1,16 +1,9 @@
 ---
-// Default vignette for `kind: code` works. Terminal build log. Sized to
-// fill its container via viewBox-less `<pre>`; the route stylesheet
-// (`routes/works.css`) sizes the wrapper. Inlined SVG/text so the
-// vignette stays zero-request and `currentColor` flows through.
+// Default vignette for `kind: code` works: the abstract code-editor
+// illustration, shared with the home bench via `CodeFigure` so the two
+// can't drift. Renders on the dark `.work-art--code` ground; static here
+// (the bench adds the cursor blink).
+import CodeFigure from '../CodeFigure.astro';
 ---
 
-<pre
-  class="work-art-terminal"
-  role="img"
-  aria-label="terminal build log">{`$ pnpm dev  ──────────────────────────╮
-  ✓ astro  v6.4.2 ready               │
-  ✓ Local  http://localhost:4321/     │
-  ✓ Network  use --host to expose     │
-  ✓ watching for file changes...      │
-  ────────────────────────────────────╯`}</pre>
+<CodeFigure />

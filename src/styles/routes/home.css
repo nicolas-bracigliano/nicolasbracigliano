@@ -384,31 +384,12 @@
     color: var(--accent);
   }
 
-  /* Terminal vignette */
-  .terminal-vig {
-    font-family: var(--font-body);
-    font-size: 10.5px;
-    line-height: 1.6;
-    color: var(--terminal-fg);
-    white-space: pre;
-    margin: 0;
-    padding: 0.9rem 1.1rem;
-    width: 100%;
-    height: 100%;
-    display: flex;
-  }
-  .terminal-vig .caret {
-    display: block;
-    width: 7px;
-    height: 12px;
-    background: var(--terminal-fg);
-    margin-inline-start: -80px;
-  }
-
   /* Vignette canvases share padding rules */
   .guitar-vig,
   .seedling-vig,
-  .print-vig {
+  .print-vig,
+  .home-vig,
+  .code-vig {
     width: 100%;
     height: 100%;
     padding: 0.4rem 0.6rem;
