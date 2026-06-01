@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.14.1](https://github.com/nicolas-bracigliano/nicolasbracigliano/compare/v1.14.0...v1.14.1) (2026-06-01)
+
+
+### Bug Fixes
+
+* **deps:** update dependency @astrojs/sitemap to v3.7.3 ([493280f](https://github.com/nicolas-bracigliano/nicolasbracigliano/commit/493280f51437668dcae9727f82bc791394d15572))
+
+
+### Refactors
+
+* **types:** replace fixable `as` casts with type-system-carried invariants ([6d99c02](https://github.com/nicolas-bracigliano/nicolasbracigliano/commit/6d99c0285f59851278ba2e2edcd07fa37bd4bc67))
+* **types:** replace fixable as-casts with type-system-carried invariants ([f40ff09](https://github.com/nicolas-bracigliano/nicolasbracigliano/commit/f40ff09b46673f79336212637731043cb04e4db8))
+
 ## [1.14.0](https://github.com/nicolas-bracigliano/nicolasbracigliano/compare/v1.13.0...v1.14.0) (2026-06-01)
 
 
