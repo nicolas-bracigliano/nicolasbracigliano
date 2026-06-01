@@ -391,6 +391,36 @@ test('/about/now/ — each present kind renders a unique per-kind class', async 
   }
 });
 
+// Per-kind vignette art — structural coverage (ADR 0013 amendment).
+// Pixel snapshots stay local-only (visual.spec.ts is host-suffixed and
+// skipped on CI by design); these instead guard the thing a refactor
+// actually breaks: that each shared vignette renders on its surface with
+// the elements its scroll-in animation keys off. The companion
+// tests/unit/vignette-art.test.ts guards the same at the source level
+// (bench + registry render the same file).
+
+test('home bench — each vignette renders with its animation hooks', async ({ page }) => {
+  await page.goto('/en/');
+  // code editor: pane + blinking cursor
+  await expect(page.locator('.bench-card--code .code-vig .caret')).toHaveCount(1);
+  // guitar: six strings + the baked caption
+  await expect(page.locator('.bench-card--guitar .guitar-vig .string')).toHaveCount(6);
+  await expect(page.locator('.bench-card--guitar .guitar-vig text')).not.toBeEmpty();
+  // gridfinity: four bins drop in
+  await expect(page.locator('.bench-card--print .print-vig .bin')).toHaveCount(4);
+  // media wall: the fire has tongues to flicker
+  await expect(page.locator('.bench-card--home .home-vig .flame')).not.toHaveCount(0);
+});
+
+test('works — each kind renders its default vignette via the registry', async ({ page }) => {
+  await page.goto('/en/works/this-site/');
+  await expect(page.locator('.work-art--code svg .caret')).toHaveCount(1);
+  await page.goto('/en/works/gridfinity-bins/');
+  await expect(page.locator('.work-art--print svg .bin')).toHaveCount(4);
+  await page.goto('/en/works/stone-wood/');
+  await expect(page.locator('.work-art--home svg .flame')).not.toHaveCount(0);
+});
+
 // `/404` smoke tests. The page catches any unmatched URL.
 //
 // All four tests navigate via unmatched paths that end in `/`.
