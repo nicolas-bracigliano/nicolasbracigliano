@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.15.0](https://github.com/nicolas-bracigliano/nicolasbracigliano/compare/v1.14.2...v1.15.0) (2026-06-01)
+
+
+### Features
+
+* **content:** round 1 — publish guitar/coffee notes, remove inaccurate Milonga content ([cac82be](https://github.com/nicolas-bracigliano/nicolasbracigliano/commit/cac82be4a4c85ea5acdb2b802b4b6cf8a2dd04f8))
+
 ## [1.14.2](https://github.com/nicolas-bracigliano/nicolasbracigliano/compare/v1.14.1...v1.14.2) (2026-06-01)
 
 
