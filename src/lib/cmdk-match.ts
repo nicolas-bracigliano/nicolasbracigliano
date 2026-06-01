@@ -57,16 +57,30 @@ export function score(entry: CmdkEntry, q: string): number {
   return 0;
 }
 
+/** A subsequence (typo-tolerant) match is *fuzzy*; prefix/substring matches
+ *  are *exact*. Every exact tier scores ≥ 50; the subsequence fallback scores
+ *  30. `match` ranks exact above fuzzy as its primary key, so a fuzzy hit in a
+ *  high-priority kind can't bury an exact match in a lower one. */
+const FUZZY_SCORE_MAX = 40;
+
 /** Filter + rank the index for a query. Empty query → the routes (the
- *  default "jump to" list). Otherwise: score, drop non-matches, group by
- *  kind then by score, cap. */
+ *  default "jump to" list). Otherwise: score, drop non-matches, then sort by
+ *  match strength (exact before fuzzy), then by kind group, then by score, and
+ *  cap. Exact-before-fuzzy is the primary key so a fuzzy subsequence hit (e.g.
+ *  a /now title that happens to spell the query, like "agile" inside "A year
+ *  in, getting louder") can't outrank an exact substring match in a lower kind
+ *  group (the piece that's actually about it). */
 export function match(index: readonly CmdkEntry[], rawQuery: string): CmdkEntry[] {
   const q = rawQuery.trim().toLowerCase();
   if (q === '') return index.filter((e) => e.kind === 'page').slice(0, DEFAULT_MAX);
+  const isFuzzy = (s: number): number => (s <= FUZZY_SCORE_MAX ? 1 : 0);
   return index
     .map((e) => ({ e, s: score(e, q) }))
     .filter((r) => r.s > 0)
-    .sort((a, b) => KIND_ORDER[a.e.kind] - KIND_ORDER[b.e.kind] || b.s - a.s)
+    .sort(
+      (a, b) =>
+        isFuzzy(a.s) - isFuzzy(b.s) || KIND_ORDER[a.e.kind] - KIND_ORDER[b.e.kind] || b.s - a.s,
+    )
     .slice(0, QUERY_MAX)
     .map((r) => r.e);
 }
