@@ -1,5 +1,30 @@
 # Changelog
 
+## [1.14.0](https://github.com/nicolas-bracigliano/nicolasbracigliano/compare/v1.13.0...v1.14.0) (2026-06-01)
+
+
+### Features
+
+* ⌘K command palette as the site's search ([#99](https://github.com/nicolas-bracigliano/nicolasbracigliano/issues/99)) ([f37ee53](https://github.com/nicolas-bracigliano/nicolasbracigliano/commit/f37ee53d01d50c8ad4b0802bdff5819e61c0bcf4))
+* add 'home' filter and corresponding labels to WorksFilters component ([e34ecf5](https://github.com/nicolas-bracigliano/nicolasbracigliano/commit/e34ecf53342e507c15c6fe4caa71a4d4dda99458))
+* add 'Stone & Wood' project and update home vignette ([c653f2c](https://github.com/nicolas-bracigliano/nicolasbracigliano/commit/c653f2c649b9fe044224c38c1b986c11f0f7c9d9))
+* implement 'home' vignette and styles for BenchCard and ContentArt components ([c6c69dd](https://github.com/nicolas-bracigliano/nicolasbracigliano/commit/c6c69dd21412d1668558a1e05a7a4d3ac8e8b38b))
+* ship the ⌘K command palette and unified bench/now ([76b80a0](https://github.com/nicolas-bracigliano/nicolasbracigliano/commit/76b80a071a9ed52d5e03a5e51e70b5d7ae41a152))
+
+
+### Bug Fixes
+
+* **content:** correct ES/EN copy and dedupe the Stone & Wood catalog number ([660ac6d](https://github.com/nicolas-bracigliano/nicolasbracigliano/commit/660ac6dc14eee87d97f24295bbb8527c44335d4a))
+* **e2e:** compute the about-byline month in Australia/Melbourne ([6c4cfee](https://github.com/nicolas-bracigliano/nicolasbracigliano/commit/6c4cfeeef83e88df93438fbb3b03fd5ab2fd0b2f))
+* update terminal build log in Code.astro vignette ([115fb51](https://github.com/nicolas-bracigliano/nicolasbracigliano/commit/115fb515fbe41de8a0f39c82374cc81252860f91))
+
+
+### Refactors
+
+* **markdown:** migrate to markdown.processor: unified({...}) ([a2c36da](https://github.com/nicolas-bracigliano/nicolasbracigliano/commit/a2c36dad91b1b09f27682c9507ae508b8c4d0b0c))
+* unify home bench and /now onto a single source ([#97](https://github.com/nicolas-bracigliano/nicolasbracigliano/issues/97)) ([919aed8](https://github.com/nicolas-bracigliano/nicolasbracigliano/commit/919aed811ffea99bbac290e795f2622268c09ac9))
+* update filter display and content status across works ([93e2dfa](https://github.com/nicolas-bracigliano/nicolasbracigliano/commit/93e2dfac4b860d71debe7795be88f7e6da1c9f0e))
+
 ## [1.13.0](https://github.com/nicolas-bracigliano/nicolasbracigliano/compare/v1.12.0...v1.13.0) (2026-05-28)
 
 
