@@ -502,4 +502,4 @@ The prototype loads dependencies from CDNs and uses Babel-in-browser; production
 
 ---
 
-_Last set in type on 22 May 2026. — N. B._
+_Last set in type on 1 June 2026. — N. B._
