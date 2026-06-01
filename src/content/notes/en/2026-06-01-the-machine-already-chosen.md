@@ -4,7 +4,7 @@ slug: 'the-machine-already-chosen'
 lang: en
 translationId: the-machine-already-chosen-2026-06-01
 date: 2026-06-01
-status: draft
+status: published
 tags: [coffee, espresso]
 kind: coffee
 aside: 'Fellow Espresso (S1) vs Meraki Gen 2. still deciding.'

@@ -26,19 +26,19 @@ items:
       line: 'Markdown in, Lighthouse 100 out. Day five of rewriting it in Astro, mostly to try something new.'
   - kind: guitar
     where: 'in my hands · guitar'
-    title: 'Learning the basics'
-    prose: "Piazzolla. I've been looping the same eight bars at half speed for three weeks. The right hand is the puzzle — the i/m alternation has to ghost the m string through the rest stroke. Slow enough and you can feel the bass note pulling the melody behind it."
+    title: 'A year in, playing loud'
+    prose: "A year in. Open chords first, then riffs (Sunshine of Your Love, Come As You Are), and now whole songs (505, Black). Lately I'm practising standing up with the strap low. It changes the reach, and mostly it makes me want to play loud."
     detail:
-      - dt: 'Chords'
-        dd: 'D · A · E · Am · Em · Dm · G · C'
-      - dt: 'target'
-        dd: 'fast and accurate chord changes'
-      - dt: 'today'
-        dd: '~55 changes per minute, losing accuracy by the end'
+      - dt: 'riffs'
+        dd: 'Sunshine of Your Love · Come As You Are'
+      - dt: 'songs'
+        dd: '505 · Black'
+      - dt: 'now'
+        dd: 'learning to play standing'
     teaser:
       label: 'guitar'
-      line: 'Training left and right hand, learning the eight essential chords, bonding with the instrument.'
-      guitarLabel: '· D · A · E · Am · Em · Dm · G · C ·'
+      line: 'A year in: open chords, then riffs, now a couple of songs. Lately standing up, strap low.'
+      guitarLabel: '· Come As You Are · 505 · Black ·'
   - kind: garden
     where: 'in the huerta · garden'
     title: 'Spring rotation, planted out'

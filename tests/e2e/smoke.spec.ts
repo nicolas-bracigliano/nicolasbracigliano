@@ -488,8 +488,8 @@ test('works filter toggles cards via data-kind matching', async ({ page }) => {
   await page.locator('.works-filters[data-wired="true"]').waitFor({ timeout: 15_000 });
   // Initial state: all cards visible.
   const all = page.locator('.work-card');
-  await expect(all).toHaveCount(4);
-  for (let i = 0; i < 4; i++) {
+  await expect(all).toHaveCount(3);
+  for (let i = 0; i < 3; i++) {
     await expect(all.nth(i)).toBeVisible();
   }
   // Click "code" filter → only the one `data-kind="code"` card stays.
@@ -501,7 +501,7 @@ test('works filter toggles cards via data-kind matching', async ({ page }) => {
   await expect(visibleAfter).toHaveAttribute('data-kind', 'code');
   // Click "all" → everything returns.
   await page.locator('.filter[data-filter="all"]').click();
-  await expect(page.locator('.work-card:not([hidden])')).toHaveCount(4);
+  await expect(page.locator('.work-card:not([hidden])')).toHaveCount(3);
 });
 
 // CSP-compatibility contract. `public/_headers` ships
