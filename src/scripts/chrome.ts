@@ -99,6 +99,8 @@ document.addEventListener('astro:page-load', () => {
 // data-theme is wiped for one frame and the page flashes light before
 // astro:page-load re-applies the user's theme.
 document.addEventListener('astro:before-swap', (event) => {
+  // Boundary cast: `astro:before-swap` isn't in lib.dom's event map, so the
+  // listener receives a generic `Event`; cast to Astro's typed event.
   const evt = event as TransitionBeforeSwapEvent;
   const current = root.dataset.theme;
   if (current === 'dia' || current === 'noche') {
@@ -130,7 +132,7 @@ colorSchemeMql?.addEventListener('change', (event) => {
 });
 
 document.addEventListener('click', (event) => {
-  const target = event.target as Element | null;
+  const target = event.target instanceof Element ? event.target : null;
 
   const themeBtn = target?.closest<HTMLButtonElement>('#theme-toggle');
   if (themeBtn) {

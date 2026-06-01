@@ -49,6 +49,9 @@ export const REGISTRY_KEYS = [
 
 export type DiagramKey = (typeof REGISTRY_KEYS)[number];
 
+// `ReadonlySet<string>` widens the element type so `.has()` accepts an
+// arbitrary `string` — the membership test needs no cast.
+const REGISTRY_KEY_SET: ReadonlySet<string> = new Set(REGISTRY_KEYS);
 export function isDiagramKey(key: string): key is DiagramKey {
-  return (REGISTRY_KEYS as readonly string[]).includes(key);
+  return REGISTRY_KEY_SET.has(key);
 }

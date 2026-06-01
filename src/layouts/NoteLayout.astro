@@ -13,7 +13,7 @@ export interface Props {
 
 const { entry, path, siblingPath } = Astro.props;
 const { title, lede, lang } = entry.data;
-const locale = lang as Locale;
+const locale: Locale = lang;
 const indexHref = ROUTES.notes[locale];
 const indexLabel = locale === 'es' ? '↩ todas las notas' : '↩ all notes';
 const ogImage = ogImageUrlFor(entry);

@@ -14,9 +14,12 @@ export type AnyEntry =
 // Runtime guard around `PAGE_SLUGS` (the source of truth in `routes.ts`).
 // Shared with the discriminated `pages` Zod schema in
 // `src/content.config.ts` — both files reach into the same constant so
-// adding a new page slug is a one-line change in `routes.ts`.
+// adding a new page slug is a one-line change in `routes.ts`. The
+// `ReadonlySet<string>` annotation widens the element type so `.has()`
+// takes an arbitrary `string` — no cast needed for the membership test.
+const PAGE_SLUG_SET: ReadonlySet<string> = new Set(PAGE_SLUGS);
 function isPageSlug(slug: string): slug is PageSlug {
-  return (PAGE_SLUGS as readonly string[]).includes(slug);
+  return PAGE_SLUG_SET.has(slug);
 }
 
 export function entryRouteFor<E extends AnyEntry>(entry: E): string {
@@ -45,6 +48,9 @@ export function findSiblingIn<E extends AnyEntry>(entry: E, candidates: readonly
  *  store, then delegate to `findSiblingIn`. Generic so callers don't need to
  *  widen `CollectionEntry<'notes'>` etc. to `AnyEntry`. */
 export async function getSibling<E extends AnyEntry>(entry: E): Promise<E | null> {
+  // Boundary cast: `getCollection`'s return is keyed to a literal collection
+  // name, but with the generic `entry.collection` TS can't correlate it to
+  // `E`. The runtime collection always matches `entry`, so bridge here once.
   const all = (await getCollection(entry.collection)) as readonly E[];
   return findSiblingIn(entry, all);
 }

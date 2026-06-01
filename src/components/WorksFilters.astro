@@ -95,7 +95,8 @@ const ariaLabel = locale === 'es' ? 'Filtros' : 'Filters';
     nav.dataset['wired'] = 'true';
 
     nav.addEventListener('click', (event) => {
-      const btn = (event.target as Element | null)?.closest<HTMLButtonElement>('.filter');
+      const target = event.target;
+      const btn = target instanceof Element ? target.closest<HTMLButtonElement>('.filter') : null;
       if (!btn) return;
       const filter = btn.dataset['filter'] ?? 'all';
       grid.dataset['activeFilter'] = filter;
