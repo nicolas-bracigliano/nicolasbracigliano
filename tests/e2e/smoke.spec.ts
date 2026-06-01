@@ -224,11 +224,16 @@ test('/about/ — "full bench tour" footer link points at the right /now route p
 test('/en/about/ — byline contains the current month name', async ({ page }) => {
   await page.goto('/en/about/');
   // `en-AU` month: long → "may", "june", etc. Lowercased in template.
-  // Known low-likelihood flake: if the test runs exactly at the
-  // Australia/Melbourne month boundary, the page may have been
-  // rendered under one month and this assertion computed under the
-  // next. Re-run; the window is < 1 s of wall-clock per month.
-  const currentMonth = new Intl.DateTimeFormat('en-AU', { month: 'long' })
+  // The byline is rendered with `timeZone: 'Australia/Melbourne'` (see
+  // src/pages/en/about/index.astro), so compute the expected month in the
+  // SAME zone. Without it, the formatter uses the runner's local zone — and
+  // on a UTC CI runner that disagrees with the page for the ~10 h each
+  // month boundary when Melbourne has rolled over but UTC hasn't (this is
+  // exactly what failed the May→June 2026 rollover).
+  const currentMonth = new Intl.DateTimeFormat('en-AU', {
+    month: 'long',
+    timeZone: 'Australia/Melbourne',
+  })
     .format(new Date())
     .toLowerCase();
   await expect(page.locator('.about-out')).toContainText(currentMonth);
