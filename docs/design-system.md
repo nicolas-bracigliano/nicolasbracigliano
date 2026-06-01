@@ -22,6 +22,7 @@ The reference for everything about this site. Read this before changing color, c
 - **2026‑05‑31** — Lighthouse `script:size` / `total:size` budgets raised 14 KB / 50 KB → 15 KB / 51 KB to admit the palette client (§13). Why: the palette is the site's only non-trivial JS and loads site-wide; Home (heaviest, from the inline portrait) sat ~31 bytes over the old script ceiling once it shipped. ~1 KB of bounded headroom, documented in `lighthouserc.json` `//budget`.
 - **2026‑05‑31** — removed the dead Pagefind build path: the `postbuild` index step, the `pagefind` dependency, the CI index-sanity check, and the `/_pagefind/*` cache header + lint/codeql ignores. §17 updated (search shipped as the palette, not Pagefind). Why: the ⌘K palette replaced Pagefind as the site's search, so the `dist/_pagefind/` index was built every CI run but consumed by nothing. Full-text Pagefind stays a documented future option in §11.
 - **2026‑06‑01** — Astro 6.3.7 → 6.4.2, and migrated the markdown config from the deprecated `markdown.remarkPlugins` to `markdown.processor: unified({ remarkPlugins: [remarkInjectMarginNotes] })` (`@astrojs/markdown-remark` now a direct dep). gfm + smartypants stay on by default and we ship no fenced code, so nothing else moved. Why: 6.4 deprecated the top-level plugin keys and warns on every dev/preview/CI start; the processor form silences it. The margin-note (pull-quote) injection is unchanged — verified it still renders.
+- **2026‑06‑01** — §6 Voice revision. Headlined the triad **curious, humble, and confident** at the top of §6 (was "curious, humble, but assertive" buried under Hedges): _confident_ not _assertive_ (earned, not forceful), _and_ not _but_ (peers, not tension), each trait cross-referenced to where it's enforced. New **Curiosity** ✓/✗ pair (the headline trait was the least operationalized). Notes may now be short **accounts**, not only terse field-log lines: §7 step 4 and §15.5 redraw the note/piece line as **argument vs. account** (the mono face stays the firewall), and the five-word test is scoped to the terse default + chrome. Anecdote fidelity narrowed — dropped the migration-specific framing, kept the principle + CPR example. Why: the terse field-log was the only sanctioned register, evicting short personal narratives to `/pieces` where they don't fit. No named "story register" — the narrative note is a deliberate exception (§14), not a new mode.
 
 When something material changes, add a line. Keep the log short: date, what changed, why. If you can't write the _why_ in one clause, you probably shouldn't make the change.
 
@@ -103,7 +104,13 @@ Hidden routes are reachable by direct link but absent from the nav. They make th
 
 ## 6 · Voice — with side-by-side examples
 
-The voice section only works with concrete pairs. Add to this list as new patterns emerge.
+The voice is **curious, humble, and confident**. The three are peers, not a ranking and not in tension. _Confident_ means secure in what you know, not forceful; the _and_ (rather than _but_) is deliberate, because confidence isn't the exception to humility. Each trait is enforced somewhere concrete:
+
+- **Curious:** follow the real question; don't force a tidy conclusion. See §4 #5 and the Curiosity pair below (un-resolved endings are fine; see §15.7).
+- **Humble:** hedge where the uncertainty is genuine, own the misses, claim no inflated credentials. See Hedges, Anecdote fidelity, and Banned phrases.
+- **Confident:** lead with what you actually think; add the complexity after the assertion, not instead of it. See the hedge cap.
+
+The section only works with concrete pairs. Add to this list as new patterns emerge.
 
 ### General
 
@@ -116,6 +123,11 @@ The voice section only works with concrete pairs. Add to this list as new patter
 ✓ _"This is the third try. I think it's right."_
 ✗ _"After iterative refinement, this implementation is now production-ready."_
 
+Terse is the default, not a ceiling. Most notes are a line or two. When something that happened needs a few sentences to land, let it run: the test is whether every sentence still earns its place, not whether the note stays short. A note that grows a thesis is a piece (see §7 step 4 and §15.5).
+
+✓ _"The starter died on the cold sill over the weekend. Fed it twice Monday; by Tuesday night it was back, slower than I wanted but back."_
+✗ _"Starter died. Refed. Recovered."_ (terse to the point of erasing what happened)
+
 ### Numbers
 
 ✓ _"20 g in, 38 g out, 28 seconds."_
@@ -125,7 +137,7 @@ The voice section only works with concrete pairs. Add to this list as new patter
 
 ### Hedges
 
-The voice is **curious, humble, but assertive**. Hedges signal that you've thought about the topic and know where you're still unsure; they don't mean you're unsure about everything. Use them where uncertainty is genuine and load-bearing, not as a sentence-end tic.
+The voice is **curious, humble, and confident** (see the section intro). Hedges signal that you've thought about the topic and know where you're still unsure; they don't mean you're unsure about everything. Use them where uncertainty is genuine and load-bearing, not as a sentence-end tic.
 
 ✓ _"I think,"_ _"I'm not sure,"_ _"I was wrong about this last time."_
 ✗ _"Best practices,"_ _"Industry-standard,"_ _"Cutting-edge."_
@@ -134,6 +146,13 @@ The voice is **curious, humble, but assertive**. Hedges signal that you've thoug
 
 ✓ _"The Dependency Rule itself is right; code dependencies should flow toward the stable core. What's hard, every time, is the boundary between use cases and interface adapters."_
 ✗ _"The Dependency Rule is probably right. I think code dependencies might flow toward the stable core. I might be wrong about this, but the boundary between use cases and adapters seems hard."_
+
+### Curiosity
+
+Curiosity shows up as real questions and threads left open, not as forced conclusions. Ending a note without a tidy takeaway is fine, often better (see §15.7). Don't manufacture a lesson the work didn't earn.
+
+✓ _"Still don't know why the bees came two weeks early. Warmer August? The borage? I'll watch next year."_
+✗ _"This shows how shifting climate patterns are reshaping pollinator behaviour."_
 
 ### Punctuation
 
@@ -157,16 +176,16 @@ Why these specifically: each carries a register the site rejects — keynote-spe
 
 This is a reflection list, not a lint gate (see §7b). After a draft exists, scan it against this catalogue. A hit isn't an automatic fail — sometimes you're quoting the phrase or arguing against it — but it's a prompt to stop and ask: am I leaning on the wrong register here?
 
-### Anecdote fidelity (for migrated or rewritten work)
+### Anecdote fidelity
 
-When rewriting something from a source — a legacy post, an old draft, an outline — **keep the anecdotes you actually had**. Don't invent specifics to make a story land harder.
+**Keep the anecdotes you actually had. Don't invent specifics to make a story land harder.** This holds whenever you write up something that happened, whether you reconstruct it from a source (a legacy post, an old draft, an outline) or from memory. The detail has to be true, not just plausible. It matters most in the short accounts §7 now allows, where a clean-scanning invented beat is the easiest temptation.
 
-This rule comes from a real failure during PR P3: the CPR piece shipped with a "deadline that clicked" anecdote that read well in the §6 voice but wasn't from the original source. The author's actual experience was a tense meeting where newer team members were visibly confused by the intensity; the rewrite substituted a 1:1 about missed deadlines because that scanned cleaner. Both are plausible. Only one is true. The reader can't tell — but YOU stop being able to use the piece honestly the moment the anecdote diverges from the source.
+This rule comes from a real failure during PR P3: the CPR piece shipped with a "deadline that clicked" anecdote that read well in the §6 voice but wasn't from the original source. The author's actual experience was a tense meeting where newer team members were visibly confused by the intensity; the rewrite substituted a 1:1 about missed deadlines because that scanned cleaner. Both are plausible. Only one is true. The reader can't tell, but you stop being able to use the piece honestly the moment the anecdote diverges from what happened.
 
 If the source has no anecdote and the piece needs one, ask the author. Don't compose a substitute.
 
 ✓ _Restore the real meeting story; trim it to the §6 voice without changing what happened._
-✗ _Compose a plausible-sounding anecdote because the original was hard to source down._
+✗ _Compose a plausible-sounding anecdote because the real one was hard to reconstruct._
 
 ### Bilingual
 
@@ -177,7 +196,7 @@ Reserve Spanish for words that are emphatically the right word. Use sparingly.
 
 ### The five-word test
 
-If a line is longer than five words and contains no specifics (no number, no name, no time, no place), suspect it. Either add a specific or cut the line.
+A field-log and chrome rule, not a blanket one. In the terse default (note bullets, ledes, eyebrows, card lines), if a line runs longer than five words with no specifics (no number, name, time, or place), suspect it: add a specific or cut the line. A note that's deliberately a short account is exempt; there the specifics carry across the paragraph, not inside every line.
 
 ## 7 · How to write a note (the recipe)
 
@@ -200,7 +219,7 @@ This is the bridge between _system_ and _daily use_. Notes ship in mono — see 
    `kind` selects a default glyph from the art registry (see [ADR 0013](./decisions/0013-per-entry-art.md)). To ship bespoke art, move the note into its own directory (`<slug>/index.md` + `<slug>/art.svg`) and set `hero: ./art.svg`.
 
 3. **Body.** Write in markdown. The first paragraph is the most important. Use the `rule` keyword on its own line to insert the dotted ornament when a real section break is earned. Avoid the temptation to add subheadings — notes are short enough to live without them.
-4. **Status check.** Before publishing, read aloud. If you can't say it conversationally, it's still an essay. Wait, or move it to `/pieces` · `/ensayos`.
+4. **Status check.** Before publishing, read aloud. The test isn't length or polish; a note can be a finished short account. The test is whether you're making an _argument_: if the note has a thesis it's defending, it's an essay, so wait or move it to `/pieces` · `/ensayos`. A note recounts; a piece argues.
 5. **No previewing in production.** Notes get pushed when they are _almost_ right. Polish happens after they exist in public.
 6. **Don't backfill.** Don't date a note earlier than today. The dated stream is a story, not a portfolio.
 
@@ -472,7 +491,7 @@ The site has known tells. Document them so they don't repeat.
 2. **Over-symmetry.** Four cards, four crafts, four colors, four sections. Real life is asymmetric. If you find yourself rounding a count up to four for aesthetic reasons, leave three.
 3. **Looping vignettes.** Animate on mount, then rest. Continuous loops read as nervous, not alive.
 4. **Round-number self-claims.** "Twenty years of experience" reads as posture, not fact. Say _"since 2006,"_ or say nothing.
-5. **Polished notes.** A note that reads like a finished essay has betrayed its category. Move it to `/pieces` · `/ensayos` or roughen it. The face change is the rule: notes are mono, pieces are serif. See [§9 · Type](#9--type).
+5. **Notes that are secretly arguments.** A note carrying a thesis it's defending has betrayed its category; that's a piece. Move it to `/pieces` · `/ensayos`. Polish alone isn't the tell: a note can be a finished short account and still be a note. The firewall is the face (notes are mono, pieces are serif; see [§9 · Type](#9--type)). A short story in mono is still a note; an argument in mono is a mis-filed piece.
 6. **Decorative SVG everywhere.** Two illustrations per page max. If a third tries to enter, choose between them.
 7. **Quotable closing lines.** Every section ending with a quotable summary reads as LLM-generated. Let some sections end un-resolved.
 8. **Performative completeness.** Listing every keyboard, every espresso machine, every guitar by exact model in the colofón. Pick one or two. Restraint is the brand.
