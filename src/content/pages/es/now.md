@@ -85,13 +85,13 @@ items:
       line: 'Carcasa de madera alrededor del TV, con un hogar apaisado y una repisa de piedra.'
   - kind: coffee
     where: 'en la taza · café + mate'
-    title: 'Padre Etiopía, y Cruz de Malta'
-    prose: 'A la mañana: 20 g entran, 38 g salen, 28 segundos. Padre Coffee, Brunswick — un Etiopía lavado, brillante y floral. Cerca de las 10:30, mate. Cruz de Malta, amargo, con agua caliente de la pava en la misma hornalla que todo lo demás.'
+    title: 'Brimstone, y La Merced'
+    prose: 'A la mañana: 22 g entran, 38 g salen, 28-30 segundos. Brimstone, CommonFolks Mornington, mucho cuerpo con notas de chocolate, y tambien algo de frutos rojos y ciruela. Cerca de las 10:30, mate. La Merced Campo, amargo. Últimamente el cuello de botella es la máquina, no los granos.'
     detail:
       - dt: 'granos'
-        dd: 'Padre Coffee, Etiopía lavado'
+        dd: 'Brimstone · Uganda / Kenia'
       - dt: 'mate'
-        dd: 'Cruz de Malta · amargo'
+        dd: 'La Merced Campo · amargo'
       - dt: 'ritual'
         dd: 'todas las mañanas · ~7:20'
   - kind: read

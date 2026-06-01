@@ -84,13 +84,13 @@ items:
       line: 'Wooden shell around the TV, with a landscape fire and a stone shelf.'
   - kind: coffee
     where: 'in the cup · coffee + mate'
-    title: 'Padre Ethiopia, and Cruz de Malta'
-    prose: 'Mornings: 20 g in, 38 g out, 28 seconds. Padre Coffee, Brunswick — a washed Ethiopia, bright and floral. Around 10:30, mate. Cruz de Malta, amargo, with hot water from the kettle on the same burner as everything else.'
+    title: 'Brimstone, and La Merced'
+    prose: 'Mornings: 22 g in, 38 g out, 28-30 seconds. Brimstone, CommonFolks Mornington, lots of chocolate, whilst also having some berry and stonefruit background. Around 10:30, mate. La Merced Monte, amargo. Lately the bottleneck is the machine, not the beans.'
     detail:
       - dt: 'beans'
-        dd: 'Padre Coffee, washed Ethiopia'
+        dd: 'Brimstone · Uganda / Kenya'
       - dt: 'mate'
-        dd: 'Cruz de Malta · amargo'
+        dd: 'La Merced Campo · amargo'
       - dt: 'ritual'
         dd: 'every morning · ~7:20'
   - kind: read
