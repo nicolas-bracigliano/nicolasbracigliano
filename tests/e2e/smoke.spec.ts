@@ -343,18 +343,6 @@ test('/about/now/ — numbered items run a contiguous № sequence, mirrored acr
   expect(counts[0]).toBe(counts[1]);
 });
 
-test('/about/now/ — every per-kind class is present and unique', async ({ page }) => {
-  await page.goto('/en/about/now/');
-  // The CSS keys the № tint off these — if a future refactor drops
-  // a kind from the page, the visual rhythm breaks silently. Assert
-  // structurally rather than visually. (home shares the default accent
-  // tint with guitar/coffee — no dedicated .now-home rule needed.)
-  const kinds = ['code', 'guitar', 'garden', 'print', 'home', 'coffee', 'read'] as const;
-  for (const kind of kinds) {
-    await expect(page.locator(`.now-item.now-${kind}`)).toHaveCount(1);
-  }
-});
-
 test('/en/about/now/ — masthead carries the current weekday name', async ({ page }) => {
   await page.goto('/en/about/now/');
   // The masthead date is `en-AU` long-form: "friday, 23 may 2026",

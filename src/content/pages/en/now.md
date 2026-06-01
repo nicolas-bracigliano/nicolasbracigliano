@@ -39,21 +39,21 @@ items:
       label: 'guitar'
       line: 'A year in: open chords, then riffs, now a couple of songs. Lately standing up, strap low.'
       guitarLabel: '· Come As You Are · 505 · Black ·'
-  - kind: garden
-    where: 'in the huerta · garden'
-    title: 'Spring rotation, planted out'
-    prose: 'Black Russian, San Marzano, a punnet of Genovese basil, chamomile, two kinds of chilli. The native bees showed up two weeks earlier than last year. The borage is doing its job.'
-    detail:
-      - dt: 'plot'
-        dd: '1.4 × 3 m raised'
-      - dt: 'companions'
-        dd: 'tom + bsl + chamomile'
-      - dt: 'watching'
-        dd: 'first fruit set ~5 weeks'
-    teaser:
-      label: 'garden'
-      line: 'Black Russian, San Marzano, a punnet of Genovese basil, chamomile, two kinds of chilli. The native bees showed up two weeks earlier than last year.'
-      seedlingTag: 'tomato'
+  # - kind: garden
+  #   where: 'in the huerta · garden'
+  #   title: 'Spring rotation, planted out'
+  #   prose: 'Black Russian, San Marzano, a punnet of Genovese basil, chamomile, two kinds of chilli. The native bees showed up two weeks earlier than last year. The borage is doing its job.'
+  #   detail:
+  #     - dt: 'plot'
+  #       dd: '1.4 × 3 m raised'
+  #     - dt: 'companions'
+  #       dd: 'tom + bsl + chamomile'
+  #     - dt: 'watching'
+  #       dd: 'first fruit set ~5 weeks'
+  #   teaser:
+  #     label: 'garden'
+  #     line: 'Black Russian, San Marzano, a punnet of Genovese basil, chamomile, two kinds of chilli. The native bees showed up two weeks earlier than last year.'
+  #     seedlingTag: 'tomato'
   - kind: print
     where: 'in the slicer · 3D'
     title: 'Gridfinity bins for the tool drawer'
@@ -93,17 +93,17 @@ items:
         dd: 'La Merced Campo · amargo'
       - dt: 'ritual'
         dd: 'every morning · ~7:20'
-  - kind: read
-    where: 'in the ears · reading & listening'
-    title: 'Borges in one ear, Ousterhout in the other'
-    prose: 'Reading A Philosophy of Software Design slowly, mostly on the tram. Borges (El jardín de senderos que se bifurcan) on audiobook while pruning. The Mom Test on Saturday afternoons, in the sun.'
-    detail:
-      - dt: 'paper'
-        dd: 'Borges · El jardín…'
-      - dt: 'audio'
-        dd: 'Ousterhout · A Philosophy of Software Design'
-      - dt: 'podcast'
-        dd: 'Ezra Klein, sometimes'
+  # - kind: read
+  #   where: 'in the ears · reading & listening'
+  #   title: 'Borges in one ear, Ousterhout in the other'
+  #   prose: 'Reading A Philosophy of Software Design slowly, mostly on the tram. Borges (El jardín de senderos que se bifurcan) on audiobook while pruning. The Mom Test on Saturday afternoons, in the sun.'
+  #   detail:
+  #     - dt: 'paper'
+  #       dd: 'Borges · El jardín…'
+  #     - dt: 'audio'
+  #       dd: 'Ousterhout · A Philosophy of Software Design'
+  #     - dt: 'podcast'
+  #       dd: 'Ezra Klein, sometimes'
 ---
 
 <!--

@@ -40,21 +40,21 @@ items:
       label: 'guitarra'
       line: 'Un año adentro: acordes, después riffs, ahora un par de temas. Últimamente parado, correa baja.'
       guitarLabel: '· Come As You Are · 505 · Black ·'
-  - kind: garden
-    where: 'en la huerta · jardín'
-    title: 'Rotación de primavera, plantada'
-    prose: 'Black Russian, San Marzano, un plantín de albahaca genovesa, manzanilla, dos tipos de ají. Las abejas nativas aparecieron dos semanas antes que el año pasado. La borraja está haciendo lo suyo.'
-    detail:
-      - dt: 'cantero'
-        dd: '1.4 × 3 m elevado'
-      - dt: 'compañeras'
-        dd: 'tom + albahaca + manzanilla'
-      - dt: 'esperando'
-        dd: 'primer fruto en ~5 semanas'
-    teaser:
-      label: 'huerta'
-      line: 'Black Russian, San Marzano, un cajoncito de albahaca. Los polinizadores llegaron dos semanas antes.'
-      seedlingTag: 'tomate'
+  # - kind: garden
+  #   where: 'en la huerta · jardín'
+  #   title: 'Rotación de primavera, plantada'
+  #   prose: 'Black Russian, San Marzano, un plantín de albahaca genovesa, manzanilla, dos tipos de ají. Las abejas nativas aparecieron dos semanas antes que el año pasado. La borraja está haciendo lo suyo.'
+  #   detail:
+  #     - dt: 'cantero'
+  #       dd: '1.4 × 3 m elevado'
+  #     - dt: 'compañeras'
+  #       dd: 'tom + albahaca + manzanilla'
+  #     - dt: 'esperando'
+  #       dd: 'primer fruto en ~5 semanas'
+  #   teaser:
+  #     label: 'huerta'
+  #     line: 'Black Russian, San Marzano, un cajoncito de albahaca. Los polinizadores llegaron dos semanas antes.'
+  #     seedlingTag: 'tomate'
   - kind: print
     where: 'en el slicer · 3D'
     title: 'Bins Gridfinity para el cajón de herramientas'
@@ -94,17 +94,17 @@ items:
         dd: 'La Merced Campo · amargo'
       - dt: 'ritual'
         dd: 'todas las mañanas · ~7:20'
-  - kind: read
-    where: 'en los oídos · leyendo y escuchando'
-    title: 'Borges en un oído, Ousterhout en el otro'
-    prose: 'Leyendo A Philosophy of Software Design despacio, sobre todo en el tranvía. Borges (El jardín de senderos que se bifurcan) en audiolibro mientras podo. The Mom Test los sábados a la tarde, al sol.'
-    detail:
-      - dt: 'papel'
-        dd: 'Borges · El jardín…'
-      - dt: 'audio'
-        dd: 'Ousterhout · A Philosophy of Software Design'
-      - dt: 'podcast'
-        dd: 'Ezra Klein, a veces'
+  # - kind: read
+  #   where: 'en los oídos · leyendo y escuchando'
+  #   title: 'Borges en un oído, Ousterhout en el otro'
+  #   prose: 'Leyendo A Philosophy of Software Design despacio, sobre todo en el tranvía. Borges (El jardín de senderos que se bifurcan) en audiolibro mientras podo. The Mom Test los sábados a la tarde, al sol.'
+  #   detail:
+  #     - dt: 'papel'
+  #       dd: 'Borges · El jardín…'
+  #     - dt: 'audio'
+  #       dd: 'Ousterhout · A Philosophy of Software Design'
+  #     - dt: 'podcast'
+  #       dd: 'Ezra Klein, a veces'
 ---
 
 <!--
