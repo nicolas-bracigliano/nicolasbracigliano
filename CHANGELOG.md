@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.14.2](https://github.com/nicolas-bracigliano/nicolasbracigliano/compare/v1.14.1...v1.14.2) (2026-06-01)
+
+
+### Bug Fixes
+
+* **cmdk:** rank exact matches above fuzzy subsequence hits across kind groups ([2d628bf](https://github.com/nicolas-bracigliano/nicolasbracigliano/commit/2d628bf78c0ef2d0adc08cd1cdf397b851a1da45))
+* **cmdk:** rank exact matches above fuzzy subsequence hits across kind groups ([dbdf2bc](https://github.com/nicolas-bracigliano/nicolasbracigliano/commit/dbdf2bc13a7cb1b57a79da699aeb311bc2f2920b))
+
 ## [1.14.1](https://github.com/nicolas-bracigliano/nicolasbracigliano/compare/v1.14.0...v1.14.1) (2026-06-01)
 
 
