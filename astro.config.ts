@@ -1,4 +1,5 @@
 import { defineConfig } from 'astro/config';
+import { unified } from '@astrojs/markdown-remark';
 import sitemap from '@astrojs/sitemap';
 import remarkInjectMarginNotes from './src/lib/remark-inject-margin-notes';
 
@@ -28,17 +29,21 @@ export default defineConfig({
       redirectToDefaultLocale: false,
     },
   },
-  // `markdown.remarkPlugins`: pipeline of MDAST transforms applied
-  // BEFORE markdown → HTML. `remarkInjectMarginNotes` reads
-  // `marginNotes` from the entry's frontmatter and splices each note
-  // into the markdown tree right after the heading whose computed slug
-  // matches `note.section`. This is what gives pieces marginalia in
-  // the right gutter; without it, margin notes have no inline anchor.
-  // Runs at the remark stage (not rehype) because Astro's heading-
-  // anchor IDs are added later in the pipeline — at rehype time the
-  // headings have no `id` to match against.
+  // Astro 6.4 moved plugin wiring into `markdown.processor`; the top-level
+  // `markdown.remarkPlugins`/`rehypePlugins` keys are deprecated (they warn at
+  // dev/preview startup). `unified()` from `@astrojs/markdown-remark` is the
+  // default remark/rehype processor — gfm + smartypants stay on by default,
+  // and we ship no fenced code, so there's no syntaxHighlight to carry over.
+  //
+  // `remarkInjectMarginNotes` is a pipeline of MDAST transforms applied BEFORE
+  // markdown → HTML: it reads `marginNotes` from the entry's frontmatter and
+  // splices each note into the tree right after the heading whose computed
+  // slug matches `note.section` — what gives pieces marginalia in the right
+  // gutter. It runs at the remark stage (not rehype) because Astro's heading-
+  // anchor IDs are added later in the pipeline; at rehype time the headings
+  // have no `id` to match against.
   markdown: {
-    remarkPlugins: [remarkInjectMarginNotes],
+    processor: unified({ remarkPlugins: [remarkInjectMarginNotes] }),
   },
   // Disable Astro's dev toolbar globally. The toolbar's audits (perf,
   // a11y) duplicate what Lighthouse CI + `@axe-core/playwright` already
