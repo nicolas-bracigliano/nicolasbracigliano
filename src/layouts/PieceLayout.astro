@@ -34,7 +34,7 @@ export interface Props {
 
 const { entry, path, siblingPath } = Astro.props;
 const { title, lede, lang, date, diagrams, minutes: minutesOverride, written } = entry.data;
-const locale = lang as Locale;
+const locale: Locale = lang;
 const indexHref = ROUTES.pieces[locale];
 const ogImage = ogImageUrlFor(entry);
 

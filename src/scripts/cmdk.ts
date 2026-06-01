@@ -30,6 +30,9 @@ async function fetchFirst(urls: readonly string[]): Promise<CmdkEntry[] | null> 
   for (const url of urls) {
     try {
       const r = await fetch(url);
+      // Boundary cast: the index is our own prerendered, schema-built
+      // endpoint (src/pages/cmdk/[lang].json.ts), so trust its shape rather
+      // than re-validating every entry at runtime.
       if (r.ok) return (await r.json()) as CmdkEntry[];
     } catch {
       /* try the next candidate */

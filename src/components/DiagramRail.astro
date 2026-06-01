@@ -22,7 +22,7 @@ import C4Wheel from './diagrams/C4Wheel.astro';
 import C4Level from './diagrams/C4Level.astro';
 import CprFramework from './diagrams/CprFramework.astro';
 import AgileRoadKnot from './diagrams/AgileRoadKnot.astro';
-import { isDiagramKey, type DiagramKey } from '@lib/diagram-registry';
+import { isDiagramKey } from '@lib/diagram-registry';
 
 export interface DiagramRailItem {
   key: string;
@@ -46,17 +46,19 @@ export interface Props {
 
 const { items } = Astro.props;
 
-// Validate keys up front so the error message points at the
-// offending key rather than the rendering switch below.
-for (const item of items) {
+// Validate + resolve in one pass: `isDiagramKey` narrows `item.key` to
+// `DiagramKey`, so the resolved item is typed without a cast. An unknown
+// key throws at build time (see file header), with a message pointing at
+// the offending key rather than the rendering switch below.
+const resolved = items.map((item) => {
   if (!isDiagramKey(item.key)) {
     throw new Error(
       `[DiagramRail] unknown diagram key: "${item.key}". ` +
         `Valid keys are registered in src/lib/diagram-registry.ts.`,
     );
   }
-}
-const resolved = items.map((item) => ({ ...item, key: item.key as DiagramKey }));
+  return { ...item, key: item.key };
+});
 ---
 
 <div class="diagram-rail">

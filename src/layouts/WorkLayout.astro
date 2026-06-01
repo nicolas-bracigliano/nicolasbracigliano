@@ -13,7 +13,7 @@ export interface Props {
 
 const { entry, path, siblingPath } = Astro.props;
 const { title, date, lede, lang, kind, lifecycle, number, specs } = entry.data;
-const locale = lang as Locale;
+const locale: Locale = lang;
 const specEntries = Object.entries(specs);
 const ogImage = ogImageUrlFor(entry);
 

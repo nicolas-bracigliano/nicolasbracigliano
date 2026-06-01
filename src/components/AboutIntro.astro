@@ -80,7 +80,7 @@
     // would be `about-intro-hola-in` at ~900 ms, tearing down the
     // intro long before the overlay finishes dissolving.
     intro.addEventListener('animationend', (event) => {
-      const name = (event as AnimationEvent).animationName;
+      const name = event.animationName;
       if (name === 'about-intro-out' || name === 'about-intro-dismiss') {
         intro.remove();
       }
