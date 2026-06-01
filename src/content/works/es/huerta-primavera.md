@@ -4,7 +4,7 @@ slug: 'huerta-primavera'
 lang: es
 translationId: huerta-spring
 date: 2026-09-22
-status: published
+status: draft
 tags: [garden]
 kind: garden
 lifecycle: ongoing

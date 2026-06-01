@@ -17,6 +17,11 @@ The reference for everything about this site. Read this before changing color, c
 - **2026‑05‑26** — §9 Type committed to a two-face mapping table: notes ship in JetBrains Mono (field log), pieces ship in Newsreader 18/1.65 (slowed-down reading). Margin notes on pieces stay serif; rail position + `↳` mark carry the aside-ness. New non-goal: a third face. Cross-references added in §4 #5, §7, §15 #5. "Real pieces" moved from §17 Open questions to §17 Shipped (PR P3). Why: the face is the content signal — see PR P5.
 - **2026‑05‑26** — `/pieces` pivots to an editorial-article layout: single column, display H1, drop cap, italic H2 with `§`, inline pull quotes. Full rationale + alternatives in [ADR 0012](./decisions/0012-pieces-editorial-layout.md). Why: serif body without an editorial layout reads as "long note," not essay.
 - **2026‑05‑27** — §6 gains a Banned phrases catalogue + Anecdote fidelity rule. New §7a "How to write a piece (the recipe)" with the kernel-plus-six-sections shape, required components, length window, tag pattern, bilingual rules. New §7b "Reviewing a piece (the reflection pass)" — a post-draft checklist for the writer AND the LLM to consult and reflect against. §9 gains a Diagrams subsection lifting PR P4's role-class pattern. ADR 0011 documents the piece shape with the four P3 pieces as worked examples. One exception stays a test (`piece-margin-note-anchors`) — it's a silent-render bug, not a style call. Why: the four P3 pieces independently converged on the same shape; codifying it as a reflective guide (not a CI gate) lets future pieces match without re-deriving, while keeping the judgement with the writer.
+- **2026‑05‑31** — bench/now unified onto a single source. `now.md` items gain an optional `teaser`; the home "currently on the bench" grid is derived from the teaser'd items (`benchItemsFrom`), and `home.md`'s `bench:` array + `src/lib/bench-items.ts` are retired. Per-route treatment (§3) is unchanged — only the data plumbing. Full rationale in [ADR 0014](./decisions/0014-bench-now-single-source.md). Why: the home bench and `/now` were hand-synced and had drifted (EN bench stale against `/now`; the EN and ES benches had even diverged from each other).
+- **2026‑05‑31** — added the **command palette (⌘K)** as the site's search (§11). A navigation-only index of titles/ledes/tags built from the content collections and served as a per-locale JSON endpoint (fetched on first open); opens on ⌘K or a chrome _jump to…_ trigger (a magnifier icon on mobile). Why: a site-wide search box parked inside `/notes` was the wrong affordance; ⌘K is the "jump to anything" pattern a developer audience expects, and at this scale navigation beats full-text (which can slot into the same UI later).
+- **2026‑05‑31** — Lighthouse `script:size` / `total:size` budgets raised 14 KB / 50 KB → 15 KB / 51 KB to admit the palette client (§13). Why: the palette is the site's only non-trivial JS and loads site-wide; Home (heaviest, from the inline portrait) sat ~31 bytes over the old script ceiling once it shipped. ~1 KB of bounded headroom, documented in `lighthouserc.json` `//budget`.
+- **2026‑05‑31** — removed the dead Pagefind build path: the `postbuild` index step, the `pagefind` dependency, the CI index-sanity check, and the `/_pagefind/*` cache header + lint/codeql ignores. §17 updated (search shipped as the palette, not Pagefind). Why: the ⌘K palette replaced Pagefind as the site's search, so the `dist/_pagefind/` index was built every CI run but consumed by nothing. Full-text Pagefind stays a documented future option in §11.
+- **2026‑06‑01** — Astro 6.3.7 → 6.4.2, and migrated the markdown config from the deprecated `markdown.remarkPlugins` to `markdown.processor: unified({ remarkPlugins: [remarkInjectMarginNotes] })` (`@astrojs/markdown-remark` now a direct dep). gfm + smartypants stay on by default and we ship no fenced code, so nothing else moved. Why: 6.4 deprecated the top-level plugin keys and warns on every dev/preview/CI start; the processor form silences it. The margin-note (pull-quote) injection is unchanged — verified it still renders.
 
 When something material changes, add a line. Keep the log short: date, what changed, why. If you can't write the _why_ in one clause, you probably shouldn't make the change.
 
@@ -398,7 +403,7 @@ Animate **into existence**, then rest. Continuous loops read as nervous, not ali
 
 Listed for orientation. The CSS files are the source of truth.
 
-- **Chrome** — sticky header. Mark (left) · Nav (center) · Lang + Day/Night (right). Day/Night is a `<button role="switch" aria-checked>` with a single SVG that animates between sun (rays + disc) and moon (disc + slid-in mask) via CSS `transform` + `opacity` keyed to `[data-theme]`. Lang is a pair of links with a disabled-style state when the sibling translation is missing.
+- **Chrome** — sticky header. Mark (left) · Nav (center) · Jump-to + Lang + Day/Night (right). Day/Night is a `<button role="switch" aria-checked>` with a single SVG that animates between sun (rays + disc) and moon (disc + slid-in mask) via CSS `transform` + `opacity` keyed to `[data-theme]`. Lang is a pair of links with a disabled-style state when the sibling translation is missing. The _"jump to…"_ (⌘K) trigger opens the command palette; on mobile it collapses to a magnifier icon (the foot-rail is already full with the six nav items).
 - **Bench card** — home page vignette card (terminal / guitar / seedling / 3D print).
 - **Latest entry row** — kind pill, date, title, arrow. Hover slides right.
 - **Note entry** — three-column grid: date + tags (left), prose (centre), aside (right).
@@ -406,6 +411,17 @@ Listed for orientation. The CSS files are the source of truth.
 - **Facts card** (About sidebar) — small-caps title, `dl` of rows, optional footer link.
 - **ASCII signature** — `╭─ NB · '26 ─╮` at the foot of Colofón.
 - **NotFound** — 404 illustration + map back.
+- **Command palette (⌘K)** — the site's search. Full contract below.
+
+### Command palette (⌘K)
+
+The site's search. Opens on ⌘K / Ctrl+K, or the _"jump to…"_ trigger in the chrome — which collapses to a magnifier icon on mobile.
+
+- **It is navigation, not full-text search — yet.** At current scale (under ~30 items) a reader scans faster than they search, so the palette indexes _titles, ledes/decks, and tags_ of every route, note, piece, and work, plus the `/now` bench items (each carries its craft `kind` as a tag, so a topical search like "coffee" or "borges" jumps to `/now`). It's a fast "jump to", which is what a developer audience expects from ⌘K. It does _not_ read body prose — full-text (Pagefind) is a future "search everything" mode that can slot into this same UI.
+- **Single source of truth.** `buildCmdkIndex(locale)` (`src/lib/cmdk-index.ts`) reads the same `notes` / `works` / `pieces` content collections the routes render, plus the static route list. There is no separate index to maintain — it's a prerendered per-locale endpoint (`/cmdk/<locale>.json`, from `src/pages/cmdk/[lang].json.ts`) that `src/scripts/cmdk.ts` fetches once on first open and caches; matching is client-side. Keeping the index out of the page HTML holds every page under the ~50 KB weight budget, and there's no wasm. It works under `astro dev` too — `trailingSlash: 'always'` serves the endpoint at `/x.json/` in dev but `/x.json` in the build, so the client tries the env-correct form first (via `import.meta.env.DEV`) and falls back to the other, rather than breaking silently if that config changes.
+- **Matching** is substring-first, then a forgiving in-order subsequence fuzzy fallback. Results are capped (8 default / 12 on query) and grouped page → now → work → piece → note.
+- **In-site by default.** Every result routes in-site via the View Transitions `navigate()`. An external destination (a `↗`, new tab) is reserved for when a work carries an explicit external link — there is no such field on the works schema today, so the palette never invents a destination a card wouldn't already have.
+- **Keyboard-first + accessible.** `role="dialog"` + `aria-modal`; focus moves to the input on open and returns to the trigger on close; results are a `role="listbox"` with `aria-activedescendant`; ↑↓ move, ⏎ opens, esc closes, Tab is trapped.
 
 ## 12 · Accessibility (real, not aspirational)
 
@@ -432,7 +448,8 @@ If you're publishing without one of these in place, write it down. Don't ship an
 
 - **Format.** SVG for icons + decorative illustration. AVIF (or WebP fallback) for photographs. PNG only when alpha is required and AVIF won't do.
 - **Max dimensions.** Hero/photo images ≤ 1600 px wide, served via `<picture>` with at least two breakpoints. Inline SVGs cap at 32 KB minified.
-- **Portrait exception.** The linocut self-portrait (`Portrait.astro`, on Home + About) is a deliberate inline SVG (~52 KB minified, ~16 KB gzipped) that exceeds the 32 KB cap. It stays inline rather than a raster so the ink follows the theme via `currentColor`/`--portrait-ink` (Día↔Noche) while the mate-gourd accent keeps its native terracotta (`--portrait-accent`). The cost is paid knowingly: the `document:size` Lighthouse budget for the generic page set is raised from 20 KB to 27 KB to fit it (Home lands ~21 KB, About ~20 KB; `total:size` stays ≤ 50 KB). If a future portrait is photographic, rasterise to AVIF instead.
+- **Portrait exception.** The linocut self-portrait (`Portrait.astro`, on Home + About) is a deliberate inline SVG (~52 KB minified, ~16 KB gzipped) that exceeds the 32 KB cap. It stays inline rather than a raster so the ink follows the theme via `currentColor`/`--portrait-ink` (Día↔Noche) while the mate-gourd accent keeps its native terracotta (`--portrait-accent`). The cost is paid knowingly: the `document:size` Lighthouse budget for the generic page set is raised from 20 KB to 27 KB to fit it (Home lands ~21 KB, About ~20 KB). If a future portrait is photographic, rasterise to AVIF instead.
+- **Palette budget bump.** The `script:size` and `total:size` Lighthouse budgets were raised from 14 KB / 50 KB to 15 KB / 51 KB to admit the ⌘K command palette client (`src/scripts/cmdk.ts` + `cmdk-match` — the site's only non-trivial JS, loaded site-wide). Home, already heaviest from the portrait, sat ~31 bytes over the old script ceiling once the palette shipped. The ~1 KB of headroom is deliberate and bounded, not an open door — new client JS still has to fit it. See `lighthouserc.json` `//budget`.
 - **Originals.** Source files (`.afdesign`, `.skp`, `.kra`, RAW photos) live in `/assets/_originals` and are git-LFS'd. Never inline an original.
 - **Naming.** Lowercase, hyphen-separated, dated when relevant: `2026-05-tray-rev5.avif`, not `Final Tray Photo (3) v2.png`.
 - **Alt text.** Mandatory on every photographic image. Describes the _content_, not the file. Decorative SVGs use `aria-hidden="true"` instead.
@@ -474,16 +491,15 @@ The prototype loads dependencies from CDNs and uses Babel-in-browser; production
 
 1. **Real avatar.** Pick a direction from `AVATAR-OPTIONS.md` and commission or draw.
 2. **Real copy.** Most body copy on Home, About, Notes, Now, and Colofón is currently invented. Replace with material Nicolas actually wrote.
-3. **Search UI.** Pagefind index is built (`postbuild` produces `dist/_pagefind/`); UI not yet wired into the layouts. Drop in a small `.astro` component on `/notes`.
-4. **Print stylesheet.** Notes and essays should print like typed letters. Dedicated `@media print` pass.
-5. **`/drafts` index.** A public list of unfinished posts — the site claims "en proceso, en público"; right now nothing demonstrates that.
+3. **Print stylesheet.** Notes and essays should print like typed letters. Dedicated `@media print` pass.
+4. **`/drafts` index.** A public list of unfinished posts — the site claims "en proceso, en público"; right now nothing demonstrates that.
 
 ### Shipped (moved out of this list)
 
-- **Search index** — Pagefind (`postbuild` script, per-language facet via `data-pagefind-filter="lang"`). UI still TODO above.
+- **Search** — the ⌘K command palette (§11): a navigation index of titles/ledes/tags built from the content collections, served as a per-locale JSON endpoint and matched client-side. Replaced the earlier Pagefind approach (whose `postbuild`-built `dist/_pagefind/` index was never wired into a UI and has since been removed); full-text Pagefind remains a possible future "search everything" layer that can slot into the same palette UI.
 - **OG cards** — Satori + Resvg via `src/pages/og/[collection]/[slug].png.ts`, fonts in `public/fonts/og-newsreader.ttf`.
 - **Real pieces.** `/pieces` · `/ensayos` shipped in PR P3 with four bilingual long-form pieces migrated from the legacy WordPress site. PR P5 pivoted the visual treatment from "marginalia notebook, longer" to **editorial article** — centered single column at `max-width: 760px`, display H1, italic large lede, drop cap on the first paragraph, italic H2 with floated `§` marker, inline pull quotes replacing the right-rail margin notes, redesigned row-list index with hover-slide. See [§9 · Type](#9--type) for the two-face rule and [ADR 0012](./decisions/0012-pieces-editorial-layout.md) for the pivot rationale.
 
 ---
 
-_Last set in type on 22 May 2026. — N. B._
+_Last set in type on 1 June 2026. — N. B._

@@ -1,0 +1,57 @@
+---
+// Default vignette for `kind: home` works.
+---
+
+<svg viewBox="0 0 200 140" width="100%" height="100%" role="img" aria-label="media-wall vignette">
+  <title>media-wall</title>
+  <g fill="none" stroke="currentColor" stroke-width="1">
+    {/* crown molding */}
+    <line x1="46" x2="154" y1="14" y2="14"></line>
+    <line x1="46" x2="154" y1="17" y2="17" opacity="0.4"></line>
+
+    {/* wall panel */}
+    <path d="M52,17 L52,102 L148,102 L148,17" opacity="0.6"></path>
+
+    {/* wall slats */}
+    {
+      Array.from({ length: 18 }).map((_, i) => (
+        <line x1={58 + i * 5} x2={58 + i * 5} y1="18" y2="100" opacity="0.3" />
+      ))
+    }
+
+    {/* tv */}
+    <rect x="66" y="40" width="68" height="36" stroke-width="1.2" fill="currentColor"></rect>
+
+    {/* fireplace slot */}
+    <rect x="60" y="91.5" width="80" height="9"></rect>
+
+    {/* flames */}
+    {
+      Array.from({ length: 12 }).map((_, i) => {
+        const x = 65 + i * 6;
+        const h = i % 2 === 0 ? 6 : 4;
+        return <path d={`M${x},99 q 1,-${h} 2,0`} opacity="0.55" fill="var(--accent)" />;
+      })
+    }
+
+    {/* speakers on the shelf */}
+    <ellipse cx="42" cy="95" rx="3.5" ry="4.5" fill="currentColor" stroke="none" opacity="0.75"
+    ></ellipse>
+    <ellipse cx="158" cy="95" rx="3.5" ry="4.5" fill="currentColor" stroke="none" opacity="0.75"
+    ></ellipse>
+
+    {/* floating bench, rounded ends */}
+    <rect x="22" y="102" width="156" height="20" rx="6"></rect>
+    <line x1="22" x2="178" y1="104" y2="104" opacity="0.5" stroke-width="3"></line>
+
+    {/* bench slats */}
+    {
+      Array.from({ length: 28 }).map((_, i) => (
+        <line x1={30 + i * 5.18} x2={30 + i * 5.18} y1="108" y2="120" opacity="0.3" />
+      ))
+    }
+
+    {/* underglow */}
+    <line x1="26" x2="174" y1="128" y2="128" stroke-dasharray="2 2" opacity="0.4"></line>
+  </g>
+</svg>

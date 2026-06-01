@@ -45,12 +45,12 @@
     "lhci": "lhci autorun",
     "lhci:pr-config": "node scripts/lighthouse-pr-config.mjs",
     "subset-fonts": "node scripts/subset-fonts.mjs",
-    "postbuild": "pagefind --site dist --output-subdir _pagefind",
     "verify:fast": "pnpm typecheck && pnpm lint && pnpm lint:actions && pnpm format:check && pnpm test",
     "verify:slow": "pnpm build && pnpm exec html-validate \"dist/**/*.html\" && pnpm test:e2e && pnpm lhci",
     "verify": "pnpm verify:fast && pnpm verify:slow"
   },
   "dependencies": {
+    "@astrojs/markdown-remark": "7.2.0",
     "@astrojs/rss": "4.0.18",
     "@astrojs/sitemap": "3.7.2",
     "astro": "6.4.2",
@@ -75,7 +75,6 @@
     "lefthook": "2.1.8",
     "license-checker": "25.0.1",
     "lightningcss": "1.32.0",
-    "pagefind": "1.5.2",
     "prettier": "3.8.3",
     "prettier-plugin-astro": "0.14.1",
     "satori": "0.26.0",

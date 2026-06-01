@@ -219,6 +219,10 @@
     background: color-mix(in oklab, var(--mate) 14%, var(--bg-2));
     color: var(--mate);
   }
+  .work-art--home {
+    background: color-mix(in oklab, var(--accent) 4%, var(--bg-2));
+    color: var(--accent);
+  }
   .work-art-terminal {
     font-family: var(--font-body);
     color: var(--terminal-fg);

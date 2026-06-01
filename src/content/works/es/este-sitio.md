@@ -8,7 +8,7 @@ status: published
 tags: [code]
 kind: code
 lifecycle: ongoing
-number: '07'
+number: '01'
 lede: 'El colofón que estás leyendo.'
 specs:
   framework: 'astro 6'

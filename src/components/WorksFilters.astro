@@ -17,6 +17,7 @@ const counts: Record<WorkKind | 'all', number> = {
   print: 0,
   guitar: 0,
   garden: 0,
+  home: 0,
 };
 for (const e of entries) counts[e.data.kind] += 1;
 
@@ -25,13 +26,21 @@ for (const e of entries) counts[e.data.kind] += 1;
 // (aligned with bench/now), but the chip reads "music" because the
 // works page is about the medium, not the instrument.
 const labels = {
-  en: { all: 'everything', code: 'code', print: '3D prints', guitar: 'music', garden: 'garden' },
+  en: {
+    all: 'everything',
+    code: 'code',
+    print: '3D prints',
+    guitar: 'music',
+    garden: 'garden',
+    home: 'home',
+  },
   es: {
     all: 'todo',
     code: 'código',
     print: 'impresiones 3D',
     guitar: 'música',
     garden: 'huerta',
+    home: 'casa',
   },
 } as const;
 
@@ -62,7 +71,6 @@ const ariaLabel = locale === 'es' ? 'Filtros' : 'Filters';
         data-filter={b.key}
       >
         <span class="filter-chip">
-          <span class="filter-key">{b.key}</span>
           <span class="filter-label">{b.label}</span>
           <span class="filter-count">{counts[b.key]}</span>
         </span>

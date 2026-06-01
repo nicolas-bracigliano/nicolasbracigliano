@@ -227,9 +227,10 @@
   }
   /* The bench grid is two columns. With an odd number of items the last
      card would sit alone in its final row, leaving a ragged open cell to
-     its right; span it across both columns so any count (1–6, per
-     BENCH_MAX in src/lib/bench-items.ts) reads as a deliberate full-width
-     row. The grid items are the <li>s (the .bench-card article fills
+     its right; span it across both columns so any count (the teaser'd
+     now items, per NOW_ITEM_MAX in src/lib/now-items.ts) reads as a
+     deliberate full-width row. The grid items are the <li>s (the
+     .bench-card article fills
      each), so `grid-column` must target the <li>, not the card. Inert at
      ≤720px where the grid is already a single column. */
   .bench-grid > li:last-child:nth-child(odd) {
@@ -377,6 +378,10 @@
   .bench-card--print .bench-card-art {
     background: color-mix(in oklab, var(--ink-blue) 12%, var(--bg-2));
     color: var(--ink-blue);
+  }
+  .bench-card--home .bench-card-art {
+    background: color-mix(in oklab, var(--accent) 8%, var(--bg-2));
+    color: var(--accent);
   }
 
   /* Terminal vignette */

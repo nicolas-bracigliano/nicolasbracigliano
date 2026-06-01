@@ -18,7 +18,7 @@ update both.
                   ┌────────────┴────────────┐
                   │ build                   │  ← typecheck / lint /
                   │                         │     vitest / astro build /
-                  │                         │     html-validate / pagefind
+                  │                         │     html-validate
                   └────────────┬────────────┘
                                │
         ┌──────────────────────┼──────────────────────┐

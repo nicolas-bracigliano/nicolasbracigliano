@@ -6,14 +6,15 @@ translationId: now
 date: 2026-05-23
 status: published
 lede: 'Lo que hay sobre la mesa ahora.'
-# El detalle completo de "lo que hay sobre la mesa". El home
-# (src/content/pages/es/home.md) muestra un resumen de 4 tarjetas de
-# estos mismos temas — mantené los dos sincronizados.
+# El detalle completo de "lo que hay sobre la mesa". Los ítems con un
+# bloque `teaser:` también aparecen en la grilla del home — ver
+# `benchItemsFrom()` en src/lib/now-items.ts (ADR 0014). now.md es la
+# única fuente para ambos.
 items:
   - kind: code
     where: 'sobre la mesa · código'
     title: 'Reescribiendo mi sitio en Astro'
-    prose: 'Mi sitio anterior usaba WordPress, lo construi en 2022 y no lo toqué más. Dejó de representarme bastante antes de que lo admitiera. Hacía rato que tenía ganas de tocar Astro, así que rehacerlo fue la excusa perfecta. De cero esta vez.'
+    prose: 'Mi sitio anterior usaba WordPress, lo construí en 2022 y no lo toqué más. Dejó de representarme bastante antes de que lo admitiera. Hacía rato que tenía ganas de tocar Astro, así que rehacerlo fue la excusa perfecta. De cero esta vez.'
     detail:
       - dt: 'stack'
         dd: 'Astro · Cloudflare Workers'
@@ -21,17 +22,24 @@ items:
         dd: '100 Lighthouse · ~11 KB / página'
       - dt: 'aprendí'
         dd: 'lo poco que necesita de JS'
+    teaser:
+      label: 'código'
+      line: 'Entra markdown, sale Lighthouse 100. Día cinco reescribiéndolo en Astro, más que nada para probar algo diferente.'
   - kind: guitar
     where: 'entre las manos · guitarra'
-    title: 'Compases 9–16 de la Milonga del Ángel'
+    title: 'Aprendiendo lo básico'
     prose: 'Piazzolla. Vengo loopeando los mismos ocho compases a media velocidad hace tres semanas. La mano derecha es el rompecabezas — la alternancia i/m tiene que esquivar la cuerda m con el apoyando. Bien lento se siente cómo la nota grave arrastra a la melodía atrás.'
     detail:
+      - dt: 'Acordes'
+        dd: 'D · A · E · Am · Em · Dm · G · C'
       - dt: 'meta'
-        dd: 'compás 9–16 limpio a 88 bpm'
+        dd: 'cambio rápido y preciso de acordes'
       - dt: 'hoy'
-        dd: '62 bpm, 30 min loopeado'
-      - dt: 'mañana'
-        dd: '68 bpm, con dinámicas'
+        dd: '~55 cambios por minuto, perdiendo precisión hacia el final'
+    teaser:
+      label: 'guitarra'
+      line: 'Entrenando la mano izquierda y derecha, aprendiendo los ocho acordes esenciales y conectando con el instrumento'
+      guitarLabel: '· D · A · E · Am · Em · Dm · G · C ·'
   - kind: garden
     where: 'en la huerta · jardín'
     title: 'Rotación de primavera, plantada'
@@ -43,6 +51,10 @@ items:
         dd: 'tom + albahaca + manzanilla'
       - dt: 'esperando'
         dd: 'primer fruto en ~5 semanas'
+    teaser:
+      label: 'huerta'
+      line: 'Black Russian, San Marzano, un cajoncito de albahaca. Los polinizadores llegaron dos semanas antes.'
+      seedlingTag: 'tomate'
   - kind: print
     where: 'en el slicer · 3D'
     title: 'Bandeja para guardar todo, rev 5'
@@ -54,6 +66,23 @@ items:
         dd: '0.16 mm · 4 paredes'
       - dt: 'próximo'
         dd: 'rev 6: fillets más suaves'
+    teaser:
+      label: '3d'
+      line: 'Imanes en las esquinas; el hueco para el tamper de espresso por fin entra. Cinco iteraciones después.'
+  - kind: home
+    where: 'en la pared · casa'
+    title: 'Piedra & Madera'
+    prose: 'La mesa de la TV no es el mueble adecuado para una chiquita que trepa. La solución no es cambiar la mesa; es decidir que la pantalla forma parte de la pared, no algo apoyado en un mueble. Una carcasa de nogal anclada a la estructura de la pared, con el panel de 75″ encastrado adentro en lugar de apoyado encima.'
+    detail:
+      - dt: 'madera'
+        dd: 'nogal'
+      - dt: 'piedra'
+        dd: 'tbd'
+      - dt: 'medidas'
+        dd: '3 × 2.7 × 0.46 m'
+    teaser:
+      label: 'casa'
+      line: 'Carcasa de madera alrededor del TV, con un hogar apaisado y una repisa de piedra.'
   - kind: coffee
     where: 'en la taza · café + mate'
     title: 'Padre Etiopía, y Cruz de Malta'

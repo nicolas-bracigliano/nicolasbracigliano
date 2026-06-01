@@ -7,7 +7,7 @@ date: 2026-05-09
 status: published
 tags: [music, guitar]
 kind: guitar
-lifecycle: draft
+lifecycle: ongoing
 number: '03'
 lede: 'A field recording of half-speed practice. Two takes, one mic, my kitchen.'
 specs:

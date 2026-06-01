@@ -21,10 +21,11 @@ const path = ROUTES.now.es;
 const siblingPath = sibling ? entryRouteFor(sibling) : null;
 
 // Los ítems viven en `src/content/pages/es/now.md` como YAML
-// frontmatter. La cantidad está locked a `NOW_ITEM_COUNT` en
+// frontmatter. La cantidad está acotada a NOW_ITEM_MIN..NOW_ITEM_MAX en
 // `src/lib/now-items.ts` y se valida en build via la union Zod
-// discriminada de `pages`. Una edición que baje a cinco ítems
-// rompe el build — no se le rompe al lector silenciosamente.
+// discriminada de `pages`. Los ítems con `teaser` también alimentan el
+// banco del home (única fuente). Una edición fuera del rango rompe el
+// build — no se le rompe al lector silenciosamente.
 ---
 
 <BaseLayout

@@ -11,7 +11,6 @@ export default [
       'dist/**',
       '.astro/**',
       'node_modules/**',
-      'public/_pagefind/**',
       'public/theme-init.js',
       'coverage/**',
       '.wrangler/**',

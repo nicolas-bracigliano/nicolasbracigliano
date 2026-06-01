@@ -50,9 +50,10 @@ export interface Props {
   peekLabel: string;
 }
 
-// No fallback defaults: the captions are kind-conditionally required in
-// `benchItemSchema`, so an omission fails the build rather than silently
-// injecting a wrong-locale string here.
+// No fallback defaults: the captions are kind-conditionally required by
+// the `teaser` refines in `nowItemSchema` (src/lib/now-items.ts), so an
+// omission fails the build rather than silently injecting a wrong-locale
+// string here.
 const { kind, tag, title, line, seedlingTag, guitarLabel, href, peekLabel } = Astro.props;
 ---
 
@@ -80,9 +81,9 @@ const { kind, tag, title, line, seedlingTag, guitarLabel, href, peekLabel } = As
             <line class="string s3" x1="10" x2="210" y1="68" y2="68" />
             <line class="string s4" x1="10" x2="210" y1="84" y2="84" />
             <line class="string s5" x1="10" x2="210" y1="100" y2="100" />
-            <line x1="60" x2="60" y1="14" y2="118" stroke-width="0.7" opacity="0.5" />
-            <line x1="110" x2="110" y1="14" y2="118" stroke-width="0.7" opacity="0.5" />
-            <line x1="160" x2="160" y1="14" y2="118" stroke-width="0.7" opacity="0.5" />
+            <line x1="60" x2="60" y1="20" y2="100" stroke-width="4" opacity="0.5" />
+            <line x1="110" x2="110" y1="20" y2="100" stroke-width="4" opacity="0.5" />
+            <line x1="160" x2="160" y1="20" y2="100" stroke-width="4" opacity="0.5" />
             <circle cx="85" cy="36" r="4" fill="var(--accent)" stroke="none" />
             <circle cx="135" cy="68" r="4" fill="var(--accent)" stroke="none" />
             <circle cx="135" cy="84" r="4" fill="var(--accent)" stroke="none" />
@@ -141,6 +142,71 @@ const { kind, tag, title, line, seedlingTag, guitarLabel, href, peekLabel } = As
             <line x1="100" x2="160" y1="115" y2="90" opacity="0.15" />
             <line x1="100" x2="160" y1="122" y2="97" opacity="0.11" />
             <circle class="head" cx="100" cy="30" r="3" fill="var(--accent)" stroke="none" />
+          </g>
+        </svg>
+      )
+    }
+
+    {
+      kind === 'home' && (
+        <svg viewBox="0 0 200 140" width="45%" height="45%">
+          <g fill="none" stroke="currentColor" stroke-width="1">
+            {/* crown molding */}
+            <line x1="46" x2="154" y1="14" y2="14" />
+            <line x1="46" x2="154" y1="17" y2="17" opacity="0.4" />
+
+            {/* wall panel */}
+            <path d="M52,17 L52,102 L148,102 L148,17" opacity="0.6" />
+
+            {/* wall slats */}
+            {Array.from({ length: 18 }).map((_, i) => (
+              <line x1={58 + i * 5} x2={58 + i * 5} y1="18" y2="100" opacity="0.3" />
+            ))}
+
+            {/* tv */}
+            <rect x="66" y="40" width="68" height="36" stroke-width="1.2" fill="currentColor" />
+
+            {/* fireplace slot */}
+            <rect x="60" y="91.5" width="80" height="9" />
+
+            {/* flames */}
+            {Array.from({ length: 12 }).map((_, i) => {
+              const x = 65 + i * 6;
+              const h = i % 2 === 0 ? 6 : 4;
+              return <path d={`M${x},99 q 1,-${h} 2,0`} opacity="0.55" fill="var(--accent)" />;
+            })}
+
+            {/* speakers on the shelf */}
+            <ellipse
+              cx="42"
+              cy="95"
+              rx="3.5"
+              ry="4.5"
+              fill="currentColor"
+              stroke="none"
+              opacity="0.75"
+            />
+            <ellipse
+              cx="158"
+              cy="95"
+              rx="3.5"
+              ry="4.5"
+              fill="currentColor"
+              stroke="none"
+              opacity="0.75"
+            />
+
+            {/* floating bench, rounded ends */}
+            <rect x="22" y="102" width="156" height="20" rx="6" />
+            <line x1="22" x2="178" y1="104" y2="104" opacity="0.5" stroke-width="3" />
+
+            {/* bench slats */}
+            {Array.from({ length: 28 }).map((_, i) => (
+              <line x1={30 + i * 5.18} x2={30 + i * 5.18} y1="108" y2="120" opacity="0.3" />
+            ))}
+
+            {/* underglow */}
+            <line x1="26" x2="174" y1="128" y2="128" stroke-dasharray="2 2" opacity="0.4" />
           </g>
         </svg>
       )
