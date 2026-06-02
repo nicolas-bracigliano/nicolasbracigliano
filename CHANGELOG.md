@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.20.0](https://github.com/nicolas-bracigliano/nicolasbracigliano/compare/v1.19.0...v1.20.0) (2026-06-02)
+
+
+### Features
+
+* editorial work detail pages with iterations, changelog, and elsewhere ([7e65b3f](https://github.com/nicolas-bracigliano/nicolasbracigliano/commit/7e65b3ffa4b929d57e199d5e1a135b476fc13611))
+
 ## [1.19.0](https://github.com/nicolas-bracigliano/nicolasbracigliano/compare/v1.18.2...v1.19.0) (2026-06-02)
 
 
