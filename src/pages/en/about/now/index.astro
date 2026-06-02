@@ -4,7 +4,7 @@ import BaseLayout from '@layouts/BaseLayout.astro';
 import NowMasthead from '@components/NowMasthead.astro';
 import NowItem from '@components/NowItem.astro';
 import { ROUTES } from '@lib/routes';
-import { getSibling, entryRouteFor } from '@lib/i18n';
+import { getSibling, entryRouteFor, resolveWorkLinks } from '@lib/i18n';
 import { assertNowEntry } from '@lib/now-items';
 
 const entry = await getEntry('pages', 'en/now');
@@ -19,6 +19,11 @@ const { title, lede, items } = entry.data;
 
 const path = ROUTES.now.en;
 const siblingPath = sibling ? entryRouteFor(sibling) : null;
+
+// Each item's optional `work` (a work translationId) resolved to its
+// localized /works route — see `resolveWorkLinks` (shared with the ES
+// page) for the rule, incl. the dangling-ref build failure.
+const workLinks = await resolveWorkLinks(items, 'en');
 
 // Items live in `src/content/pages/en/now.md` as YAML frontmatter.
 // Count is bounded to NOW_ITEM_MIN..NOW_ITEM_MAX in `src/lib/now-items.ts`
@@ -47,6 +52,9 @@ const siblingPath = sibling ? entryRouteFor(sibling) : null;
             title={item.title}
             prose={item.prose}
             detail={item.detail}
+            workHref={workLinks[i]?.href}
+            workLabel={workLinks[i]?.label}
+            seeAlsoLabel="see also"
           />
         ))
       }

@@ -1,21 +1,24 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
-import { mkdtemp, readFile, rm } from 'node:fs/promises';
+import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { parse as parseYaml } from 'yaml';
 import {
   slugify,
   todayIso,
+  validateDate,
   yamlString,
   yamlTagList,
   buildNoteMarkdown,
   buildPieceMarkdown,
   buildWorkMarkdown,
   replaceNowItem,
+  loadPublishedWorkIds,
   makeScriptedContext,
   scaffoldNote,
   scaffoldPiece,
   scaffoldWork,
+  scaffoldNowItem,
 } from '../../scripts/new-content.ts';
 
 // Pure helpers from `scripts/new-content.ts`. The CLI shell (readline
@@ -58,6 +61,25 @@ describe('todayIso', () => {
 
   it('pads single-digit month and day', () => {
     expect(todayIso(new Date(2026, 0, 3))).toBe('2026-01-03');
+  });
+});
+
+describe('validateDate', () => {
+  it('accepts a real, zero-padded YYYY-MM-DD (incl. a valid leap day)', () => {
+    expect(validateDate('2026-05-27')).toBeNull();
+    expect(validateDate('2024-02-29')).toBeNull(); // 2024 is a leap year
+  });
+
+  it('rejects the wrong shape (non-padded, words, slashes)', () => {
+    expect(validateDate('2026-5-1')).toMatch(/YYYY-MM-DD/);
+    expect(validateDate('tomorrow')).toMatch(/YYYY-MM-DD/);
+    expect(validateDate('2026/05/27')).toMatch(/YYYY-MM-DD/);
+  });
+
+  it('rejects an impossible calendar date even when well-shaped', () => {
+    expect(validateDate('2026-13-01')).toMatch(/real calendar date/);
+    expect(validateDate('2026-02-30')).toMatch(/real calendar date/);
+    expect(validateDate('2025-02-29')).toMatch(/real calendar date/); // 2025 not a leap year
   });
 });
 
@@ -341,6 +363,62 @@ items:
     const bad = `---\ntitle: 'X'\nslug: 'x'\n---\n`;
     expect(() => replaceNowItem(bad, 0, newItem)).toThrow(/items.*missing/);
   });
+
+  it('omits the `work:` key when no work is linked', () => {
+    const out = replaceNowItem(fixture, 0, newItem);
+    // The fixture item had no work and newItem sets none — round-trips clean.
+    expect(out).not.toContain('work:');
+  });
+
+  it('writes `work:` (between title and prose) when a work is linked', () => {
+    const out = replaceNowItem(fixture, 0, { ...newItem, work: 'this-site' });
+    expect(out).toContain('work: this-site');
+    // Field order matches the shipped now.md: title → work → prose.
+    const titleIdx = out.indexOf('title:');
+    const workIdx = out.indexOf('work:');
+    const proseIdx = out.indexOf('prose:');
+    expect(titleIdx).toBeLessThan(workIdx);
+    expect(workIdx).toBeLessThan(proseIdx);
+  });
+
+  it('round-trips a work translationId through the YAML document unchanged', () => {
+    const out = replaceNowItem(fixture, 1, { ...newItem, work: 'gridfinity-bins' });
+    const parsed = parseYaml(out.match(/^---\n([\s\S]*?)\n---/)?.[1] ?? '') as {
+      items: { work?: string }[];
+    };
+    expect(parsed.items[1]?.work).toBe('gridfinity-bins');
+    // The untouched item 0 still carries no work key.
+    expect(parsed.items[0]?.work).toBeUndefined();
+  });
+
+  it('omits the `teaser:` key when none is provided', () => {
+    const out = replaceNowItem(fixture, 0, newItem);
+    expect(out).not.toContain('teaser:');
+  });
+
+  it('writes a teaser block last (after detail) when provided', () => {
+    const out = replaceNowItem(fixture, 0, {
+      ...newItem,
+      kind: 'code',
+      teaser: { label: 'code', line: 'blurb' },
+    });
+    expect(out).toContain('teaser:');
+    expect(out.indexOf('detail:')).toBeLessThan(out.indexOf('teaser:'));
+    const parsed = parseYaml(out.match(/^---\n([\s\S]*?)\n---/)?.[1] ?? '') as {
+      items: { teaser?: { label: string; line: string } }[];
+    };
+    expect(parsed.items[0]?.teaser).toEqual({ label: 'code', line: 'blurb' });
+  });
+
+  it('includes the kind-conditional caption only when the teaser supplies it', () => {
+    const out = replaceNowItem(fixture, 0, {
+      ...newItem,
+      kind: 'guitar',
+      teaser: { label: 'guitar', line: 'l', guitarLabel: '· A m ·' },
+    });
+    expect(out).toContain('guitarLabel:');
+    expect(out).not.toContain('seedlingTag:');
+  });
 });
 
 describe('yamlString input hardening', () => {
@@ -517,6 +595,177 @@ describe('scaffoldWork (end-to-end)', () => {
   });
   afterEach(async () => {
     await rm(tempRoot, { recursive: true, force: true });
+  });
+});
+
+// Now-item flow needs an existing now.md pair (it replaces in place) plus
+// works on disk (the `work` ref is validated against published works).
+// Helpers write a minimal-but-parseable fixture tree into the temp root.
+const NOW_FIXTURE = (lang: 'en' | 'es', t1: string, t2: string) => `---
+title: 'Now'
+slug: 'now'
+lang: ${lang}
+translationId: now
+date: 2026-05-23
+status: published
+items:
+  - kind: code
+    where: 'on the bench · code'
+    title: '${t1}'
+    prose: 'First.'
+    detail:
+      - dt: 'a'
+        dd: '1'
+      - dt: 'b'
+        dd: '2'
+      - dt: 'c'
+        dd: '3'
+  - kind: guitar
+    where: 'in my hands · guitar'
+    title: '${t2}'
+    prose: 'Second.'
+    detail:
+      - dt: 'a'
+        dd: '1'
+      - dt: 'b'
+        dd: '2'
+      - dt: 'c'
+        dd: '3'
+---
+
+<!-- trailing comment that must survive the round-trip -->
+`;
+
+const WORK_FIXTURE = (lang: 'en' | 'es', slug: string) => `---
+title: 'This site'
+slug: '${slug}'
+lang: ${lang}
+translationId: this-site
+date: 2026-05-21
+status: published
+tags: [code]
+kind: code
+lifecycle: ongoing
+---
+
+body
+`;
+
+async function seedNowFixtures(root: string): Promise<void> {
+  await mkdir(join(root, 'pages', 'en'), { recursive: true });
+  await mkdir(join(root, 'pages', 'es'), { recursive: true });
+  await mkdir(join(root, 'works', 'en'), { recursive: true });
+  await mkdir(join(root, 'works', 'es'), { recursive: true });
+  await writeFile(join(root, 'pages', 'en', 'now.md'), NOW_FIXTURE('en', 'Item 1', 'Item 2'));
+  await writeFile(join(root, 'pages', 'es', 'now.md'), NOW_FIXTURE('es', 'Ítem 1', 'Ítem 2'));
+  await writeFile(join(root, 'works', 'en', 'this-site.md'), WORK_FIXTURE('en', 'this-site'));
+  await writeFile(join(root, 'works', 'es', 'este-sitio.md'), WORK_FIXTURE('es', 'este-sitio'));
+}
+
+interface NowFm {
+  items: {
+    title: string;
+    work?: string;
+    teaser?: { label: string; line: string };
+  }[];
+}
+const nowItemsOf = (text: string): NowFm =>
+  parseYaml(text.match(/^---\n([\s\S]*?)\n---/)?.[1] ?? '') as NowFm;
+
+describe('loadPublishedWorkIds', () => {
+  let tempRoot: string;
+  beforeEach(async () => {
+    tempRoot = await mkdtemp(join(tmpdir(), 'scaffold-test-'));
+  });
+  afterEach(async () => {
+    await rm(tempRoot, { recursive: true, force: true });
+  });
+
+  it('collects published work translationIds from both locales', async () => {
+    await seedNowFixtures(tempRoot);
+    const ids = await loadPublishedWorkIds(tempRoot);
+    expect(ids.has('this-site')).toBe(true);
+  });
+
+  it('returns an empty set when no works dir exists (does not throw)', async () => {
+    const ids = await loadPublishedWorkIds(tempRoot); // nothing seeded
+    expect(ids.size).toBe(0);
+  });
+});
+
+describe('scaffoldNowItem (end-to-end)', () => {
+  let tempRoot: string;
+  beforeEach(async () => {
+    tempRoot = await mkdtemp(join(tmpdir(), 'scaffold-test-'));
+    await seedNowFixtures(tempRoot);
+  });
+  afterEach(async () => {
+    await rm(tempRoot, { recursive: true, force: true });
+  });
+
+  it('replaces the chosen item with a work link + teaser, in both locales', async () => {
+    const ctx = makeScriptedContext(
+      [
+        '2', // replace index 2
+        'code', // kind
+        'on the bench · code', // EN where
+        'sobre la mesa · código', // ES where
+        'New EN Title', // EN title
+        'Nuevo título ES', // ES title
+        'EN prose.', // EN prose
+        'Prosa ES.', // ES prose
+        'this-site', // work (validated against the seeded works)
+        'code', // teaser EN label (non-empty → teaser path)
+        'código', // teaser ES label
+        'EN line', // teaser EN line
+        'línea ES', // teaser ES line
+        // 3 detail rows: EN dt, EN dd, ES dt, ES dd
+        'stack',
+        'Astro',
+        'stack',
+        'Astro',
+        'weight',
+        '11 KB',
+        'peso',
+        '11 KB',
+        'learned',
+        'less JS',
+        'aprendí',
+        'menos JS',
+      ],
+      tempRoot,
+    );
+    const result = await scaffoldNowItem(ctx);
+
+    const en = nowItemsOf(await readFile(result.paths[0]!, 'utf-8'));
+    const es = nowItemsOf(await readFile(result.paths[1]!, 'utf-8'));
+
+    // Index 1 (0-based) replaced; index 0 untouched.
+    expect(en.items[0]?.title).toBe('Item 1');
+    expect(en.items[1]?.title).toBe('New EN Title');
+    expect(en.items[1]?.work).toBe('this-site');
+    expect(en.items[1]?.teaser).toEqual({ label: 'code', line: 'EN line' });
+    expect(es.items[1]?.title).toBe('Nuevo título ES');
+    expect(es.items[1]?.work).toBe('this-site');
+    expect(es.items[1]?.teaser).toEqual({ label: 'código', line: 'línea ES' });
+  });
+
+  it('rejects a `work` ref that is not a published work (fail at prompt)', async () => {
+    const ctx = makeScriptedContext(
+      [
+        '1',
+        'code',
+        'on the bench · code',
+        'sobre la mesa · código',
+        'T',
+        'T',
+        'P',
+        'P',
+        'no-such-work', // unknown translationId → validation throws
+      ],
+      tempRoot,
+    );
+    await expect(scaffoldNowItem(ctx)).rejects.toThrow(/no published work/);
   });
 });
 

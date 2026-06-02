@@ -18,9 +18,21 @@ export interface Props extends NowPageItem {
    *  than `index` so a future caller doesn't pass an array index by
    *  reflex and silently shift every row down by one. */
   position: number;
+  /** Resolved localized href for the related work, if this item set
+   *  `work`. The page resolves the translationId → work entry → route
+   *  (so the URL localizes per locale); the component only renders it.
+   *  Absent ⇒ no "see also" link for this row. */
+  workHref?: string | undefined;
+  /** Visible monospaced path for the link, e.g. `/works/this-site`
+   *  (locale-prefix-stripped — see `workLinkLabel`). */
+  workLabel?: string | undefined;
+  /** Localized eyebrow for the link ("see also" / "ver también");
+   *  uppercased by CSS, mirroring the `where` eyebrow. */
+  seeAlsoLabel?: string | undefined;
 }
 
-const { position, kind, where, title, prose, detail } = Astro.props;
+const { position, kind, where, title, prose, detail, workHref, workLabel, seeAlsoLabel } =
+  Astro.props;
 
 // `№ 01`, `№ 02`, …. Tabular-nums in CSS keeps the rail straight even
 // once the list crosses ten items.
@@ -48,5 +60,28 @@ const num = `№ ${String(position).padStart(2, '0')}`;
         ))
       }
     </dl>
+    {
+      /* "See also" foot link to the catalogued work, when the now item
+        graduated into one. The path is the link; the eyebrow (`.muted`,
+        the promoted global grey utility) and the decorative arrow sit
+        beside it. The link's aria-label folds the eyebrow in so its
+        accessible name reads "see also /works/this-site" — without it the
+        name is a bare path with no relationship cue. The eyebrow span is
+        aria-hidden to avoid double-announcing the same words the label
+        now carries; the arrow is decorative throughout. */
+      workHref && (
+        <p class="now-see-also">
+          <span class="muted" aria-hidden="true">
+            {seeAlsoLabel}
+          </span>
+          <a href={workHref} aria-label={`${seeAlsoLabel} ${workLabel}`} data-astro-prefetch>
+            {workLabel}
+          </a>
+          <span class="now-see-arrow" aria-hidden="true">
+            →
+          </span>
+        </p>
+      )
+    }
   </div>
 </li>

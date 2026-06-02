@@ -11,9 +11,14 @@
 // live in bench-items.test.ts are folded in here.
 
 import { describe, expect, it } from 'vitest';
+import { readdirSync, readFileSync } from 'node:fs';
+import { join } from 'node:path';
+import { parse as parseYaml } from 'yaml';
 import {
   nowItemSchema,
   benchItemsFrom,
+  workLinkLabel,
+  nowWorkLinks,
   NOW_ITEM_MIN,
   NOW_ITEM_MAX,
   type NowPageItem,
@@ -72,7 +77,47 @@ describe.each([
     expect(teasered.length).toBeGreaterThan(0);
     teasered.forEach((i) => expect(BENCH_KINDS).toContain(i.kind));
   });
+
+  it('every item `work` ref resolves to a published work in this locale', () => {
+    // Mirrors the build-time throw in the now index pages (they fail the
+    // build on a dangling `work:`), but catches it in ~150 ms here: a
+    // now item's "see also" must point at a work that's actually
+    // published in the SAME locale, by translationId. A typo, or a ref
+    // to a draft work (e.g. huerta-spring), fails here before e2e.
+    const fm = loadCollectionSync('works', locale)
+      .filter((w) => w.status === 'published')
+      .map((w) => w.translationId);
+    const publishedIds = new Set(fm);
+    const items = (loadNowItems(locale) as Array<{ work?: string }>).filter((i) => i.work);
+    items.forEach((i) =>
+      expect(publishedIds.has(i.work as string), `work="${i.work}" (${locale})`).toBe(true),
+    );
+  });
 });
+
+// Direct frontmatter loaders for the cross-collection `work`-ref check —
+// the shared `loadFrontmatter` helper is async and single-file, so for
+// scanning the works dir + reading now.md synchronously inside a
+// non-async `it` we read here. Mirrors the loader in bilingual-pairs.test.ts.
+const CONTENT_ROOT = join(__dirname, '..', '..', 'src', 'content');
+function frontmatterOf(text: string): Record<string, unknown> {
+  const m = text.match(/^---\n([\s\S]*?)\n---/);
+  return m && m[1] ? (parseYaml(m[1]) as Record<string, unknown>) : {};
+}
+function loadCollectionSync(
+  collection: string,
+  locale: 'en' | 'es',
+): Array<{ translationId: string; status: string }> {
+  const dir = join(CONTENT_ROOT, collection, locale);
+  return readdirSync(dir)
+    .filter((f) => f.endsWith('.md'))
+    .map((f) => frontmatterOf(readFileSync(join(dir, f), 'utf-8')))
+    .map((d) => ({ translationId: String(d.translationId), status: String(d.status) }));
+}
+function loadNowItems(locale: 'en' | 'es'): unknown[] {
+  const text = readFileSync(join(CONTENT_ROOT, 'pages', locale, 'now.md'), 'utf-8');
+  return (frontmatterOf(text).items as unknown[]) ?? [];
+}
 
 describe('benchItemsFrom', () => {
   // Minimal item factory — `detail` length isn't load-bearing for the
@@ -123,5 +168,92 @@ describe('benchItemsFrom', () => {
     // has no vignette for it), even if a teaser slips through.
     const out = benchItemsFrom([item({ kind: 'read', teaser: { label: 'read', line: 'x' } })]);
     expect(out).toEqual([]);
+  });
+});
+
+describe('nowItemSchema `work` field', () => {
+  const base = {
+    kind: 'code',
+    where: 'on the bench · code',
+    title: 'Title',
+    prose: 'Prose.',
+    detail: [
+      { dt: 'a', dd: '1' },
+      { dt: 'b', dd: '2' },
+      { dt: 'c', dd: '3' },
+    ],
+  };
+
+  it('is optional — an item without `work` still validates', () => {
+    expect(nowItemSchema.safeParse(base).success).toBe(true);
+  });
+
+  it('accepts a kebab-case work translationId', () => {
+    expect(nowItemSchema.safeParse({ ...base, work: 'this-site' }).success).toBe(true);
+  });
+
+  it('rejects a non-kebab value (slash, spaces, a full route)', () => {
+    expect(nowItemSchema.safeParse({ ...base, work: '/en/works/this-site/' }).success).toBe(false);
+    expect(nowItemSchema.safeParse({ ...base, work: 'This Site' }).success).toBe(false);
+  });
+});
+
+describe('nowWorkLinks', () => {
+  const item = (over: Partial<NowPageItem>): NowPageItem => ({
+    kind: 'code',
+    where: 'on the bench · code',
+    title: 'Title',
+    prose: 'Prose.',
+    detail: [
+      { dt: 'a', dd: '1' },
+      { dt: 'b', dd: '2' },
+      { dt: 'c', dd: '3' },
+    ],
+    ...over,
+  });
+
+  it('resolves refs against the map, index-aligned, null where no `work`', () => {
+    const links = nowWorkLinks(
+      [item({ work: 'this-site' }), item({ kind: 'guitar' })],
+      new Map([['this-site', '/en/works/this-site/']]),
+      'en',
+    );
+    expect(links).toEqual([{ href: '/en/works/this-site/', label: '/works/this-site' }, null]);
+  });
+
+  it('localizes from the same shared translationId (ES map → ES route/label)', () => {
+    const [link] = nowWorkLinks(
+      [item({ work: 'this-site' })],
+      new Map([['this-site', '/es/obras/este-sitio/']]),
+      'es',
+    );
+    expect(link).toEqual({ href: '/es/obras/este-sitio/', label: '/obras/este-sitio' });
+  });
+
+  it('THROWS on a dangling ref — the documented build-failure contract', () => {
+    // This is the guard the /now pages rely on (via i18n.resolveWorkLinks):
+    // a `work:` ref to a work that is missing OR not published in this
+    // locale (e.g. flipped to draft) must fail the build, not render a
+    // dead link. The message names the item, the ref, and the locale so
+    // the build log points at the content to fix.
+    const dangling = () =>
+      nowWorkLinks([item({ title: 'Huerta update', work: 'huerta-spring' })], new Map(), 'es');
+    expect(dangling).toThrow(/no published es work/);
+    expect(dangling).toThrow(/"Huerta update"/);
+    expect(dangling).toThrow(/translationId="huerta-spring"/);
+  });
+});
+
+describe('workLinkLabel', () => {
+  it('strips the locale prefix and trailing slash from an EN route', () => {
+    expect(workLinkLabel('/en/works/this-site/')).toBe('/works/this-site');
+  });
+
+  it('strips the locale prefix and trailing slash from an ES route', () => {
+    expect(workLinkLabel('/es/obras/este-sitio/')).toBe('/obras/este-sitio');
+  });
+
+  it('leaves a path without a locale prefix or trailing slash unchanged', () => {
+    expect(workLinkLabel('/works/this-site')).toBe('/works/this-site');
   });
 });

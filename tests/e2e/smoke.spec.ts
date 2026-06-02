@@ -377,6 +377,41 @@ test('/en/about/now/ — each item has a detail <dl> with at least one dt/dd pai
   }
 });
 
+test('/about/now/ — the code item "see also" links to the matching work, localized per locale', async ({
+  page,
+}) => {
+  // Wire-up check: the `work:` ref on a now item resolves to the work's
+  // localized /works route (EN slug `this-site` / ES `este-sitio`) from
+  // the single shared translationId. Easy to silently disconnect — drop
+  // the prop pass-through in the now index page and the link vanishes
+  // with no other test noticing. The visible path mirrors the href minus
+  // the locale prefix (see `workLinkLabel`); the aria-label folds the
+  // localized eyebrow back into the link's accessible name (the eyebrow
+  // span is aria-hidden, so the label is the only place it reaches AT).
+  for (const { path, href, label, eyebrow } of [
+    {
+      path: '/en/about/now/',
+      href: '/en/works/this-site/',
+      label: '/works/this-site',
+      eyebrow: 'see also',
+    },
+    {
+      path: '/es/sobre/ahora/',
+      href: '/es/obras/este-sitio/',
+      label: '/obras/este-sitio',
+      eyebrow: 'ver también',
+    },
+  ]) {
+    await page.goto(path);
+    const link = page.locator('.now-code .now-see-also a');
+    await expect(link).toHaveAttribute('href', href);
+    await expect(link).toHaveText(label);
+    await expect(link).toHaveAttribute('aria-label', `${eyebrow} ${label}`);
+    // Negative: an item without a `work:` ref renders no see-also at all.
+    await expect(page.locator('.now-guitar .now-see-also')).toHaveCount(0);
+  }
+});
+
 test('/about/now/ — each present kind renders a unique per-kind class', async ({ page }) => {
   await page.goto('/en/about/now/');
   // The CSS keys the № tint off `.now-<kind>`; if a refactor drops a kind

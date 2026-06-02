@@ -13,6 +13,7 @@ items:
   - kind: code
     where: 'on the bench · code'
     title: 'Rewriting my personal site in Astro'
+    work: this-site
     prose: "My last site was WordPress, built in 2022 and left alone since. It stopped looking like me a while before I admitted it. I'd been curious about [Astro] for a while, so the rebuild was the excuse to learn it. From scratch this time."
     detail:
       - dt: 'stack'
@@ -57,6 +58,7 @@ items:
   - kind: print
     where: 'in the slicer · 3D'
     title: 'Gridfinity bins for the tool drawer'
+    work: gridfinity-bins
     prose: 'Custom 42 mm bins, modelled in CAD to the tool: one for the calipers, one for the nozzles, labelled bins for nuts and bolts. Six so far, more to draw. Matte PLA on the Bambu.'
     detail:
       - dt: 'grid'
@@ -71,6 +73,7 @@ items:
   - kind: home
     where: 'on the wall · home'
     title: 'Stone & Wood'
+    work: stone-wood
     prose: "The TV stand is the wrong piece of furniture for a small person who climbs. The fix isn't a different stand; it's deciding the screen is a feature of the wall, not a thing sitting on a table. A walnut shell, anchored to the studs, with the 75″ panel framed inside it instead of perched on top."
     detail:
       - dt: 'wood'

@@ -8,8 +8,9 @@
 // Why a script: every entry is a bilingual pair sharing one
 // `translationId`, and each collection has its own frontmatter
 // quirks (works = no date prefix on filename, pieces = `written:`
-// + marginNotes/diagrams arrays, now-items = exact 6 slots with
-// 3 detail rows). Doing this by hand reliably means re-reading
+// + marginNotes/diagrams arrays, now-items = a bounded list with
+// 3 detail rows each + an optional `work:` cross-link to a /works
+// entry). Doing this by hand reliably means re-reading
 // the schemas and the design system every time. The script
 // removes that reload cost.
 //
@@ -23,13 +24,13 @@
 // 0013) requires a directory-shaped layout; converting flat → dir
 // is a one-step manual move when a writer wants bespoke art.
 
-import { mkdir, open, readFile, writeFile } from 'node:fs/promises';
+import { mkdir, open, readdir, readFile, writeFile } from 'node:fs/promises';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createInterface } from 'node:readline/promises';
 import { stdin as input, stdout as output } from 'node:process';
 import { parseDocument, type Document } from 'yaml';
-import { WORK_KINDS, NOTE_KINDS, NOW_KINDS } from '../src/lib/content-kinds.ts';
+import { WORK_KINDS, NOTE_KINDS, NOW_KINDS, BENCH_KINDS } from '../src/lib/content-kinds.ts';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = join(__dirname, '..');
@@ -170,12 +171,32 @@ export function buildWorkMarkdown(input: WorkFrontmatterInput): string {
   return lines.join('\n');
 }
 
+/** A now item's optional home-bench teaser (ADR 0014). Localized —
+ *  unlike `work`, each field differs per locale (EN "code" / ES "código").
+ *  `guitarLabel`/`seedlingTag` are the vignette captions that the schema
+ *  requires for guitar/garden kinds respectively. */
+export interface NowTeaserInput {
+  label: string;
+  line: string;
+  guitarLabel?: string;
+  seedlingTag?: string;
+}
+
 export interface NowItemInput {
   kind: (typeof NOW_KINDS)[number];
   where: string;
   title: string;
   prose: string;
   detail: readonly { dt: string; dd: string }[];
+  /** Optional cross-link to a `works` entry, by the work's
+   *  `translationId` (locale-independent — the same value goes in both
+   *  the EN and ES now.md). The /now pages resolve it to the localized
+   *  `/works/<slug>` route. Omitted from the written YAML when absent. */
+  work?: string;
+  /** Optional teaser block — present only on bench-kind items that also
+   *  surface on the home "on the bench" grid. Omitted from the written
+   *  YAML when absent. */
+  teaser?: NowTeaserInput;
 }
 
 /** Parse a now.md file as a YAML document and replace one item in
@@ -184,6 +205,13 @@ export interface NowItemInput {
  *  the `---` fence. `yaml`'s `parseDocument` + `Document.toString()`
  *  preserves quoting style + key order for the items we don't
  *  touch, so the diff reads as "one item changed."
+ *
+ *  Writes the item fields from `newItem` in shipped-now.md order
+ *  (kind/where/title/[work]/prose/detail/[teaser]). `work` and `teaser`
+ *  are written only when present on the input — and conversely are NOT
+ *  preserved from the existing item when absent. So replacing a teaser'd
+ *  item without supplying a fresh teaser drops it from the home bench
+ *  (ADR 0014); the CLI collects a teaser up front and warns on this.
  *
  *  Index is 0-based. Throws if the file isn't shaped like a now.md
  *  (missing `items:` array, wrong length, etc.) so a misuse fails
@@ -213,8 +241,25 @@ export function replaceNowItem(fileContents: string, index: number, newItem: Now
     kind: newItem.kind,
     where: newItem.where,
     title: newItem.title,
+    // `work:` sits between title and prose to match the field order in
+    // the shipped now.md items; the key is omitted entirely when no work
+    // is linked, so an item without a cross-link round-trips unchanged.
+    ...(newItem.work ? { work: newItem.work } : {}),
     prose: newItem.prose,
     detail: newItem.detail.map((row) => ({ dt: row.dt, dd: row.dd })),
+    // `teaser:` is last, matching now.md; its sub-keys are spread
+    // conditionally so guitarLabel/seedlingTag only appear for the kinds
+    // that need them (the schema's kind-conditional refines).
+    ...(newItem.teaser
+      ? {
+          teaser: {
+            label: newItem.teaser.label,
+            line: newItem.teaser.line,
+            ...(newItem.teaser.guitarLabel ? { guitarLabel: newItem.teaser.guitarLabel } : {}),
+            ...(newItem.teaser.seedlingTag ? { seedlingTag: newItem.teaser.seedlingTag } : {}),
+          },
+        }
+      : {}),
   });
 
   return `---\n${doc.toString().trimEnd()}\n---${trailing}`;
@@ -362,6 +407,51 @@ const parseTags = (v: string): string[] =>
     .map((t) => t.trim().toLowerCase())
     .filter(Boolean);
 
+/** Validate a `YYYY-MM-DD` date string: zero-padded shape AND a real
+ *  calendar date (rejects 2026-13-01, 2026-02-30). Catches a typo at the
+ *  prompt rather than letting it through to the `translationId` refinement
+ *  (`<slug>-\d{4}-\d{2}-\d{2}`) or `z.coerce.date()` at build time.
+ *  Exported for direct unit coverage. */
+export function validateDate(v: string): string | null {
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(v);
+  if (!m) return 'date must be YYYY-MM-DD (zero-padded)';
+  const [y, mo, d] = [Number(m[1]), Number(m[2]), Number(m[3])];
+  const dt = new Date(y, mo - 1, d);
+  if (dt.getFullYear() !== y || dt.getMonth() !== mo - 1 || dt.getDate() !== d) {
+    return 'not a real calendar date';
+  }
+  return null;
+}
+
+/** Collect the `translationId`s of every PUBLISHED work under
+ *  `<contentRoot>/works/{en,es}`. Used to validate a now item's `work`
+ *  cross-link at prompt time — a ref that isn't a published work would
+ *  pass Zod but throw when the /now page resolves it. Returns an empty set
+ *  if no works dir exists (e.g. a test temp root), in which case the
+ *  caller skips the membership check rather than blocking. Exported for
+ *  the scaffold's tests. */
+export async function loadPublishedWorkIds(contentRoot: string): Promise<Set<string>> {
+  const ids = new Set<string>();
+  for (const locale of ['en', 'es'] as const) {
+    let files: string[];
+    try {
+      files = await readdir(join(contentRoot, 'works', locale));
+    } catch {
+      continue; // no works dir for this locale — skip, don't block
+    }
+    for (const file of files) {
+      if (!file.endsWith('.md')) continue;
+      const text = await readFile(join(contentRoot, 'works', locale, file), 'utf-8');
+      const fm = text.match(/^---\n([\s\S]*?)\n---/)?.[1];
+      if (!fm) continue;
+      const doc = parseDocument(fm);
+      const tid = doc.get('translationId');
+      if (doc.get('status') === 'published' && typeof tid === 'string') ids.add(tid);
+    }
+  }
+  return ids;
+}
+
 async function writeNew(path: string, contents: string): Promise<void> {
   await mkdir(dirname(path), { recursive: true });
   // `wx` = write + exclusive create. Single atomic syscall that fails
@@ -399,7 +489,11 @@ export async function scaffoldNote(ctx: CliContext): Promise<{ paths: string[] }
     default: slugify(esTitle),
     validate: validateSlug,
   });
-  const date = await ctx.ask({ question: 'date (YYYY-MM-DD)', default: todayIso() });
+  const date = await ctx.ask({
+    question: 'date (YYYY-MM-DD)',
+    default: todayIso(),
+    validate: validateDate,
+  });
   const enTagsRaw = await ctx.ask({
     question: 'EN tags (comma-separated, 1–3)',
     validate: validateTags,
@@ -463,7 +557,11 @@ export async function scaffoldPiece(ctx: CliContext): Promise<{ paths: string[] 
     default: slugify(esTitle),
     validate: validateSlug,
   });
-  const date = await ctx.ask({ question: 'date (YYYY-MM-DD)', default: todayIso() });
+  const date = await ctx.ask({
+    question: 'date (YYYY-MM-DD)',
+    default: todayIso(),
+    validate: validateDate,
+  });
   const enTagsRaw = await ctx.ask({
     question: 'EN tags (comma-separated, 1–3; framework-first per §7a)',
     validate: validateTags,
@@ -534,7 +632,11 @@ export async function scaffoldWork(ctx: CliContext): Promise<{ paths: string[] }
     default: slugify(esTitle),
     validate: validateSlug,
   });
-  const date = await ctx.ask({ question: 'date (YYYY-MM-DD)', default: todayIso() });
+  const date = await ctx.ask({
+    question: 'date (YYYY-MM-DD)',
+    default: todayIso(),
+    validate: validateDate,
+  });
   const enTagsRaw = await ctx.ask({
     question: 'EN tags (comma-separated, 1–3)',
     validate: validateTags,
@@ -604,13 +706,17 @@ export async function scaffoldWork(ctx: CliContext): Promise<{ paths: string[] }
 export async function scaffoldNowItem(ctx: CliContext): Promise<{ paths: string[] }> {
   console.log('\n→ replace a now-page item\n');
   console.log(
-    'The now schema locks the items array to exactly 6 entries; adding means replacing.\n',
+    'now.md holds a bounded list of bench items (see NOW_ITEM_MIN/MAX in\n' +
+      'src/lib/now-items.ts); this flow replaces one existing item in place.\n',
   );
 
   const enPath = join(ctx.contentRoot, 'pages', 'en', 'now.md');
   const esPath = join(ctx.contentRoot, 'pages', 'es', 'now.md');
   const enContents = await readFile(enPath, 'utf-8');
   const esContents = await readFile(esPath, 'utf-8');
+
+  // Published works, for validating the `work` cross-link at prompt time.
+  const knownWorks = await loadPublishedWorkIds(ctx.contentRoot);
 
   // Show current items (title only, both locales side by side).
   const enDoc = parseDocument(enContents.match(/^---\n([\s\S]*?)\n---/)?.[1] ?? '');
@@ -620,9 +726,19 @@ export async function scaffoldNowItem(ctx: CliContext): Promise<{ paths: string[
   if (!enItems || !esItems) {
     throw new Error('now.md `items:` array not found in one or both locales');
   }
+  // Derive the count from the file rather than hardcoding it: the array
+  // is a NOW_ITEM_MIN..MAX range (commented-out items shrink it below the
+  // old fixed six), and EN/ES must stay paired index-for-index.
+  const itemCount = enItems.items.length;
+  if (esItems.items.length !== itemCount) {
+    throw new Error(
+      `now.md item count mismatch — en has ${itemCount}, es has ${esItems.items.length}; ` +
+        'fix the pairing before replacing an item',
+    );
+  }
 
   console.log('Current items:');
-  for (let i = 0; i < 6; i++) {
+  for (let i = 0; i < itemCount; i++) {
     const en = (enItems.items[i]?.toJSON() as { title?: string })?.title ?? '?';
     const es = (esItems.items[i]?.toJSON() as { title?: string })?.title ?? '?';
     console.log(`  ${i + 1}. EN: ${en}`);
@@ -631,8 +747,14 @@ export async function scaffoldNowItem(ctx: CliContext): Promise<{ paths: string[
   console.log('');
 
   const idxRaw = await ctx.ask({
-    question: 'Replace which index (1–6)?',
-    validate: (v) => (/^[1-6]$/.test(v) ? null : 'enter a number 1–6'),
+    question: `Replace which index (1–${itemCount})?`,
+    // Plain-decimal only, so validate and the parseInt below agree (Number
+    // accepts "0x2"/"1e0" that parseInt(_, 10) would read differently).
+    validate: (v) => {
+      if (!/^\d+$/.test(v)) return `enter a number 1–${itemCount}`;
+      const n = parseInt(v, 10);
+      return n >= 1 && n <= itemCount ? null : `enter a number 1–${itemCount}`;
+    },
   });
   const index = parseInt(idxRaw, 10) - 1;
 
@@ -647,6 +769,60 @@ export async function scaffoldNowItem(ctx: CliContext): Promise<{ paths: string[
   const esTitle = await ctx.ask({ question: 'ES title' });
   const enProse = await ctx.ask({ question: 'EN prose (one paragraph, single line)' });
   const esProse = await ctx.ask({ question: 'ES prose (one paragraph, single line)' });
+  // One value for both locales — `work` is a work's translationId, which
+  // is locale-independent (the EN/ES works share it). The /now pages
+  // resolve it to the localized /works route. Optional: skip for items
+  // (guitar, coffee, …) that aren't catalogued as a work. Validated
+  // against the published works on disk (when any are present) so a typo'd
+  // ref is caught here, not at the /now build that resolves it.
+  const work = await ctx.askOptional({
+    question: 'related work (a /works translationId, e.g. "this-site")',
+    validate: (v) => {
+      if (!SLUG_RE.test(v)) return 'must be a work translationId (kebab-case, ^[a-z0-9-]+$)';
+      if (knownWorks.size > 0 && !knownWorks.has(v)) {
+        return `no published work "${v}" — known: ${[...knownWorks].sort().join(', ')}`;
+      }
+      return null;
+    },
+  });
+
+  // Optional home-bench teaser (ADR 0014) — offered only for bench kinds
+  // (the home grid has no coffee/read vignette). Leaving the EN label
+  // blank skips the teaser entirely; the kind-conditional guitarLabel /
+  // seedlingTag prompts mirror the schema refines. Fields are localized,
+  // so EN + ES are collected separately.
+  let enTeaser: NowTeaserInput | undefined;
+  let esTeaser: NowTeaserInput | undefined;
+  if ((BENCH_KINDS as readonly string[]).includes(kind)) {
+    const enLabel = await ctx.askOptional({
+      question: 'teaser EN label (home bench eyebrow; blank = no teaser)',
+    });
+    if (enLabel) {
+      const esLabel = await ctx.ask({ question: 'teaser ES label' });
+      const enLine = await ctx.ask({ question: 'teaser EN line (short bench blurb)' });
+      const esLine = await ctx.ask({ question: 'teaser ES line' });
+      const enGuitar =
+        kind === 'guitar' ? await ctx.ask({ question: 'teaser EN guitarLabel' }) : undefined;
+      const esGuitar =
+        kind === 'guitar' ? await ctx.ask({ question: 'teaser ES guitarLabel' }) : undefined;
+      const enSeed =
+        kind === 'garden' ? await ctx.ask({ question: 'teaser EN seedlingTag' }) : undefined;
+      const esSeed =
+        kind === 'garden' ? await ctx.ask({ question: 'teaser ES seedlingTag' }) : undefined;
+      enTeaser = {
+        label: enLabel,
+        line: enLine,
+        ...(enGuitar && { guitarLabel: enGuitar }),
+        ...(enSeed && { seedlingTag: enSeed }),
+      };
+      esTeaser = {
+        label: esLabel,
+        line: esLine,
+        ...(esGuitar && { guitarLabel: esGuitar }),
+        ...(esSeed && { seedlingTag: esSeed }),
+      };
+    }
+  }
 
   console.log('\nDetail rows (3 required, dt/dd):');
   const detailRows: { en: { dt: string; dd: string }; es: { dt: string; dd: string } }[] = [];
@@ -664,6 +840,8 @@ export async function scaffoldNowItem(ctx: CliContext): Promise<{ paths: string[
     title: enTitle,
     prose: enProse,
     detail: detailRows.map((r) => r.en),
+    ...(work && { work }),
+    ...(enTeaser && { teaser: enTeaser }),
   });
   const newEs = replaceNowItem(esContents, index, {
     kind,
@@ -671,15 +849,23 @@ export async function scaffoldNowItem(ctx: CliContext): Promise<{ paths: string[
     title: esTitle,
     prose: esProse,
     detail: detailRows.map((r) => r.es),
+    ...(work && { work }),
+    ...(esTeaser && { teaser: esTeaser }),
   });
 
   await writeFile(enPath, newEn, 'utf-8');
   await writeFile(esPath, newEs, 'utf-8');
 
   console.log(`\nReplaced item ${index + 1} in:\n  ${enPath}\n  ${esPath}\n`);
-  console.log(`Heads up: src/content/pages/{en,es}/home.md \`bench\` mirrors the same`);
-  console.log(`subjects in a shorter shape. The comment in now.md says "keep the two`);
-  console.log(`in sync" — open that file and update the matching bench entry too.`);
+  if (work) console.log(`Linked to work \`${work}\` (resolves to the localized /works route).`);
+  if (enTeaser) {
+    console.log(`Teaser set — this item will show on the home "on the bench" grid (ADR 0014).`);
+  } else if ((BENCH_KINDS as readonly string[]).includes(kind)) {
+    console.log(
+      `No teaser entered — this bench-kind item will NOT appear on the home bench.\n` +
+        `If the item you replaced had a \`teaser:\`, that's now gone; re-add it in now.md.`,
+    );
+  }
   return { paths: [enPath, esPath] };
 }
 

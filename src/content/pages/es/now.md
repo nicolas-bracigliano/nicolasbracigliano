@@ -14,6 +14,7 @@ items:
   - kind: code
     where: 'sobre la mesa · código'
     title: 'Reescribiendo mi sitio en Astro'
+    work: this-site
     prose: 'Mi sitio anterior usaba WordPress, lo construí en 2022 y no lo toqué más. Dejó de representarme bastante antes de que lo admitiera. Hacía rato que tenía ganas de tocar Astro, así que rehacerlo fue la excusa perfecta. De cero esta vez.'
     detail:
       - dt: 'stack'
@@ -58,6 +59,7 @@ items:
   - kind: print
     where: 'en el slicer · 3D'
     title: 'Bins Gridfinity para el cajón de herramientas'
+    work: gridfinity-bins
     prose: 'Bins de 42 mm a medida, modelados en CAD según la herramienta: uno para el calibre, otro para las boquillas, cajitas con etiqueta para tuercas y bulones. Seis hasta ahora, faltan más. PLA Matte en la Bambu.'
     detail:
       - dt: 'grilla'
@@ -72,6 +74,7 @@ items:
   - kind: home
     where: 'en la pared · casa'
     title: 'Piedra & Madera'
+    work: stone-wood
     prose: 'La mesa de la TV no es el mueble adecuado para una chiquita que trepa. La solución no es cambiar la mesa; es decidir que la pantalla forma parte de la pared, no algo apoyado en un mueble. Una carcasa de nogal anclada a la estructura de la pared, con el panel de 75″ encastrado adentro en lugar de apoyado encima.'
     detail:
       - dt: 'madera'
