@@ -1,0 +1,370 @@
+@layer routes {
+  /* ─── Works: single-work detail (WorkLayout) ───────────────────────────
+     Split out of `works.css` when the editorial detail redesign roughly
+     doubled that file — `works.css` keeps the index catalog, this file
+     keeps the detail page. Two cross-file dependencies, both defined in
+     `works.css`: `.work-art--<kind>` (hero tints, owned by ContentArt)
+     and `.status-dot--*` (the lifecycle dot in the eyebrow). Import
+     order between the two files has no cascade effect (selectors do
+     not overlap), matching the audit note in `base.css`. */
+  /* ─── Single-work detail (WorkLayout) — editorial single column ────────
+     Replaces the old "card vocabulary at a larger scale" block. The detail
+     page now owns its own `.work-detail-*` family (it used to borrow
+     `.work-card-meta` / `.work-card-specs`, which silently coupled the two
+     surfaces). Kept from before: `.work-art--<kind>` tints (ContentArt
+     owns them; e2e asserts them) and `.status-dot--*`. Editorial register
+     per ADR 0012: same display scale as `.piece-title`, mono chrome,
+     Newsreader prose. Separator dots reuse the global `.sep` (home.css). */
+
+  .work-detail {
+    max-width: 47.5rem;
+    margin-inline: auto;
+    padding-inline: var(--gutter);
+    padding-block: clamp(2.5rem, 6vw, 5rem) clamp(4rem, 8vw, 7rem);
+  }
+
+  /* head */
+  .work-detail-eyebrow {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.6875rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+    margin: 0;
+  }
+  /* 44 px tap target on the text link — same pattern as `.filter`. */
+  .work-detail-eyebrow-back {
+    display: inline-flex;
+    align-items: center;
+    min-block-size: 2.75rem;
+    color: var(--ink-2);
+    text-decoration: none;
+    transition: color var(--speed-micro);
+  }
+  .work-detail-eyebrow-back:hover,
+  .work-detail-eyebrow-back:focus-visible {
+    color: var(--accent-aa);
+  }
+  .work-detail-eyebrow-no {
+    font-variant-numeric: tabular-nums;
+  }
+  .work-detail-title {
+    /* Identical metrics to `.piece-title` — one editorial display scale. */
+    font-family: var(--font-display);
+    font-weight: 400;
+    font-size: clamp(2.875rem, 6.2vw, 5.5rem);
+    line-height: 1.02;
+    letter-spacing: -0.022em;
+    margin: 0.75rem 0 0;
+    color: var(--ink);
+    text-wrap: balance;
+  }
+  .work-detail-deck {
+    font-family: var(--font-display);
+    font-style: italic;
+    font-size: 1.25rem;
+    line-height: 1.5;
+    color: var(--ink-2);
+    max-width: 50ch;
+    margin: 0.75rem 0 0;
+    text-wrap: pretty;
+  }
+
+  /* hero figure — the art block + optional editorial caption */
+  .work-detail-hero {
+    margin: clamp(1.5rem, 4vw, 2.5rem) 0 0;
+  }
+  .work-detail-hero .work-art {
+    block-size: clamp(11.25rem, 28vw, 20rem);
+  }
+  .work-detail-hero-cap {
+    font-style: italic;
+    font-size: 0.6875rem;
+    letter-spacing: 0.04em;
+    color: var(--ink-3);
+    text-align: end;
+    margin-block-start: 0.5rem;
+  }
+
+  /* shared section scaffolding */
+  .work-detail-section {
+    margin-block-start: clamp(2.5rem, 6vw, 4rem);
+  }
+  .work-detail-section-title {
+    /* `--ink-2` for AA at this size — same call as `.work-card-specs dt`. */
+    font-family: var(--font-body);
+    font-weight: 400;
+    font-size: 0.6875rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--ink-2);
+    border-block-end: 1px dashed var(--rule);
+    padding-block-end: 0.5rem;
+    margin: 0 0 1rem;
+  }
+
+  /* specs — label/value rows with dashed half-rules between them */
+  .work-detail-specs {
+    margin: 0;
+  }
+  .work-detail-spec-row {
+    display: grid;
+    grid-template-columns: 8.75rem 1fr;
+    align-items: baseline;
+    gap: 1.125rem;
+    padding-block: 0.375rem;
+    border-block-start: 1px dashed color-mix(in oklab, var(--rule) 50%, transparent);
+  }
+  .work-detail-spec-row:first-child {
+    border-block-start: 0;
+  }
+  .work-detail-spec-row dt {
+    font-size: 0.625rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ink-2);
+  }
+  .work-detail-spec-row dd {
+    margin: 0;
+    font-size: 0.8125rem;
+    color: var(--ink);
+  }
+
+  /* story — the markdown body, at the pieces body register (§9) */
+  .work-detail-prose {
+    max-width: 62ch;
+    margin-block-start: clamp(2rem, 5vw, 3rem);
+  }
+  .work-detail-prose p {
+    font-family: var(--font-display);
+    font-size: 1.125rem;
+    line-height: 1.65;
+    color: var(--ink);
+    text-wrap: pretty;
+    margin: 0 0 1.25rem;
+  }
+
+  /* iterations — designed revisions: rev | date + chip + note */
+  .work-detail-iters {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .work-detail-iter {
+    display: grid;
+    grid-template-columns: 3.75rem 1fr;
+    gap: 1rem;
+    padding-block: 1rem;
+    border-block-start: 1px dashed color-mix(in oklab, var(--rule) 50%, transparent);
+  }
+  .work-detail-iter:first-child {
+    border-block-start: 0;
+  }
+  .work-detail-iter-rev {
+    font-size: 0.75rem;
+    letter-spacing: 0.04em;
+    color: var(--accent-aa);
+    font-variant-numeric: tabular-nums;
+  }
+  .work-detail-iter-line {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.625rem;
+    margin: 0;
+  }
+  .work-detail-iter-date {
+    font-size: 0.6875rem;
+    letter-spacing: 0.04em;
+    color: var(--ink-3);
+    font-variant-numeric: tabular-nums;
+  }
+  /* 0.625rem chip text, not the prototype's 9.5px — AA floor per the
+     `.work-card-specs dt` note above. Colours mirror `.status-dot--*`. */
+  .work-detail-iter-chip {
+    font-size: 0.625rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 0.125rem 0.5rem;
+    border-radius: 999px;
+    border: 1px solid var(--rule);
+    color: var(--ink-2);
+  }
+  .work-detail-iter-chip--shipping {
+    border-color: color-mix(in oklab, var(--mate) 50%, var(--rule));
+    color: var(--mate);
+  }
+  .work-detail-iter-chip--ongoing {
+    border-color: color-mix(in oklab, var(--ink-blue) 50%, var(--rule));
+    color: var(--ink-blue);
+  }
+  .work-detail-iter-chip--draft {
+    border-color: color-mix(in oklab, var(--accent) 50%, var(--rule));
+    color: var(--accent-aa);
+  }
+  .work-detail-iter-chip--archived {
+    color: var(--ink-3);
+  }
+  .work-detail-iter-note {
+    font-family: var(--font-display);
+    font-size: 1rem;
+    line-height: 1.55;
+    color: var(--ink-2);
+    margin: 0.25rem 0 0;
+    max-width: 60ch;
+  }
+  .work-detail-iter--muted .work-detail-iter-rev,
+  .work-detail-iter--muted .work-detail-iter-note {
+    color: var(--ink-3);
+  }
+
+  /* changelog — date | note rows */
+  .work-detail-log {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .work-detail-log-row {
+    display: grid;
+    grid-template-columns: 7.5rem 1fr;
+    gap: 1rem;
+    padding-block: 0.625rem;
+    border-block-start: 1px dashed color-mix(in oklab, var(--rule) 50%, transparent);
+  }
+  .work-detail-log-row:first-child {
+    border-block-start: 0;
+  }
+  .work-detail-log-date {
+    font-size: 0.6875rem;
+    letter-spacing: 0.04em;
+    color: var(--ink-3);
+    font-variant-numeric: tabular-nums;
+  }
+  .work-detail-log-note {
+    font-family: var(--font-display);
+    font-size: 1rem;
+    line-height: 1.5;
+    color: var(--ink);
+  }
+
+  /* elsewhere — link list; arrow micro-motion mirrors `.now-see-also` */
+  .work-detail-else {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .work-detail-else-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.625rem;
+    padding-block: 0.75rem;
+    border-block-start: 1px dashed color-mix(in oklab, var(--rule) 50%, transparent);
+  }
+  .work-detail-else-row:first-child {
+    border-block-start: 0;
+  }
+  .work-detail-else-link {
+    font-family: var(--font-display);
+    font-style: italic;
+    font-size: 1.0625rem;
+    color: var(--accent-aa);
+    text-decoration: none;
+    display: inline-flex;
+    align-items: baseline;
+    gap: 0.375rem;
+  }
+  .work-detail-else-link:hover,
+  .work-detail-else-link:focus-visible {
+    text-decoration: underline;
+    text-underline-offset: 0.2em;
+  }
+  .work-detail-else-arrow {
+    transition: transform var(--speed-micro);
+  }
+  .work-detail-else-link:hover .work-detail-else-arrow,
+  .work-detail-else-link:focus-visible .work-detail-else-arrow {
+    transform: translateX(0.1875rem);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .work-detail-else-arrow {
+      transition: none;
+    }
+    .work-detail-else-link:hover .work-detail-else-arrow,
+    .work-detail-else-link:focus-visible .work-detail-else-arrow {
+      transform: none;
+    }
+  }
+  .work-detail-else-note {
+    font-size: 0.6875rem;
+    letter-spacing: 0.04em;
+    color: var(--ink-3);
+  }
+
+  /* foot — meta line, signature, nav (mirrors `.piece-foot`) */
+  .work-detail-foot {
+    margin-block-start: clamp(3.5rem, 8vw, 6rem);
+    padding-block-start: 1.75rem;
+    border-block-start: 1px dashed var(--rule);
+  }
+  .work-detail-foot-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.625rem;
+    align-items: baseline;
+    font-size: 0.75rem;
+    letter-spacing: 0.04em;
+    color: var(--ink-3);
+    margin: 0;
+  }
+  .work-detail-foot-meta time {
+    color: var(--ink-2);
+    font-variant-numeric: tabular-nums;
+  }
+  .work-detail-foot-sig {
+    font-family: var(--font-display);
+    font-style: italic;
+    font-size: 1.375rem;
+    color: var(--ink);
+    margin: 1.25rem 0 1.75rem;
+  }
+  .work-detail-foot-nav {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.625rem;
+    font-size: 0.75rem;
+    letter-spacing: 0.04em;
+    color: var(--ink-3);
+  }
+  .work-detail-foot-nav-link {
+    display: inline-flex;
+    align-items: center;
+    min-block-size: 2.75rem;
+    color: var(--ink-2);
+    text-decoration: none;
+    transition: color var(--speed-micro);
+  }
+  .work-detail-foot-nav-link:hover,
+  .work-detail-foot-nav-link:focus-visible {
+    color: var(--accent-aa);
+  }
+
+  @media (max-width: 720px) {
+    .work-detail-spec-row {
+      grid-template-columns: 1fr;
+      gap: 0.125rem;
+    }
+    .work-detail-iter {
+      grid-template-columns: 3.125rem 1fr;
+      gap: 0.75rem;
+    }
+    .work-detail-log-row {
+      grid-template-columns: 1fr;
+      gap: 0.25rem;
+    }
+  }
+}

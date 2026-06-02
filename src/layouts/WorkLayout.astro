@@ -12,21 +12,87 @@ export interface Props {
 }
 
 const { entry, path, siblingPath } = Astro.props;
-const { title, date, lede, lang, kind, lifecycle, number, specs } = entry.data;
+const {
+  title,
+  date,
+  updated,
+  lede,
+  lang,
+  kind,
+  lifecycle,
+  number,
+  specs,
+  heroCaption,
+  iterations,
+  changelog,
+  elsewhere,
+} = entry.data;
 const locale: Locale = lang;
 const specEntries = Object.entries(specs);
 const ogImage = ogImageUrlFor(entry);
 
 const indexHref = ROUTES.works[locale];
-const indexLabel = locale === 'es' ? '↩ todas las obras' : '↩ all works';
 
+// Per-locale chrome copy. Strings live in this component (project
+// convention); i18n.ts is the routing module, not a translation store.
+// The em dash in `signature` is the approved editorial-signoff use of
+// `—` (chrome surface, not prose) — same exemption as PieceLayout's.
+const copy = {
+  en: {
+    back: '← back to works',
+    allWorks: '← all works',
+    backToTop: 'back to top ↑',
+    specsTitle: 'specs',
+    iterationsTitle: 'iterations',
+    changelogTitle: 'changelog',
+    elsewhereTitle: 'elsewhere',
+    lastTouched: 'last touched',
+    filedUnder: 'filed under',
+    navLabel: 'work navigation',
+    signature: '— Nicolas',
+  },
+  es: {
+    back: '← volver a obras',
+    allWorks: '← todas las obras',
+    backToTop: 'volver arriba ↑',
+    specsTitle: 'ficha',
+    iterationsTitle: 'iteraciones',
+    changelogTitle: 'cambios',
+    elsewhereTitle: 'en otros lados',
+    lastTouched: 'última edición',
+    filedUnder: 'archivado en',
+    navLabel: 'navegación de la obra',
+    signature: '— Nicolás',
+  },
+} as const;
+const t = copy[locale];
+
+// Foot "last touched" date as `YYYY · MM · DD` — the mono numeric voice
+// used by the piece foot. Falls back to the publish date when the entry
+// has no `updated:` yet.
+const lastTouched = updated ?? date;
 const dateFormatter = new Intl.DateTimeFormat(locale === 'es' ? 'es-AR' : 'en-AU', {
   year: 'numeric',
-  month: 'long',
-  day: 'numeric',
+  month: '2-digit',
+  day: '2-digit',
   timeZone: 'Australia/Melbourne',
 });
-const dateDisplay = dateFormatter.format(date).toLowerCase();
+const dateParts = dateFormatter.formatToParts(lastTouched).filter((p) => p.type !== 'literal');
+const lastTouchedYmd = [
+  dateParts.find((p) => p.type === 'year')?.value,
+  dateParts.find((p) => p.type === 'month')?.value,
+  dateParts.find((p) => p.type === 'day')?.value,
+].filter(Boolean);
+// Display and the <time datetime> attr derive from the same Melbourne-
+// formatted parts, so the visible date and the machine date can't drift
+// across the UTC/Melbourne day boundary.
+const lastTouchedDisplay = lastTouchedYmd.join(' · ');
+const lastTouchedDatetime = lastTouchedYmd.join('-');
+
+// Iteration / changelog dates arrive as `YYYY-MM` or `YYYY-MM-DD` strings
+// (schema-validated). The raw value goes straight into `datetime` (both
+// shapes are valid there); the display form just swaps the dashes.
+const revDisplay = (d: string) => d.split('-').join(' · ');
 ---
 
 <BaseLayout
@@ -37,48 +103,158 @@ const dateDisplay = dateFormatter.format(date).toLowerCase();
   ogImage={ogImage}
   {...lede && { description: lede }}
 >
-  <section class="works wrap work-detail">
-    <article class="work-detail-card">
+  <article class="work-detail" id="work-detail-top">
+    <header class="work-detail-head">
+      <p class="work-detail-eyebrow">
+        <a class="work-detail-eyebrow-back" href={indexHref} data-astro-prefetch>{t.back}</a>
+        {
+          number && (
+            <>
+              <span class="sep" aria-hidden="true">
+                ·
+              </span>
+              <span class="work-detail-eyebrow-no">№ {number}</span>
+            </>
+          )
+        }
+        <span class="sep" aria-hidden="true">·</span>
+        <span class="work-detail-eyebrow-kind">{kind}</span>
+        <span class="sep" aria-hidden="true">·</span>
+        <span class="work-detail-eyebrow-life">
+          <span class={`status-dot status-dot--${lifecycle}`} aria-hidden="true"></span>
+          {lifecycle}
+        </span>
+      </p>
+      <h1 class="work-detail-title">{title}</h1>
+      {lede && <p class="work-detail-deck">{lede}</p>}
+    </header>
+
+    {
+      /* The figure wraps ContentArt verbatim — `.work-art--<kind>` and the
+        per-kind vignettes are owned there (ADR 0013) and asserted by e2e. */
+    }
+    <figure class="work-detail-hero">
       <ContentArt entry={entry} />
+      {heroCaption && <figcaption class="work-detail-hero-cap">{heroCaption}</figcaption>}
+    </figure>
 
-      <div class="work-card-meta">
-        <span class="work-card-no">{number ? `№ ${number}` : ''}</span>
-        <span class="work-card-kind">{kind}</span>
-      </div>
-
-      <header class="work-detail-head">
-        <h1 class="work-detail-title">{title}</h1>
-        {lede && <p class="work-detail-lede">{lede}</p>}
-        <p class="work-detail-meta">
-          <span class="work-card-lifecycle">
-            <span class={`status-dot status-dot--${lifecycle}`} aria-hidden="true"></span>
-            {lifecycle}
-          </span>
-          <span class="sep" aria-hidden="true">·</span>
-          <time datetime={date.toISOString().slice(0, 10)}>{dateDisplay}</time>
-        </p>
-      </header>
-
-      {
-        specEntries.length > 0 && (
-          <dl class="work-card-specs work-detail-specs">
+    {
+      specEntries.length > 0 && (
+        <section class="work-detail-section" aria-labelledby="work-detail-specs-h">
+          <h2 class="work-detail-section-title" id="work-detail-specs-h">
+            {t.specsTitle}
+          </h2>
+          <dl class="work-detail-specs">
             {specEntries.map(([k, v]) => (
-              <>
+              <div class="work-detail-spec-row">
                 <dt>{k}</dt>
                 <dd>{v}</dd>
-              </>
+              </div>
             ))}
           </dl>
-        )
-      }
+        </section>
+      )
+    }
 
-      <div class="work-detail-prose">
-        <slot />
-      </div>
-    </article>
+    <div class="work-detail-prose">
+      <slot />
+    </div>
 
-    <footer class="works-foot">
-      <a class="back-link" href={indexHref} data-astro-prefetch>{indexLabel}</a>
+    {
+      iterations.length > 0 && (
+        <section class="work-detail-section" aria-labelledby="work-detail-iter-h">
+          <h2 class="work-detail-section-title" id="work-detail-iter-h">
+            {t.iterationsTitle}
+          </h2>
+          <ol class="work-detail-iters">
+            {iterations.map((it) => (
+              <li
+                class:list={[
+                  'work-detail-iter',
+                  { 'work-detail-iter--muted': it.status === 'archived' },
+                ]}
+              >
+                <span class="work-detail-iter-rev">{it.rev}</span>
+                <div class="work-detail-iter-body">
+                  <p class="work-detail-iter-line">
+                    <time class="work-detail-iter-date" datetime={it.date}>
+                      {revDisplay(it.date)}
+                    </time>
+                    {it.status && (
+                      <span class={`work-detail-iter-chip work-detail-iter-chip--${it.status}`}>
+                        {it.status}
+                      </span>
+                    )}
+                  </p>
+                  <p class="work-detail-iter-note">{it.note}</p>
+                </div>
+              </li>
+            ))}
+          </ol>
+        </section>
+      )
+    }
+
+    {
+      changelog.length > 0 && (
+        <section class="work-detail-section" aria-labelledby="work-detail-log-h">
+          <h2 class="work-detail-section-title" id="work-detail-log-h">
+            {t.changelogTitle}
+          </h2>
+          <ul class="work-detail-log">
+            {changelog.map((c) => (
+              <li class="work-detail-log-row">
+                <time class="work-detail-log-date" datetime={c.date}>
+                  {revDisplay(c.date)}
+                </time>
+                <span class="work-detail-log-note">{c.note}</span>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )
+    }
+
+    {
+      elsewhere.length > 0 && (
+        <section class="work-detail-section" aria-labelledby="work-detail-else-h">
+          <h2 class="work-detail-section-title" id="work-detail-else-h">
+            {t.elsewhereTitle}
+          </h2>
+          <ul class="work-detail-else">
+            {elsewhere.map((e) => (
+              <li class="work-detail-else-row">
+                <a class="work-detail-else-link" href={e.href}>
+                  {e.label}
+                  <span class="work-detail-else-arrow" aria-hidden="true">
+                    ↗
+                  </span>
+                </a>
+                {e.note && <span class="work-detail-else-note">{e.note}</span>}
+              </li>
+            ))}
+          </ul>
+        </section>
+      )
+    }
+
+    <footer class="work-detail-foot">
+      <p class="work-detail-foot-meta">
+        <span>
+          {t.lastTouched}
+          <time datetime={lastTouchedDatetime}>{lastTouchedDisplay}</time>
+        </span>
+        <span class="sep" aria-hidden="true">·</span>
+        <span>{t.filedUnder} {kind}</span>
+      </p>
+      <p class="work-detail-foot-sig">{t.signature}</p>
+      <nav class="work-detail-foot-nav" aria-label={t.navLabel}>
+        <a class="work-detail-foot-nav-link" href={indexHref} data-astro-prefetch>
+          {t.allWorks}
+        </a>
+        <span class="sep" aria-hidden="true">·</span>
+        <a class="work-detail-foot-nav-link" href="#work-detail-top">{t.backToTop}</a>
+      </nav>
     </footer>
-  </section>
+  </article>
 </BaseLayout>

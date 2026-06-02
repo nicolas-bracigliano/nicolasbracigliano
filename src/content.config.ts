@@ -70,6 +70,18 @@ const notes = defineCollection({
       }),
 });
 
+// Work lifecycle vocabulary — single source for the `lifecycle` field and
+// per-iteration `status` chips below, so the detail route renders one colour
+// vocabulary (`.status-dot--*` / `.work-detail-iter-chip--*`). Extracted from
+// an inline enum when the detail redesign added `iterations`, which reuses
+// these values rather than introducing a parallel "retired".
+const WORK_LIFECYCLE = ['shipping', 'ongoing', 'draft', 'archived'] as const;
+
+// Iteration / changelog date shape: YYYY-MM or YYYY-MM-DD. Both are valid
+// `<time datetime>` values, so the layout passes the raw string through to
+// the attribute and renders the "2026 · 05" display form via a join.
+const WORK_REV_DATE = /^\d{4}-\d{2}(-\d{2})?$/;
+
 const works = defineCollection({
   loader: glob({ pattern: '**/*.md', base: './src/content/works', generateId: pathId }),
   schema: ({ image }) =>
@@ -83,11 +95,55 @@ const works = defineCollection({
         kind: z.enum(WORK_KINDS).default('code'),
         /** Work lifecycle — distinct from `status` (publish-state). Renders as
          *  a coloured dot + label in the WorkCard foot. */
-        lifecycle: z.enum(['shipping', 'ongoing', 'draft', 'archived']).default('shipping'),
+        lifecycle: z.enum(WORK_LIFECYCLE).default('shipping'),
         /** Display number (e.g. "07") used in the card meta row. Keeps the
          *  catalog flavour — "№ 07" reads like an entry in a hand-kept ledger. */
         number: z.string().optional(),
         hero: image().optional(),
+        /** Optional caption under the detail-page hero figure. Editorial
+         *  aside, not alt text (the art is aria-hidden in ContentArt).
+         *  Localised per file. */
+        heroCaption: z.string().max(160).optional(),
+        /** Designed revisions — the "how it changed" ledger. Distinct from
+         *  `changelog` (running updates): an iteration is a deliberate
+         *  version with a `rev` label, an optional lifecycle chip, and a
+         *  one-line rationale. A work may have neither list, one, or both.
+         *  Capped at 12 — a longer history belongs in a piece. */
+        iterations: z
+          .array(
+            z.object({
+              rev: z.string().max(16),
+              date: z.string().regex(WORK_REV_DATE, 'iteration date must be YYYY-MM or YYYY-MM-DD'),
+              status: z.enum(WORK_LIFECYCLE).optional(),
+              note: z.string().max(200),
+            }),
+          )
+          .max(12)
+          .default([]),
+        /** Running updates for ongoing works — one line each. Newest-first
+         *  is the authoring convention; the layout does not sort. */
+        changelog: z
+          .array(
+            z.object({
+              date: z.string().regex(WORK_REV_DATE, 'changelog date must be YYYY-MM or YYYY-MM-DD'),
+              note: z.string().max(200),
+            }),
+          )
+          .max(20)
+          .default([]),
+        /** Related links — repo, files, a piece about the work. `href` is a
+         *  plain bounded string (NOT z.string().url()): the list mixes
+         *  external URLs and site-internal paths like `/en/pieces/…`. */
+        elsewhere: z
+          .array(
+            z.object({
+              label: z.string().max(60),
+              href: z.string().min(1).max(300),
+              note: z.string().max(80).optional(),
+            }),
+          )
+          .max(8)
+          .default([]),
       })
       .refine((d) => SLUG_TRANSLATION_ID.test(d.translationId), {
         message:
