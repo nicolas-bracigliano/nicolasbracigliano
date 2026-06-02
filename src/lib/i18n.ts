@@ -4,6 +4,7 @@
 // resolve entries or siblings should import from here.
 import { getCollection, type CollectionEntry } from 'astro:content';
 import { ROUTES, otherLocale, PAGE_SLUGS, type Locale, type PageSlug } from './routes';
+import { nowWorkLinks, type NowPageItem, type NowWorkLink } from './now-items';
 
 export type AnyEntry =
   | CollectionEntry<'notes'>
@@ -53,6 +54,26 @@ export async function getSibling<E extends AnyEntry>(entry: E): Promise<E | null
   // `E`. The runtime collection always matches `entry`, so bridge here once.
   const all = (await getCollection(entry.collection)) as readonly E[];
   return findSiblingIn(entry, all);
+}
+
+/** Resolve a /now page's item `work` cross-links to localized /works
+ *  routes for `locale`. Loads the published works once, maps each by
+ *  `translationId` to its `entryRouteFor` route, then delegates the
+ *  per-item resolution (and the dangling-ref throw) to the pure
+ *  `nowWorkLinks`. Shared by both the EN and ES /now index pages so the
+ *  resolution rule lives in one place and the two locales can't drift. */
+export async function resolveWorkLinks(
+  items: readonly NowPageItem[],
+  locale: Locale,
+): Promise<(NowWorkLink | null)[]> {
+  const published = await getCollection(
+    'works',
+    (w) => w.data.lang === locale && w.data.status === 'published',
+  );
+  const routeByTranslationId = new Map(
+    published.map((w) => [w.data.translationId, entryRouteFor(w)]),
+  );
+  return nowWorkLinks(items, routeByTranslationId, locale);
 }
 
 /** Slug portion of the OG image route, e.g. "en-hello". Single source of

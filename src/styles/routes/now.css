@@ -130,6 +130,70 @@
     color: var(--ink-2);
   }
 
+  /* "See also" foot line to the catalogued work — surfaces a relationship
+     without making the whole entry a button (only the path is the link).
+     A dashed rule (half-strength rule colour) sets it off from the detail
+     dl; an uppercase grey eyebrow (`.muted`), the accent path link, and a
+     decorative accent arrow pushed to the right rule that slides on
+     hover/focus. Body font is already mono (--font-body), restated here
+     for intent.
+
+     Colour is --accent-aa, not raw --accent: this page runs a wcag2aa
+     axe scan (tests/e2e/smoke.spec.ts) and --accent is 4.49:1 on --bg —
+     a hair under the 4.5:1 small-text floor. --accent-aa is the repo's
+     near-identical AA-safe accent (same fix the now lede + masthead use). */
+  .now-see-also {
+    margin: 16px 0 0;
+    display: inline-flex;
+    gap: 10px;
+    align-items: baseline;
+    font-family: var(--font-body);
+    font-size: 11.5px;
+    letter-spacing: 0.04em;
+    padding-top: 12px;
+    border-top: 1px dashed color-mix(in oklab, var(--rule) 50%, transparent);
+    max-width: 60ch;
+    width: 100%;
+  }
+  .now-see-also .muted {
+    text-transform: uppercase;
+    letter-spacing: 0.16em;
+    font-size: 10.5px;
+  }
+  .now-see-also a {
+    color: var(--accent-aa);
+    background-image: none;
+    padding-bottom: 0;
+    text-decoration: none;
+    transition:
+      color 200ms ease,
+      transform 220ms ease;
+  }
+  .now-see-also a:hover,
+  .now-see-also a:focus-visible {
+    text-decoration: underline;
+    text-underline-offset: 0.25em;
+  }
+  .now-see-arrow {
+    color: var(--accent-aa);
+    transition: transform 220ms ease;
+    margin-left: auto;
+  }
+  .now-see-also:hover .now-see-arrow,
+  .now-see-also:focus-within .now-see-arrow {
+    transform: translateX(3px);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .now-see-also a,
+    .now-see-arrow {
+      transition: none;
+    }
+    .now-see-also:hover .now-see-arrow,
+    .now-see-also:focus-within .now-see-arrow {
+      transform: none;
+    }
+  }
+
   .now-code .now-num,
   .now-print .now-num {
     color: var(--ink-blue);
