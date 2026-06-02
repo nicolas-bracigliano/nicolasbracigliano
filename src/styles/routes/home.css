@@ -614,7 +614,7 @@
 
   /* `.sep` — the dimmed "·" separator between metadata fields.
      Three places painted `opacity: 0.5` scoped (`.masthead-meta
-     .sep`, `.note-foot .sep`, `.work-detail-meta .sep`); a fourth
+     .sep`, `.note-foot .sep`, the work-detail eyebrow/foot); a fourth
      consumer (the first `·` in the home masthead, before the mate
      dot) sat outside any scoped parent and rendered at full
      opacity. Hoisted to a global. The mobile-hide rule
