@@ -17,8 +17,8 @@ specs:
   bins: '6 designed so far'
 # DRAFT label — review wording before merge
 elsewhere:
-  - label: 'makerworld / nicobrachi'
-    href: 'https://makerworld.com/en/@NicoBrachi'
+  - label: 'makerworld / gridfinity'
+    href: 'https://makerworld.com/en/collections/20261701-gridfinity'
 ---
 
 I'm very particular about how things are organised. A tidy space is how I think clearly. I can't leave the bedroom in the morning without making the bed first; that's the kind of particular. So the drawers had to get sorted, and Gridfinity is the way in: a standard 42 mm grid, with bins that drop into baseplates and never slide around.

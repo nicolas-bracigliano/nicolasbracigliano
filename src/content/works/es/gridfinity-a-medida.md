@@ -17,8 +17,8 @@ specs:
   bins: '6 diseñados'
 # DRAFT label — revisar antes de mergear
 elsewhere:
-  - label: 'makerworld / nicobrachi'
-    href: 'https://makerworld.com/en/@NicoBrachi'
+  - label: 'makerworld / gridfinity'
+    href: 'https://makerworld.com/en/collections/20261701-gridfinity'
 ---
 
 Soy muy maniático con cómo se organizan las cosas. Un espacio ordenado es cómo pienso claro. No puedo salir del cuarto a la mañana sin hacer la cama primero; ese es el nivel de maniático. Así que los cajones tenían que ordenarse, y Gridfinity es el camino: una grilla estándar de 42 mm, con bins que entran en las bases y no se mueven nunca.
