@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.17.0](https://github.com/nicolas-bracigliano/nicolasbracigliano/compare/v1.16.0...v1.17.0) (2026-06-02)
+
+
+### Features
+
+* **art:** redesign guitar note glyph as a Gibson headstock ([55a7e43](https://github.com/nicolas-bracigliano/nicolasbracigliano/commit/55a7e43cd3ee45b4cc9b3e37a76b598962cda4fd))
+* **art:** redesign guitar note glyph as a Gibson headstock ([5c5bd6c](https://github.com/nicolas-bracigliano/nicolasbracigliano/commit/5c5bd6cf64cbba5af6f2bc48520b345592beeb27))
+
 ## [1.16.0](https://github.com/nicolas-bracigliano/nicolasbracigliano/compare/v1.15.0...v1.16.0) (2026-06-01)
 
 
