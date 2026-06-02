@@ -13,7 +13,7 @@
 import { describe, expect, it } from 'vitest';
 import { readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { parse as parseYaml } from 'yaml';
+import { frontmatterOf } from '../../scripts/frontmatter.ts';
 import {
   nowItemSchema,
   benchItemsFrom,
@@ -98,12 +98,9 @@ describe.each([
 // Direct frontmatter loaders for the cross-collection `work`-ref check —
 // the shared `loadFrontmatter` helper is async and single-file, so for
 // scanning the works dir + reading now.md synchronously inside a
-// non-async `it` we read here. Mirrors the loader in bilingual-pairs.test.ts.
+// non-async `it` we read here. The parse itself is the shared
+// `scripts/frontmatter.ts` reader.
 const CONTENT_ROOT = join(__dirname, '..', '..', 'src', 'content');
-function frontmatterOf(text: string): Record<string, unknown> {
-  const m = text.match(/^---\n([\s\S]*?)\n---/);
-  return m && m[1] ? (parseYaml(m[1]) as Record<string, unknown>) : {};
-}
 function loadCollectionSync(
   collection: string,
   locale: 'en' | 'es',
@@ -111,12 +108,15 @@ function loadCollectionSync(
   const dir = join(CONTENT_ROOT, collection, locale);
   return readdirSync(dir)
     .filter((f) => f.endsWith('.md'))
-    .map((f) => frontmatterOf(readFileSync(join(dir, f), 'utf-8')))
+    .flatMap((f) => {
+      const fm = frontmatterOf(readFileSync(join(dir, f), 'utf-8'));
+      return fm ? [fm] : [];
+    })
     .map((d) => ({ translationId: String(d.translationId), status: String(d.status) }));
 }
 function loadNowItems(locale: 'en' | 'es'): unknown[] {
   const text = readFileSync(join(CONTENT_ROOT, 'pages', locale, 'now.md'), 'utf-8');
-  return (frontmatterOf(text).items as unknown[]) ?? [];
+  return (frontmatterOf(text)?.items as unknown[]) ?? [];
 }
 
 describe('benchItemsFrom', () => {

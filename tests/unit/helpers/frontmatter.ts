@@ -19,21 +19,21 @@
 import { readFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import { resolve } from 'node:path';
-import { parse as parseYaml } from 'yaml';
+import { frontmatterOf } from '../../../scripts/frontmatter.ts';
 
 // Repo root — four levels up from tests/unit/helpers/frontmatter.ts.
 const ROOT = resolve(fileURLToPath(import.meta.url), '../../../..');
 
 /** Reads `relPath` (relative to the repo root) and returns its parsed
- *  YAML frontmatter — the block between the first two `---` fences.
- *  Splitting on `^---$` (multiline) rather than a loose `/---/` keeps a
- *  stray `---` inside a YAML string from false-matching. */
+ *  YAML frontmatter. The fence-matching + parse itself lives in the
+ *  shared `scripts/frontmatter.ts` reader (one regex for the whole
+ *  tooling layer); this wrapper adds the file I/O and the throw-on-missing
+ *  policy the tests want. */
 export async function loadFrontmatter(relPath: string): Promise<Record<string, unknown>> {
   const text = await readFile(resolve(ROOT, relPath), 'utf-8');
-  const segments = text.split(/^---$/m);
-  const yamlBlock = segments[1];
-  if (!yamlBlock) {
+  const fm = frontmatterOf(text);
+  if (!fm) {
     throw new Error(`No frontmatter in ${relPath}`);
   }
-  return parseYaml(yamlBlock) as Record<string, unknown>;
+  return fm;
 }

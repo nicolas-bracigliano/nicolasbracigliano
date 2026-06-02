@@ -30,6 +30,7 @@ import { fileURLToPath } from 'node:url';
 import { createInterface } from 'node:readline/promises';
 import { stdin as input, stdout as output } from 'node:process';
 import { parseDocument, type Document } from 'yaml';
+import { frontmatterOf } from './frontmatter.ts';
 import { WORK_KINDS, NOTE_KINDS, NOW_KINDS, BENCH_KINDS } from '../src/lib/content-kinds.ts';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -211,7 +212,8 @@ export interface NowItemInput {
  *  are written only when present on the input — and conversely are NOT
  *  preserved from the existing item when absent. So replacing a teaser'd
  *  item without supplying a fresh teaser drops it from the home bench
- *  (ADR 0014); the CLI collects a teaser up front and warns on this.
+ *  (ADR 0014); the CLI offers the prior teaser as prompt defaults and
+ *  warns explicitly when it's declined.
  *
  *  Index is 0-based. Throws if the file isn't shaped like a now.md
  *  (missing `items:` array, wrong length, etc.) so a misuse fails
@@ -442,11 +444,11 @@ export async function loadPublishedWorkIds(contentRoot: string): Promise<Set<str
     for (const file of files) {
       if (!file.endsWith('.md')) continue;
       const text = await readFile(join(contentRoot, 'works', locale, file), 'utf-8');
-      const fm = text.match(/^---\n([\s\S]*?)\n---/)?.[1];
+      const fm = frontmatterOf(text);
       if (!fm) continue;
-      const doc = parseDocument(fm);
-      const tid = doc.get('translationId');
-      if (doc.get('status') === 'published' && typeof tid === 'string') ids.add(tid);
+      if (fm.status === 'published' && typeof fm.translationId === 'string') {
+        ids.add(fm.translationId);
+      }
     }
   }
   return ids;
@@ -718,31 +720,30 @@ export async function scaffoldNowItem(ctx: CliContext): Promise<{ paths: string[
   // Published works, for validating the `work` cross-link at prompt time.
   const knownWorks = await loadPublishedWorkIds(ctx.contentRoot);
 
-  // Show current items (title only, both locales side by side).
-  const enDoc = parseDocument(enContents.match(/^---\n([\s\S]*?)\n---/)?.[1] ?? '');
-  const esDoc = parseDocument(esContents.match(/^---\n([\s\S]*?)\n---/)?.[1] ?? '');
-  const enItems = enDoc.get('items') as { items: { toJSON(): unknown }[] } | undefined;
-  const esItems = esDoc.get('items') as { items: { toJSON(): unknown }[] } | undefined;
-  if (!enItems || !esItems) {
+  // Show current items (title only, both locales side by side). Read-only
+  // here, so plain frontmatter parse — `replaceNowItem` keeps the
+  // format-preserving `parseDocument` path for the actual write.
+  type NowFileItems = { items?: Array<{ title?: string; teaser?: NowTeaserInput }> };
+  const enList = frontmatterOf<NowFileItems>(enContents)?.items;
+  const esList = frontmatterOf<NowFileItems>(esContents)?.items;
+  if (!Array.isArray(enList) || !Array.isArray(esList)) {
     throw new Error('now.md `items:` array not found in one or both locales');
   }
   // Derive the count from the file rather than hardcoding it: the array
   // is a NOW_ITEM_MIN..MAX range (commented-out items shrink it below the
   // old fixed six), and EN/ES must stay paired index-for-index.
-  const itemCount = enItems.items.length;
-  if (esItems.items.length !== itemCount) {
+  const itemCount = enList.length;
+  if (esList.length !== itemCount) {
     throw new Error(
-      `now.md item count mismatch — en has ${itemCount}, es has ${esItems.items.length}; ` +
+      `now.md item count mismatch — en has ${itemCount}, es has ${esList.length}; ` +
         'fix the pairing before replacing an item',
     );
   }
 
   console.log('Current items:');
   for (let i = 0; i < itemCount; i++) {
-    const en = (enItems.items[i]?.toJSON() as { title?: string })?.title ?? '?';
-    const es = (esItems.items[i]?.toJSON() as { title?: string })?.title ?? '?';
-    console.log(`  ${i + 1}. EN: ${en}`);
-    console.log(`     ES: ${es}`);
+    console.log(`  ${i + 1}. EN: ${enList[i]?.title ?? '?'}`);
+    console.log(`     ES: ${esList[i]?.title ?? '?'}`);
   }
   console.log('');
 
@@ -787,28 +788,52 @@ export async function scaffoldNowItem(ctx: CliContext): Promise<{ paths: string[
   });
 
   // Optional home-bench teaser (ADR 0014) — offered only for bench kinds
-  // (the home grid has no coffee/read vignette). Leaving the EN label
-  // blank skips the teaser entirely; the kind-conditional guitarLabel /
-  // seedlingTag prompts mirror the schema refines. Fields are localized,
-  // so EN + ES are collected separately.
+  // (the home grid has no coffee/read vignette). When the item being
+  // replaced already carries a teaser, the keep-prompt defaults to `y`
+  // and its values are offered as field defaults, so a routine content
+  // refresh preserves the home-bench presence by just pressing Enter —
+  // instead of silently dropping the item from the grid and warning after
+  // the fact. Fields are localized, so EN + ES are collected separately;
+  // the kind-conditional guitarLabel / seedlingTag prompts mirror the
+  // schema refines.
+  const priorEnTeaser = enList[index]?.teaser;
+  const priorEsTeaser = esList[index]?.teaser;
   let enTeaser: NowTeaserInput | undefined;
   let esTeaser: NowTeaserInput | undefined;
   if ((BENCH_KINDS as readonly string[]).includes(kind)) {
-    const enLabel = await ctx.askOptional({
-      question: 'teaser EN label (home bench eyebrow; blank = no teaser)',
+    // Spread-a-default helper: ask() treats `default: undefined` as "no
+    // default", but exactOptionalPropertyTypes forbids passing it, so
+    // omit the key entirely when there's no prior value.
+    const d = (v: string | undefined) => (v !== undefined ? { default: v } : {});
+    const wantTeaser = await ctx.ask({
+      question: 'home-bench teaser? (y/n)',
+      default: priorEnTeaser ? 'y' : 'n',
+      validate: (v) => (/^[yn]$/i.test(v) ? null : 'enter y or n'),
     });
-    if (enLabel) {
-      const esLabel = await ctx.ask({ question: 'teaser ES label' });
-      const enLine = await ctx.ask({ question: 'teaser EN line (short bench blurb)' });
-      const esLine = await ctx.ask({ question: 'teaser ES line' });
+    if (wantTeaser.toLowerCase() === 'y') {
+      const enLabel = await ctx.ask({ question: 'teaser EN label', ...d(priorEnTeaser?.label) });
+      const esLabel = await ctx.ask({ question: 'teaser ES label', ...d(priorEsTeaser?.label) });
+      const enLine = await ctx.ask({
+        question: 'teaser EN line (short bench blurb)',
+        ...d(priorEnTeaser?.line),
+      });
+      const esLine = await ctx.ask({ question: 'teaser ES line', ...d(priorEsTeaser?.line) });
       const enGuitar =
-        kind === 'guitar' ? await ctx.ask({ question: 'teaser EN guitarLabel' }) : undefined;
+        kind === 'guitar'
+          ? await ctx.ask({ question: 'teaser EN guitarLabel', ...d(priorEnTeaser?.guitarLabel) })
+          : undefined;
       const esGuitar =
-        kind === 'guitar' ? await ctx.ask({ question: 'teaser ES guitarLabel' }) : undefined;
+        kind === 'guitar'
+          ? await ctx.ask({ question: 'teaser ES guitarLabel', ...d(priorEsTeaser?.guitarLabel) })
+          : undefined;
       const enSeed =
-        kind === 'garden' ? await ctx.ask({ question: 'teaser EN seedlingTag' }) : undefined;
+        kind === 'garden'
+          ? await ctx.ask({ question: 'teaser EN seedlingTag', ...d(priorEnTeaser?.seedlingTag) })
+          : undefined;
       const esSeed =
-        kind === 'garden' ? await ctx.ask({ question: 'teaser ES seedlingTag' }) : undefined;
+        kind === 'garden'
+          ? await ctx.ask({ question: 'teaser ES seedlingTag', ...d(priorEsTeaser?.seedlingTag) })
+          : undefined;
       enTeaser = {
         label: enLabel,
         line: enLine,
@@ -860,11 +885,20 @@ export async function scaffoldNowItem(ctx: CliContext): Promise<{ paths: string[
   if (work) console.log(`Linked to work \`${work}\` (resolves to the localized /works route).`);
   if (enTeaser) {
     console.log(`Teaser set — this item will show on the home "on the bench" grid (ADR 0014).`);
-  } else if ((BENCH_KINDS as readonly string[]).includes(kind)) {
+  } else if (priorEnTeaser) {
+    // Two distinct ways to end up here: the writer was asked and said no
+    // (bench kind), or the new kind can't sit on the bench at all so the
+    // prompt was never offered (coffee/read have no vignette). Don't say
+    // "declined" for the latter — nobody was asked.
     console.log(
-      `No teaser entered — this bench-kind item will NOT appear on the home bench.\n` +
-        `If the item you replaced had a \`teaser:\`, that's now gone; re-add it in now.md.`,
+      (BENCH_KINDS as readonly string[]).includes(kind)
+        ? `Teaser declined — the replaced item HAD one, so this entry just dropped\n` +
+            `off the home bench grid (ADR 0014). Edit now.md if that wasn't intended.`
+        : `Teaser dropped — \`${kind}\` can't sit on the home bench (no vignette), and\n` +
+            `the replaced item HAD a teaser, so this entry left the home grid (ADR 0014).`,
     );
+  } else if ((BENCH_KINDS as readonly string[]).includes(kind)) {
+    console.log(`No teaser — this bench-kind item will not appear on the home bench.`);
   }
   return { paths: [enPath, esPath] };
 }
