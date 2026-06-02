@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.18.2](https://github.com/nicolas-bracigliano/nicolasbracigliano/compare/v1.18.1...v1.18.2) (2026-06-02)
+
+
+### Documentation
+
+* **voice:** revise §6 around curious, humble, and confident + short-account notes ([2101254](https://github.com/nicolas-bracigliano/nicolasbracigliano/commit/2101254c5442321d7dc158c0273595798a940159))
+
 ## [1.18.1](https://github.com/nicolas-bracigliano/nicolasbracigliano/compare/v1.18.0...v1.18.1) (2026-06-02)
 
 
