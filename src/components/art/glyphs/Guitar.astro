@@ -1,12 +1,49 @@
 ---
-// Default glyph for `kind: guitar` notes.
+// Default glyph for `kind: guitar` notes. 22×22 inline SVG drawn with
+// `currentColor` so it inherits the wrapping `.note-glyph` colour.
+// A guitar headstock in line art — the most legible guitar cue at icon
+// size. Follows the Gibson "open-book" silhouette: a central peak
+// flanked by two humps, near-parallel sides, tapering to the nut at the
+// base. Six
+// tuning machines stick out the sides (three per side): a post and a
+// keystone/tulip button each. Line weight matches the sibling glyphs.
 ---
 
 <svg viewBox="0 0 24 24" width="22" height="22" role="img" aria-label="guitar glyph">
   <title>guitar</title>
-  <g fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round">
-    <circle cx="14" cy="16" r="6"></circle>
-    <path d="M14 16 L 18 12 L 22 8"></path>
-    <path d="M16 6 L 20 10"></path>
+  <g
+    fill="none"
+    stroke="currentColor"
+    stroke-width="1.4"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  >
+    {/* open-book headstock silhouette, tapering to the nut */}
+    <path
+      d="M12 2.6
+         C 12.3 3 12.5 3.4 12.9 3.5 C 13.3 3.2 13.6 2.3 14.2 2.2
+         C 14.9 2.2 15.4 2.9 15.7 3.9 C 16 4.7 16.1 5.4 16.1 6.2
+         C 16.2 8.4 16.2 12 15.9 14.6 C 15.7 16.1 15.1 17.3 14.2 18.1
+         L 14 19.3 L 14 22.2 L 10 22.2 L 10 19.3 L 9.8 18.1
+         C 8.9 17.3 8.3 16.1 8.1 14.6 C 7.8 12 7.8 8.4 7.9 6.2
+         C 7.9 5.4 8 4.7 8.3 3.9 C 8.6 2.9 9.1 2.2 9.8 2.2
+         C 10.4 2.3 10.7 3.2 11.1 3.5 C 11.5 3.4 11.7 3 12 2.6 Z"
+    ></path>
+
+    {/* tuning machines — posts + keystone buttons, three per side */}
+    <path d="M8 7.2 L 5 7.2"></path>
+    <path d="M5 6.65 L 3.5 6.25 Q 3.1 7.2 3.5 8.15 L 5 7.75 Z"></path>
+    <path d="M16 7.2 L 19 7.2"></path>
+    <path d="M19 6.65 L 20.5 6.25 Q 20.9 7.2 20.5 8.15 L 19 7.75 Z"></path>
+
+    <path d="M8 10.8 L 5 10.8"></path>
+    <path d="M5 10.25 L 3.5 9.85 Q 3.1 10.8 3.5 11.75 L 5 11.35 Z"></path>
+    <path d="M16 10.8 L 19 10.8"></path>
+    <path d="M19 10.25 L 20.5 9.85 Q 20.9 10.8 20.5 11.75 L 19 11.35 Z"></path>
+
+    <path d="M8 14.4 L 5 14.4"></path>
+    <path d="M5 13.85 L 3.5 13.45 Q 3.1 14.4 3.5 15.35 L 5 14.95 Z"></path>
+    <path d="M16 14.4 L 19 14.4"></path>
+    <path d="M19 13.85 L 20.5 13.45 Q 20.9 14.4 20.5 15.35 L 19 14.95 Z"></path>
   </g>
 </svg>
