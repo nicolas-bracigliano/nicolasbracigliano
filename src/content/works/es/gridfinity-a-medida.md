@@ -15,7 +15,6 @@ specs:
   impresora: 'Bambu Lab P2S'
   grilla: '42 mm (Gridfinity estándar)'
   bins: '6 diseñados'
-# DRAFT label — revisar antes de mergear
 elsewhere:
   - label: 'makerworld / gridfinity'
     href: 'https://makerworld.com/en/collections/20261701-gridfinity'
