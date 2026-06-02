@@ -1,0 +1,27 @@
+/* Self-hosted variable web fonts. Latin-subset `wght`-axis woff2 produced by
+ * `pnpm subset-fonts` (see scripts/subset-fonts.mjs) and committed under
+ * public/fonts/. Declared here and loaded site-wide via BaseLayout, ahead of
+ * tokens.css so the families resolve before first paint.
+ *
+ * `font-display: swap` keeps the near-zero-JS promise honest: text paints
+ * immediately in the fallback stack (--font-display / --font-body in
+ * tokens.css) and swaps to the web font once the woff2 arrives. The CSP
+ * `font-src 'self'` directive already permits these same-origin loads.
+ *
+ * `font-weight` is the variable `wght`-axis span of each face — Newsreader
+ * 200-800, JetBrains Mono 100-800; one woff2 covers the whole axis. */
+@font-face {
+  font-family: Newsreader;
+  font-style: normal;
+  font-weight: 200 800;
+  font-display: swap;
+  src: url('/fonts/newsreader-variable.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'JetBrains Mono';
+  font-style: normal;
+  font-weight: 100 800;
+  font-display: swap;
+  src: url('/fonts/jetbrains-mono-variable.woff2') format('woff2');
+}

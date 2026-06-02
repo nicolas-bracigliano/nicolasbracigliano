@@ -1,4 +1,5 @@
 ---
+import '@styles/fonts.css';
 import '@styles/reset.css';
 import '@styles/tokens.css';
 import '@styles/base.css';
@@ -79,6 +80,27 @@ function isActive(key: keyof typeof ROUTES, currentPath: string): boolean {
     <meta name="twitter:card" content="summary_large_image" />
 
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+
+    {
+      /* Preload the self-hosted woff2 so the swap from the fallback stack
+        happens early (less FOUT on the type-forward hero). Same-origin,
+        but font fetches are always CORS-anonymous, so `crossorigin` is
+        required for the preload to match the actual request. */
+    }
+    <link
+      rel="preload"
+      href="/fonts/jetbrains-mono-variable.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
+    <link
+      rel="preload"
+      href="/fonts/newsreader-variable.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
 
     {/* External file so CSP can stay `script-src 'self'` with no hashes. */}
     <script is:inline src="/theme-init.js"></script>
