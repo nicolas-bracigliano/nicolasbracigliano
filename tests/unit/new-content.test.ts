@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { parse as parseYaml } from 'yaml';
+import { frontmatterOf } from '../../scripts/frontmatter.ts';
 import {
   slugify,
   todayIso,
@@ -383,7 +383,7 @@ items:
 
   it('round-trips a work translationId through the YAML document unchanged', () => {
     const out = replaceNowItem(fixture, 1, { ...newItem, work: 'gridfinity-bins' });
-    const parsed = parseYaml(out.match(/^---\n([\s\S]*?)\n---/)?.[1] ?? '') as {
+    const parsed = frontmatterOf(out) as unknown as {
       items: { work?: string }[];
     };
     expect(parsed.items[1]?.work).toBe('gridfinity-bins');
@@ -404,7 +404,7 @@ items:
     });
     expect(out).toContain('teaser:');
     expect(out.indexOf('detail:')).toBeLessThan(out.indexOf('teaser:'));
-    const parsed = parseYaml(out.match(/^---\n([\s\S]*?)\n---/)?.[1] ?? '') as {
+    const parsed = frontmatterOf(out) as unknown as {
       items: { teaser?: { label: string; line: string } }[];
     };
     expect(parsed.items[0]?.teaser).toEqual({ label: 'code', line: 'blurb' });
@@ -466,9 +466,9 @@ interface Fm {
 }
 
 function fmOf(text: string): Fm {
-  const m = text.match(/^---\n([\s\S]*?)\n---/);
-  if (!m || !m[1]) throw new Error('no frontmatter fence');
-  return parseYaml(m[1]) as Fm;
+  const fm = frontmatterOf(text);
+  if (!fm) throw new Error('no frontmatter fence');
+  return fm as unknown as Fm;
 }
 
 describe('scaffoldNote (end-to-end via ScriptedContext)', () => {
@@ -669,8 +669,7 @@ interface NowFm {
     teaser?: { label: string; line: string };
   }[];
 }
-const nowItemsOf = (text: string): NowFm =>
-  parseYaml(text.match(/^---\n([\s\S]*?)\n---/)?.[1] ?? '') as NowFm;
+const nowItemsOf = (text: string): NowFm => frontmatterOf(text) as unknown as NowFm;
 
 describe('loadPublishedWorkIds', () => {
   let tempRoot: string;

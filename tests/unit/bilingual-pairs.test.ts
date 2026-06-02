@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { parse as parseYaml } from 'yaml';
+import { frontmatterOf } from '../../scripts/frontmatter.ts';
 
 // Notes, pieces, and works are bilingual by design — every published EN
 // entry should have a published ES sibling and vice versa. The site's
@@ -40,9 +40,9 @@ function loadCollection(collection: Collection): { file: string; data: EntryFron
     for (const file of entries) {
       if (!file.endsWith('.md')) continue;
       const text = readFileSync(join(CONTENT_ROOT, collection, locale, file), 'utf-8');
-      const fmMatch = text.match(/^---\n([\s\S]*?)\n---/);
-      if (!fmMatch || !fmMatch[1]) continue;
-      const data = parseYaml(fmMatch[1]) as EntryFrontmatter;
+      const fm = frontmatterOf(text);
+      if (!fm) continue;
+      const data = fm as unknown as EntryFrontmatter;
       out.push({ file: `${collection}/${locale}/${file}`, data });
     }
   }

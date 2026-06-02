@@ -30,6 +30,7 @@ import { fileURLToPath } from 'node:url';
 import { createInterface } from 'node:readline/promises';
 import { stdin as input, stdout as output } from 'node:process';
 import { parseDocument, type Document } from 'yaml';
+import { frontmatterOf } from './frontmatter.ts';
 import { WORK_KINDS, NOTE_KINDS, NOW_KINDS, BENCH_KINDS } from '../src/lib/content-kinds.ts';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -442,11 +443,11 @@ export async function loadPublishedWorkIds(contentRoot: string): Promise<Set<str
     for (const file of files) {
       if (!file.endsWith('.md')) continue;
       const text = await readFile(join(contentRoot, 'works', locale, file), 'utf-8');
-      const fm = text.match(/^---\n([\s\S]*?)\n---/)?.[1];
+      const fm = frontmatterOf(text);
       if (!fm) continue;
-      const doc = parseDocument(fm);
-      const tid = doc.get('translationId');
-      if (doc.get('status') === 'published' && typeof tid === 'string') ids.add(tid);
+      if (fm.status === 'published' && typeof fm.translationId === 'string') {
+        ids.add(fm.translationId);
+      }
     }
   }
   return ids;
@@ -718,31 +719,31 @@ export async function scaffoldNowItem(ctx: CliContext): Promise<{ paths: string[
   // Published works, for validating the `work` cross-link at prompt time.
   const knownWorks = await loadPublishedWorkIds(ctx.contentRoot);
 
-  // Show current items (title only, both locales side by side).
-  const enDoc = parseDocument(enContents.match(/^---\n([\s\S]*?)\n---/)?.[1] ?? '');
-  const esDoc = parseDocument(esContents.match(/^---\n([\s\S]*?)\n---/)?.[1] ?? '');
-  const enItems = enDoc.get('items') as { items: { toJSON(): unknown }[] } | undefined;
-  const esItems = esDoc.get('items') as { items: { toJSON(): unknown }[] } | undefined;
-  if (!enItems || !esItems) {
+  // Show current items (title only, both locales side by side). Read-only
+  // here, so plain frontmatter parse — `replaceNowItem` keeps the
+  // format-preserving `parseDocument` path for the actual write.
+  const enItems = frontmatterOf(enContents)?.items;
+  const esItems = frontmatterOf(esContents)?.items;
+  if (!Array.isArray(enItems) || !Array.isArray(esItems)) {
     throw new Error('now.md `items:` array not found in one or both locales');
   }
+  const enList = enItems as Array<{ title?: string; teaser?: NowTeaserInput }>;
+  const esList = esItems as Array<{ title?: string; teaser?: NowTeaserInput }>;
   // Derive the count from the file rather than hardcoding it: the array
   // is a NOW_ITEM_MIN..MAX range (commented-out items shrink it below the
   // old fixed six), and EN/ES must stay paired index-for-index.
-  const itemCount = enItems.items.length;
-  if (esItems.items.length !== itemCount) {
+  const itemCount = enList.length;
+  if (esList.length !== itemCount) {
     throw new Error(
-      `now.md item count mismatch — en has ${itemCount}, es has ${esItems.items.length}; ` +
+      `now.md item count mismatch — en has ${itemCount}, es has ${esList.length}; ` +
         'fix the pairing before replacing an item',
     );
   }
 
   console.log('Current items:');
   for (let i = 0; i < itemCount; i++) {
-    const en = (enItems.items[i]?.toJSON() as { title?: string })?.title ?? '?';
-    const es = (esItems.items[i]?.toJSON() as { title?: string })?.title ?? '?';
-    console.log(`  ${i + 1}. EN: ${en}`);
-    console.log(`     ES: ${es}`);
+    console.log(`  ${i + 1}. EN: ${enList[i]?.title ?? '?'}`);
+    console.log(`     ES: ${esList[i]?.title ?? '?'}`);
   }
   console.log('');
 
