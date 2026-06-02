@@ -79,13 +79,16 @@ const dateFormatter = new Intl.DateTimeFormat(locale === 'es' ? 'es-AR' : 'en-AU
   timeZone: 'Australia/Melbourne',
 });
 const dateParts = dateFormatter.formatToParts(lastTouched).filter((p) => p.type !== 'literal');
-const lastTouchedDisplay = [
+const lastTouchedYmd = [
   dateParts.find((p) => p.type === 'year')?.value,
   dateParts.find((p) => p.type === 'month')?.value,
   dateParts.find((p) => p.type === 'day')?.value,
-]
-  .filter(Boolean)
-  .join(' · ');
+].filter(Boolean);
+// Display and the <time datetime> attr derive from the same Melbourne-
+// formatted parts, so the visible date and the machine date can't drift
+// across the UTC/Melbourne day boundary.
+const lastTouchedDisplay = lastTouchedYmd.join(' · ');
+const lastTouchedDatetime = lastTouchedYmd.join('-');
 
 // Iteration / changelog dates arrive as `YYYY-MM` or `YYYY-MM-DD` strings
 // (schema-validated). The raw value goes straight into `datetime` (both
@@ -240,7 +243,7 @@ const revDisplay = (d: string) => d.split('-').join(' · ');
       <p class="work-detail-foot-meta">
         <span>
           {t.lastTouched}
-          <time datetime={lastTouched.toISOString().slice(0, 10)}>{lastTouchedDisplay}</time>
+          <time datetime={lastTouchedDatetime}>{lastTouchedDisplay}</time>
         </span>
         <span class="sep" aria-hidden="true">·</span>
         <span>{t.filedUnder} {kind}</span>
