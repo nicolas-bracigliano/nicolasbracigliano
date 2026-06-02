@@ -26,7 +26,7 @@ const LEVEL_NAME: Record<Props['level'], string> = {
   class={`diagram diagram--c4-level diagram--c4-level-${level}`}
   {...labelled ? { role: 'img', 'aria-label': label } : { 'aria-hidden': 'true' }}
 >
-  <svg viewBox="0 0 320 200" width="100%" height="auto" preserveAspectRatio="xMidYMid meet">
+  <svg viewBox="0 0 320 200" width="100%" preserveAspectRatio="xMidYMid meet">
     {label && <title>{label}</title>}
     {
       /* Level marker (top-left). Same calm voice as the outer dashed

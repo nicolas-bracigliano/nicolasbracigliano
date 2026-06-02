@@ -76,6 +76,17 @@
     font-size: clamp(1.4rem, 2vw + 0.75rem, 2rem);
   }
 
+  /* A section eyebrow promoted to an <h2> for heading-order (the bench
+     section label). The `.eyebrow` utility supplies size, spacing, and
+     colour; reset only the heading defaults that would otherwise leak
+     (display face, weight 500, block margin) so it renders identically
+     to the `.eyebrow` span it replaced. */
+  h2.eyebrow {
+    margin: 0;
+    font-family: inherit;
+    font-weight: inherit;
+  }
+
   h3 {
     font-family: var(--font-display);
     font-weight: 500;
@@ -135,7 +146,7 @@
     gap: var(--gutter);
     padding: 1rem var(--gutter);
     border-block-end: 1px solid var(--rule);
-    background: color-mix(in srgb, var(--bg) 96%, transparent);
+    background: color-mix(in srgb, var(--bg) 90%, transparent);
     backdrop-filter: saturate(140%) blur(6px);
   }
 
@@ -314,7 +325,6 @@
   }
   #theme-toggle:hover {
     border-color: var(--ink-3);
-    color: var(--ink);
   }
   /* Label content is data-driven from <html lang> + <html data-theme>
      so the text stays in sync with the live state via pure CSS. */
