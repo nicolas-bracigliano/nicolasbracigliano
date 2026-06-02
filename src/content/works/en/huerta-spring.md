@@ -19,4 +19,4 @@ specs:
 
 Spring rotation map. Tomato gets the back row (climbs the wall), basil and chamomile in front of it (pollinators), chillies on the warm-rock end. Companion-planted on purpose, not by accident.
 
-First native bees on the basil this week — two weeks earlier than last year, which is interesting and a little ominous.
+First native bees on the basil this week; two weeks earlier than last year, which is interesting and a little ominous.

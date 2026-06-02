@@ -60,9 +60,9 @@ const permalinkLabel = locale === 'es' ? 'enlace' : 'link';
   </div>
 
   <article class="note-body">
-    <h3 class="note-title">
+    <h2 class="note-title">
       <a href={permalink} data-astro-prefetch>{title}</a>
-    </h3>
+    </h2>
     {lede && <p class="note-lede">{lede}</p>}
     <div class="note-prose">
       <slot />

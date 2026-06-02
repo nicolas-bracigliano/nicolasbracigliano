@@ -15,7 +15,7 @@ const labelled = label !== undefined;
   class="diagram diagram--road-knot"
   {...labelled ? { role: 'img', 'aria-label': label } : { 'aria-hidden': 'true' }}
 >
-  <svg viewBox="0 0 320 140" width="100%" height="auto" preserveAspectRatio="xMidYMid meet">
+  <svg viewBox="0 0 320 140" width="100%" preserveAspectRatio="xMidYMid meet">
     {label && <title>{label}</title>}
     {
       /* Knotted side — three crossing curves on the left half. Warm

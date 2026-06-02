@@ -20,7 +20,7 @@ items:
       - dt: 'stack'
         dd: 'Astro · Cloudflare Workers'
       - dt: 'peso'
-        dd: '100 Lighthouse · ~11 KB / página'
+        dd: '100 Lighthouse · ~14 KB de JS / página'
       - dt: 'aprendí'
         dd: 'lo poco que necesita de JS'
     teaser:

@@ -3,8 +3,9 @@ import BaseLayout from '@layouts/BaseLayout.astro';
 import { ROUTES, SITE_EMAIL } from '@lib/routes';
 
 // 404 — Misplaced letter (design system §3). One bilingual page that
-// catches any unmatched URL. Cloudflare Pages serves the built
-// `/404.html` with HTTP 404 for any path that doesn't resolve.
+// catches any unmatched URL. Cloudflare Workers Static Assets serves the
+// built `/404.html` with HTTP 404 (via `not_found_handling = "404-page"`
+// in wrangler.toml) for any path that doesn't resolve.
 //
 // `noindex` belt-and-suspenders: HTTP 404 is the primary signal
 // search engines respect, but the meta tag plus the omitted

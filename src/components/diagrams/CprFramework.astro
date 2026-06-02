@@ -18,7 +18,7 @@ const labelled = label !== undefined;
   class="diagram diagram--cpr"
   {...labelled ? { role: 'img', 'aria-label': label } : { 'aria-hidden': 'true' }}
 >
-  <svg viewBox="0 0 260 200" width="100%" height="auto" preserveAspectRatio="xMidYMid meet">
+  <svg viewBox="0 0 260 200" width="100%" preserveAspectRatio="xMidYMid meet">
     {label && <title>{label}</title>}
     {
       /* Three stacked rectangles split into three groups so each layer

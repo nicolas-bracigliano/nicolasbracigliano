@@ -15,7 +15,7 @@ const labelled = label !== undefined;
   class="diagram diagram--c4-wheel"
   {...labelled ? { role: 'img', 'aria-label': label } : { 'aria-hidden': 'true' }}
 >
-  <svg viewBox="0 0 240 240" width="100%" height="auto" preserveAspectRatio="xMidYMid meet">
+  <svg viewBox="0 0 240 240" width="100%" preserveAspectRatio="xMidYMid meet">
     {label && <title>{label}</title>}
     {/* Outer circle + cross-dividers — the grid scaffold. */}
     <g class="d-grid" fill="none" stroke-width="1.5">

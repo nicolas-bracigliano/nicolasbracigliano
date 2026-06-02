@@ -19,7 +19,7 @@ items:
       - dt: 'stack'
         dd: 'Astro · Cloudflare Workers'
       - dt: 'weight'
-        dd: '100 Lighthouse · ~11 KB / page'
+        dd: '100 Lighthouse · ~14 KB JS / page'
       - dt: 'learned'
         dd: 'how little JS it needs'
     teaser:

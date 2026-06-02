@@ -14,7 +14,8 @@
 // under public/fonts/; CI consumes them.
 
 import { mkdir, writeFile } from 'node:fs/promises';
-import { existsSync } from 'node:fs';
+import { existsSync, statSync } from 'node:fs';
+import { execFileSync } from 'node:child_process';
 import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -27,11 +28,16 @@ const FONT_SOURCES = [
     name: 'Newsreader-variable',
     url: 'https://cdn.jsdelivr.net/fontsource/fonts/newsreader:vf@latest/latin-wght-normal.woff2',
     outWoff2: 'newsreader-variable.woff2',
+    // The display face is used at weights 400-500; instance to 400-600 (a
+    // little headroom) to drop the unused 200-400 and 600-800 axis tails.
+    wght: '400:600',
   },
   {
     name: 'JetBrainsMono-variable',
     url: 'https://cdn.jsdelivr.net/fontsource/fonts/jetbrains-mono:vf@latest/latin-wght-normal.woff2',
     outWoff2: 'jetbrains-mono-variable.woff2',
+    // The body/mono face is used at 100-700 (nav 100 … cube 700); trim 700-800.
+    wght: '100:700',
   },
 ];
 
@@ -52,20 +58,34 @@ async function download(url, destPath) {
   console.log(`  → ${destPath} (${buf.byteLength} bytes)`);
 }
 
+// Trim the variable `wght` axis to the range the site uses, in place. Dropping
+// the unused axis tails is most of the size win and removes no glyphs, so
+// there's no tofu risk. Output stays woff2 (brotli). Requires `fonttools` on
+// PATH (pip install fonttools brotli).
+function instance(fontPath, wght) {
+  execFileSync('fonttools', [
+    'varLib.instancer',
+    fontPath,
+    `wght=${wght}`,
+    '-o',
+    fontPath,
+    '--quiet',
+  ]);
+  console.log(`  ↳ instanced wght=${wght} (${statSync(fontPath).size} bytes)`);
+}
+
 async function main() {
   if (!existsSync(FONTS_DIR)) await mkdir(FONTS_DIR, { recursive: true });
   for (const f of FONT_SOURCES) {
     console.log(`Fetching ${f.name}…`);
-    await download(f.url, resolve(FONTS_DIR, f.outWoff2));
+    const out = resolve(FONTS_DIR, f.outWoff2);
+    await download(f.url, out);
+    instance(out, f.wght);
   }
   console.log(`Fetching ${OG_FONT.name}…`);
   await download(OG_FONT.url, resolve(FONTS_DIR, OG_FONT.outTtf));
 
-  console.log('\nDone. Target ≤80 KB total for runtime fonts.');
-  console.log(
-    'Optional: run `pyftsubset` against each woff2 with --unicodes=U+0020-007E,U+00A0-00FF',
-  );
-  console.log('to subset further for the bilingual EN/ES character set.');
+  console.log('\nDone. Runtime fonts are Latin-subset + wght-instanced, ~79 KB combined.');
 }
 
 main().catch((err) => {
