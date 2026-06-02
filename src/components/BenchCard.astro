@@ -1,28 +1,32 @@
 ---
 // Home-page "currently on the bench" vignette card (design system §3 + §11).
-// One per craft. Each card is a clickable entry point to /now — the four
-// cards are four doors into the same "what's on the bench" page. The whole
-// card is a stretched link (`.bench-card-link::before { inset: 0 }`, the
-// same pattern as WorkCard): the <a> wraps only the title for a meaningful
-// accessible name, while a "see /now →" peek pill + accent dot are revealed
-// on hover/focus.
+// One per craft. Each card is a clickable entry point to /now — the cards
+// are doors into the same "what's on the bench" page. The whole card is a
+// stretched link (`.bench-card-link::before { inset: 0 }`, the same pattern
+// as WorkCard): the <a> wraps only the title for a meaningful accessible
+// name, while a "see /now →" peek pill + accent dot are revealed on
+// hover/focus.
 //
-// Vignettes are inlined here (not extracted to separate component files)
-// because they're tightly coupled — each one only exists inside its
-// matching kind. The four together stay under ~150 LOC and tree-shake as
-// one unit when the home page splits at build time.
+// Art: each kind's vignette is a SINGLE shared component under
+// `art/vignettes/<Kind>.astro` (ADR 0013 amendment, 2026-06). The works
+// registry renders it stateless via ContentArt; the bench renders the same
+// file with a `-vig` class (which scopes the scroll-in animation in
+// animations.css) and, where the kind has one, a caption prop. One source
+// per kind means the two surfaces can't drift.
 //
-// Deliberately NOT routed through ContentArt / the per-kind registry
-// (see docs/decisions/0013-per-entry-art.md). BenchCard SVGs bake
-// per-instance captions into `<text>` (`guitarLabel`, `seedlingTag`),
-// so they're not stateless per-kind defaults — refactoring them
-// through the registry would force a leaky props-by-kind abstraction
-// onto WorkCard / NoteEntry too. Keep the inline form here on purpose.
+// `garden` is the deliberate exception: a catalogued garden *work* shows a
+// planted plot (`art/vignettes/Garden.astro`), while the bench shows a
+// live, growing seedling — different metaphors for "shipped" vs "on the
+// bench now" — so the seedling stays inline here with its `seedlingTag`.
 
 // Kind union is owned by `src/lib/content-kinds.ts` (the same source the
 // content schema validates against) so the component and the frontmatter
 // can't drift on the set of kinds.
 import type { BenchKind } from '@lib/content-kinds';
+import CodeVignette from './art/vignettes/Code.astro';
+import GuitarVignette from './art/vignettes/Guitar.astro';
+import PrintVignette from './art/vignettes/Print.astro';
+import HomeVignette from './art/vignettes/Home.astro';
 
 export interface Props {
   kind: BenchKind;
@@ -59,42 +63,12 @@ const { kind, tag, title, line, seedlingTag, guitarLabel, href, peekLabel } = As
 
 <article class={`bench-card bench-card--${kind}`}>
   <div class="bench-card-art">
-    {
-      kind === 'code' &&
-        // prettier-ignore
-        <pre class="terminal-vig" aria-hidden="true">{`$ pnpm build
-  ├─ Indexed  2 languages
-  ├─ Indexed  37 pages
-  ├─ Indexed  3380 words
-  ├─ Indexed  0 filters
-  ├─ Indexed  0 sorts
-  ╰─ Completed in 4.94s. ✓`}<span class="caret" /></pre>
-    }
+    {kind === 'code' && <CodeVignette class="code-vig" />}
+    {kind === 'guitar' && <GuitarVignette class="guitar-vig" label={guitarLabel} />}
+    {kind === 'print' && <PrintVignette class="print-vig" />}
+    {kind === 'home' && <HomeVignette class="home-vig" />}
 
-    {
-      kind === 'guitar' && (
-        <svg viewBox="0 0 220 140" class="guitar-vig" aria-hidden="true">
-          <g fill="none" stroke="currentColor" stroke-width="1">
-            <line class="string s0" x1="10" x2="210" y1="20" y2="20" />
-            <line class="string s1" x1="10" x2="210" y1="36" y2="36" />
-            <line class="string s2" x1="10" x2="210" y1="52" y2="52" />
-            <line class="string s3" x1="10" x2="210" y1="68" y2="68" />
-            <line class="string s4" x1="10" x2="210" y1="84" y2="84" />
-            <line class="string s5" x1="10" x2="210" y1="100" y2="100" />
-            <line x1="60" x2="60" y1="20" y2="100" stroke-width="4" opacity="0.5" />
-            <line x1="110" x2="110" y1="20" y2="100" stroke-width="4" opacity="0.5" />
-            <line x1="160" x2="160" y1="20" y2="100" stroke-width="4" opacity="0.5" />
-            <circle cx="85" cy="36" r="4" fill="var(--accent)" stroke="none" />
-            <circle cx="135" cy="68" r="4" fill="var(--accent)" stroke="none" />
-            <circle cx="135" cy="84" r="4" fill="var(--accent)" stroke="none" />
-          </g>
-          <text x="10" y="134" fill="currentColor" font-size="9" opacity="0.6">
-            {guitarLabel}
-          </text>
-        </svg>
-      )
-    }
-
+    {/* garden stays bespoke (a growing seedling, not the works plot) */}
     {
       kind === 'garden' && (
         <svg viewBox="0 0 200 140" class="seedling-vig" aria-hidden="true">
@@ -115,98 +89,6 @@ const { kind, tag, title, line, seedlingTag, guitarLabel, href, peekLabel } = As
             >
               {seedlingTag}
             </text>
-          </g>
-        </svg>
-      )
-    }
-
-    {
-      kind === 'print' && (
-        <svg viewBox="0 0 200 140" class="print-vig" aria-hidden="true">
-          <g fill="none" stroke="currentColor" stroke-width="1">
-            <path d="M100,30 L 160,55 L 160,105 L 100,130 L 40,105 L 40,55 Z" />
-            <path d="M100,30 L 100,80" />
-            <path d="M40,55 L 100,80 L 160,55" />
-            <line class="layer l0" x1="40" x2="100" y1="55" y2="80" opacity="0.35" />
-            <line class="layer l1" x1="40" x2="100" y1="62" y2="87" opacity="0.31" />
-            <line class="layer l2" x1="40" x2="100" y1="69" y2="94" opacity="0.27" />
-            <line class="layer l3" x1="40" x2="100" y1="76" y2="101" opacity="0.23" />
-            <line class="layer l4" x1="40" x2="100" y1="83" y2="108" opacity="0.19" />
-            <line class="layer l5" x1="40" x2="100" y1="90" y2="115" opacity="0.15" />
-            <line class="layer l6" x1="40" x2="100" y1="97" y2="122" opacity="0.11" />
-            <line x1="100" x2="160" y1="80" y2="55" opacity="0.35" />
-            <line x1="100" x2="160" y1="87" y2="62" opacity="0.31" />
-            <line x1="100" x2="160" y1="94" y2="69" opacity="0.27" />
-            <line x1="100" x2="160" y1="101" y2="76" opacity="0.23" />
-            <line x1="100" x2="160" y1="108" y2="83" opacity="0.19" />
-            <line x1="100" x2="160" y1="115" y2="90" opacity="0.15" />
-            <line x1="100" x2="160" y1="122" y2="97" opacity="0.11" />
-            <circle class="head" cx="100" cy="30" r="3" fill="var(--accent)" stroke="none" />
-          </g>
-        </svg>
-      )
-    }
-
-    {
-      kind === 'home' && (
-        <svg viewBox="0 0 200 140" width="45%" height="45%">
-          <g fill="none" stroke="currentColor" stroke-width="1">
-            {/* crown molding */}
-            <line x1="46" x2="154" y1="14" y2="14" />
-            <line x1="46" x2="154" y1="17" y2="17" opacity="0.4" />
-
-            {/* wall panel */}
-            <path d="M52,17 L52,102 L148,102 L148,17" opacity="0.6" />
-
-            {/* wall slats */}
-            {Array.from({ length: 18 }).map((_, i) => (
-              <line x1={58 + i * 5} x2={58 + i * 5} y1="18" y2="100" opacity="0.3" />
-            ))}
-
-            {/* tv */}
-            <rect x="66" y="40" width="68" height="36" stroke-width="1.2" fill="currentColor" />
-
-            {/* fireplace slot */}
-            <rect x="60" y="91.5" width="80" height="9" />
-
-            {/* flames */}
-            {Array.from({ length: 12 }).map((_, i) => {
-              const x = 65 + i * 6;
-              const h = i % 2 === 0 ? 6 : 4;
-              return <path d={`M${x},99 q 1,-${h} 2,0`} opacity="0.55" fill="var(--accent)" />;
-            })}
-
-            {/* speakers on the shelf */}
-            <ellipse
-              cx="42"
-              cy="95"
-              rx="3.5"
-              ry="4.5"
-              fill="currentColor"
-              stroke="none"
-              opacity="0.75"
-            />
-            <ellipse
-              cx="158"
-              cy="95"
-              rx="3.5"
-              ry="4.5"
-              fill="currentColor"
-              stroke="none"
-              opacity="0.75"
-            />
-
-            {/* floating bench, rounded ends */}
-            <rect x="22" y="102" width="156" height="20" rx="6" />
-            <line x1="22" x2="178" y1="104" y2="104" opacity="0.5" stroke-width="3" />
-
-            {/* bench slats */}
-            {Array.from({ length: 28 }).map((_, i) => (
-              <line x1={30 + i * 5.18} x2={30 + i * 5.18} y1="108" y2="120" opacity="0.3" />
-            ))}
-
-            {/* underglow */}
-            <line x1="26" x2="174" y1="128" y2="128" stroke-dasharray="2 2" opacity="0.4" />
           </g>
         </svg>
       )

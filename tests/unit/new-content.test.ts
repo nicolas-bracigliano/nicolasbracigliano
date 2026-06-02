@@ -1,27 +1,31 @@
-import { afterEach, beforeEach, describe, expect, it } from 'vitest';
-import { mkdtemp, readFile, rm } from 'node:fs/promises';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { parse as parseYaml } from 'yaml';
+import { frontmatterOf } from '../../scripts/frontmatter.ts';
 import {
   slugify,
   todayIso,
+  validateDate,
   yamlString,
   yamlTagList,
   buildNoteMarkdown,
   buildPieceMarkdown,
   buildWorkMarkdown,
   replaceNowItem,
+  loadPublishedWorkIds,
   makeScriptedContext,
   scaffoldNote,
   scaffoldPiece,
   scaffoldWork,
+  scaffoldNowItem,
 } from '../../scripts/new-content.ts';
 
-// Pure helpers from `scripts/new-content.ts`. The CLI shell (readline
-// prompts, fs writes) is intentionally not tested — the dispatch
-// logic + frontmatter shape + now.md round-trip are what break the
-// schema or the bilingual-pair contract when they go wrong.
+// Pure helpers from `scripts/new-content.ts`, plus end-to-end coverage of
+// each scaffold flow driven through `makeScriptedContext` (canned answers,
+// temp content root). Only the real readline I/O goes untested — the
+// dispatch logic, frontmatter shape, and now.md round-trip are what break
+// the schema or the bilingual-pair contract when they go wrong.
 
 describe('slugify', () => {
   it('lowercases ASCII titles', () => {
@@ -58,6 +62,25 @@ describe('todayIso', () => {
 
   it('pads single-digit month and day', () => {
     expect(todayIso(new Date(2026, 0, 3))).toBe('2026-01-03');
+  });
+});
+
+describe('validateDate', () => {
+  it('accepts a real, zero-padded YYYY-MM-DD (incl. a valid leap day)', () => {
+    expect(validateDate('2026-05-27')).toBeNull();
+    expect(validateDate('2024-02-29')).toBeNull(); // 2024 is a leap year
+  });
+
+  it('rejects the wrong shape (non-padded, words, slashes)', () => {
+    expect(validateDate('2026-5-1')).toMatch(/YYYY-MM-DD/);
+    expect(validateDate('tomorrow')).toMatch(/YYYY-MM-DD/);
+    expect(validateDate('2026/05/27')).toMatch(/YYYY-MM-DD/);
+  });
+
+  it('rejects an impossible calendar date even when well-shaped', () => {
+    expect(validateDate('2026-13-01')).toMatch(/real calendar date/);
+    expect(validateDate('2026-02-30')).toMatch(/real calendar date/);
+    expect(validateDate('2025-02-29')).toMatch(/real calendar date/); // 2025 not a leap year
   });
 });
 
@@ -341,6 +364,60 @@ items:
     const bad = `---\ntitle: 'X'\nslug: 'x'\n---\n`;
     expect(() => replaceNowItem(bad, 0, newItem)).toThrow(/items.*missing/);
   });
+
+  it('omits the `work:` key when no work is linked', () => {
+    const out = replaceNowItem(fixture, 0, newItem);
+    // The fixture item had no work and newItem sets none — round-trips clean.
+    expect(out).not.toContain('work:');
+  });
+
+  it('writes `work:` (between title and prose) when a work is linked', () => {
+    const out = replaceNowItem(fixture, 0, { ...newItem, work: 'this-site' });
+    expect(out).toContain('work: this-site');
+    // Field order matches the shipped now.md: title → work → prose.
+    const titleIdx = out.indexOf('title:');
+    const workIdx = out.indexOf('work:');
+    const proseIdx = out.indexOf('prose:');
+    expect(titleIdx).toBeLessThan(workIdx);
+    expect(workIdx).toBeLessThan(proseIdx);
+  });
+
+  it('round-trips a work translationId through the YAML document unchanged', () => {
+    const out = replaceNowItem(fixture, 1, { ...newItem, work: 'gridfinity-bins' });
+    const parsed = frontmatterOf<{ items: { work?: string }[] }>(out)!;
+    expect(parsed.items[1]?.work).toBe('gridfinity-bins');
+    // The untouched item 0 still carries no work key.
+    expect(parsed.items[0]?.work).toBeUndefined();
+  });
+
+  it('omits the `teaser:` key when none is provided', () => {
+    const out = replaceNowItem(fixture, 0, newItem);
+    expect(out).not.toContain('teaser:');
+  });
+
+  it('writes a teaser block last (after detail) when provided', () => {
+    const out = replaceNowItem(fixture, 0, {
+      ...newItem,
+      kind: 'code',
+      teaser: { label: 'code', line: 'blurb' },
+    });
+    expect(out).toContain('teaser:');
+    expect(out.indexOf('detail:')).toBeLessThan(out.indexOf('teaser:'));
+    const parsed = frontmatterOf<{
+      items: { teaser?: { label: string; line: string } }[];
+    }>(out)!;
+    expect(parsed.items[0]?.teaser).toEqual({ label: 'code', line: 'blurb' });
+  });
+
+  it('includes the kind-conditional caption only when the teaser supplies it', () => {
+    const out = replaceNowItem(fixture, 0, {
+      ...newItem,
+      kind: 'guitar',
+      teaser: { label: 'guitar', line: 'l', guitarLabel: '· A m ·' },
+    });
+    expect(out).toContain('guitarLabel:');
+    expect(out).not.toContain('seedlingTag:');
+  });
 });
 
 describe('yamlString input hardening', () => {
@@ -388,9 +465,9 @@ interface Fm {
 }
 
 function fmOf(text: string): Fm {
-  const m = text.match(/^---\n([\s\S]*?)\n---/);
-  if (!m || !m[1]) throw new Error('no frontmatter fence');
-  return parseYaml(m[1]) as Fm;
+  const fm = frontmatterOf<Fm>(text);
+  if (!fm) throw new Error('no frontmatter fence');
+  return fm;
 }
 
 describe('scaffoldNote (end-to-end via ScriptedContext)', () => {
@@ -517,6 +594,361 @@ describe('scaffoldWork (end-to-end)', () => {
   });
   afterEach(async () => {
     await rm(tempRoot, { recursive: true, force: true });
+  });
+});
+
+// Now-item flow needs an existing now.md pair (it replaces in place) plus
+// works on disk (the `work` ref is validated against published works).
+// Helpers write a minimal-but-parseable fixture tree into the temp root.
+// Item 1 (code) carries a teaser so the preservation defaults are
+// exercisable; item 2 (guitar) carries none.
+const NOW_FIXTURE = (lang: 'en' | 'es', t1: string, t2: string) => `---
+title: 'Now'
+slug: 'now'
+lang: ${lang}
+translationId: now
+date: 2026-05-23
+status: published
+items:
+  - kind: code
+    where: 'on the bench · code'
+    title: '${t1}'
+    prose: 'First.'
+    detail:
+      - dt: 'a'
+        dd: '1'
+      - dt: 'b'
+        dd: '2'
+      - dt: 'c'
+        dd: '3'
+    teaser:
+      label: '${lang === 'en' ? 'code' : 'código'}'
+      line: '${lang === 'en' ? 'old line' : 'línea vieja'}'
+  - kind: guitar
+    where: 'in my hands · guitar'
+    title: '${t2}'
+    prose: 'Second.'
+    detail:
+      - dt: 'a'
+        dd: '1'
+      - dt: 'b'
+        dd: '2'
+      - dt: 'c'
+        dd: '3'
+---
+
+<!-- trailing comment that must survive the round-trip -->
+`;
+
+const WORK_FIXTURE = (lang: 'en' | 'es', slug: string) => `---
+title: 'This site'
+slug: '${slug}'
+lang: ${lang}
+translationId: this-site
+date: 2026-05-21
+status: published
+tags: [code]
+kind: code
+lifecycle: ongoing
+---
+
+body
+`;
+
+async function seedNowFixtures(root: string): Promise<void> {
+  await mkdir(join(root, 'pages', 'en'), { recursive: true });
+  await mkdir(join(root, 'pages', 'es'), { recursive: true });
+  await mkdir(join(root, 'works', 'en'), { recursive: true });
+  await mkdir(join(root, 'works', 'es'), { recursive: true });
+  await writeFile(join(root, 'pages', 'en', 'now.md'), NOW_FIXTURE('en', 'Item 1', 'Item 2'));
+  await writeFile(join(root, 'pages', 'es', 'now.md'), NOW_FIXTURE('es', 'Ítem 1', 'Ítem 2'));
+  await writeFile(join(root, 'works', 'en', 'this-site.md'), WORK_FIXTURE('en', 'this-site'));
+  await writeFile(join(root, 'works', 'es', 'este-sitio.md'), WORK_FIXTURE('es', 'este-sitio'));
+}
+
+interface NowFm {
+  items: {
+    title: string;
+    work?: string;
+    teaser?: { label: string; line: string };
+  }[];
+}
+const nowItemsOf = (text: string): NowFm => frontmatterOf<NowFm>(text)!;
+
+describe('loadPublishedWorkIds', () => {
+  let tempRoot: string;
+  beforeEach(async () => {
+    tempRoot = await mkdtemp(join(tmpdir(), 'scaffold-test-'));
+  });
+  afterEach(async () => {
+    await rm(tempRoot, { recursive: true, force: true });
+  });
+
+  it('collects published work translationIds from both locales', async () => {
+    await seedNowFixtures(tempRoot);
+    const ids = await loadPublishedWorkIds(tempRoot);
+    expect(ids.has('this-site')).toBe(true);
+  });
+
+  it('returns an empty set when no works dir exists (does not throw)', async () => {
+    const ids = await loadPublishedWorkIds(tempRoot); // nothing seeded
+    expect(ids.size).toBe(0);
+  });
+});
+
+describe('scaffoldNowItem (end-to-end)', () => {
+  let tempRoot: string;
+  beforeEach(async () => {
+    tempRoot = await mkdtemp(join(tmpdir(), 'scaffold-test-'));
+    await seedNowFixtures(tempRoot);
+  });
+  afterEach(async () => {
+    await rm(tempRoot, { recursive: true, force: true });
+  });
+
+  it('replaces the chosen item with a work link + teaser, in both locales', async () => {
+    const ctx = makeScriptedContext(
+      [
+        '2', // replace index 2
+        'code', // kind
+        'on the bench · code', // EN where
+        'sobre la mesa · código', // ES where
+        'New EN Title', // EN title
+        'Nuevo título ES', // ES title
+        'EN prose.', // EN prose
+        'Prosa ES.', // ES prose
+        'this-site', // work (validated against the seeded works)
+        'y', // home-bench teaser? (item 2 had none, so no default kicks in)
+        'code', // teaser EN label
+        'código', // teaser ES label
+        'EN line', // teaser EN line
+        'línea ES', // teaser ES line
+        // 3 detail rows: EN dt, EN dd, ES dt, ES dd
+        'stack',
+        'Astro',
+        'stack',
+        'Astro',
+        'weight',
+        '11 KB',
+        'peso',
+        '11 KB',
+        'learned',
+        'less JS',
+        'aprendí',
+        'menos JS',
+      ],
+      tempRoot,
+    );
+    const result = await scaffoldNowItem(ctx);
+
+    const en = nowItemsOf(await readFile(result.paths[0]!, 'utf-8'));
+    const es = nowItemsOf(await readFile(result.paths[1]!, 'utf-8'));
+
+    // Index 1 (0-based) replaced; index 0 untouched.
+    expect(en.items[0]?.title).toBe('Item 1');
+    expect(en.items[1]?.title).toBe('New EN Title');
+    expect(en.items[1]?.work).toBe('this-site');
+    expect(en.items[1]?.teaser).toEqual({ label: 'code', line: 'EN line' });
+    expect(es.items[1]?.title).toBe('Nuevo título ES');
+    expect(es.items[1]?.work).toBe('this-site');
+    expect(es.items[1]?.teaser).toEqual({ label: 'código', line: 'línea ES' });
+  });
+
+  it('rejects a `work` ref that is not a published work (fail at prompt)', async () => {
+    const ctx = makeScriptedContext(
+      [
+        '1',
+        'code',
+        'on the bench · code',
+        'sobre la mesa · código',
+        'T',
+        'T',
+        'P',
+        'P',
+        'no-such-work', // unknown translationId → validation throws
+      ],
+      tempRoot,
+    );
+    await expect(scaffoldNowItem(ctx)).rejects.toThrow(/no published work/);
+  });
+
+  it('preserves the prior teaser via prompt defaults (Enter all the way through)', async () => {
+    // Item 1 carries a teaser in the fixture. Replacing it and accepting
+    // every default (empty answers) must keep the item on the home bench
+    // with the prior localized values — the footgun this flow closes.
+    const ctx = makeScriptedContext(
+      [
+        '1', // replace index 1 (the teaser'd code item)
+        'code',
+        'on the bench · code',
+        'sobre la mesa · código',
+        'Refreshed EN',
+        'Refrescado ES',
+        'P en.',
+        'P es.',
+        '', // work — skip
+        '', // home-bench teaser? → defaults to 'y' (prior teaser exists)
+        '', // teaser EN label → defaults to prior 'code'
+        '', // teaser ES label → defaults to prior 'código'
+        '', // teaser EN line → defaults to prior 'old line'
+        '', // teaser ES line → defaults to prior 'línea vieja'
+        // 3 detail rows
+        'a',
+        '1',
+        'a',
+        '1',
+        'b',
+        '2',
+        'b',
+        '2',
+        'c',
+        '3',
+        'c',
+        '3',
+      ],
+      tempRoot,
+    );
+    const result = await scaffoldNowItem(ctx);
+
+    const en = nowItemsOf(await readFile(result.paths[0]!, 'utf-8'));
+    const es = nowItemsOf(await readFile(result.paths[1]!, 'utf-8'));
+    expect(en.items[0]?.title).toBe('Refreshed EN');
+    expect(en.items[0]?.teaser).toEqual({ label: 'code', line: 'old line' });
+    expect(es.items[0]?.teaser).toEqual({ label: 'código', line: 'línea vieja' });
+  });
+
+  it('drops the prior teaser only on an explicit decline', async () => {
+    const ctx = makeScriptedContext(
+      [
+        '1', // replace the teaser'd item
+        'code',
+        'on the bench · code',
+        'sobre la mesa · código',
+        'Refreshed EN',
+        'Refrescado ES',
+        'P en.',
+        'P es.',
+        '', // work — skip
+        'n', // home-bench teaser? — explicit decline overrides the 'y' default
+        // 3 detail rows
+        'a',
+        '1',
+        'a',
+        '1',
+        'b',
+        '2',
+        'b',
+        '2',
+        'c',
+        '3',
+        'c',
+        '3',
+      ],
+      tempRoot,
+    );
+    const result = await scaffoldNowItem(ctx);
+
+    const en = nowItemsOf(await readFile(result.paths[0]!, 'utf-8'));
+    expect(en.items[0]?.title).toBe('Refreshed EN');
+    expect(en.items[0]?.teaser).toBeUndefined();
+  });
+
+  it('drops the prior teaser on a kind change off the bench, saying dropped not declined', async () => {
+    // Replacing the teaser'd code item with a coffee item: coffee can't sit
+    // on the home bench, so the teaser prompt is never offered and the
+    // prior teaser is shed. The closing message must say "dropped" (nobody
+    // was asked), not "declined".
+    const log = vi.spyOn(console, 'log').mockImplementation(() => {});
+    try {
+      const ctx = makeScriptedContext(
+        [
+          '1', // replace the teaser'd item
+          'coffee', // non-bench kind → no teaser prompt at all
+          'in the cup · coffee',
+          'en la taza · café',
+          'Coffee EN',
+          'Café ES',
+          'P en.',
+          'P es.',
+          '', // work — skip
+          // straight to 3 detail rows (no y/n prompt for a non-bench kind)
+          'a',
+          '1',
+          'a',
+          '1',
+          'b',
+          '2',
+          'b',
+          '2',
+          'c',
+          '3',
+          'c',
+          '3',
+        ],
+        tempRoot,
+      );
+      const result = await scaffoldNowItem(ctx);
+
+      const en = nowItemsOf(await readFile(result.paths[0]!, 'utf-8'));
+      expect(en.items[0]?.teaser).toBeUndefined();
+      const output = log.mock.calls.flat().join('\n');
+      expect(output).toContain('Teaser dropped');
+      expect(output).not.toContain('Teaser declined');
+    } finally {
+      log.mockRestore();
+    }
+  });
+
+  it('keys the keep-teaser default off EN and requires ES fields that have no prior', async () => {
+    // Drifted content: EN item 1 carries a teaser, ES does not. The y/n
+    // prompt defaults to `y` (keyed off EN), EN fields default to the
+    // prior values, and the ES fields — having no prior — demand explicit
+    // answers. Pins the asymmetric behavior so a future refactor changes
+    // it deliberately, not accidentally.
+    const esNoTeaser = NOW_FIXTURE('es', 'Ítem 1', 'Ítem 2').replace(
+      / {4}teaser:\n {6}label: 'código'\n {6}line: 'línea vieja'\n/,
+      '',
+    );
+    expect(esNoTeaser).not.toContain('teaser:'); // the strip actually matched
+    await writeFile(join(tempRoot, 'pages', 'es', 'now.md'), esNoTeaser);
+
+    const ctx = makeScriptedContext(
+      [
+        '1',
+        'code',
+        'on the bench · code',
+        'sobre la mesa · código',
+        'Refreshed EN',
+        'Refrescado ES',
+        'P en.',
+        'P es.',
+        '', // work — skip
+        '', // home-bench teaser? → 'y' via the EN-keyed default
+        '', // teaser EN label → prior 'code'
+        'codigo-nuevo', // teaser ES label — no prior, explicit value required
+        '', // teaser EN line → prior 'old line'
+        'línea nueva', // teaser ES line — no prior
+        'a',
+        '1',
+        'a',
+        '1',
+        'b',
+        '2',
+        'b',
+        '2',
+        'c',
+        '3',
+        'c',
+        '3',
+      ],
+      tempRoot,
+    );
+    const result = await scaffoldNowItem(ctx);
+
+    const en = nowItemsOf(await readFile(result.paths[0]!, 'utf-8'));
+    const es = nowItemsOf(await readFile(result.paths[1]!, 'utf-8'));
+    expect(en.items[0]?.teaser).toEqual({ label: 'code', line: 'old line' });
+    expect(es.items[0]?.teaser).toEqual({ label: 'codigo-nuevo', line: 'línea nueva' });
   });
 });
 

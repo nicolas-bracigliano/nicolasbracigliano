@@ -343,18 +343,6 @@ test('/about/now/ — numbered items run a contiguous № sequence, mirrored acr
   expect(counts[0]).toBe(counts[1]);
 });
 
-test('/about/now/ — every per-kind class is present and unique', async ({ page }) => {
-  await page.goto('/en/about/now/');
-  // The CSS keys the № tint off these — if a future refactor drops
-  // a kind from the page, the visual rhythm breaks silently. Assert
-  // structurally rather than visually. (home shares the default accent
-  // tint with guitar/coffee — no dedicated .now-home rule needed.)
-  const kinds = ['code', 'guitar', 'garden', 'print', 'home', 'coffee', 'read'] as const;
-  for (const kind of kinds) {
-    await expect(page.locator(`.now-item.now-${kind}`)).toHaveCount(1);
-  }
-});
-
 test('/en/about/now/ — masthead carries the current weekday name', async ({ page }) => {
   await page.goto('/en/about/now/');
   // The masthead date is `en-AU` long-form: "friday, 23 may 2026",
@@ -387,6 +375,85 @@ test('/en/about/now/ — each item has a detail <dl> with at least one dt/dd pai
     await expect(details.nth(i).locator('dt').first()).not.toBeEmpty();
     await expect(details.nth(i).locator('dd').first()).not.toBeEmpty();
   }
+});
+
+test('/about/now/ — the code item "see also" links to the matching work, localized per locale', async ({
+  page,
+}) => {
+  // Wire-up check: the `work:` ref on a now item resolves to the work's
+  // localized /works route (EN slug `this-site` / ES `este-sitio`) from
+  // the single shared translationId. Easy to silently disconnect — drop
+  // the prop pass-through in the now index page and the link vanishes
+  // with no other test noticing. The visible path mirrors the href minus
+  // the locale prefix (see `workLinkLabel`); the aria-label folds the
+  // localized eyebrow back into the link's accessible name (the eyebrow
+  // span is aria-hidden, so the label is the only place it reaches AT).
+  for (const { path, href, label, eyebrow } of [
+    {
+      path: '/en/about/now/',
+      href: '/en/works/this-site/',
+      label: '/works/this-site',
+      eyebrow: 'see also',
+    },
+    {
+      path: '/es/sobre/ahora/',
+      href: '/es/obras/este-sitio/',
+      label: '/obras/este-sitio',
+      eyebrow: 'ver también',
+    },
+  ]) {
+    await page.goto(path);
+    const link = page.locator('.now-code .now-see-also a');
+    await expect(link).toHaveAttribute('href', href);
+    await expect(link).toHaveText(label);
+    await expect(link).toHaveAttribute('aria-label', `${eyebrow} ${label}`);
+    // Negative: an item without a `work:` ref renders no see-also at all.
+    await expect(page.locator('.now-guitar .now-see-also')).toHaveCount(0);
+  }
+});
+
+test('/about/now/ — each present kind renders a unique per-kind class', async ({ page }) => {
+  await page.goto('/en/about/now/');
+  // The CSS keys the № tint off `.now-<kind>`; if a refactor drops a kind
+  // from the page the visual rhythm breaks silently, so assert it
+  // structurally. List the kinds CURRENTLY in now.md — `garden` and `read`
+  // are commented out there for now; re-add them here when they return.
+  // (Earlier this assertion was deleted wholesale to unblock CI when
+  // garden was removed; scoping to present kinds keeps the guard instead.)
+  const kinds = ['code', 'guitar', 'print', 'home', 'coffee'] as const;
+  for (const kind of kinds) {
+    await expect(page.locator(`.now-item.now-${kind}`)).toHaveCount(1);
+  }
+});
+
+// Per-kind vignette art — structural coverage (ADR 0013 amendment).
+// Pixel snapshots stay local-only (visual.spec.ts is host-suffixed and
+// skipped on CI by design); these instead guard the thing a refactor
+// actually breaks: that each shared vignette renders on its surface with
+// the elements its scroll-in animation keys off. The companion
+// tests/unit/vignette-art.test.ts guards the same at the source level
+// (bench + registry render the same file).
+
+test('home bench — each vignette renders with its animation hooks', async ({ page }) => {
+  await page.goto('/en/');
+  // code editor: pane + blinking cursor
+  await expect(page.locator('.bench-card--code .code-vig .caret')).toHaveCount(1);
+  // guitar: six strings + the baked caption
+  await expect(page.locator('.bench-card--guitar .guitar-vig .string')).toHaveCount(6);
+  await expect(page.locator('.bench-card--guitar .guitar-vig text')).not.toBeEmpty();
+  // gridfinity: four bins drop in
+  await expect(page.locator('.bench-card--print .print-vig .bin')).toHaveCount(4);
+  // media wall: the fire has tongues to flicker
+  await expect(page.locator('.bench-card--home .home-vig .flame')).not.toHaveCount(0);
+});
+
+test('works — each kind renders its default vignette via the registry', async ({ page }) => {
+  await page.goto('/en/works/this-site/');
+  await expect(page.locator('.work-art--code svg .caret')).toHaveCount(1);
+  await page.goto('/en/works/gridfinity-bins/');
+  await expect(page.locator('.work-art--print svg .bin')).toHaveCount(4);
+  await page.goto('/en/works/stone-wood/');
+  await expect(page.locator('.work-art--home svg .flame')).not.toHaveCount(0);
 });
 
 // `/404` smoke tests. The page catches any unmatched URL.
@@ -488,8 +555,8 @@ test('works filter toggles cards via data-kind matching', async ({ page }) => {
   await page.locator('.works-filters[data-wired="true"]').waitFor({ timeout: 15_000 });
   // Initial state: all cards visible.
   const all = page.locator('.work-card');
-  await expect(all).toHaveCount(4);
-  for (let i = 0; i < 4; i++) {
+  await expect(all).toHaveCount(3);
+  for (let i = 0; i < 3; i++) {
     await expect(all.nth(i)).toBeVisible();
   }
   // Click "code" filter → only the one `data-kind="code"` card stays.
@@ -501,7 +568,7 @@ test('works filter toggles cards via data-kind matching', async ({ page }) => {
   await expect(visibleAfter).toHaveAttribute('data-kind', 'code');
   // Click "all" → everything returns.
   await page.locator('.filter[data-filter="all"]').click();
-  await expect(page.locator('.work-card:not([hidden])')).toHaveCount(4);
+  await expect(page.locator('.work-card:not([hidden])')).toHaveCount(3);
 });
 
 // CSP-compatibility contract. `public/_headers` ships

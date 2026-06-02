@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { parse as parseYaml } from 'yaml';
+import { frontmatterOf } from '../../scripts/frontmatter.ts';
 
 // Notes, pieces, and works are bilingual by design — every published EN
 // entry should have a published ES sibling and vice versa. The site's
@@ -40,9 +40,13 @@ function loadCollection(collection: Collection): { file: string; data: EntryFron
     for (const file of entries) {
       if (!file.endsWith('.md')) continue;
       const text = readFileSync(join(CONTENT_ROOT, collection, locale, file), 'utf-8');
-      const fmMatch = text.match(/^---\n([\s\S]*?)\n---/);
-      if (!fmMatch || !fmMatch[1]) continue;
-      const data = parseYaml(fmMatch[1]) as EntryFrontmatter;
+      // Fail loud, don't skip: this test exists to catch content mistakes,
+      // and a fence that doesn't parse IS one — skipping it would silently
+      // exempt the broken file from the orphan check.
+      const data = frontmatterOf<EntryFrontmatter>(text);
+      if (!data) {
+        throw new Error(`malformed or missing frontmatter fence: ${collection}/${locale}/${file}`);
+      }
       out.push({ file: `${collection}/${locale}/${file}`, data });
     }
   }

@@ -1,5 +1,48 @@
 # Changelog
 
+## [1.18.0](https://github.com/nicolas-bracigliano/nicolasbracigliano/compare/v1.17.0...v1.18.0) (2026-06-02)
+
+
+### Features
+
+* **now:** cross-link bench items to their catalogued works ([66004bd](https://github.com/nicolas-bracigliano/nicolasbracigliano/commit/66004bd3c88aa9a1f8a9ad509d1106d2159e327b))
+
+## [1.17.0](https://github.com/nicolas-bracigliano/nicolasbracigliano/compare/v1.16.0...v1.17.0) (2026-06-02)
+
+
+### Features
+
+* **art:** redesign guitar note glyph as a Gibson headstock ([55a7e43](https://github.com/nicolas-bracigliano/nicolasbracigliano/commit/55a7e43cd3ee45b4cc9b3e37a76b598962cda4fd))
+* **art:** redesign guitar note glyph as a Gibson headstock ([5c5bd6c](https://github.com/nicolas-bracigliano/nicolasbracigliano/commit/5c5bd6cf64cbba5af6f2bc48520b345592beeb27))
+
+## [1.16.0](https://github.com/nicolas-bracigliano/nicolasbracigliano/compare/v1.15.0...v1.16.0) (2026-06-01)
+
+
+### Features
+
+* **art:** redesign kind vignettes as crafted, animated illustrations ([d4de2d1](https://github.com/nicolas-bracigliano/nicolasbracigliano/commit/d4de2d1e78c17e3f4e4152a17a307c12f4954b62))
+
+
+### Refactors
+
+* **art:** unify per-kind vignettes into one shared source each ([1b9ae25](https://github.com/nicolas-bracigliano/nicolasbracigliano/commit/1b9ae25bdcf6a380fa402ba585a10459d6fa7f04))
+* **content:** comment out garden section in now.md for both English and Spanish ([1e3beb6](https://github.com/nicolas-bracigliano/nicolasbracigliano/commit/1e3beb63593c1faab08d9e9d1a311916f1d7a2c5))
+
+## [1.15.0](https://github.com/nicolas-bracigliano/nicolasbracigliano/compare/v1.14.2...v1.15.0) (2026-06-01)
+
+
+### Features
+
+* **content:** round 1 — publish guitar/coffee notes, remove inaccurate Milonga content ([cac82be](https://github.com/nicolas-bracigliano/nicolasbracigliano/commit/cac82be4a4c85ea5acdb2b802b4b6cf8a2dd04f8))
+
+## [1.14.2](https://github.com/nicolas-bracigliano/nicolasbracigliano/compare/v1.14.1...v1.14.2) (2026-06-01)
+
+
+### Bug Fixes
+
+* **cmdk:** rank exact matches above fuzzy subsequence hits across kind groups ([2d628bf](https://github.com/nicolas-bracigliano/nicolasbracigliano/commit/2d628bf78c0ef2d0adc08cd1cdf397b851a1da45))
+* **cmdk:** rank exact matches above fuzzy subsequence hits across kind groups ([dbdf2bc](https://github.com/nicolas-bracigliano/nicolasbracigliano/commit/dbdf2bc13a7cb1b57a79da699aeb311bc2f2920b))
+
 ## [1.14.1](https://github.com/nicolas-bracigliano/nicolasbracigliano/compare/v1.14.0...v1.14.1) (2026-06-01)
 
 

@@ -223,16 +223,6 @@
     background: color-mix(in oklab, var(--accent) 4%, var(--bg-2));
     color: var(--accent);
   }
-  .work-art-terminal {
-    font-family: var(--font-body);
-    color: var(--terminal-fg);
-    font-size: 0.625rem;
-    line-height: 1.55;
-    white-space: pre;
-    margin: 0;
-    padding: 0.875rem;
-    inline-size: 100%;
-  }
   .work-card-meta {
     display: flex;
     justify-content: space-between;

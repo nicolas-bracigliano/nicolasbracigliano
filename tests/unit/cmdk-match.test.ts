@@ -82,6 +82,20 @@ describe('match', () => {
     expect(r[0]?.kind).toBe('now');
   });
 
+  it('ranks an exact match ahead of a fuzzy subsequence hit in a higher kind group', () => {
+    // The /now title spells "agile" only as a subsequence
+    // (a·g·i·l·e in "A year in, getting louder"); the piece is an exact
+    // substring match. Even though `now` groups above `piece`, the exact
+    // match must come first — a fuzzy hit must not bury it.
+    const idx: CmdkEntry[] = [
+      entry({ kind: 'now', title: 'A year in, getting louder' }),
+      entry({ kind: 'piece', title: 'Where agile keeps getting stuck', tags: ['agile'] }),
+    ];
+    const r = match(idx, 'agile');
+    expect(r[0]?.kind).toBe('piece');
+    expect(r[0]?.title).toBe('Where agile keeps getting stuck');
+  });
+
   it('groups results page → now → work → piece → note', () => {
     // A query that hits several kinds (every title/sub contains "e"-ish
     // letters): assert the surviving order is non-decreasing by group.

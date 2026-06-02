@@ -4,7 +4,7 @@ import BaseLayout from '@layouts/BaseLayout.astro';
 import NowMasthead from '@components/NowMasthead.astro';
 import NowItem from '@components/NowItem.astro';
 import { ROUTES } from '@lib/routes';
-import { getSibling, entryRouteFor } from '@lib/i18n';
+import { getSibling, entryRouteFor, resolveWorkLinks } from '@lib/i18n';
 import { assertNowEntry } from '@lib/now-items';
 
 const entry = await getEntry('pages', 'es/now');
@@ -19,6 +19,12 @@ const { title, lede, items } = entry.data;
 
 const path = ROUTES.now.es;
 const siblingPath = sibling ? entryRouteFor(sibling) : null;
+
+// El `work` opcional de cada ítem (un translationId de obra) resuelto a
+// su ruta /obras localizada — ver `resolveWorkLinks` (compartido con la
+// página EN) para la regla, incl. el build que rompe ante una referencia
+// colgada.
+const workLinks = await resolveWorkLinks(items, 'es');
 
 // Los ítems viven en `src/content/pages/es/now.md` como YAML
 // frontmatter. La cantidad está acotada a NOW_ITEM_MIN..NOW_ITEM_MAX en
@@ -48,6 +54,9 @@ const siblingPath = sibling ? entryRouteFor(sibling) : null;
             title={item.title}
             prose={item.prose}
             detail={item.detail}
+            workHref={workLinks[i]?.href}
+            workLabel={workLinks[i]?.label}
+            seeAlsoLabel="ver también"
           />
         ))
       }

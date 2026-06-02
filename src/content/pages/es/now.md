@@ -14,6 +14,7 @@ items:
   - kind: code
     where: 'sobre la mesa · código'
     title: 'Reescribiendo mi sitio en Astro'
+    work: this-site
     prose: 'Mi sitio anterior usaba WordPress, lo construí en 2022 y no lo toqué más. Dejó de representarme bastante antes de que lo admitiera. Hacía rato que tenía ganas de tocar Astro, así que rehacerlo fue la excusa perfecta. De cero esta vez.'
     detail:
       - dt: 'stack'
@@ -27,51 +28,53 @@ items:
       line: 'Entra markdown, sale Lighthouse 100. Día cinco reescribiéndolo en Astro, más que nada para probar algo diferente.'
   - kind: guitar
     where: 'entre las manos · guitarra'
-    title: 'Aprendiendo lo básico'
-    prose: 'Piazzolla. Vengo loopeando los mismos ocho compases a media velocidad hace tres semanas. La mano derecha es el rompecabezas — la alternancia i/m tiene que esquivar la cuerda m con el apoyando. Bien lento se siente cómo la nota grave arrastra a la melodía atrás.'
+    title: 'Un año, tocando fuerte'
+    prose: 'Un año adentro. Primero acordes abiertos, después riffs (Sunshine of Your Love, Come As You Are), y ahora temas enteros (505, Black). Últimamente practico parado, con la correa bien baja. Cambia el alcance, y sobre todo me dan ganas de tocar fuerte.'
     detail:
-      - dt: 'Acordes'
-        dd: 'D · A · E · Am · Em · Dm · G · C'
-      - dt: 'meta'
-        dd: 'cambio rápido y preciso de acordes'
-      - dt: 'hoy'
-        dd: '~55 cambios por minuto, perdiendo precisión hacia el final'
+      - dt: 'riffs'
+        dd: 'Sunshine of Your Love · Come As You Are'
+      - dt: 'temas'
+        dd: '505 · Black'
+      - dt: 'ahora'
+        dd: 'aprendiendo a tocar parado'
     teaser:
       label: 'guitarra'
-      line: 'Entrenando la mano izquierda y derecha, aprendiendo los ocho acordes esenciales y conectando con el instrumento'
-      guitarLabel: '· D · A · E · Am · Em · Dm · G · C ·'
-  - kind: garden
-    where: 'en la huerta · jardín'
-    title: 'Rotación de primavera, plantada'
-    prose: 'Black Russian, San Marzano, un plantín de albahaca genovesa, manzanilla, dos tipos de ají. Las abejas nativas aparecieron dos semanas antes que el año pasado. La borraja está haciendo lo suyo.'
-    detail:
-      - dt: 'cantero'
-        dd: '1.4 × 3 m elevado'
-      - dt: 'compañeras'
-        dd: 'tom + albahaca + manzanilla'
-      - dt: 'esperando'
-        dd: 'primer fruto en ~5 semanas'
-    teaser:
-      label: 'huerta'
-      line: 'Black Russian, San Marzano, un cajoncito de albahaca. Los polinizadores llegaron dos semanas antes.'
-      seedlingTag: 'tomate'
+      line: 'Un año adentro: acordes, después riffs, ahora un par de temas. Últimamente parado, correa baja.'
+      guitarLabel: '· Come As You Are · 505 · Black ·'
+  # - kind: garden
+  #   where: 'en la huerta · jardín'
+  #   title: 'Rotación de primavera, plantada'
+  #   prose: 'Black Russian, San Marzano, un plantín de albahaca genovesa, manzanilla, dos tipos de ají. Las abejas nativas aparecieron dos semanas antes que el año pasado. La borraja está haciendo lo suyo.'
+  #   detail:
+  #     - dt: 'cantero'
+  #       dd: '1.4 × 3 m elevado'
+  #     - dt: 'compañeras'
+  #       dd: 'tom + albahaca + manzanilla'
+  #     - dt: 'esperando'
+  #       dd: 'primer fruto en ~5 semanas'
+  #   teaser:
+  #     label: 'huerta'
+  #     line: 'Black Russian, San Marzano, un cajoncito de albahaca. Los polinizadores llegaron dos semanas antes.'
+  #     seedlingTag: 'tomate'
   - kind: print
     where: 'en el slicer · 3D'
-    title: 'Bandeja para guardar todo, rev 5'
-    prose: 'Cinco iteraciones para que entre el tamper del espresso. Imanes en las esquinas; la ranura finalmente encaja sin juego. Los fillets son demasiado agresivos — los suavizo en la rev 6.'
+    title: 'Bins Gridfinity para el cajón de herramientas'
+    work: gridfinity-bins
+    prose: 'Bins de 42 mm a medida, modelados en CAD según la herramienta: uno para el calibre, otro para las boquillas, cajitas con etiqueta para tuercas y bulones. Seis hasta ahora, faltan más. PLA Matte en la Bambu.'
     detail:
-      - dt: 'material'
-        dd: 'PETG, reciclado'
-      - dt: 'capa'
-        dd: '0.16 mm · 4 paredes'
-      - dt: 'próximo'
-        dd: 'rev 6: fillets más suaves'
+      - dt: 'grilla'
+        dd: '42 mm estándar'
+      - dt: 'filamento'
+        dd: 'PLA Matte · Bambu Lab P2S'
+      - dt: 'hasta ahora'
+        dd: '6 bins a medida, cajón sin terminar'
     teaser:
       label: '3d'
-      line: 'Imanes en las esquinas; el hueco para el tamper de espresso por fin entra. Cinco iteraciones después.'
+      line: 'Bins Gridfinity a medida, modelados según la herramienta. Empezando por el cajón de impresión 3D.'
   - kind: home
     where: 'en la pared · casa'
     title: 'Piedra & Madera'
+    work: stone-wood
     prose: 'La mesa de la TV no es el mueble adecuado para una chiquita que trepa. La solución no es cambiar la mesa; es decidir que la pantalla forma parte de la pared, no algo apoyado en un mueble. Una carcasa de nogal anclada a la estructura de la pared, con el panel de 75″ encastrado adentro en lugar de apoyado encima.'
     detail:
       - dt: 'madera'
@@ -85,26 +88,26 @@ items:
       line: 'Carcasa de madera alrededor del TV, con un hogar apaisado y una repisa de piedra.'
   - kind: coffee
     where: 'en la taza · café + mate'
-    title: 'Padre Etiopía, y Cruz de Malta'
-    prose: 'A la mañana: 20 g entran, 38 g salen, 28 segundos. Padre Coffee, Brunswick — un Etiopía lavado, brillante y floral. Cerca de las 10:30, mate. Cruz de Malta, amargo, con agua caliente de la pava en la misma hornalla que todo lo demás.'
+    title: 'Brimstone, y La Merced'
+    prose: 'A la mañana: 22 g entran, 38 g salen, 28-30 segundos. Brimstone, CommonFolks Mornington, mucho cuerpo con notas de chocolate, y tambien algo de frutos rojos y ciruela. Cerca de las 10:30, mate. La Merced Campo, amargo. Últimamente el cuello de botella es la máquina, no los granos.'
     detail:
       - dt: 'granos'
-        dd: 'Padre Coffee, Etiopía lavado'
+        dd: 'Brimstone · Uganda / Kenia'
       - dt: 'mate'
-        dd: 'Cruz de Malta · amargo'
+        dd: 'La Merced Campo · amargo'
       - dt: 'ritual'
         dd: 'todas las mañanas · ~7:20'
-  - kind: read
-    where: 'en los oídos · leyendo y escuchando'
-    title: 'Borges en un oído, Ousterhout en el otro'
-    prose: 'Leyendo A Philosophy of Software Design despacio, sobre todo en el tranvía. Borges (El jardín de senderos que se bifurcan) en audiolibro mientras podo. The Mom Test los sábados a la tarde, al sol.'
-    detail:
-      - dt: 'papel'
-        dd: 'Borges · El jardín…'
-      - dt: 'audio'
-        dd: 'Ousterhout · A Philosophy of Software Design'
-      - dt: 'podcast'
-        dd: 'Ezra Klein, a veces'
+  # - kind: read
+  #   where: 'en los oídos · leyendo y escuchando'
+  #   title: 'Borges en un oído, Ousterhout en el otro'
+  #   prose: 'Leyendo A Philosophy of Software Design despacio, sobre todo en el tranvía. Borges (El jardín de senderos que se bifurcan) en audiolibro mientras podo. The Mom Test los sábados a la tarde, al sol.'
+  #   detail:
+  #     - dt: 'papel'
+  #       dd: 'Borges · El jardín…'
+  #     - dt: 'audio'
+  #       dd: 'Ousterhout · A Philosophy of Software Design'
+  #     - dt: 'podcast'
+  #       dd: 'Ezra Klein, a veces'
 ---
 
 <!--

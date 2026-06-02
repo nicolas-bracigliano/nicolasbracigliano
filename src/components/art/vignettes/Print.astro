@@ -1,17 +1,59 @@
 ---
-// Default vignette for `kind: print` works. Tray outline — abstracted
-// rectangular nesting for catch-all + sliced-print works.
+// `kind: print` vignette — an isometric Gridfinity baseplate with modular
+// bins of different footprints and heights: the 42 mm grid, the dropped-in
+// bins, the stacking lip. Single-colour via `currentColor` (ink-blue);
+// depth from a different fill-opacity per face (top lightest, sides
+// darker). Projection geometry lives in `@lib/gridfinity-vignette`.
+//
+// SINGLE SOURCE for both surfaces (ADR 0013 amendment): the works registry
+// renders it via ContentArt with no props; the home bench renders the same
+// file with `class="print-vig"`, which scopes the bin-drop animation
+// (`.print-vig .bin`, animations.css). Each bin carries `.bin bN` so the
+// bench can stagger them; the works copy has the classes too but never
+// animates (no `.in-view` ancestor).
+import { bins, plane, gridLines, plateRight, plateLeft } from '@lib/gridfinity-vignette';
+export interface Props {
+  class?: string;
+}
+const { class: className = '' } = Astro.props;
 ---
 
-<svg viewBox="0 0 200 140" width="100%" height="100%" role="img" aria-label="tray vignette">
-  <title>tray</title>
-  <g fill="none" stroke="currentColor" stroke-width="1">
-    <path d="M30,40 L170,40 L160,110 L40,110 Z"></path>
-    <path d="M30,40 L170,40"></path>
-    <path d="M50,60 L150,60 L145,95 L55,95 Z" opacity="0.6"></path>
-    <path d="M50,60 L60,52 L150,52 L150,60" opacity="0.5"></path>
-    <line x1="100" x2="100" y1="60" y2="95" opacity="0.5"></line>
-    <line x1="80" x2="80" y1="60" y2="80" opacity="0.5"></line>
-    <line x1="30" x2="170" y1="124" y2="124" stroke-dasharray="2 2" opacity="0.4"></line>
+<svg
+  viewBox="0 0 200 140"
+  width="100%"
+  height="100%"
+  class={className}
+  role="img"
+  aria-label="isometric Gridfinity bins"
+  aria-hidden="true"
+>
+  <g
+    fill="currentColor"
+    stroke="currentColor"
+    stroke-width="1"
+    stroke-linejoin="round"
+    stroke-opacity="0.85"
+  >
+    {/* baseplate thickness (drawn first — it sits lowest) */}
+    <polygon points={plateRight} fill-opacity="0.34"></polygon>
+    <polygon points={plateLeft} fill-opacity="0.22"></polygon>
+
+    {/* baseplate top plane + the 42 mm grid */}
+    <polygon points={plane} fill-opacity="0.05" stroke-opacity="0.5"></polygon>
+    <g fill="none" stroke-opacity="0.22">
+      {gridLines.map((d) => <path d={d} />)}
+    </g>
+
+    {/* bins, back-to-front; `.bin bN` lets the bench drop them in */}
+    {
+      bins.map((b, i) => (
+        <g class={`bin b${i}`}>
+          <polygon points={b.left} fill-opacity="0.18" />
+          <polygon points={b.right} fill-opacity="0.32" />
+          <polygon points={b.top} fill-opacity="0.1" />
+          <polygon points={b.lip} fill="none" stroke-opacity="0.5" />
+        </g>
+      ))
+    }
   </g>
 </svg>

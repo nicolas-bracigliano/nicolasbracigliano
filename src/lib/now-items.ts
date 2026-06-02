@@ -18,6 +18,7 @@
 
 import { z } from 'astro/zod';
 import { NOW_KINDS, BENCH_KINDS, type BenchKind, type NowKind } from './content-kinds';
+import type { Locale } from './routes';
 
 /** One row of an item's detail `<dl>`. `dt` is the term label,
  *  `dd` the description. Names mirror the rendered HTML so the
@@ -81,6 +82,22 @@ export const nowItemSchema = z
     prose: z.string().min(1),
     detail: z.array(nowItemDetailSchema).length(3),
     teaser: nowTeaserSchema.optional(),
+    /** Optional cross-link to a `works` item — the bench update that has
+     *  graduated into a catalogued work (e.g. the `code` item ↔ the
+     *  "This site" work). Holds the work's `translationId` (the shared,
+     *  cross-locale identifier — NOT a locale slug), so the same value
+     *  works verbatim in `now.md` for both locales; the page resolves it
+     *  to the localized `/works/<slug>` route per locale (EN `this-site`
+     *  / ES `este-sitio`) via `entryRouteFor`. Same kebab-case shape the
+     *  works collection's translationId uses. A reference that points at
+     *  no published work fails the build (see the now index pages) — a
+     *  now item must never dangle a "see also" at a missing or draft
+     *  work. Only the full /now tour renders the link; the home bench
+     *  teaser deliberately doesn't (kept terse). */
+    work: z
+      .string()
+      .regex(/^[a-z0-9-]+$/, "work must be a related work's translationId (kebab-case, no date)")
+      .optional(),
   })
   .refine((i) => !i.teaser || isBenchKind(i.kind), {
     message: 'teaser is only valid on a bench kind (code/guitar/garden/print/home)',
@@ -153,6 +170,59 @@ export function benchItemsFrom(items: readonly NowPageItem[]): BenchItem[] {
  *  than typed to `CollectionEntry<'pages'>` directly so this
  *  module stays Astro-import-free (and unit-testable in plain
  *  vitest). */
+/** Visible label for a /now → /works "see also" link: a work's localized
+ *  route with its leading `/en|/es` locale segment and trailing slash
+ *  stripped, e.g. `/en/works/this-site/` → `/works/this-site` (ES:
+ *  `/es/obras/este-sitio/` → `/obras/este-sitio`). The full route stays
+ *  the link's `href`; this is only the monospaced path shown to the
+ *  reader, matching the prototype's `/works/<slug>` foot link. Pure (no
+ *  Astro import) so it's unit-tested alongside the schema; the now index
+ *  pages build the route via `entryRouteFor` and pass both through to
+ *  `NowItem`. */
+export function workLinkLabel(route: string): string {
+  return route.replace(/^\/(?:en|es)(?=\/)/, '').replace(/\/$/, '');
+}
+
+/** A resolved /now → /works "see also" link. `href` is the full localized
+ *  route ("/en/works/this-site/"); `label` is its reader-facing path
+ *  ("/works/this-site", via `workLinkLabel`). */
+export interface NowWorkLink {
+  href: string;
+  label: string;
+}
+
+/** Resolve each now item's optional `work` cross-link against a
+ *  `translationId → full /works route` map (the published works for one
+ *  locale, built by the caller). Returns one entry per item, aligned
+ *  index-for-index, `null` where the item set no `work`.
+ *
+ *  THROWS if a `work` ref isn't in the map — a now item must not dangle a
+ *  "see also" at a missing or draft work, so the /now build fails loudly
+ *  rather than the reader hitting a dead link. (Because a work going
+ *  `draft` in one locale removes it from that locale's map, this is the
+ *  point where that lifecycle change surfaces — by design.)
+ *
+ *  Pure (no Astro import) so the resolution rule, including the throw, is
+ *  unit-tested here in plain vitest; the content-layer I/O that builds the
+ *  map lives in `i18n.resolveWorkLinks`, which delegates to this. */
+export function nowWorkLinks(
+  items: readonly NowPageItem[],
+  routeByTranslationId: ReadonlyMap<string, string>,
+  locale: Locale,
+): (NowWorkLink | null)[] {
+  return items.map((item) => {
+    if (!item.work) return null;
+    const route = routeByTranslationId.get(item.work);
+    if (route === undefined) {
+      throw new Error(
+        `now item "${item.title}" references work translationId="${item.work}", ` +
+          `which has no published ${locale} work`,
+      );
+    }
+    return { href: route, label: workLinkLabel(route) };
+  });
+}
+
 export function assertNowEntry<E extends { data: { slug: string } }>(
   entry: E,
 ): asserts entry is E & { data: { slug: 'now'; items: NowPageItem[] } } {
