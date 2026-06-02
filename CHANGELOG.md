@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.18.0](https://github.com/nicolas-bracigliano/nicolasbracigliano/compare/v1.17.0...v1.18.0) (2026-06-02)
+
+
+### Features
+
+* **now:** cross-link bench items to their catalogued works ([66004bd](https://github.com/nicolas-bracigliano/nicolasbracigliano/commit/66004bd3c88aa9a1f8a9ad509d1106d2159e327b))
+
 ## [1.17.0](https://github.com/nicolas-bracigliano/nicolasbracigliano/compare/v1.16.0...v1.17.0) (2026-06-02)
 
 
