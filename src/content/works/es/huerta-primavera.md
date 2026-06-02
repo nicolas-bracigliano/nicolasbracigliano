@@ -19,4 +19,4 @@ specs:
 
 Mapa de rotación de primavera. El tomate va en la hilera del fondo (trepa la pared), albahaca y manzanilla al frente (polinizadores), ajíes en la punta donde pega más el sol. Asociaciones a propósito, no por azar.
 
-Las primeras abejas nativas en la albahaca esta semana — dos semanas antes que el año pasado, lo cual es interesante y un poco inquietante.
+Las primeras abejas nativas en la albahaca esta semana; dos semanas antes que el año pasado, lo cual es interesante y un poco inquietante.

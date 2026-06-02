@@ -5,7 +5,7 @@ lang: es
 translationId: colophon
 date: 2026-05-21
 status: published
-lede: 'De qué está hecho este sitio — pila, tipos, hospedaje, flujo, principios.'
+lede: 'De qué está hecho este sitio: stack, fuentes, hosting, flujo de trabajo, principios.'
 ---
 
 <!--

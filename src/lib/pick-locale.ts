@@ -1,10 +1,10 @@
 // Accept-Language redirect — platform-neutral.
 //
-// This file is the canonical implementation. `functions/index.ts` is a
-// Cloudflare Pages adapter that wraps `acceptLanguageRedirect` with the
-// Pages-specific `onRequest` export. To port the redirect to another edge
-// runtime (Vercel Edge, Netlify Edge, Deno Deploy, Bun, plain Worker),
-// write a similar 5-line adapter — the logic doesn't need to move.
+// This file is the canonical implementation. `src/worker.ts` is the
+// Cloudflare Workers adapter that calls `acceptLanguageRedirect` from its
+// `fetch` handler. To port the redirect to another edge runtime (Vercel
+// Edge, Netlify Edge, Deno Deploy, Bun), write a similar thin adapter —
+// the logic doesn't need to move.
 
 export const SUPPORTED_LOCALES = ['en', 'es'] as const;
 export type SupportedLocale = (typeof SUPPORTED_LOCALES)[number];

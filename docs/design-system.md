@@ -464,7 +464,7 @@ Addressed in the v1 bootstrap (see `docs/architecture.md` and the ADRs in `docs/
 - Intro overlay (first visit to `/about/`) is `role="presentation"` + `aria-hidden="true"` — screen readers skip it, so there's no focus trap; the `prefers-reduced-motion` clamp drops it to a single frame, and it plays once per session (sessionStorage) with click/Esc dismissal.
 - `<html lang="…">` is correct on every page (mirrored `/en/*` and `/es/*` static routes set it at build time).
 - All dates wrapped as `<time datetime="YYYY-MM-DD">` in layouts.
-- WCAG AA colour contrast enforced via axe-core in Playwright e2e (32 tests) + Lighthouse CI (a11y ≥95 budget, currently 100 across all 16 audited URLs). Tertiary token `--ink-3` was darkened/lightened in both palettes (§8 footnotes) after axe caught the originals at 3.41:1 / 4.36:1.
+- WCAG AA colour contrast enforced via axe-core in Playwright e2e (one run per route) + Lighthouse CI (a11y ≥95 budget, currently 100 across all 16 audited URLs). Tertiary token `--ink-3` was darkened/lightened in both palettes (§8 footnotes) after axe caught the originals at 3.41:1 / 4.36:1.
 
 If you're publishing without one of these in place, write it down. Don't ship and call it "AA."
 

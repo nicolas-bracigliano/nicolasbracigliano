@@ -8,4 +8,4 @@ status: published
 lede: 'Ingeniero de software senior en Melbourne. Código, guitarra, huerta, café, y la artesanía lenta de hacer cosas a mano.'
 ---
 
-Bienvenido. Este es el colofón — la vista de trastienda de un artesano y muchos oficios.
+Bienvenido. Este es el colofón: la vista de trastienda de un artesano y muchos oficios.

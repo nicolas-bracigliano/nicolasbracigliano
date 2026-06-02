@@ -5,7 +5,7 @@ lang: en
 translationId: colophon
 date: 2026-05-21
 status: published
-lede: 'What this site is made of — stack, fonts, hosting, workflow, principles.'
+lede: 'What this site is made of: stack, fonts, hosting, workflow, principles.'
 ---
 
 <!--
