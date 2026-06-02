@@ -18,15 +18,21 @@ const DESKTOP_VIEWPORT = { width: 1280, height: 720 } as const;
 const MOBILE_VIEWPORT = { width: 375, height: 667 } as const;
 
 // Playwright suffixes snapshot files by platform (`-darwin.png`,
-// `-linux.png`), so the committed baselines work on the author's host
-// but not on Linux CI without separately-generated Linux PNGs. Skipping
-// on CI for now — enable once a containerised snapshot-generation flow
-// exists (e.g. running this file inside the official Playwright Docker
-// image as a pre-commit step, or as a separate CI job that uploads new
-// baselines on demand).
+// `-linux.png`), so the committed baselines work on the author's host but
+// not on Linux CI without separately-generated Linux PNGs. These run
+// LOCALLY ONLY, on purpose — making them stable on CI means pinning
+// rendering to the official Playwright Docker image (baselines generated
+// in the same container), and every intentional visual change then needs
+// a baseline regen. On a solo, frequently-redesigned site that's more
+// churn than the coverage is worth. We get the regression guarantee that
+// matters from cheaper structural tests instead: DOM-level checks in
+// smoke.spec.ts ("home bench / works — vignette renders with its hooks")
+// and source-level no-drift checks in tests/unit/vignette-art.test.ts.
+// Run these locally with `pnpm test:e2e` (and `--update-snapshots` after
+// an intentional change) for an extra eyeball before pushing.
 test.skip(
   !!process.env.CI,
-  'Visual snapshots are host-platform-suffixed; CI enablement is a follow-up.',
+  'Visual snapshots are local-only by design — see the note above; CI coverage is structural.',
 );
 
 test.describe('chrome visual', () => {
