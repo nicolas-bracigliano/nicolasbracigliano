@@ -600,6 +600,12 @@
   .work-detail-prose h2:first-of-type {
     break-before: auto;
   }
+  /* Work-detail section titles are small mono labels (specs,
+     iterations, …), not chapter heads — a page break before
+     each would print a four-row spec table on its own page. */
+  .work-detail-section-title {
+    break-before: auto;
+  }
   p,
   li,
   dd {
