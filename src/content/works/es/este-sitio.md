@@ -12,11 +12,44 @@ number: '01'
 lede: 'El colofón que estás leyendo.'
 specs:
   framework: 'astro 6'
-  hosting: 'cloudflare pages'
+  hosting: 'cloudflare workers'
   lenguaje: 'typescript (estricto)'
   tipos: 'newsreader · jetbrains mono'
+iterations:
+  - rev: 'v1.19'
+    date: '2026-06-02'
+    status: ongoing
+    note: 'La página de obra pasa a ser una columna editorial: volanta, bajada, hero, ficha técnica y esta bitácora de iteraciones.'
+  - rev: 'v1.16'
+    date: '2026-06-02'
+    note: 'Las viñetas por tipo, redibujadas como ilustraciones hechas a mano y animadas.'
+  - rev: 'v1.14'
+    date: '2026-06-01'
+    note: 'Llega la paleta de comandos ⌘K como buscador del sitio; el banco de inicio y el recorrido de Ahora toman de una sola fuente.'
+  - rev: 'v1.12'
+    date: '2026-05-28'
+    note: 'Inicio, banco y Ahora pasan a las colecciones de contenido; el arte SVG por entrada llega vía el campo hero.'
+  - rev: 'v1.9'
+    date: '2026-05-26'
+    note: 'Llega el formato largo: la maqueta editorial de los ensayos, diagramas SVG reutilizables y el sistema de diseño escrito como guía del autor.'
+  - rev: 'v1.7'
+    date: '2026-05-24'
+    note: 'Migración de Cloudflare Pages a Workers Static Assets; después se externaliza cada script inline para sostener una CSP estricta del mismo origen.'
+  - rev: 'v1.3'
+    date: '2026-05-23'
+    note: 'Las primeras rutas de contenido alcanzan paridad con el prototipo: el colofón (esta página), Sobre, el recorrido numerado del banco y el 404 de la Carta Extraviada.'
+  - rev: 'v1.0'
+    date: '2026-05-22'
+    status: shipping
+    note: 'Cimientos: el armazón en Astro, ruteo bilingüe es/en, el tema Día/Noche sin parpadeo y View Transitions nativas.'
+elsewhere:
+  - label: 'github / código'
+    href: 'https://github.com/nicolas-bracigliano/nicolasbracigliano'
+    note: 'el repositorio de esta página'
 ---
 
-Hecho como un lugar para guardar el trabajo, los borradores, y los recibos.
+Cada otra entrada acá es algo que hice. Esta es el estante donde se apoyan las demás. No es un portfolio; el portfolio es el trabajo mismo. El sitio es el colofón: un lugar para guardar el trabajo, los borradores y los recibos, con las herramientas a la vista a propósito.
 
-Estático al desplegar, JS casi nulo en el edge, CSS escrito a mano. La pila completa vive en el colofón.
+Estático al desplegar, casi sin JS; sin framework en la página. El contenido es markdown tipado con Zod, compilado por Astro y servido desde un único Worker de Cloudflare. Las restricciones son la parte divertida. Una política estricta que sólo permite scripts de este origen hace que nada corra inline, así que cada pedacito de comportamiento se publica como su propio archivo; sin cookies, sin analítica del lado del cliente, sin nada de terceros.
+
+Todo está escrito dos veces, en inglés y en español, compuesto en paralelo y no traducido. Es algo en curso a propósito: el colofón se actualiza cada vez que se mueve el blanco, y el blanco se sigue moviendo.

@@ -32,12 +32,10 @@ const siblingPath = sibling ? entryRouteFor(sibling) : null;
         html · css · typescript (sin framework en la página)
       </ColophonRow>
       <ColophonRow dt="generador">
-        <a href="/es/obras/este-sitio/">astro 6</a> · salida estática · ~6 KB de JS por página
+        <a href="/es/obras/este-sitio/">astro 6</a> · salida estática · casi sin JS
       </ColophonRow>
-      <ColophonRow dt="editor">neovim · helix los martes</ColophonRow>
-      <ColophonRow dt="navegadores">
-        probado en chromium 124 · firefox 126 · safari 17.4
-      </ColophonRow>
+      <ColophonRow dt="probado">playwright en chromium · axe-core a11y · lighthouse ci</ColophonRow>
+      <ColophonRow dt="búsqueda">paleta ⌘K · índice de navegación, sin texto completo</ColophonRow>
     </ColophonSection>
 
     <ColophonSection tag="02" title="Compuesto en">
@@ -47,30 +45,28 @@ const siblingPath = sibling ? entryRouteFor(sibling) : null;
       <ColophonRow dt="cuerpo">
         <span class="mono-display">JetBrains Mono</span> · peso 400
       </ColophonRow>
-      <ColophonRow dt="alternativas">iowan old style, georgia, monospace</ColophonRow>
+      <ColophonRow dt="alternativas">iowan old style, georgia · ui-monospace, menlo</ColophonRow>
       <ColophonRow dt="a11y"> mín. 15 px en cuerpo · interlínea 1.55 · contraste AA+ </ColophonRow>
     </ColophonSection>
 
     <ColophonSection tag="03" title="Alojado en">
-      <ColophonRow dt="pages">cloudflare pages · edge de brisbane</ColophonRow>
+      <ColophonRow dt="sirve">cloudflare workers · static assets</ColophonRow>
       <ColophonRow dt="recursos">fuentes propias · sin scripts de terceros</ColophonRow>
-      <ColophonRow dt="analítica">
-        cloudflare web analytics, del lado del servidor · sin JS
-      </ColophonRow>
-      <ColophonRow dt="dns">porkbun · DNSSEC activado</ColophonRow>
+      <ColophonRow dt="privacidad">sin cookies · sin analítica · sin beacon</ColophonRow>
+      <ColophonRow dt="dns">cloudflare · DNSSEC + HSTS preload</ColophonRow>
     </ColophonSection>
 
     <ColophonSection tag="04" title="Flujo">
       <ColophonRow dt="escribir">markdown en /src/content, tipado con Zod</ColophonRow>
       <ColophonRow dt="vista previa">astro dev · recarga en vivo al guardar</ColophonRow>
-      <ColophonRow dt="publicar">git push → cf pages → cdn en ~12 s</ColophonRow>
-      <ColophonRow dt="borrador">queda en /drafts hasta que deje de hacerlo</ColophonRow>
+      <ColophonRow dt="publicar">git push → github actions → wrangler deploy</ColophonRow>
+      <ColophonRow dt="borrador">un estado en el frontmatter, fuera del build</ColophonRow>
     </ColophonSection>
 
     <ColophonSection tag="05" title="Principios" accent>
       <ColophonRow dt="hecho a mano"> cada página muestra el oficio. nada se replica. </ColophonRow>
       <ColophonRow dt="un hacedor, muchos oficios">
-        código, guitarra, huerta, 3D — caras de una sola persona.
+        código, guitarra, huerta, 3D: caras de una sola persona.
       </ColophonRow>
       <ColophonRow dt="las herramientas se ven">esta página existe por esa razón.</ColophonRow>
       <ColophonRow dt="en público, en proceso">
@@ -83,11 +79,7 @@ const siblingPath = sibling ? entryRouteFor(sibling) : null;
     </ColophonSection>
 
     <ColophonSection tag="06" title="El escritorio">
-      <ColophonRow dt="teclado">kbd67 mk-ii · alpacas · pbt</ColophonRow>
-      <ColophonRow dt="máquina">framework 13 · arch · sway</ColophonRow>
-      <ColophonRow dt="espresso">lelit anna · 1zpresso jx</ColophonRow>
-      <ColophonRow dt="guitarra">alhambra 4P · cuerda de nylon, clásica</ColophonRow>
-      <ColophonRow dt="luz">ventana al norte, casi siempre</ColophonRow>
+      <ColophonRow dt="combustible">mate todo el día · un long black a la mañana</ColophonRow>
     </ColophonSection>
 
     <AsciiSignature locale="es" />

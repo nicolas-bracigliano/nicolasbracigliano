@@ -30,10 +30,10 @@ const siblingPath = sibling ? entryRouteFor(sibling) : null;
     <ColophonSection tag="01" title="Built with">
       <ColophonRow dt="language">html · css · typescript (no framework on the page)</ColophonRow>
       <ColophonRow dt="generator">
-        <a href="/en/works/this-site/">astro 6</a> · static output · ~6 KB JS per page
+        <a href="/en/works/this-site/">astro 6</a> · static output · near-zero JS
       </ColophonRow>
-      <ColophonRow dt="editor">neovim · helix on tuesdays</ColophonRow>
-      <ColophonRow dt="browsers">tested in chromium 124 · firefox 126 · safari 17.4</ColophonRow>
+      <ColophonRow dt="tested">playwright in chromium · axe-core a11y · lighthouse ci</ColophonRow>
+      <ColophonRow dt="search">⌘K palette · navigation index, no full-text</ColophonRow>
     </ColophonSection>
 
     <ColophonSection tag="02" title="Set in">
@@ -43,28 +43,28 @@ const siblingPath = sibling ? entryRouteFor(sibling) : null;
       <ColophonRow dt="body">
         <span class="mono-display">JetBrains Mono</span> · weight 400
       </ColophonRow>
-      <ColophonRow dt="fallbacks">iowan old style, georgia, monospace</ColophonRow>
+      <ColophonRow dt="fallbacks">iowan old style, georgia · ui-monospace, menlo</ColophonRow>
       <ColophonRow dt="a11y">min 15 px body · 1.55 line height · contrast AA+</ColophonRow>
     </ColophonSection>
 
     <ColophonSection tag="03" title="Hosted on">
-      <ColophonRow dt="pages">cloudflare pages · brisbane edge</ColophonRow>
+      <ColophonRow dt="serves">cloudflare workers · static assets</ColophonRow>
       <ColophonRow dt="assets">self-hosted fonts · no third-party scripts</ColophonRow>
-      <ColophonRow dt="analytics">cloudflare web analytics, server-side · no JS embed</ColophonRow>
-      <ColophonRow dt="dns">porkbun · DNSSEC on</ColophonRow>
+      <ColophonRow dt="privacy">no cookies · no analytics · no beacon</ColophonRow>
+      <ColophonRow dt="dns">cloudflare · DNSSEC + HSTS preload</ColophonRow>
     </ColophonSection>
 
     <ColophonSection tag="04" title="Workflow">
       <ColophonRow dt="write">markdown in /src/content, typed via Zod</ColophonRow>
       <ColophonRow dt="preview">astro dev · livereload on save</ColophonRow>
-      <ColophonRow dt="publish">git push → cf pages → cdn in ~12 s</ColophonRow>
-      <ColophonRow dt="draft">stays in /drafts forever, or until it doesn’t</ColophonRow>
+      <ColophonRow dt="publish">git push → github actions → wrangler deploy</ColophonRow>
+      <ColophonRow dt="draft">a status in frontmatter, kept out of the build</ColophonRow>
     </ColophonSection>
 
     <ColophonSection tag="05" title="Principles" accent>
       <ColophonRow dt="hecho a mano">every page shows craft. nothing is templated.</ColophonRow>
       <ColophonRow dt="one maker, many crafts">
-        code, guitar, garden, 3D — facets of one person.
+        code, guitar, garden, 3D: facets of one person.
       </ColophonRow>
       <ColophonRow dt="tools are visible">this page exists for that reason.</ColophonRow>
       <ColophonRow dt="en público, en proceso">
@@ -75,11 +75,7 @@ const siblingPath = sibling ? entryRouteFor(sibling) : null;
     </ColophonSection>
 
     <ColophonSection tag="06" title="The desk">
-      <ColophonRow dt="keyboard">kbd67 mk-ii · alpacas · pbt</ColophonRow>
-      <ColophonRow dt="machine">framework 13 · arch · sway</ColophonRow>
-      <ColophonRow dt="espresso">lelit anna · 1zpresso jx</ColophonRow>
-      <ColophonRow dt="guitar">alhambra 4P · nylon, classical</ColophonRow>
-      <ColophonRow dt="light">north-facing window, mostly</ColophonRow>
+      <ColophonRow dt="fuel">mate all day · a long black every morning</ColophonRow>
     </ColophonSection>
 
     <AsciiSignature locale="en" />
