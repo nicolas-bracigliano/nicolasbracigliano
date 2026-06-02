@@ -723,13 +723,12 @@ export async function scaffoldNowItem(ctx: CliContext): Promise<{ paths: string[
   // Show current items (title only, both locales side by side). Read-only
   // here, so plain frontmatter parse — `replaceNowItem` keeps the
   // format-preserving `parseDocument` path for the actual write.
-  const enItems = frontmatterOf(enContents)?.items;
-  const esItems = frontmatterOf(esContents)?.items;
-  if (!Array.isArray(enItems) || !Array.isArray(esItems)) {
+  type NowFileItems = { items?: Array<{ title?: string; teaser?: NowTeaserInput }> };
+  const enList = frontmatterOf<NowFileItems>(enContents)?.items;
+  const esList = frontmatterOf<NowFileItems>(esContents)?.items;
+  if (!Array.isArray(enList) || !Array.isArray(esList)) {
     throw new Error('now.md `items:` array not found in one or both locales');
   }
-  const enList = enItems as Array<{ title?: string; teaser?: NowTeaserInput }>;
-  const esList = esItems as Array<{ title?: string; teaser?: NowTeaserInput }>;
   // Derive the count from the file rather than hardcoding it: the array
   // is a NOW_ITEM_MIN..MAX range (commented-out items shrink it below the
   // old fixed six), and EN/ES must stay paired index-for-index.
@@ -887,9 +886,16 @@ export async function scaffoldNowItem(ctx: CliContext): Promise<{ paths: string[
   if (enTeaser) {
     console.log(`Teaser set — this item will show on the home "on the bench" grid (ADR 0014).`);
   } else if (priorEnTeaser) {
+    // Two distinct ways to end up here: the writer was asked and said no
+    // (bench kind), or the new kind can't sit on the bench at all so the
+    // prompt was never offered (coffee/read have no vignette). Don't say
+    // "declined" for the latter — nobody was asked.
     console.log(
-      `Teaser declined — the replaced item HAD one, so this entry just dropped\n` +
-        `off the home bench grid (ADR 0014). Edit now.md if that wasn't intended.`,
+      (BENCH_KINDS as readonly string[]).includes(kind)
+        ? `Teaser declined — the replaced item HAD one, so this entry just dropped\n` +
+            `off the home bench grid (ADR 0014). Edit now.md if that wasn't intended.`
+        : `Teaser dropped — \`${kind}\` can't sit on the home bench (no vignette), and\n` +
+            `the replaced item HAD a teaser, so this entry left the home grid (ADR 0014).`,
     );
   } else if ((BENCH_KINDS as readonly string[]).includes(kind)) {
     console.log(`No teaser — this bench-kind item will not appear on the home bench.`);

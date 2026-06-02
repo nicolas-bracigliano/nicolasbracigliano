@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
@@ -21,10 +21,11 @@ import {
   scaffoldNowItem,
 } from '../../scripts/new-content.ts';
 
-// Pure helpers from `scripts/new-content.ts`. The CLI shell (readline
-// prompts, fs writes) is intentionally not tested — the dispatch
-// logic + frontmatter shape + now.md round-trip are what break the
-// schema or the bilingual-pair contract when they go wrong.
+// Pure helpers from `scripts/new-content.ts`, plus end-to-end coverage of
+// each scaffold flow driven through `makeScriptedContext` (canned answers,
+// temp content root). Only the real readline I/O goes untested — the
+// dispatch logic, frontmatter shape, and now.md round-trip are what break
+// the schema or the bilingual-pair contract when they go wrong.
 
 describe('slugify', () => {
   it('lowercases ASCII titles', () => {
@@ -383,9 +384,7 @@ items:
 
   it('round-trips a work translationId through the YAML document unchanged', () => {
     const out = replaceNowItem(fixture, 1, { ...newItem, work: 'gridfinity-bins' });
-    const parsed = frontmatterOf(out) as unknown as {
-      items: { work?: string }[];
-    };
+    const parsed = frontmatterOf<{ items: { work?: string }[] }>(out)!;
     expect(parsed.items[1]?.work).toBe('gridfinity-bins');
     // The untouched item 0 still carries no work key.
     expect(parsed.items[0]?.work).toBeUndefined();
@@ -404,9 +403,9 @@ items:
     });
     expect(out).toContain('teaser:');
     expect(out.indexOf('detail:')).toBeLessThan(out.indexOf('teaser:'));
-    const parsed = frontmatterOf(out) as unknown as {
+    const parsed = frontmatterOf<{
       items: { teaser?: { label: string; line: string } }[];
-    };
+    }>(out)!;
     expect(parsed.items[0]?.teaser).toEqual({ label: 'code', line: 'blurb' });
   });
 
@@ -466,9 +465,9 @@ interface Fm {
 }
 
 function fmOf(text: string): Fm {
-  const fm = frontmatterOf(text);
+  const fm = frontmatterOf<Fm>(text);
   if (!fm) throw new Error('no frontmatter fence');
-  return fm as unknown as Fm;
+  return fm;
 }
 
 describe('scaffoldNote (end-to-end via ScriptedContext)', () => {
@@ -674,7 +673,7 @@ interface NowFm {
     teaser?: { label: string; line: string };
   }[];
 }
-const nowItemsOf = (text: string): NowFm => frontmatterOf(text) as unknown as NowFm;
+const nowItemsOf = (text: string): NowFm => frontmatterOf<NowFm>(text)!;
 
 describe('loadPublishedWorkIds', () => {
   let tempRoot: string;
@@ -852,6 +851,104 @@ describe('scaffoldNowItem (end-to-end)', () => {
     const en = nowItemsOf(await readFile(result.paths[0]!, 'utf-8'));
     expect(en.items[0]?.title).toBe('Refreshed EN');
     expect(en.items[0]?.teaser).toBeUndefined();
+  });
+
+  it('drops the prior teaser on a kind change off the bench, saying dropped not declined', async () => {
+    // Replacing the teaser'd code item with a coffee item: coffee can't sit
+    // on the home bench, so the teaser prompt is never offered and the
+    // prior teaser is shed. The closing message must say "dropped" (nobody
+    // was asked), not "declined".
+    const log = vi.spyOn(console, 'log').mockImplementation(() => {});
+    try {
+      const ctx = makeScriptedContext(
+        [
+          '1', // replace the teaser'd item
+          'coffee', // non-bench kind → no teaser prompt at all
+          'in the cup · coffee',
+          'en la taza · café',
+          'Coffee EN',
+          'Café ES',
+          'P en.',
+          'P es.',
+          '', // work — skip
+          // straight to 3 detail rows (no y/n prompt for a non-bench kind)
+          'a',
+          '1',
+          'a',
+          '1',
+          'b',
+          '2',
+          'b',
+          '2',
+          'c',
+          '3',
+          'c',
+          '3',
+        ],
+        tempRoot,
+      );
+      const result = await scaffoldNowItem(ctx);
+
+      const en = nowItemsOf(await readFile(result.paths[0]!, 'utf-8'));
+      expect(en.items[0]?.teaser).toBeUndefined();
+      const output = log.mock.calls.flat().join('\n');
+      expect(output).toContain('Teaser dropped');
+      expect(output).not.toContain('Teaser declined');
+    } finally {
+      log.mockRestore();
+    }
+  });
+
+  it('keys the keep-teaser default off EN and requires ES fields that have no prior', async () => {
+    // Drifted content: EN item 1 carries a teaser, ES does not. The y/n
+    // prompt defaults to `y` (keyed off EN), EN fields default to the
+    // prior values, and the ES fields — having no prior — demand explicit
+    // answers. Pins the asymmetric behavior so a future refactor changes
+    // it deliberately, not accidentally.
+    const esNoTeaser = NOW_FIXTURE('es', 'Ítem 1', 'Ítem 2').replace(
+      / {4}teaser:\n {6}label: 'código'\n {6}line: 'línea vieja'\n/,
+      '',
+    );
+    expect(esNoTeaser).not.toContain('teaser:'); // the strip actually matched
+    await writeFile(join(tempRoot, 'pages', 'es', 'now.md'), esNoTeaser);
+
+    const ctx = makeScriptedContext(
+      [
+        '1',
+        'code',
+        'on the bench · code',
+        'sobre la mesa · código',
+        'Refreshed EN',
+        'Refrescado ES',
+        'P en.',
+        'P es.',
+        '', // work — skip
+        '', // home-bench teaser? → 'y' via the EN-keyed default
+        '', // teaser EN label → prior 'code'
+        'codigo-nuevo', // teaser ES label — no prior, explicit value required
+        '', // teaser EN line → prior 'old line'
+        'línea nueva', // teaser ES line — no prior
+        'a',
+        '1',
+        'a',
+        '1',
+        'b',
+        '2',
+        'b',
+        '2',
+        'c',
+        '3',
+        'c',
+        '3',
+      ],
+      tempRoot,
+    );
+    const result = await scaffoldNowItem(ctx);
+
+    const en = nowItemsOf(await readFile(result.paths[0]!, 'utf-8'));
+    const es = nowItemsOf(await readFile(result.paths[1]!, 'utf-8'));
+    expect(en.items[0]?.teaser).toEqual({ label: 'code', line: 'old line' });
+    expect(es.items[0]?.teaser).toEqual({ label: 'codigo-nuevo', line: 'línea nueva' });
   });
 });
 
