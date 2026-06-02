@@ -27,7 +27,7 @@ The codebase is the colophon. Every consequential choice (the strict `script-src
 
 - **ADRs as load-bearing documentation.** One file per consequential trade-off, with `Context / Decision / Alternatives / Consequences / When to revisit` sections and post-decision amendments when reality moves. [Index here](./docs/decisions/). Each ADR is meant to answer "why was this decided?" two years later, the test is whether a stranger reading the codebase cold can reconstruct the original constraint set.
 
-- **Performance budgets that bite.** Lighthouse perf/a11y/best-practices/SEO all ≥ 0.95, plus resource caps in [`lighthouserc.json`](./lighthouserc.json): script ≤ 15 KB, document ≤ 27 KB, and a ~155 KB total (≈99 KB of which is the two self-hosted variable fonts, immutable-cached after first load). CI fails on regression.
+- **Performance budgets that bite.** Lighthouse perf/a11y/best-practices/SEO all ≥ 0.95, plus resource caps in [`lighthouserc.json`](./lighthouserc.json): script ≤ 15 KB, document ≤ 27 KB, and a ~135 KB total (≈79 KB of which is the two self-hosted variable fonts, immutable-cached after first load). CI fails on regression.
 
 - **A11y on every PR.** `@axe-core/playwright` runs against every route in the e2e suite. Serious or critical violations fail the build, not a manual sweep.
 

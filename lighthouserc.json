@@ -1,7 +1,7 @@
 {
   "$schema": "https://raw.githubusercontent.com/GoogleChrome/lighthouse-ci/main/packages/utils/src/lighthouserc-schema.json",
   "//": "Canonical full-coverage Lighthouse config and the single source of truth for the budget: 16 URLs x 2 runs, used on main pushes + local `pnpm lhci`. PRs run a trimmed config (6 URLs x 2 runs) GENERATED from this file by scripts/lighthouse-pr-config.mjs — the assert block, settings, runs and upload are inherited verbatim, so a PR can't pass a looser budget than main. Edit budgets here only. Generator contract is pinned by tests/unit/lighthouse-pr-config.test.ts.",
-  "//budget": "Two self-hosted variable woff2 (Newsreader + JetBrains Mono, Latin wght-axis, ~99 KB combined) load site-wide via @font-face in src/styles/fonts.css and dominate total:size — they're fixed and immutable-cached, so the surface that actually GROWS is `document` (the 'currently on the bench' inline-SVG vignettes, design-system §13's document-size exception) and `script`. total:size 155000 = ~99 KB fonts + the ~52 KB document/script/css envelope, with ~3 KB headroom so `document` can grow to its own 27 KB cap before total trips. The home page is the binding constraint (151659 measured). The per-type caps (document ≤ 27 KB, script ≤ 15 KB) are the real content guardrails: keep the vignettes lean (combined <path> runs, not rect-per-token) and trim before raising those. History: total went 50000→51000 (palette) →52000 (bench vignettes) while the fonts were never actually wired; wiring them (fonts.css) added the ~99 KB step to 155000.",
+  "//budget": "Two self-hosted woff2 (Newsreader + JetBrains Mono, Latin-subset + wght-instanced to the weights used, ~79 KB combined) load site-wide via @font-face in src/styles/fonts.css and dominate total:size — they're fixed and immutable-cached, so the surface that actually GROWS is `document` (the 'currently on the bench' inline-SVG vignettes, design-system §13's document-size exception) and `script`. total:size 135000 = ~79 KB fonts + the ~52 KB document/script/css envelope, with ~3 KB headroom so `document` can grow toward its own 27 KB cap before total trips. The home page is the binding constraint (132035 measured). The per-type caps (document ≤ 27 KB, script ≤ 15 KB) are the real content guardrails: keep the vignettes lean (combined <path> runs, not rect-per-token) and trim before raising those. History: total went 50000→51000 (palette) →52000 (bench vignettes) while the fonts were never actually wired; wiring + instancing them (fonts.css, pnpm subset-fonts) added the ~79 KB step to 135000.",
   "ci": {
     "collect": {
       "staticDistDir": "./dist",
@@ -43,7 +43,7 @@
             "total-blocking-time": ["error", { "maxNumericValue": 200 }],
             "first-contentful-paint": ["error", { "maxNumericValue": 1800 }],
 
-            "resource-summary:total:size": ["error", { "maxNumericValue": 155000 }],
+            "resource-summary:total:size": ["error", { "maxNumericValue": 135000 }],
             "resource-summary:document:size": ["error", { "maxNumericValue": 27000 }],
             "resource-summary:script:size": ["error", { "maxNumericValue": 15000 }],
             "resource-summary:stylesheet:size": ["error", { "maxNumericValue": 30000 }],
