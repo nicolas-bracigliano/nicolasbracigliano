@@ -1,6 +1,9 @@
 @layer reset, tokens, base, routes, animations, utilities;
 
-/* Per-route CSS lives in `./routes/*.css`, one file per route.
+/* Per-route CSS lives in `./routes/*.css`, one file per route
+   (works splits in two: `works.css` is the index catalog,
+   `works-detail.css` the single-work page — the detail redesign
+   would otherwise have doubled one file).
    Each file wraps its rules in `@layer routes { ... }`; the
    cascade layer is declared once above and merged across all
    imports. Selectors do not overlap between routes (audited
@@ -16,6 +19,7 @@
 @import url('./routes/notes.css');
 @import url('./routes/colophon.css');
 @import url('./routes/works.css');
+@import url('./routes/works-detail.css');
 @import url('./routes/about.css');
 @import url('./routes/now.css');
 @import url('./routes/404.css');
