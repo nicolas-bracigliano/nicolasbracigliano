@@ -136,38 +136,41 @@
      dl; an uppercase grey eyebrow (`.muted`), the accent path link, and a
      decorative accent arrow pushed to the right rule that slides on
      hover/focus. Body font is already mono (--font-body), restated here
-     for intent.
+     for intent. Sizes sit on the file's type steps (0.6875rem row /
+     0.625rem eyebrow, like .now-where / .now-detail dt) and motion uses
+     --speed-micro — the design handoff's literal 11.5px/10.5px and
+     200/220 ms were snapped to the route conventions.
 
      Colour is --accent-aa, not raw --accent: this page runs a wcag2aa
      axe scan (tests/e2e/smoke.spec.ts) and --accent is 4.49:1 on --bg —
      a hair under the 4.5:1 small-text floor. --accent-aa is the repo's
      near-identical AA-safe accent (same fix the now lede + masthead use). */
   .now-see-also {
-    margin: 16px 0 0;
+    margin-block: 1rem 0;
     display: inline-flex;
-    gap: 10px;
+    gap: 0.625rem;
     align-items: baseline;
     font-family: var(--font-body);
-    font-size: 11.5px;
+    font-size: 0.6875rem;
     letter-spacing: 0.04em;
-    padding-top: 12px;
-    border-top: 1px dashed color-mix(in oklab, var(--rule) 50%, transparent);
+    padding-block-start: 0.75rem;
+    border-block-start: 1px dashed color-mix(in oklab, var(--rule) 50%, transparent);
     max-width: 60ch;
     width: 100%;
   }
   .now-see-also .muted {
     text-transform: uppercase;
     letter-spacing: 0.16em;
-    font-size: 10.5px;
+    font-size: 0.625rem;
   }
   .now-see-also a {
     color: var(--accent-aa);
     background-image: none;
-    padding-bottom: 0;
+    padding-block-end: 0;
     text-decoration: none;
     transition:
-      color 200ms ease,
-      transform 220ms ease;
+      color var(--speed-micro),
+      transform var(--speed-micro);
   }
   .now-see-also a:hover,
   .now-see-also a:focus-visible {
@@ -176,12 +179,12 @@
   }
   .now-see-arrow {
     color: var(--accent-aa);
-    transition: transform 220ms ease;
-    margin-left: auto;
+    transition: transform var(--speed-micro);
+    margin-inline-start: auto;
   }
   .now-see-also:hover .now-see-arrow,
   .now-see-also:focus-within .now-see-arrow {
-    transform: translateX(3px);
+    transform: translateX(0.1875rem);
   }
   @media (prefers-reduced-motion: reduce) {
     .now-see-also a,
