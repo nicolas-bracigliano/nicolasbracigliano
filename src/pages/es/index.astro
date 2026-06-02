@@ -99,8 +99,13 @@ const reading = [{ title: 'Nexus', author: 'Yuval Noah Harari' }];
         <LatestEntries
           items={latest}
           eyebrow="Últimas entradas"
-          allEntriesLabel="todas las entradas →"
-          allEntriesHref={ROUTES.notes.es}
+          descriptorLead="dos de cada"
+          allLinksByKind={{
+            work: { label: 'todas las obras →', href: ROUTES.works.es },
+            piece: { label: 'todos los ensayos →', href: ROUTES.pieces.es },
+            note: { label: 'todas las notas →', href: ROUTES.notes.es },
+          }}
+          locale="es"
           kindLabels={{ note: 'nota', work: 'obra', piece: 'ensayo' }}
         />
       )

@@ -447,6 +447,57 @@ test('home bench — each vignette renders with its animation hooks', async ({ p
   await expect(page.locator('.bench-card--home .home-vig .flame')).not.toHaveCount(0);
 });
 
+// Home "Latest entries" — the feed shows the latest two of each kind,
+// grouped work → piece → note (matching ⌘K's KIND_ORDER). These assert the
+// behaviour types can't: the per-kind count, the grouping order, and the
+// a11y/markup contracts (link name = kind + title; <time> only wraps a real
+// date, never the "ongoing" status word).
+test('home latest entries — two of each kind, grouped work → piece → note', async ({ page }) => {
+  await page.goto('/en/');
+  // 3 notes / 3 works / 4 pieces are published, so the feed caps at 2+2+2.
+  await expect(page.locator('.latest-row')).toHaveCount(6);
+  // Order asserted by pill class, robust to label localization.
+  const kinds = await page
+    .locator('.latest-row .kind-pill')
+    .evaluateAll((els) =>
+      els.map((el) => Array.from(el.classList).find((c) => c.startsWith('k-'))),
+    );
+  expect(kinds).toEqual(['k-work', 'k-work', 'k-piece', 'k-piece', 'k-note', 'k-note']);
+  // Every row carries a teaser (all seed entries have a lede).
+  await expect(page.locator('.latest-row .latest-teaser')).toHaveCount(6);
+});
+
+test('home latest entries — descriptor and foot links derive from the feed order', async ({
+  page,
+}) => {
+  await page.goto('/en/');
+  // Descriptor kind sequence mirrors the grouped rows (work · piece · note).
+  await expect(page.locator('.latest-meta')).toHaveText('two of each · work · piece · note');
+  // One foot link per kind, in the same order, pointing at each index.
+  const links = page.locator('.latest-foot a.latest-all');
+  await expect(links).toHaveCount(3);
+  await expect(links.nth(0)).toHaveAttribute('href', '/en/works/');
+  await expect(links.nth(1)).toHaveAttribute('href', '/en/pieces/');
+  await expect(links.nth(2)).toHaveAttribute('href', '/en/notes/');
+});
+
+test('home latest entries — link name is kind + title; <time> only wraps real dates', async ({
+  page,
+}) => {
+  await page.goto('/en/');
+  // Accessible name is concise (kind + title), not the verbose
+  // pill+date+teaser concatenation.
+  await expect(page.locator('.latest-link').first()).toHaveAttribute('aria-label', /^work: .+/);
+  // Pieces and notes are always dated, so at least four rows use <time>;
+  // every emitted <time> must carry a valid ISO date (ongoing works render
+  // a <span> instead, never a <time> around the word "ongoing").
+  const times = page.locator('.latest-row time.latest-date');
+  expect(await times.count()).toBeGreaterThanOrEqual(4);
+  for (const dt of await times.evaluateAll((els) => els.map((el) => el.getAttribute('datetime')))) {
+    expect(dt).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+  }
+});
+
 test('works — each kind renders its default vignette via the registry', async ({ page }) => {
   await page.goto('/en/works/this-site/');
   await expect(page.locator('.work-art--code svg .caret')).toHaveCount(1);
