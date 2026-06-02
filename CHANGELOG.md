@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.19.0](https://github.com/nicolas-bracigliano/nicolasbracigliano/compare/v1.18.2...v1.19.0) (2026-06-02)
+
+
+### Features
+
+* **home:** show the latest two entries of each kind ([e372e33](https://github.com/nicolas-bracigliano/nicolasbracigliano/commit/e372e335c07894c8bf47b6f5bb4656f25556bc1d))
+
+
+### Refactors
+
+* **home:** address review nits on the latest-entries feed ([d264bea](https://github.com/nicolas-bracigliano/nicolasbracigliano/commit/d264bea5031b3147cfb194cbaab96beb0a1fc353))
+
 ## [1.18.2](https://github.com/nicolas-bracigliano/nicolasbracigliano/compare/v1.18.1...v1.18.2) (2026-06-02)
 
 
