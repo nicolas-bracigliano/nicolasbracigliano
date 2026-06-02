@@ -23,6 +23,7 @@ The reference for everything about this site. Read this before changing color, c
 - **2026‑05‑31** — removed the dead Pagefind build path: the `postbuild` index step, the `pagefind` dependency, the CI index-sanity check, and the `/_pagefind/*` cache header + lint/codeql ignores. §17 updated (search shipped as the palette, not Pagefind). Why: the ⌘K palette replaced Pagefind as the site's search, so the `dist/_pagefind/` index was built every CI run but consumed by nothing. Full-text Pagefind stays a documented future option in §11.
 - **2026‑06‑01** — Astro 6.3.7 → 6.4.2, and migrated the markdown config from the deprecated `markdown.remarkPlugins` to `markdown.processor: unified({ remarkPlugins: [remarkInjectMarginNotes] })` (`@astrojs/markdown-remark` now a direct dep). gfm + smartypants stay on by default and we ship no fenced code, so nothing else moved. Why: 6.4 deprecated the top-level plugin keys and warns on every dev/preview/CI start; the processor form silences it. The margin-note (pull-quote) injection is unchanged — verified it still renders.
 - **2026‑06‑02** — `/now` items gain an optional `work:` cross-link (a work's `translationId`; one value serves both locales). The bench tour renders a "see also `/works/<slug>`" foot line under the detail `<dl>` — uppercase eyebrow, accent path (AA-safe `--accent-aa`), arrow sliding on hover. Resolution to the localized route lives in one place (`resolveWorkLinks` → pure `nowWorkLinks`); a dangling ref (missing or draft work) fails the build rather than rendering a dead link. `pnpm new`'s now-item flow learns `work:` + `teaser:` authoring and derives the item count instead of hardcoding six. Why: bench updates that graduate into catalogued works (this site, the Gridfinity drawer, Stone & Wood) gave the reader no path from the update to the work.
+- **2026‑06‑02** — the `/works` detail page pivots from "index card at a larger scale" to an editorial single column at the pieces register: eyebrow (back-link · № · kind · lifecycle dot), display H1 at the `.piece-title` scale, italic deck, hero figure, then conditional sections — specs, story, iterations, changelog, elsewhere — closed by a dashed foot with signature and nav. The works schema gains optional `heroCaption:`, `iterations:` (rev / date / lifecycle-status chip / note), `changelog:` (date / note), and `elsewhere:` (label / href / note); all default empty, so a work with none shows the floor with no empty shells. Iteration chips reuse the lifecycle vocabulary (`shipping · ongoing · draft · archived`) and the `.status-dot--*` colour mapping. Why: the catalog card answers "what is this"; a work that's been through five revisions needs somewhere to answer "how did it get here" without writing a piece.
 
 When something material changes, add a line. Keep the log short: date, what changed, why. If you can't write the _why_ in one clause, you probably shouldn't make the change.
 
@@ -48,16 +49,16 @@ Negative-space rules. These prevent more feature creep than positive ones.
 
 Each route gets a distinct visual metaphor. This is what makes the system feel hand-built rather than templated. Promote this to the top of your mind before anything else.
 
-| Route       | Treatment                   | Visual metaphor                                                     |
-| ----------- | --------------------------- | ------------------------------------------------------------------- |
-| `/`         | Workshop bench              | Vignette grid of what's on the bench right now                      |
-| `/now`      | Numbered bench tour         | Calm column, one detailed update per craft                          |
-| `/notes`    | Marginalia notebook         | Dated entries, left-margin tags, right-margin asides                |
-| `/pieces`   | Editorial article           | Centered single column, display title, drop cap, inline pull quotes |
-| `/works`    | Index-card catalog          | Stackable cards with status dots and spec lists                     |
-| `/about`    | Editorial article + sidebar | Body copy with §-section marks + facts cards                        |
-| `/colophon` | Typewriter credits roll     | Monospace key-value blocks + ASCII signature                        |
-| `/404`      | Misplaced letter            | Single illustration, calm copy, ways back                           |
+| Route       | Treatment                   | Visual metaphor                                                                            |
+| ----------- | --------------------------- | ------------------------------------------------------------------------------------------ |
+| `/`         | Workshop bench              | Vignette grid of what's on the bench right now                                             |
+| `/now`      | Numbered bench tour         | Calm column, one detailed update per craft                                                 |
+| `/notes`    | Marginalia notebook         | Dated entries, left-margin tags, right-margin asides                                       |
+| `/pieces`   | Editorial article           | Centered single column, display title, drop cap, inline pull quotes                        |
+| `/works`    | Index-card catalog          | Stackable cards with status dots and spec lists; detail pages are editorial single columns |
+| `/about`    | Editorial article + sidebar | Body copy with §-section marks + facts cards                                               |
+| `/colophon` | Typewriter credits roll     | Monospace key-value blocks + ASCII signature                                               |
+| `/404`      | Misplaced letter            | Single illustration, calm copy, ways back                                                  |
 
 Routes share the type and palette systems. They share nothing else by force. **If a new route doesn't have a distinct metaphor, it doesn't belong in the nav.**
 
@@ -421,7 +422,7 @@ The site's search. Opens on ⌘K / Ctrl+K, or the _"jump to…"_ trigger in the 
 - **It is navigation, not full-text search — yet.** At current scale (under ~30 items) a reader scans faster than they search, so the palette indexes _titles, ledes/decks, and tags_ of every route, note, piece, and work, plus the `/now` bench items (each carries its craft `kind` as a tag, so a topical search like "coffee" or "borges" jumps to `/now`). It's a fast "jump to", which is what a developer audience expects from ⌘K. It does _not_ read body prose — full-text (Pagefind) is a future "search everything" mode that can slot into this same UI.
 - **Single source of truth.** `buildCmdkIndex(locale)` (`src/lib/cmdk-index.ts`) reads the same `notes` / `works` / `pieces` content collections the routes render, plus the static route list. There is no separate index to maintain — it's a prerendered per-locale endpoint (`/cmdk/<locale>.json`, from `src/pages/cmdk/[lang].json.ts`) that `src/scripts/cmdk.ts` fetches once on first open and caches; matching is client-side. Keeping the index out of the page HTML holds every page under the ~50 KB weight budget, and there's no wasm. It works under `astro dev` too — `trailingSlash: 'always'` serves the endpoint at `/x.json/` in dev but `/x.json` in the build, so the client tries the env-correct form first (via `import.meta.env.DEV`) and falls back to the other, rather than breaking silently if that config changes.
 - **Matching** is substring-first, then a forgiving in-order subsequence fuzzy fallback. Results are capped (8 default / 12 on query) and grouped page → now → work → piece → note.
-- **In-site by default.** Every result routes in-site via the View Transitions `navigate()`. An external destination (a `↗`, new tab) is reserved for when a work carries an explicit external link — there is no such field on the works schema today, so the palette never invents a destination a card wouldn't already have.
+- **In-site by default.** Every result routes in-site via the View Transitions `navigate()`. An external destination (a `↗`, new tab) is reserved for when a work carries an explicit external link — works do carry `elsewhere:` links since the detail redesign, but those live on the work's own page; the palette still routes to the work page and never invents a destination a card wouldn't already have.
 - **Keyboard-first + accessible.** `role="dialog"` + `aria-modal`; focus moves to the input on open and returns to the trigger on close; results are a `role="listbox"` with `aria-activedescendant`; ↑↓ move, ⏎ opens, esc closes, Tab is trapped.
 
 ## 12 · Accessibility (real, not aspirational)
