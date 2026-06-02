@@ -8,12 +8,14 @@
  * tokens.css) and swaps to the web font once the woff2 arrives. The CSP
  * `font-src 'self'` directive already permits these same-origin loads.
  *
- * `font-weight` is the variable `wght`-axis span of each face — Newsreader
- * 200-800, JetBrains Mono 100-800; one woff2 covers the whole axis. */
+ * `font-weight` is the instanced `wght`-axis span of each face — the source
+ * variable fonts (Newsreader 200-800, JetBrains Mono 100-800) are trimmed by
+ * `pnpm subset-fonts` to the weights the site actually uses (Newsreader
+ * 400-600, JetBrains Mono 100-700), which keeps the pair under 80 KB. */
 @font-face {
   font-family: Newsreader;
   font-style: normal;
-  font-weight: 200 800;
+  font-weight: 400 600;
   font-display: swap;
   src: url('/fonts/newsreader-variable.woff2') format('woff2');
 }
@@ -21,7 +23,7 @@
 @font-face {
   font-family: 'JetBrains Mono';
   font-style: normal;
-  font-weight: 100 800;
+  font-weight: 100 700;
   font-display: swap;
   src: url('/fonts/jetbrains-mono-variable.woff2') format('woff2');
 }
