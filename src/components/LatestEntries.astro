@@ -1,18 +1,24 @@
 ---
-// Home-page "Latest entries" section (design system §3 + §11). Mixes
-// notes, works, and pieces in one chronological list, with a kind-pill
-// prefix so the reader can scan the type at a glance.
+// Home-page "Latest entries" section (design system §3 + §11). Shows the
+// latest two of each kind (work, piece, note — grouped in that order by
+// `buildLatest`, matching the ⌘K palette), so every kind keeps a presence
+// rather than a busy kind crowding the others out.
 //
-// Row shape per prototype: `[pill] [date] [title] [arrow]` — 4-column
-// grid that collapses to 3 columns below 640px (date drops, pill keeps
-// its place for scanability).
+// Row shape per mockup: `[pill] [date] [title + teaser] [arrow]` — a
+// 4-column grid where the title column stacks the title over a one-line
+// teaser. Collapses to 3 columns below 640px (date drops, pill keeps its
+// place for scanability). The header carries a static descriptor; the
+// foot carries one "all <kind>" link per kind.
 
 import type { CollectionEntry } from 'astro:content';
+import type { Locale } from '@lib/routes';
 import { entryRouteFor } from '@lib/i18n';
-// `LatestKind` is owned by `@lib/latest-entries` (the same source
-// `buildLatest` keys on), so these pill labels can't drift from the
-// feed's kind set.
-import type { LatestKind } from '@lib/latest-entries';
+// `LATEST_KINDS` is the single source of truth for the feed's kinds AND
+// their order. Importing the value (not just the type) lets this component
+// derive the descriptor's kind sequence and the foot-link order from it,
+// so reordering the feed can't desync the copy around it.
+import { LATEST_KINDS, type LatestKind } from '@lib/latest-entries';
+import { formatEntryDate } from '@lib/format-entry-date';
 
 export type LatestItem = {
   entry: CollectionEntry<'notes'> | CollectionEntry<'works'> | CollectionEntry<'pieces'>;
@@ -23,42 +29,103 @@ export interface Props {
   items: LatestItem[];
   /** Section eyebrow — e.g. "Latest entries" / "Últimas entradas". */
   eyebrow: string;
-  /** Right-aligned link label — e.g. "all entries →". */
-  allEntriesLabel: string;
-  /** Right-aligned link href (typically the /notes index). */
-  allEntriesHref: string;
+  /** Lead phrase for the head descriptor; the kind sequence is appended
+   *  from `LATEST_KINDS` — e.g. "two of each" → "two of each · work ·
+   *  piece · note". */
+  descriptorLead: string;
+  /** Foot link per kind. Order comes from `LATEST_KINDS`, not the caller,
+   *  so it always matches the grouped rows. */
+  allLinksByKind: Record<LatestKind, { label: string; href: string }>;
+  /** Locale, for the per-kind date formatting. */
+  locale: Locale;
   /** Localized labels rendered inside the kind pill. */
   kindLabels: Record<LatestKind, string>;
 }
 
-const { items, eyebrow, allEntriesLabel, allEntriesHref, kindLabels } = Astro.props;
+const { items, eyebrow, descriptorLead, allLinksByKind, locale, kindLabels } = Astro.props;
+
+// Descriptor and foot links derive their kind order from LATEST_KINDS — the
+// same tuple `buildLatest` groups by — so the three can't drift apart.
+const descriptor = `${descriptorLead} · ${LATEST_KINDS.map((k) => kindLabels[k]).join(' · ')}`;
+const allLinks = LATEST_KINDS.map((k) => allLinksByKind[k]);
+
+// Derive everything the template needs up front so the markup stays flat.
+// `lifecycle` only exists on works; the `in` check narrows the union
+// without a kind cast and yields `undefined` for notes/pieces. An ongoing
+// work shows a status word rather than a date, so it gets no `datetime`
+// (and renders as a <span>, not a <time>).
+const rows = items.map(({ entry, kind }) => {
+  const { date, title, lede } = entry.data;
+  const lifecycle = 'lifecycle' in entry.data ? entry.data.lifecycle : undefined;
+  const isStatus = kind === 'work' && lifecycle === 'ongoing';
+  return {
+    href: entryRouteFor(entry),
+    kind,
+    kindLabel: kindLabels[kind],
+    title,
+    lede,
+    // Machine-readable date for the <time> element; null when the row
+    // shows a status word instead of a date.
+    datetime: isStatus ? null : date.toISOString().slice(0, 10),
+    dateDisplay: formatEntryDate(date, { kind, lifecycle, locale }),
+  };
+});
+
+// Distinct functional label for the foot's nav landmark — not the section
+// eyebrow (that already names the region via `aria-labelledby`, so reusing
+// it would give two landmarks the same name). Locale-derived inline, the
+// same idiom as the chrome navs in `BaseLayout`.
+const allLinksLabel = locale === 'es' ? 'explorar todo' : 'browse all';
 ---
 
 <section class="home-latest" aria-labelledby="latest-h">
   <header class="latest-head">
     <span class="eyebrow" id="latest-h">{eyebrow}</span>
-    <a href={allEntriesHref} class="latest-all" data-astro-prefetch>{allEntriesLabel}</a>
+    <span class="latest-meta">{descriptor}</span>
   </header>
 
   <ul class="latest-list">
     {
-      items.map(({ entry, kind }) => {
-        const iso = entry.data.date.toISOString().slice(0, 10);
-        return (
-          <li class="latest-row">
-            <a href={entryRouteFor(entry)} class="latest-link" data-astro-prefetch>
-              <span class={`kind-pill k-${kind}`}>{kindLabels[kind]}</span>
-              <time class="latest-date" datetime={iso}>
-                {iso}
+      rows.map((row) => (
+        <li class="latest-row">
+          {/* The link's accessible name is just kind + title; the date,
+              teaser, and arrow are visual context, not part of the name. */}
+          <a
+            href={row.href}
+            class="latest-link"
+            data-astro-prefetch
+            aria-label={`${row.kindLabel}: ${row.title}`}
+          >
+            <span class={`kind-pill k-${row.kind}`} aria-hidden="true">
+              {row.kindLabel}
+            </span>
+            {row.datetime ? (
+              <time class="latest-date" datetime={row.datetime}>
+                {row.dateDisplay}
               </time>
-              <span class="latest-title">{entry.data.title}</span>
-              <span class="latest-arrow" aria-hidden="true">
-                ↗
-              </span>
-            </a>
-          </li>
-        );
-      })
+            ) : (
+              <span class="latest-date">{row.dateDisplay}</span>
+            )}
+            <span class="latest-main">
+              <span class="latest-title">{row.title}</span>
+              {row.lede && <span class="latest-teaser">{row.lede}</span>}
+            </span>
+            <span class="latest-arrow" aria-hidden="true">
+              ↗
+            </span>
+          </a>
+        </li>
+      ))
     }
   </ul>
+
+  <nav class="latest-foot" aria-label={allLinksLabel}>
+    {
+      allLinks.map((link) => (
+        <a href={link.href} class="latest-all" data-astro-prefetch>
+          {link.label}
+        </a>
+      ))
+    }
+  </nav>
 </section>

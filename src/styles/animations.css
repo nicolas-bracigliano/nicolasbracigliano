@@ -327,6 +327,22 @@
       background-size: 100% 1px;
     }
 
+    /* Home "Latest entries" foot links — same underline draw as the nav,
+       so the "all works/pieces/notes" links read as navigation. */
+    .latest-foot .latest-all {
+      background-image: linear-gradient(currentcolor, currentcolor);
+      background-repeat: no-repeat;
+      background-position: 0 100%;
+      background-size: 0 1px;
+      transition:
+        background-size var(--speed-standard),
+        color var(--speed-micro);
+    }
+    .latest-foot .latest-all:hover {
+      background-size: 100% 1px;
+      color: var(--ink);
+    }
+
     .lang-toggle .lang {
       transition:
         color var(--speed-micro),

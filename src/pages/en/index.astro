@@ -27,8 +27,9 @@ if (!nowEntry) throw new Error('Missing pages/en/now');
 assertNowEntry(nowEntry);
 const bench = benchItemsFrom(nowEntry.data.items);
 
-// Latest across notes + works + pieces, newest first. buildLatest keys on
-// every feed kind, so dropping a collection here is a compile error.
+// Latest two of each kind, grouped work → piece → note by buildLatest,
+// which keys on every feed kind — so dropping a collection here is a
+// compile error.
 const [notes, works, pieces] = await Promise.all([
   getCollection('notes', (e) => e.data.lang === 'en' && e.data.status === 'published'),
   getCollection('works', (e) => e.data.lang === 'en' && e.data.status === 'published'),
@@ -98,8 +99,13 @@ const reading = [{ title: 'Nexus', author: 'Yuval Noah Harari' }];
         <LatestEntries
           items={latest}
           eyebrow="Latest entries"
-          allEntriesLabel="all entries →"
-          allEntriesHref={ROUTES.notes.en}
+          descriptorLead="two of each"
+          allLinksByKind={{
+            work: { label: 'all works →', href: ROUTES.works.en },
+            piece: { label: 'all pieces →', href: ROUTES.pieces.en },
+            note: { label: 'all notes →', href: ROUTES.notes.en },
+          }}
+          locale="en"
           kindLabels={{ note: 'note', work: 'work', piece: 'piece' }}
         />
       )

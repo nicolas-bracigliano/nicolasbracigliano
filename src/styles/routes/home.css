@@ -395,7 +395,9 @@
     padding: 0.4rem 0.6rem;
   }
 
-  /* Home: Latest entries — 4-col grid (pill / date / title / arrow) */
+  /* Home: Latest entries — 4-col grid (pill / date / title+teaser /
+     arrow). Two of each kind; a static descriptor in the head and one
+     "all <kind>" link per kind in the foot. */
   .home-latest {
     padding-block-start: clamp(1rem, 3vw, 2rem);
   }
@@ -414,6 +416,14 @@
     text-transform: uppercase;
     color: var(--ink-2);
     text-decoration: none;
+  }
+  /* Head descriptor — same scale/tracking as the foot links, but
+     non-interactive and a touch dimmer (it labels, it doesn't lead). */
+  .latest-meta {
+    font-size: 0.7rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ink-3);
   }
   .latest-list {
     list-style: none;
@@ -470,14 +480,37 @@
     color: var(--ink-3);
     font-size: 0.78rem;
   }
+  /* Title column stacks the title over a one-line teaser. `min-width: 0`
+     lets the teaser's ellipsis kick in inside the `1fr` grid track
+     (otherwise the longest word would force the track wider). */
+  .latest-main {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    min-width: 0;
+  }
   .latest-title {
     font-family: var(--font-display);
     font-size: 1.2rem;
     letter-spacing: -0.01em;
     color: var(--ink);
   }
+  .latest-teaser {
+    font-size: 0.85rem;
+    color: var(--ink-2);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
   .latest-arrow {
     color: var(--ink-3);
+  }
+  /* Foot: one "all <kind>" link per kind, reusing `.latest-all`. */
+  .latest-foot {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+    padding-block-start: 1rem;
   }
   @media (max-width: 640px) {
     .latest-link {

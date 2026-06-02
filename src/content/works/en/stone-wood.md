@@ -8,7 +8,7 @@ status: published
 tags: [home]
 kind: home
 lifecycle: ongoing
-number: '13'
+number: '02'
 lede: 'Wooden shell around the TV, with a landscape fire and a stone shelf.'
 specs:
   wood: 'walnut'

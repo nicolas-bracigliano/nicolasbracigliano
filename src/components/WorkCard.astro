@@ -14,8 +14,13 @@ const { title, lede, kind, lifecycle, number, specs, date } = entry.data;
 const permalink = entryRouteFor(entry);
 const specEntries = Object.entries(specs);
 
-// "2026 · apr" / "2026 · abr" — short month, lowercase, matches the
-// prototype's `2026 · apr` foot date.
+// Short month + year, lowercased, bullet-joined. NOTE: `Intl` orders
+// month/year by locale, so en-AU and es-AR render MONTH-first here —
+// "apr · 2026", not "2026 · apr" as this comment once claimed. The home
+// "Latest entries" feed deliberately renders works YEAR-first (via
+// `src/lib/format-entry-date.ts`) so its date column aligns on the year.
+// TODO(date-order): decide whether /works should adopt the year-first
+// form for consistency; until then the two surfaces differ on purpose.
 const dateFormatter = new Intl.DateTimeFormat(locale === 'es' ? 'es-AR' : 'en-AU', {
   year: 'numeric',
   month: 'short',

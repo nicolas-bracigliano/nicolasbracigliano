@@ -8,7 +8,7 @@ status: published
 tags: [casa]
 kind: home
 lifecycle: ongoing
-number: '13'
+number: '02'
 lede: 'Carcasa de madera alrededor del TV, con un hogar apaisado y una repisa de piedra.'
 specs:
   madera: 'nogal'
