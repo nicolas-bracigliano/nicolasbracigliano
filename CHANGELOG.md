@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.18.1](https://github.com/nicolas-bracigliano/nicolasbracigliano/compare/v1.18.0...v1.18.1) (2026-06-02)
+
+
+### Bug Fixes
+
+* **scripts:** preserve the prior teaser by default when replacing a now item ([4b3ba11](https://github.com/nicolas-bracigliano/nicolasbracigliano/commit/4b3ba1106d2f16a74d7a08ed3354807ee6745d74))
+* **scripts:** say dropped, not declined, when a kind change sheds the teaser ([f8df382](https://github.com/nicolas-bracigliano/nicolasbracigliano/commit/f8df3821ce51572094efa6005ea98f3c46b2d7ab))
+
+
+### Refactors
+
+* **scripts:** type the shared frontmatter reader; fail loud on a broken fence ([2b822bd](https://github.com/nicolas-bracigliano/nicolasbracigliano/commit/2b822bd854eb5973306f2c605fe73c1e90ee5586))
+
 ## [1.18.0](https://github.com/nicolas-bracigliano/nicolasbracigliano/compare/v1.17.0...v1.18.0) (2026-06-02)
 
 
