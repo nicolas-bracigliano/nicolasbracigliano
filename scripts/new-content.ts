@@ -212,7 +212,8 @@ export interface NowItemInput {
  *  are written only when present on the input — and conversely are NOT
  *  preserved from the existing item when absent. So replacing a teaser'd
  *  item without supplying a fresh teaser drops it from the home bench
- *  (ADR 0014); the CLI collects a teaser up front and warns on this.
+ *  (ADR 0014); the CLI offers the prior teaser as prompt defaults and
+ *  warns explicitly when it's declined.
  *
  *  Index is 0-based. Throws if the file isn't shaped like a now.md
  *  (missing `items:` array, wrong length, etc.) so a misuse fails
@@ -788,28 +789,52 @@ export async function scaffoldNowItem(ctx: CliContext): Promise<{ paths: string[
   });
 
   // Optional home-bench teaser (ADR 0014) — offered only for bench kinds
-  // (the home grid has no coffee/read vignette). Leaving the EN label
-  // blank skips the teaser entirely; the kind-conditional guitarLabel /
-  // seedlingTag prompts mirror the schema refines. Fields are localized,
-  // so EN + ES are collected separately.
+  // (the home grid has no coffee/read vignette). When the item being
+  // replaced already carries a teaser, the keep-prompt defaults to `y`
+  // and its values are offered as field defaults, so a routine content
+  // refresh preserves the home-bench presence by just pressing Enter —
+  // instead of silently dropping the item from the grid and warning after
+  // the fact. Fields are localized, so EN + ES are collected separately;
+  // the kind-conditional guitarLabel / seedlingTag prompts mirror the
+  // schema refines.
+  const priorEnTeaser = enList[index]?.teaser;
+  const priorEsTeaser = esList[index]?.teaser;
   let enTeaser: NowTeaserInput | undefined;
   let esTeaser: NowTeaserInput | undefined;
   if ((BENCH_KINDS as readonly string[]).includes(kind)) {
-    const enLabel = await ctx.askOptional({
-      question: 'teaser EN label (home bench eyebrow; blank = no teaser)',
+    // Spread-a-default helper: ask() treats `default: undefined` as "no
+    // default", but exactOptionalPropertyTypes forbids passing it, so
+    // omit the key entirely when there's no prior value.
+    const d = (v: string | undefined) => (v !== undefined ? { default: v } : {});
+    const wantTeaser = await ctx.ask({
+      question: 'home-bench teaser? (y/n)',
+      default: priorEnTeaser ? 'y' : 'n',
+      validate: (v) => (/^[yn]$/i.test(v) ? null : 'enter y or n'),
     });
-    if (enLabel) {
-      const esLabel = await ctx.ask({ question: 'teaser ES label' });
-      const enLine = await ctx.ask({ question: 'teaser EN line (short bench blurb)' });
-      const esLine = await ctx.ask({ question: 'teaser ES line' });
+    if (wantTeaser.toLowerCase() === 'y') {
+      const enLabel = await ctx.ask({ question: 'teaser EN label', ...d(priorEnTeaser?.label) });
+      const esLabel = await ctx.ask({ question: 'teaser ES label', ...d(priorEsTeaser?.label) });
+      const enLine = await ctx.ask({
+        question: 'teaser EN line (short bench blurb)',
+        ...d(priorEnTeaser?.line),
+      });
+      const esLine = await ctx.ask({ question: 'teaser ES line', ...d(priorEsTeaser?.line) });
       const enGuitar =
-        kind === 'guitar' ? await ctx.ask({ question: 'teaser EN guitarLabel' }) : undefined;
+        kind === 'guitar'
+          ? await ctx.ask({ question: 'teaser EN guitarLabel', ...d(priorEnTeaser?.guitarLabel) })
+          : undefined;
       const esGuitar =
-        kind === 'guitar' ? await ctx.ask({ question: 'teaser ES guitarLabel' }) : undefined;
+        kind === 'guitar'
+          ? await ctx.ask({ question: 'teaser ES guitarLabel', ...d(priorEsTeaser?.guitarLabel) })
+          : undefined;
       const enSeed =
-        kind === 'garden' ? await ctx.ask({ question: 'teaser EN seedlingTag' }) : undefined;
+        kind === 'garden'
+          ? await ctx.ask({ question: 'teaser EN seedlingTag', ...d(priorEnTeaser?.seedlingTag) })
+          : undefined;
       const esSeed =
-        kind === 'garden' ? await ctx.ask({ question: 'teaser ES seedlingTag' }) : undefined;
+        kind === 'garden'
+          ? await ctx.ask({ question: 'teaser ES seedlingTag', ...d(priorEsTeaser?.seedlingTag) })
+          : undefined;
       enTeaser = {
         label: enLabel,
         line: enLine,
@@ -861,11 +886,13 @@ export async function scaffoldNowItem(ctx: CliContext): Promise<{ paths: string[
   if (work) console.log(`Linked to work \`${work}\` (resolves to the localized /works route).`);
   if (enTeaser) {
     console.log(`Teaser set — this item will show on the home "on the bench" grid (ADR 0014).`);
-  } else if ((BENCH_KINDS as readonly string[]).includes(kind)) {
+  } else if (priorEnTeaser) {
     console.log(
-      `No teaser entered — this bench-kind item will NOT appear on the home bench.\n` +
-        `If the item you replaced had a \`teaser:\`, that's now gone; re-add it in now.md.`,
+      `Teaser declined — the replaced item HAD one, so this entry just dropped\n` +
+        `off the home bench grid (ADR 0014). Edit now.md if that wasn't intended.`,
     );
+  } else if ((BENCH_KINDS as readonly string[]).includes(kind)) {
+    console.log(`No teaser — this bench-kind item will not appear on the home bench.`);
   }
   return { paths: [enPath, esPath] };
 }

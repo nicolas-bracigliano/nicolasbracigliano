@@ -601,6 +601,8 @@ describe('scaffoldWork (end-to-end)', () => {
 // Now-item flow needs an existing now.md pair (it replaces in place) plus
 // works on disk (the `work` ref is validated against published works).
 // Helpers write a minimal-but-parseable fixture tree into the temp root.
+// Item 1 (code) carries a teaser so the preservation defaults are
+// exercisable; item 2 (guitar) carries none.
 const NOW_FIXTURE = (lang: 'en' | 'es', t1: string, t2: string) => `---
 title: 'Now'
 slug: 'now'
@@ -620,6 +622,9 @@ items:
         dd: '2'
       - dt: 'c'
         dd: '3'
+    teaser:
+      label: '${lang === 'en' ? 'code' : 'código'}'
+      line: '${lang === 'en' ? 'old line' : 'línea vieja'}'
   - kind: guitar
     where: 'in my hands · guitar'
     title: '${t2}'
@@ -714,7 +719,8 @@ describe('scaffoldNowItem (end-to-end)', () => {
         'EN prose.', // EN prose
         'Prosa ES.', // ES prose
         'this-site', // work (validated against the seeded works)
-        'code', // teaser EN label (non-empty → teaser path)
+        'y', // home-bench teaser? (item 2 had none, so no default kicks in)
+        'code', // teaser EN label
         'código', // teaser ES label
         'EN line', // teaser EN line
         'línea ES', // teaser ES line
@@ -765,6 +771,87 @@ describe('scaffoldNowItem (end-to-end)', () => {
       tempRoot,
     );
     await expect(scaffoldNowItem(ctx)).rejects.toThrow(/no published work/);
+  });
+
+  it('preserves the prior teaser via prompt defaults (Enter all the way through)', async () => {
+    // Item 1 carries a teaser in the fixture. Replacing it and accepting
+    // every default (empty answers) must keep the item on the home bench
+    // with the prior localized values — the footgun this flow closes.
+    const ctx = makeScriptedContext(
+      [
+        '1', // replace index 1 (the teaser'd code item)
+        'code',
+        'on the bench · code',
+        'sobre la mesa · código',
+        'Refreshed EN',
+        'Refrescado ES',
+        'P en.',
+        'P es.',
+        '', // work — skip
+        '', // home-bench teaser? → defaults to 'y' (prior teaser exists)
+        '', // teaser EN label → defaults to prior 'code'
+        '', // teaser ES label → defaults to prior 'código'
+        '', // teaser EN line → defaults to prior 'old line'
+        '', // teaser ES line → defaults to prior 'línea vieja'
+        // 3 detail rows
+        'a',
+        '1',
+        'a',
+        '1',
+        'b',
+        '2',
+        'b',
+        '2',
+        'c',
+        '3',
+        'c',
+        '3',
+      ],
+      tempRoot,
+    );
+    const result = await scaffoldNowItem(ctx);
+
+    const en = nowItemsOf(await readFile(result.paths[0]!, 'utf-8'));
+    const es = nowItemsOf(await readFile(result.paths[1]!, 'utf-8'));
+    expect(en.items[0]?.title).toBe('Refreshed EN');
+    expect(en.items[0]?.teaser).toEqual({ label: 'code', line: 'old line' });
+    expect(es.items[0]?.teaser).toEqual({ label: 'código', line: 'línea vieja' });
+  });
+
+  it('drops the prior teaser only on an explicit decline', async () => {
+    const ctx = makeScriptedContext(
+      [
+        '1', // replace the teaser'd item
+        'code',
+        'on the bench · code',
+        'sobre la mesa · código',
+        'Refreshed EN',
+        'Refrescado ES',
+        'P en.',
+        'P es.',
+        '', // work — skip
+        'n', // home-bench teaser? — explicit decline overrides the 'y' default
+        // 3 detail rows
+        'a',
+        '1',
+        'a',
+        '1',
+        'b',
+        '2',
+        'b',
+        '2',
+        'c',
+        '3',
+        'c',
+        '3',
+      ],
+      tempRoot,
+    );
+    const result = await scaffoldNowItem(ctx);
+
+    const en = nowItemsOf(await readFile(result.paths[0]!, 'utf-8'));
+    expect(en.items[0]?.title).toBe('Refreshed EN');
+    expect(en.items[0]?.teaser).toBeUndefined();
   });
 });
 
