@@ -1,5 +1,32 @@
 # Changelog
 
+## [1.21.0](https://github.com/nicolas-bracigliano/nicolasbracigliano/compare/v1.20.0...v1.21.0) (2026-06-02)
+
+
+### Features
+
+* **fonts:** self-host the web fonts and rework the size budget ([3701680](https://github.com/nicolas-bracigliano/nicolasbracigliano/commit/37016802ff918c47aff53f45621b72d6c526bd57))
+* self-host fonts, fix a11y/best-practices, and sweep content + docs for accuracy ([abe47f5](https://github.com/nicolas-bracigliano/nicolasbracigliano/commit/abe47f50cb2a16403c4a22b3e4657bbc27d5a7ae))
+
+
+### Bug Fixes
+
+* **a11y:** restore heading-order and clear the diagram console error ([164f6bb](https://github.com/nicolas-bracigliano/nicolasbracigliano/commit/164f6bbd5ce89a69e63a45cf20f3e5040408b4c3))
+* **content:** correct stale facts and improve colophon + this-site copy ([50d9769](https://github.com/nicolas-bracigliano/nicolasbracigliano/commit/50d9769a604ac61ce900a7a6f8a8938f0211ad52))
+* resolve inconsistencies found in the full-codebase sweep ([30d916b](https://github.com/nicolas-bracigliano/nicolasbracigliano/commit/30d916b9d73210befbbeae7653ce247ee913be23))
+
+
+### Performance
+
+* **fonts:** wght-instance the self-hosted fonts to ~79 KB ([b640c3d](https://github.com/nicolas-bracigliano/nicolasbracigliano/commit/b640c3d33b9b5c758bb09e6b65362819e20a21da))
+
+
+### Documentation
+
+* **design-system:** correct intro-overlay and budget records, log font wiring ([ab9d8c6](https://github.com/nicolas-bracigliano/nicolasbracigliano/commit/ab9d8c60e9d6aa6fc10310835b794578602337fd))
+* rewrite README for the public repo and add home screenshots ([a03f860](https://github.com/nicolas-bracigliano/nicolasbracigliano/commit/a03f860041498c044459a32cc78d28cb8aa30a4a))
+* update size and score claims after the font work ([0d0e924](https://github.com/nicolas-bracigliano/nicolasbracigliano/commit/0d0e92430dd4755c2cb92a54ab3fd7c6718d5c31))
+
 ## [1.20.0](https://github.com/nicolas-bracigliano/nicolasbracigliano/compare/v1.19.0...v1.20.0) (2026-06-02)
 
 
