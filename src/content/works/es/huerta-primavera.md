@@ -8,7 +8,7 @@ status: draft
 tags: [garden]
 kind: garden
 lifecycle: ongoing
-number: '02'
+number: '09'
 lede: 'Mapa del cantero para la rotación de primavera. Tomate, albahaca, manzanilla, ajíes. Asociados a propósito.'
 specs:
   cantero: '1.4 × 3 m'

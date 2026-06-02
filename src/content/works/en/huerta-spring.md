@@ -8,7 +8,7 @@ status: draft
 tags: [garden]
 kind: garden
 lifecycle: ongoing
-number: '02'
+number: '09'
 lede: 'Plot map for the spring rotation. Tomato, basil, chamomile, chillies. Companion-planted on purpose.'
 specs:
   plot: '1.4 × 3 m'

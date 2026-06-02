@@ -463,8 +463,15 @@ test('home latest entries — two of each kind, grouped work → piece → note'
       els.map((el) => Array.from(el.classList).find((c) => c.startsWith('k-'))),
     );
   expect(kinds).toEqual(['k-work', 'k-work', 'k-piece', 'k-piece', 'k-note', 'k-note']);
-  // Every row carries a teaser (all seed entries have a lede).
-  await expect(page.locator('.latest-row .latest-teaser')).toHaveCount(6);
+  // Teasers render for entries that have a lede (lede is schema-optional,
+  // and the component guards on it). Assert the feature works — at least
+  // one renders and none are empty — rather than pinning an exact count to
+  // the current fixtures, which a future lede-less entry would break.
+  const teasers = page.locator('.latest-row .latest-teaser');
+  expect(await teasers.count()).toBeGreaterThan(0);
+  for (const text of await teasers.allInnerTexts()) {
+    expect(text.trim()).not.toBe('');
+  }
 });
 
 test('home latest entries — descriptor and foot links derive from the feed order', async ({

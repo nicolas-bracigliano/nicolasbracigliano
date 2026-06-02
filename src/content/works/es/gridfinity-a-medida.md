@@ -8,7 +8,7 @@ status: published
 tags: [print, gridfinity]
 kind: print
 lifecycle: ongoing
-number: '14'
+number: '03'
 lede: 'Cajitas hechas a medida para cada herramienta. Empezando por el cajón de impresión 3D.'
 specs:
   filamento: 'PLA Matte'

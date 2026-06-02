@@ -8,7 +8,7 @@ status: published
 tags: [print, gridfinity]
 kind: print
 lifecycle: ongoing
-number: '14'
+number: '03'
 lede: 'Custom bins, designed to the tool. Starting with the 3D-printing drawer.'
 specs:
   filament: 'PLA Matte'
