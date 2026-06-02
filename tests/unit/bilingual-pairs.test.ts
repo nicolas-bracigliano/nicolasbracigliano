@@ -40,9 +40,13 @@ function loadCollection(collection: Collection): { file: string; data: EntryFron
     for (const file of entries) {
       if (!file.endsWith('.md')) continue;
       const text = readFileSync(join(CONTENT_ROOT, collection, locale, file), 'utf-8');
-      const fm = frontmatterOf(text);
-      if (!fm) continue;
-      const data = fm as unknown as EntryFrontmatter;
+      // Fail loud, don't skip: this test exists to catch content mistakes,
+      // and a fence that doesn't parse IS one — skipping it would silently
+      // exempt the broken file from the orphan check.
+      const data = frontmatterOf<EntryFrontmatter>(text);
+      if (!data) {
+        throw new Error(`malformed or missing frontmatter fence: ${collection}/${locale}/${file}`);
+      }
       out.push({ file: `${collection}/${locale}/${file}`, data });
     }
   }
