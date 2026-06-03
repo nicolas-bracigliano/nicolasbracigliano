@@ -27,6 +27,7 @@ import { parse as parseYaml } from 'yaml';
 // plugin in stock Node). Don't "fix" this back to `@lib/routes` — it
 // will break CI.
 import { ROUTES } from '../src/lib/routes.ts';
+import { SECURITY_TXT_PATH } from '../src/lib/security-txt.ts';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = join(__dirname, '..');
@@ -68,6 +69,11 @@ export function buildTargets(entries: readonly ContentEntry[]): SmokeTarget[] {
 
   // Worker-handled root redirect (Accept-Language based).
   targets.push({ path: '/', expected: 302 });
+
+  // Worker-served security.txt. Served by the Worker, not the asset
+  // layer (which 404s dot-prefixed dirs), so it needs an explicit
+  // target — a regression here would otherwise go unnoticed.
+  targets.push({ path: SECURITY_TXT_PATH, expected: 200 });
 
   // Static routes from ROUTES (en + es for every named route).
   for (const pair of Object.values(ROUTES)) {
