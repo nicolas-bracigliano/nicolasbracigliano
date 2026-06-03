@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { buildTargets, type ContentEntry } from '../../scripts/smoke-routes.ts';
 import { ROUTES } from '../../src/lib/routes';
+import { SECURITY_TXT_PATH } from '../../src/lib/security-txt';
 
 // `buildTargets` is the pure dispatch core of the CI smoke script
 // (`scripts/smoke-routes.ts`). It composes the smoke-target list
@@ -29,6 +30,14 @@ describe('buildTargets', () => {
       path: '/this-path-does-not-exist-12345/',
       expected: 404,
     });
+  });
+
+  it('includes the worker-served security.txt (expects 200)', () => {
+    // Regression guard: security.txt is served by the Worker, not the
+    // asset layer (which 404s dot-dirs). Without this target, a broken
+    // serving path would pass CI silently.
+    const t = buildTargets([]).find((x) => x.path === SECURITY_TXT_PATH);
+    expect(t).toEqual({ path: '/.well-known/security.txt', expected: 200 });
   });
 
   it('includes every static route from ROUTES (en + es)', () => {
@@ -98,7 +107,8 @@ describe('buildTargets', () => {
 
   it('handles an empty entry list (all-static target list)', () => {
     const targets = buildTargets([]);
-    // 7 named routes × 2 locales = 14 static + 1 root + 1 sentinel = 16
-    expect(targets.length).toBe(16);
+    // 7 named routes × 2 locales = 14 static + 1 root + 1 security.txt
+    // + 1 sentinel = 17
+    expect(targets.length).toBe(17);
   });
 });

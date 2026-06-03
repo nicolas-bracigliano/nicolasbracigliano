@@ -62,13 +62,22 @@ if `Expires` is < 30 days away.
 
 ## Analytics
 
-**Status**: configuration target; not enabled yet (pending Cloudflare
-zone setup).
+**Status**: zone is live and proxied (verified 2026-06-03 — Cloudflare
+authoritative NS, apex on Cloudflare anycast, `server: cloudflare` +
+`cf-ray` on every response). Page-level Web Analytics not yet toggled on.
 
-Cloudflare Web Analytics will be enabled in **server-side mode** for the
-zone. Aggregates pageview / referrer / country stats from edge logs at
-the proxy — no JS, no cookies, no CSP loosening, no PII. This is the
-mode (not the default client-side beacon).
+Because the domain is a fully proxied zone, two server-side surfaces are
+available with no JS, no cookies, no CSP loosening, no PII:
+
+- **Zone Traffic analytics** (dashboard → zone → Analytics & Logs →
+  Traffic) aggregates request / bandwidth / country / status-code stats
+  from edge logs. On by default for any proxied zone — already collecting.
+- **Web Analytics** (dashboard → Web Analytics) adds page-level
+  view / referrer / Core Web Vitals stats. Enable it via **Automatic
+  setup**, which Cloudflare offers for proxied hostnames and measures
+  server-side. Do **not** use Manual setup: its beacon injects a
+  `cloudflareinsights.com` script plus a `connect-src`, which breaks the
+  strict CSP and the "no beacon, no cookies" promise (README, §16).
 
 ## Draft preview
 
