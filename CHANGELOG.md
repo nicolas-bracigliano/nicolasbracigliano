@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.21.1](https://github.com/nicolas-bracigliano/nicolasbracigliano/compare/v1.21.0...v1.21.1) (2026-06-03)
+
+
+### Documentation
+
+* complete the comment sweep and add the rot-prevention convention ([42ca2ac](https://github.com/nicolas-bracigliano/nicolasbracigliano/commit/42ca2ac8e01de7e06b844569b50d1317dc77e275))
+* fix stale comments found in a comment-hygiene sweep ([988d4cc](https://github.com/nicolas-bracigliano/nicolasbracigliano/commit/988d4cc4b900a045f3a93d5278c72576dd34cfdc))
+* fix stale comments found in a comment-hygiene sweep ([ebfbf44](https://github.com/nicolas-bracigliano/nicolasbracigliano/commit/ebfbf449a83a83c56967c2723b206e338a7f77a6))
+
 ## [1.21.0](https://github.com/nicolas-bracigliano/nicolasbracigliano/compare/v1.20.0...v1.21.0) (2026-06-02)
 
 
