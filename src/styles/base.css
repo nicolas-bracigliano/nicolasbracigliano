@@ -7,13 +7,8 @@
    Each file wraps its rules in `@layer routes { ... }`; the
    cascade layer is declared once above and merged across all
    imports. Selectors do not overlap between routes (audited
-   empirically), so import order has no effect on cascade.
-   `pieces.css` (formerly `essays.css` — see ADR 0010) loads first
-   because its placeholder rule was historically the first inside
-   `@layer routes`; keeping it there means the emitted bundle stays
-   byte-identical to the pre-split build. The rest follow visual
-   hierarchy of the site (home → notes → colophon → works → about
-   → now → 404). */
+   empirically), so import order has no effect on cascade — the
+   order below just roughly follows the site's visual hierarchy. */
 @import url('./routes/pieces.css');
 @import url('./routes/home.css');
 @import url('./routes/notes.css');

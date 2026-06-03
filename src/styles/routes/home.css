@@ -32,10 +32,9 @@
     .masthead-grid {
       grid-template-columns: 1fr;
     }
-    /* Hide the 220-px portrait monogram on narrow viewports — it adds a
-       lot of vertical scroll before the h1 reads. The placeholder
-       monogram returns on desktop; once the real avatar lands in Phase 3
-       this rule may flip to a shrunk inline version. */
+    /* Hide the 220-px linocut portrait on narrow viewports — it adds a
+       lot of vertical scroll before the h1 reads. It returns at desktop
+       width. */
     .masthead-portrait {
       display: none;
     }

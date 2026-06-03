@@ -1,3 +1,14 @@
+# pnpm 11+ moved the `onlyBuiltDependencies` allowlist out of
+# `package.json` and into this file as the `allowBuilds` map. The
+# four entries below are packages that have a meaningful build step
+# (esbuild's native binary, sharp's libvips bindings, lefthook's
+# native Git hook installer, workerd's Cloudflare Workers runtime
+# bindings) and need their lifecycle scripts to run during install.
+#
+# `true` = allow this package's `postinstall` / build scripts to
+# execute. Every other package's scripts stay sandboxed and skipped
+# by default — pnpm 11's hardened install behaviour.
+
 allowBuilds:
   esbuild: true
   lefthook: true
@@ -10,16 +21,19 @@ allowBuilds:
 # but `pnpm audit` flags them and upstream releases of
 # `@astrojs/check` / `@lhci/cli` haven't rolled forward yet.
 #
-# - yaml ^2.8.3   — patches GHSA-48c2-rrv3-qjmp (stack overflow on
+# (Versions below are Renovate-pinned; the floors that matter are
+# the ones the advisories name.)
+#
+# - yaml (≥2.8.3) — patches GHSA-48c2-rrv3-qjmp (stack overflow on
 #                   deeply-nested YAML). Pulled in via
 #                   @astrojs/check → language-server →
 #                   volar-service-yaml → yaml-language-server.
-# - uuid ^11.1.1  — patches GHSA-w5hq-g745-h8pq (missing buffer
+# - uuid (≥11.1.1) — patches GHSA-w5hq-g745-h8pq (missing buffer
 #                   bounds check in v3/v5/v6). Pulled in via
-#                   @lhci/cli. v11 is a major bump from the
-#                   currently-resolved version; validated below
-#                   that `pnpm lhci` still runs green against it.
-# - tmp ^0.2.6    — patches GHSA-ph9p-34f9-6g65 (path traversal via
+#                   @lhci/cli. v11 is a major bump from the version
+#                   @lhci/cli resolves on its own; validated that
+#                   `pnpm lhci` still runs green against it.
+# - tmp (≥0.2.6)  — patches GHSA-ph9p-34f9-6g65 (path traversal via
 #                   unsanitized `prefix`/`postfix` enabling directory
 #                   escape). Supersedes the earlier ^0.2.4 pin for
 #                   GHSA-52f5-9888-hmc6 (symlink `dir` write) — 0.2.5

@@ -5,9 +5,9 @@
 //
 // Eyebrow, h1, bio and meta are slots so the page can compose locale-
 // specific copy with inline <Coffee /> + <Mate /> vignettes. The
-// portrait stays a styled monogram placeholder until the real avatar
-// lands (Phase 3); the markup wrapping it stays stable so swapping
-// the inner SVG for an <Image /> is a one-line change.
+// portrait is the inline linocut SVG (`Portrait.astro`); the wrapping
+// markup is component-agnostic, so swapping it for an <Image /> would
+// be a one-line change.
 
 import Portrait from '@components/Portrait.astro';
 

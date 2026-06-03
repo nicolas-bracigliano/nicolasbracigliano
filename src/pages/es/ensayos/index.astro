@@ -5,10 +5,10 @@ import PiecesMasthead from '@components/PiecesMasthead.astro';
 import PieceEntry from '@components/PieceEntry.astro';
 import { ROUTES } from '@lib/routes';
 
-// El índice muestra cada ensayo como un excerpt (párrafos del kernel
-// + un enlace para seguir leyendo). PieceEntry extrae el kernel
-// directamente de `entry.body`, así que no hace falta llamar a
-// `render()` acá; sería costo de build para descartar el HTML.
+// El índice muestra cada ensayo como una fila (meta + título + lede +
+// tags, según ADR 0012). PieceEntry solo necesita el frontmatter y el
+// `entry.body` crudo (para el tiempo de lectura), así que no hace falta
+// llamar a `render()` acá; sería costo de build para descartar el HTML.
 const pieces = (
   await getCollection('pieces', (e) => e.data.lang === 'es' && e.data.status === 'published')
 ).sort((a, b) => +b.data.date - +a.data.date);

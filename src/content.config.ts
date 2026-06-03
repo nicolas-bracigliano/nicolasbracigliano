@@ -55,8 +55,8 @@ const notes = defineCollection({
     base
       .extend({
         /** Optional kind — selects a default decorative glyph from the
-         *  art registry (`src/lib/art-registry.ts`). Omit for no glyph
-         *  (was `glyph: 'none'` under the old enum). See ADR 0013. */
+         *  per-kind maps in `src/components/ContentArt.astro`. Omit for
+         *  no glyph. See ADR 0013. */
         kind: z.enum(NOTE_KINDS).optional(),
         /** Manual override; if omitted, NoteEntry computes from `entry.body`. */
         minutes: z.number().int().positive().optional(),
@@ -209,7 +209,7 @@ const pieces = defineCollection({
         // first piece that uses it ships the plugin alongside. Until
         // then, an `after`-marked diagram throws at build time with a
         // clear message rather than silently rendering in the wrong
-        // position. See `src/components/PieceEntry.astro` for the guard.
+        // position. See `src/layouts/PieceLayout.astro` for the guard.
         //
         // i18n coupling: `after` references the slug of an Astro-
         // generated heading anchor, which is derived from the heading

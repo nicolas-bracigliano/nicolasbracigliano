@@ -156,7 +156,8 @@ const siblingPath = null;
 
   <script>
     // Fill the requested path into the prose. SSG can't know it; the
-    // page runs on every unmatched URL. ~90 B inline, no astro:page-load
+    // page runs on every unmatched URL. Emitted as a tiny external
+    // module (ADR 0008 — CSP forbids inline scripts). No astro:page-load
     // dependency because the 404 isn't a ClientRouter destination —
     // it's the fallback for paths that don't resolve.
     const el = document.getElementById('notfound-url');

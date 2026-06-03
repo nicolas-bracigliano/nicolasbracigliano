@@ -5,10 +5,10 @@ import PiecesMasthead from '@components/PiecesMasthead.astro';
 import PieceEntry from '@components/PieceEntry.astro';
 import { ROUTES } from '@lib/routes';
 
-// The index renders each piece as an excerpt (kernel paragraphs +
-// "continue reading" link). PieceEntry pulls the kernel directly from
-// `entry.body`, so we don't need to call `render()` here — that's
-// build cost we'd pay just to throw away the rendered HTML.
+// The index renders each piece as a row (meta + title + lede + tags,
+// per ADR 0012). PieceEntry only needs frontmatter plus the raw
+// `entry.body` (for read-time), so we don't call `render()` here —
+// that's build cost we'd pay just to throw away the rendered HTML.
 const pieces = (
   await getCollection('pieces', (e) => e.data.lang === 'en' && e.data.status === 'published')
 ).sort((a, b) => +b.data.date - +a.data.date);

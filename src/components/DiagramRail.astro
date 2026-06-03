@@ -34,7 +34,8 @@ export interface DiagramRailItem {
   /** Inline-placement anchor slug, if any. DiagramRail doesn't act on
    *  this — that's the eventual rehype plugin's job. The field is part
    *  of the contract so callers can pass items through transparently.
-   *  See `PieceEntry.astro` for the fallback-to-top behaviour. */
+   *  Until the plugin lands, `PieceLayout.astro` throws at build time
+   *  when a diagram sets it. */
   after?: string | undefined;
 }
 

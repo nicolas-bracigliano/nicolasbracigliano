@@ -113,9 +113,9 @@ test('note entry page hides the "→ link" permalink (it would point at the curr
 
 test('notes index renders the "→ link" permalink on each note', async ({ page }) => {
   await page.goto('/en/notes/');
-  // Three seed notes (hello, text-wrap-pretty, right-hand-is-the-
-  // song), each with a `.note-foot` containing a permalink. The
-  // total `.note-foot a` count equals the visible note count.
+  // Every published note renders a `.note-foot` containing a
+  // permalink, so the total `.note-foot a` count equals the
+  // visible note count.
   const links = page.locator('.note-foot a');
   await expect(links).not.toHaveCount(0);
   await expect(links.first()).toHaveAttribute('href', /^\/en\/notes\/[a-z-]+\/$/);
@@ -151,8 +151,8 @@ test('ASCII signature renders with the current two-digit year', async ({ page })
 test('notes index — first note margin-mark is ✸, subsequent rows are ↳', async ({ page }) => {
   await page.goto('/en/notes/');
   const marks = page.locator('.note .margin-mark');
-  // At least two notes need asides for this to mean anything; the seed
-  // content guarantees three (hello, text-wrap-pretty, right-hand).
+  // At least two notes need asides for this to mean anything; every
+  // published note currently carries an `aside:`.
   await expect(marks).not.toHaveCount(0);
   await expect(marks.first()).toHaveText('✸');
   await expect(marks.nth(1)).toHaveText('↳');
@@ -167,9 +167,9 @@ test('note ornament <hr> renders inside .note-prose when markdown has ---', asyn
 
 test('note glyphs render an SVG keyed to each kind', async ({ page }) => {
   await page.goto('/en/notes/');
-  // The seed content covers code + guitar; garden + coffee remain
-  // covered by the schema and the NoteGlyph component but aren't
-  // exercised by demo notes today.
+  // The published notes cover code, guitar, and coffee; garden
+  // remains covered by the schema and ContentArt's glyph map but
+  // isn't exercised by a published note today.
   await expect(page.locator('.note-glyph.g-code svg')).not.toHaveCount(0);
   await expect(page.locator('.note-glyph.g-guitar svg')).toHaveCount(1);
 });
@@ -522,11 +522,11 @@ test('works — each kind renders its default vignette via the registry', async 
 // trailing slash — `curl /foo/` returns our page, `curl /foo`
 // returns Astro's built-in "404: Not Found" page. The preview
 // server reads `trailingSlash: 'always'` as "only canonical-slash
-// URLs are mine to handle." Cloudflare Pages in production
-// doesn't read Astro's config and serves `404.html` via standard
-// static-file lookup for any unmatched URL regardless of slash,
-// so the suffix-`/` constraint applies only to this test
-// environment, not to real visitors.
+// URLs are mine to handle." Cloudflare Workers Static Assets in
+// production doesn't read Astro's config and serves `404.html`
+// (via `not_found_handling = "404-page"`) for any unmatched URL
+// regardless of slash, so the suffix-`/` constraint applies only
+// to this test environment, not to real visitors.
 
 test('/404 — broken-N illustration + masthead are in the SSR response', async ({ page }) => {
   await page.goto('/this-route-is-not-real/');
@@ -589,9 +589,9 @@ test('/404 — fallback returns HTTP 404 and the inline script fills the request
   page,
 }) => {
   // A path that resolves to nothing: Astro's preview server (and
-  // Cloudflare Pages in production) serves `404.html` with status
-  // 404. The inline script reads `window.location.pathname` and
-  // writes it into `#notfound-url`.
+  // Workers Static Assets in production) serves `404.html` with
+  // status 404. The page's script reads `window.location.pathname`
+  // and writes it into `#notfound-url`.
   const bogus = '/this-path-does-not-exist-xyz/';
   const response = await page.goto(bogus);
   expect(response?.status()).toBe(404);
