@@ -7,13 +7,17 @@
 // reapplies the same posture so a security scan of those endpoints sees
 // the full header set, not a subset.
 //
-// IMPORTANT: this MUST stay in sync with the `/*` block in
-// `public/_headers`. `tests/unit/security-headers.test.ts` parses that
-// file and fails if the two drift. Strict-Transport-Security is the one
-// deliberate omission: a Cloudflare zone setting applies (and overrides)
-// HSTS on every response — including these — so declaring it here would
-// be a no-op that misleads (the zone serves max-age=15552000 regardless
-// of the 63072000 in `_headers`).
+// The values here intentionally duplicate the `/*` block in
+// `public/_headers`. Generating one from the other was considered, but a
+// build-time generator plus a staleness check is more machinery than a
+// short header block warrants; instead `tests/unit/security-headers.test.ts`
+// parses `_headers` and fails if any value here drifts from it.
+//
+// Strict-Transport-Security is deliberately omitted: HSTS is owned by the
+// Cloudflare zone setting (SSL/TLS -> Edge Certificates), which applies to
+// every response — worker- and asset-served alike. Declaring it here would
+// be a no-op, so the Worker stays out of it and the zone stays the single
+// owner.
 export const SECURITY_HEADERS: Record<string, string> = {
   'Content-Security-Policy':
     "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; upgrade-insecure-requests",

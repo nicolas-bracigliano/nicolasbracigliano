@@ -21,10 +21,14 @@ compatibility_date = "2026-05-24"
 # match an asset.
 main = "src/worker.ts"
 
-# Note: `src/worker.ts` imports `public/.well-known/security.txt` as a
-# string to serve it directly (Workers Static Assets won't serve
-# dot-prefixed dirs). That works on wrangler's built-in `Text` module
-# rule for `**/*.txt` — no custom `rules` block needed here.
+# `src/worker.ts` imports `public/.well-known/security.txt` as a string
+# to serve it directly (Workers Static Assets won't serve dot-prefixed
+# dirs). wrangler's built-in default would bundle it as Text, but we
+# declare the rule explicitly so the dependency is visible and survives
+# any change to wrangler's defaults. `fallthrough = true` keeps the
+# built-in rules active for everything else (and silences the
+# shadow-warning the bare rule would emit).
+rules = [{ type = "Text", globs = ["**/.well-known/security.txt"], fallthrough = true }]
 
 [assets]
 # Astro outputs the built site here. Uploaded as part of the

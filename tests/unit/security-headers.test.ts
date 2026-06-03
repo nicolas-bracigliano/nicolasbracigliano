@@ -5,8 +5,8 @@ import { SECURITY_HEADERS, withSecurityHeaders } from '../../src/lib/security-he
 // Worker-generated responses (the `/` redirect, `/.well-known/security.txt`)
 // bypass the Static Assets layer, so the `/*` rules in `public/_headers`
 // never reach them. `withSecurityHeaders` reapplies that posture in the
-// Worker. These tests pin the behaviour and — crucially — guard against
-// the worker set drifting from `public/_headers`.
+// Worker. These tests pin the behaviour and guard the worker set against
+// drifting from `public/_headers`.
 
 describe('withSecurityHeaders', () => {
   it('adds the security headers to a response', () => {
@@ -40,28 +40,59 @@ describe('withSecurityHeaders', () => {
     expect(res.headers.get('X-Content-Type-Options')).toBe('nosniff');
   });
 
-  it('omits Strict-Transport-Security (the Cloudflare zone manages it)', () => {
+  it('omits Strict-Transport-Security (the Cloudflare zone owns it)', () => {
     const res = withSecurityHeaders(new Response('hi'));
     expect(res.headers.has('Strict-Transport-Security')).toBe(false);
   });
 });
 
-describe('SECURITY_HEADERS mirrors public/_headers', () => {
-  // Anti-drift guard: the worker set must equal the asset `/*` block,
-  // minus HSTS (zone-managed). Editing one without the other fails here.
-  it('matches the /* block (excluding Strict-Transport-Security)', () => {
-    const raw = readFileSync(new URL('../../public/_headers', import.meta.url), 'utf-8');
-    const lines = raw.split('\n');
-    const start = lines.findIndex((l) => l.trim() === '/*');
-    const block: Record<string, string> = {};
-    for (let i = start + 1; i < lines.length; i++) {
-      const line = lines[i];
-      if (line === undefined || !/^\s/.test(line) || line.trim() === '') break;
-      const idx = line.indexOf(':');
-      const key = line.slice(0, idx).trim();
-      const value = line.slice(idx + 1).trim();
-      if (key !== 'Strict-Transport-Security') block[key] = value;
+/** Parse a named block (e.g. `/*`) from a Cloudflare `_headers` file into a
+ *  name->value map. Skips `#` comments and stops at the next path or a blank
+ *  line — the same shape Cloudflare's own parser recognises. */
+function parseHeadersBlock(raw: string, path: string): Record<string, string> {
+  const lines = raw.split('\n');
+  const start = lines.findIndex((l) => l.trim() === path);
+  if (start === -1) throw new Error(`block ${path} not found in _headers`);
+  const block: Record<string, string> = {};
+  for (let i = start + 1; i < lines.length; i++) {
+    const line = lines[i];
+    // End of block: a non-indented line (next path) or a blank line.
+    if (line === undefined || line.trim() === '' || !/^\s/.test(line)) break;
+    if (line.trim().startsWith('#')) continue; // comment
+    const idx = line.indexOf(':');
+    if (idx === -1) continue;
+    block[line.slice(0, idx).trim()] = line.slice(idx + 1).trim();
+  }
+  return block;
+}
+
+describe('SECURITY_HEADERS stays consistent with public/_headers', () => {
+  const assetBlock = parseHeadersBlock(
+    readFileSync(new URL('../../public/_headers', import.meta.url), 'utf-8'),
+    '/*',
+  );
+
+  it('matches the _headers value for every header it declares (no drift)', () => {
+    // Subset, not verbatim: `_headers` may carry headers we deliberately
+    // don't replay on worker responses. What must never happen is a
+    // *value* drift for a header the Worker does send.
+    for (const [name, value] of Object.entries(SECURITY_HEADERS)) {
+      expect(assetBlock[name], `${name} drifted from public/_headers`).toBe(value);
     }
-    expect(SECURITY_HEADERS).toEqual(block);
+  });
+
+  it('carries the core protections so they cannot be silently dropped', () => {
+    for (const required of [
+      'Content-Security-Policy',
+      'X-Content-Type-Options',
+      'Referrer-Policy',
+      'X-Frame-Options',
+    ]) {
+      expect(SECURITY_HEADERS[required], `${required} missing from worker set`).toBeTruthy();
+    }
+  });
+
+  it('does not declare Strict-Transport-Security (zone-owned)', () => {
+    expect(SECURITY_HEADERS['Strict-Transport-Security']).toBeUndefined();
   });
 });
