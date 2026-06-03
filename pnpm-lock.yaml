@@ -5,9 +5,9 @@ settings:
   excludeLinksFromLockfile: false
 
 overrides:
-  yaml: ^2.8.3
-  uuid: ^11.1.1
-  tmp: ^0.2.6
+  yaml: 2.9.0
+  uuid: 11.1.1
+  tmp: 0.2.7
 
 importers:
 
@@ -108,7 +108,7 @@ importers:
         specifier: 4.93.1
         version: 4.93.1
       yaml:
-        specifier: ^2.8.3
+        specifier: 2.9.0
         version: 2.9.0
 
 packages:
@@ -4536,7 +4536,7 @@ packages:
       sugarss: ^5.0.0
       terser: ^5.16.0
       tsx: ^4.8.1
-      yaml: ^2.8.3
+      yaml: 2.9.0
     peerDependenciesMeta:
       '@types/node':
         optional: true
