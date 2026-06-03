@@ -19,6 +19,7 @@ These rules are reflective, not enforced by CI. The judgement stays with the wri
 - Per-route CSS in `src/styles/routes/`; component-scoped CSS (diagrams) in `src/styles/diagrams.css`.
 - `pnpm verify:fast` (typecheck, lint, format, unit) before committing; `pnpm verify:slow` (build, lhci, e2e, html-validate) for anything visual.
 - Margin-note `section:` values must match a real H2 slug or the pull quote silently doesn't render. This is the one piece-level rule with a test (`tests/unit/piece-margin-note-anchors.test.ts`) — it's a correctness bug, not a style call. Everything else editorial is the §7b reflection guide, not a test.
+- **When renaming, moving, or rewiring behaviour, grep the codebase for comments naming the old file/symbol/behaviour.** Comments here are dense and cross-referential by design; the main rot vector (found in the 2026-06 comment-hygiene sweep, PR #133) is a comment in file A describing behaviour that lives in file B. The code change lands, the pointer in A quietly goes stale.
 
 ## Gotchas (hit these, save the next session the cycles)
 

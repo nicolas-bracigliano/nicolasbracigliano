@@ -151,8 +151,9 @@ test('ASCII signature renders with the current two-digit year', async ({ page })
 test('notes index — first note margin-mark is ✸, subsequent rows are ↳', async ({ page }) => {
   await page.goto('/en/notes/');
   const marks = page.locator('.note .margin-mark');
-  // At least two notes need asides for this to mean anything; every
-  // published note currently carries an `aside:`.
+  // The assertion needs at least two notes with `aside:` frontmatter
+  // (it checks the first AND second marks) — the not-toHaveCount(0)
+  // guard below fails loudly if the published set ever drops under that.
   await expect(marks).not.toHaveCount(0);
   await expect(marks.first()).toHaveText('✸');
   await expect(marks.nth(1)).toHaveText('↳');
