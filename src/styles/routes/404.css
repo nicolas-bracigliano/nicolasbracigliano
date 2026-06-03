@@ -60,7 +60,7 @@
     text-wrap: pretty;
   }
   .notfound-url {
-    /* Requested path, filled by the inline script. Reads visually
+    /* Requested path, filled by the page's script. Reads visually
        as a code-style token — distinguishes the broken-URL from
        prose. Accent applied via --accent-aa for AA contrast on the
        small mono type. */

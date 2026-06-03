@@ -165,9 +165,9 @@ describe('pull-quote anchor logic', () => {
     const before = tree.children?.length;
     runPlugin(tree, vfile([{ section: 'nonexistent-section', text: 'Orphan note.' }]));
 
-    // No new nodes added. The plugin doesn't throw — orphans are caught
-    // separately by the e2e tests in pieces.spec.ts (the visual pass
-    // notices a missing quote on the page).
+    // No new nodes added. The plugin doesn't throw — orphan anchors
+    // are caught separately by the per-piece drift test in
+    // tests/unit/piece-margin-note-anchors.test.ts.
     expect(tree.children?.length).toBe(before);
   });
 

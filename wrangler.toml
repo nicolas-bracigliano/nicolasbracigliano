@@ -1,6 +1,6 @@
 # Cloudflare Worker with Static Assets — hosts the Astro build at
 # `nicolas-bracigliano.<account>.workers.dev` and at the custom
-# domain `nicolasbracigliano.com` once Phase-0 DNS is wired.
+# domain `nicolasbracigliano.com`.
 #
 # `name` MUST match the Worker on Cloudflare exactly. Renaming
 # here orphans the existing Worker and creates a new one

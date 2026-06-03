@@ -1,8 +1,9 @@
 // Single source of truth for the ⌘K command palette's index. Built at
 // build time from the same content collections the routes render from
 // (notes / works / pieces) plus the static route list — so there is no
-// separate index to maintain. `CommandPalette.astro` serializes the result
-// to JSON in the page; `src/scripts/cmdk.ts` reads and matches against it.
+// separate index to maintain. `src/pages/cmdk/[lang].json.ts` prerenders
+// the result as a per-locale JSON endpoint; `src/scripts/cmdk.ts` fetches
+// it on first open and matches against it.
 //
 // This is *navigation, not full-text search* (design-system §-command
 // palette): at this scale a reader scans faster than they search, so we

@@ -157,19 +157,6 @@ export function benchItemsFrom(items: readonly NowPageItem[]): BenchItem[] {
   );
 }
 
-/** Narrows a `pages` collection entry to the discriminated-union
- *  variant whose `slug` is `'now'`. The Zod schema in
- *  `src/content.config.ts` already enforces `slug === 'now'` at
- *  build time for `pages/{en,es}/now.md`, so this throw can
- *  never fire at runtime — but it gives TypeScript the hook to
- *  narrow `entry.data.items` from optional to required, and
- *  produces a clear error message if a future contributor
- *  renames the markdown slug.
- *
- *  Generic over `E extends { data: { slug: string } }` rather
- *  than typed to `CollectionEntry<'pages'>` directly so this
- *  module stays Astro-import-free (and unit-testable in plain
- *  vitest). */
 /** Visible label for a /now → /works "see also" link: a work's localized
  *  route with its leading `/en|/es` locale segment and trailing slash
  *  stripped, e.g. `/en/works/this-site/` → `/works/this-site` (ES:
@@ -223,6 +210,19 @@ export function nowWorkLinks(
   });
 }
 
+/** Narrows a `pages` collection entry to the discriminated-union
+ *  variant whose `slug` is `'now'`. The Zod schema in
+ *  `src/content.config.ts` already enforces `slug === 'now'` at
+ *  build time for `pages/{en,es}/now.md`, so this throw can
+ *  never fire at runtime — but it gives TypeScript the hook to
+ *  narrow `entry.data.items` from optional to required, and
+ *  produces a clear error message if a future contributor
+ *  renames the markdown slug.
+ *
+ *  Generic over `E extends { data: { slug: string } }` rather
+ *  than typed to `CollectionEntry<'pages'>` directly so this
+ *  module stays Astro-import-free (and unit-testable in plain
+ *  vitest). */
 export function assertNowEntry<E extends { data: { slug: string } }>(
   entry: E,
 ): asserts entry is E & { data: { slug: 'now'; items: NowPageItem[] } } {

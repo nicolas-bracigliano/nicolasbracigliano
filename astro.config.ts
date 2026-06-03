@@ -35,13 +35,14 @@ export default defineConfig({
   // default remark/rehype processor — gfm + smartypants stay on by default,
   // and we ship no fenced code, so there's no syntaxHighlight to carry over.
   //
-  // `remarkInjectMarginNotes` is a pipeline of MDAST transforms applied BEFORE
+  // `remarkInjectMarginNotes` is an MDAST transform applied BEFORE
   // markdown → HTML: it reads `marginNotes` from the entry's frontmatter and
-  // splices each note into the tree right after the heading whose computed
-  // slug matches `note.section` — what gives pieces marginalia in the right
-  // gutter. It runs at the remark stage (not rehype) because Astro's heading-
-  // anchor IDs are added later in the pipeline; at rehype time the headings
-  // have no `id` to match against.
+  // splices each one in as a `<p class="pull">` pull quote at the END of the
+  // section whose H2 slug matches `note.section` (it also tags the lead
+  // paragraph for the drop cap). It runs at the remark stage (not rehype)
+  // because Astro's heading-anchor IDs are added later in the pipeline; at
+  // rehype time the headings have no `id` to match against. Full contract
+  // in the plugin's header (`src/lib/remark-inject-margin-notes.ts`).
   markdown: {
     processor: unified({ remarkPlugins: [remarkInjectMarginNotes] }),
   },

@@ -13,10 +13,9 @@
 // aligns ("2026 · …" down the list). NOTE this differs from
 // `WorkCard.astro`: that component feeds {year, month:'short'} straight
 // to `Intl` and lowercases, which is locale-ordered — month-first for
-// en-AU/es-AR ("apr · 2026"), despite its comment claiming "2026 · apr".
-// Here the year is placed first explicitly so it can't drift by locale.
-// (Whether `/works` itself should read year-first is a separate call —
-// flagged to the writer, not changed here.)
+// en-AU/es-AR ("apr · 2026"). Here the year is placed first explicitly
+// so it can't drift by locale. The two surfaces differ on purpose until
+// `TODO(date-order)` in WorkCard.astro is decided.
 //
 // Astro-free on purpose (same rationale as `latest-entries.ts`): no
 // `astro:content` import, so it's unit-testable in plain vitest.

@@ -35,8 +35,8 @@
 // strict pnpm doesn't expose it as a direct dependency.
 //
 // Cache caveat: edits to this plugin don't invalidate Astro's content
-// cache. Run `rm -rf node_modules/.astro` to force a rebuild during
-// local development. CI builds always start clean.
+// cache. Run `rm -rf node_modules/.astro .astro` to force a rebuild
+// during local development. CI builds always start clean.
 
 interface MarginNote {
   section: string;

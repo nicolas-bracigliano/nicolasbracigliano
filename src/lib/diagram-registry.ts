@@ -28,9 +28,9 @@
 //   - `place: 'bottom'` — between prose and foot.
 //   - `after: '<slug>'` — inline, after the heading whose anchor
 //     matches the slug. Reserved for the eventual rehype plugin
-//     (not yet wired). An `after`-marked diagram falls back to the
-//     top rail with a build-time warning until the plugin lands —
-//     see `PieceEntry.astro` for the fallback path.
+//     (not yet wired). Until it lands, an `after`-marked diagram
+//     THROWS at build time — see the guard in
+//     `src/layouts/PieceLayout.astro`.
 
 // `readonly [string, ...string[]]` constraint keeps TS aware that the
 // tuple is non-empty — `REGISTRY_KEYS[0]` is `string`, not `string |

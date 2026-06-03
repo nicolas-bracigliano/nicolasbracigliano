@@ -12,9 +12,9 @@
 // exercised here.
 //
 // The `yaml` package is the cost: already a transitive dep (via
-// @astrojs/check → language-server → yaml-language-server, pinned ^2.8.3
-// by the security-overrides PR), so the direct devDep adds ~50 KB and
-// zero new transitives.
+// @astrojs/check → language-server → yaml-language-server, pinned by the
+// security overrides in pnpm-workspace.yaml), so the direct devDep adds
+// ~50 KB and zero new transitives.
 
 import { readFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
