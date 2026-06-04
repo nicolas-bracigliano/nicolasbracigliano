@@ -183,6 +183,9 @@
     max-width: 16.25rem;
     min-width: 0;
     width: 30ch;
+    /* Same 2.75rem floor as every other colophon control — in the
+       blocked-clipboard path this field IS the primary control. */
+    min-block-size: 2.75rem;
   }
   .ac-copy-url:focus {
     border-color: var(--accent);
