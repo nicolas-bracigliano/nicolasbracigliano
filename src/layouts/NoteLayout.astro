@@ -1,21 +1,29 @@
 ---
+// Thin BaseLayout adapter for the note slug pages. The detail-page
+// markup lives in `NoteDetail.astro` (which also carries the clipboard
+// script); this layout only wires <head>/SEO props and passes through
+// the leaf/neighbour data the `[slug].astro` pages compute from the
+// sorted collection their `getStaticPaths` already loads.
 import BaseLayout from './BaseLayout.astro';
-import NoteEntry from '@components/NoteEntry.astro';
+import NoteDetail, { type NeighborVM } from '@components/NoteDetail.astro';
 import type { CollectionEntry } from 'astro:content';
-import { ROUTES, type Locale } from '@lib/routes';
+import type { Locale } from '@lib/routes';
 import { ogImageUrlFor } from '@lib/i18n';
 
 export interface Props {
   entry: CollectionEntry<'notes'>;
   path: string;
   siblingPath: string | null;
+  /** 1-based position among this locale's published notes, oldest = 1. */
+  leafNo: number;
+  leafTotal: number;
+  older: NeighborVM | null;
+  newer: NeighborVM | null;
 }
 
-const { entry, path, siblingPath } = Astro.props;
+const { entry, path, siblingPath, leafNo, leafTotal, older, newer } = Astro.props;
 const { title, lede, lang } = entry.data;
 const locale: Locale = lang;
-const indexHref = ROUTES.notes[locale];
-const indexLabel = locale === 'es' ? '↩ todas las notas' : '↩ all notes';
 const ogImage = ogImageUrlFor(entry);
 ---
 
@@ -27,15 +35,15 @@ const ogImage = ogImageUrlFor(entry);
   ogImage={ogImage}
   {...lede && { description: lede }}
 >
-  <section class="notes wrap notes--single">
-    <ol class="notes-list">
-      <NoteEntry entry={entry} locale={locale} isFirst={true} isStandalone={true}>
-        <slot />
-      </NoteEntry>
-    </ol>
-
-    <footer class="notes-foot">
-      <a class="back-link" href={indexHref} data-astro-prefetch>{indexLabel}</a>
-    </footer>
-  </section>
+  <NoteDetail
+    entry={entry}
+    locale={locale}
+    leafNo={leafNo}
+    leafTotal={leafTotal}
+    older={older}
+    newer={newer}
+    permalinkPath={path}
+  >
+    <slot />
+  </NoteDetail>
 </BaseLayout>

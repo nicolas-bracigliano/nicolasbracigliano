@@ -1,26 +1,57 @@
 ---
-import { getCollection, render } from 'astro:content';
+import { getCollection, render, type CollectionEntry } from 'astro:content';
 import NoteLayout from '@layouts/NoteLayout.astro';
 import { getSibling, entryRouteFor } from '@lib/i18n';
+import { formatEntryDate } from '@lib/format-entry-date';
 
 export async function getStaticPaths() {
-  const notes = await getCollection(
-    'notes',
-    (e) => e.data.lang === 'en' && e.data.status === 'published',
-  );
-  return notes.map((entry) => ({
+  // Newest-first, same comparator as the index — the sorted array that
+  // enumerates the paths also yields each note's leaf number and its
+  // older/newer neighbours (no second collection fetch).
+  const notes = (
+    await getCollection('notes', (e) => e.data.lang === 'en' && e.data.status === 'published')
+  ).sort((a, b) => +b.data.date - +a.data.date);
+  return notes.map((entry, idx) => ({
     params: { slug: entry.data.slug },
-    props: { entry },
+    props: {
+      entry,
+      idx,
+      total: notes.length,
+      // Newest-first: the older neighbour sits at the next index.
+      olderEntry: notes[idx + 1] ?? null,
+      newerEntry: notes[idx - 1] ?? null,
+    },
   }));
 }
 
-const { entry } = Astro.props;
+const { entry, idx, total, olderEntry, newerEntry } = Astro.props;
 const sibling = await getSibling(entry);
 const { Content } = await render(entry);
 const path = entryRouteFor(entry);
 const siblingPath = sibling ? entryRouteFor(sibling) : null;
+
+// Leaf counter: oldest = 01. The array is newest-first, so position
+// counts from the far end.
+const leafNo = total - idx;
+
+const toNeighbor = (e: CollectionEntry<'notes'>) => ({
+  title: e.data.title,
+  href: entryRouteFor(e),
+  dateDisplay: formatEntryDate(e.data.date, { kind: 'note', locale: 'en' }),
+  iso: e.data.date.toISOString().split('T')[0] as string,
+});
+const older = olderEntry ? toNeighbor(olderEntry) : null;
+const newer = newerEntry ? toNeighbor(newerEntry) : null;
 ---
 
-<NoteLayout entry={entry} path={path} siblingPath={siblingPath}>
+<NoteLayout
+  entry={entry}
+  path={path}
+  siblingPath={siblingPath}
+  leafNo={leafNo}
+  leafTotal={total}
+  older={older}
+  newer={newer}
+>
   <Content />
 </NoteLayout>
