@@ -24,6 +24,10 @@
 /* Component-scoped (not a route): the ⌘K command palette (the site's
    search). See the design-system command-palette section. */
 @import url('./cmdk.css');
+/* Component-scoped (not a route): the shared end-of-page footers —
+   SectionEnd (index caps) + ArticleColophon (detail colophon with the
+   copy-link control). */
+@import url('./footers.css');
 
 @layer base {
   html {

@@ -1,0 +1,200 @@
+---
+// Shared end-of-read block for every detail page (note · piece · work):
+// meta line (slotted, per-route) · signature · nav (back-link ·
+// back-to-top · copy-link). One implementation so a single read is
+// always citable at the moment sharing actually happens — the end.
+//
+// The copy control is deliberately quiet (text, not a pill): a loud
+// "share" button would break the room. It is also honest about
+// outcomes — "link copied" appears ONLY if the clipboard write
+// actually resolved. If the API is missing or blocked (http://,
+// locked-down contexts), it reveals the URL in a select-all field so
+// the reader can still copy it by hand; never a silent lie. With JS
+// off the button is inert and the page simply has no copy affordance
+// (the address bar still has the URL).
+//
+// This does NOT cover the global site footer (© · hecho a mano) or the
+// index/list caps (SectionEnd.astro) — those are different objects.
+//
+// The em dash in the signature is the approved chrome use of `—`
+// (editorial signoff, same exemption as PieceLayout documented) — §6's
+// "no em dashes" rule is about prose, not chrome.
+import type { Locale } from '@lib/routes';
+
+export interface Props {
+  locale: Locale;
+  backHref: string;
+  /** Localised back-link text, e.g. "← all notes" — owned by the caller. */
+  backLabel: string;
+  /** Anchor of the page's top element, e.g. "#piece-top". */
+  topHref: string;
+  /** The page's own route — copied client-side as origin + path. */
+  permalinkPath: string;
+  /** aria-label for the nav landmark, localised by the caller. */
+  navLabel: string;
+}
+
+const { locale, backHref, backLabel, topHref, permalinkPath, navLabel } = Astro.props;
+
+// Per-locale UI copy lives in the component (project convention;
+// i18n.ts is the routing module, not a translation store).
+// NOTE: ES strings are DRAFTS pending the author's review.
+const copy = {
+  en: {
+    backToTop: 'back to top ↑',
+    copyLabel: 'copy link',
+    copied: 'link copied',
+    manualLabel: 'Link to this page — select and copy',
+    dismissLabel: 'Hide link',
+    signature: '— Nicolas',
+  },
+  es: {
+    backToTop: 'volver arriba ↑',
+    copyLabel: 'copiar enlace',
+    copied: 'enlace copiado',
+    manualLabel: 'Enlace a esta página — seleccioná y copiá',
+    dismissLabel: 'Ocultar enlace',
+    signature: '— Nicolás',
+  },
+} as const;
+const t = copy[locale];
+---
+
+<footer class="article-colophon">
+  <p class="ac-meta"><slot /></p>
+
+  <p class="ac-sig">
+    {t.signature}
+    <span class="ac-muted">· Melbourne</span>
+  </p>
+
+  <nav class="ac-nav" aria-label={navLabel}>
+    {
+      /* The underline draws on the inner label, not the anchor — the
+         anchor is a 2.75rem tap-target box, so its bottom edge sits too
+         far from the text for the chrome's 6px underline gap. */
+    }
+    <a class="ac-nav-link" href={backHref} data-astro-prefetch>
+      <span class="ac-nav-label">{backLabel}</span>
+    </a>
+    <span class="ac-sep" aria-hidden="true">·</span>
+    <a class="ac-nav-link" href={topHref}>
+      <span class="ac-nav-label">{t.backToTop}</span>
+    </a>
+    <span class="ac-spacer" aria-hidden="true"></span>
+
+    <span
+      class="ac-copylink"
+      data-ac-copy-root
+      data-ac-url={permalinkPath}
+      data-ac-copied={t.copied}
+    >
+      <button type="button" class="ac-copy" data-ac-copy aria-live="polite">
+        {
+          /* Glyph + label share one inner span so the hover underline
+             spans both and they centre against the same 6px-padded box. */
+        }
+        <span class="ac-copy-inner">
+          {/* hand-drawn interlocking link, matching the vignette language */}
+          <span class="ac-copy-glyph" data-ac-glyph="idle" aria-hidden="true">
+            <svg viewBox="0 0 22 22" width="15" height="15">
+              <g fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
+                <path d="M9 13 a4 4 0 0 1 0 -5 l2 -2 a4 4 0 0 1 6 6 l-1.4 1.4"></path>
+                <path d="M13 9 a4 4 0 0 1 0 5 l-2 2 a4 4 0 0 1 -6 -6 l1.4 -1.4"></path>
+              </g>
+            </svg>
+          </span>
+          <span class="ac-copy-glyph" data-ac-glyph="copied" aria-hidden="true" hidden>
+            <svg viewBox="0 0 20 20" width="14" height="14">
+              <path
+                d="M4 11 L 8 15 L 16 5"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.6"
+                stroke-linecap="round"
+                stroke-linejoin="round"></path>
+            </svg>
+          </span>
+          <span class="ac-copy-label">{t.copyLabel}</span>
+        </span>
+      </button>
+
+      {/* manual fallback: clipboard blocked → reveal a select-all URL field */}
+      <span class="ac-copy-manual" hidden>
+        <input class="ac-copy-url" type="text" readonly aria-label={t.manualLabel} />
+        <button type="button" class="ac-copy ac-copy-dismiss" aria-label={t.dismissLabel}>✕</button>
+      </span>
+    </span>
+  </nav>
+</footer>
+
+<script>
+  // Copy-link wiring. Bundled by Astro and served same-origin, so the
+  // strict `script-src 'self'` CSP holds with no hashes (ADR 0008).
+  //
+  // `astro:page-load` fires on every ClientRouter navigation; the
+  // `data-wired` guard prevents double-binding when an un-swapped
+  // colophon survives a transition (the swap replaces <main>, so a
+  // fresh page's control arrives unwired and gets picked up).
+  //
+  // Three states, honest about outcomes:
+  //   idle   → click → clipboard write resolved → "link copied" (1.9 s)
+  //   idle   → click → write threw / API absent → manual: reveal a
+  //            readonly select-all URL field + dismiss (✕) back to idle
+  function wireCopyLink(): void {
+    const root = document.querySelector<HTMLElement>('[data-ac-copy-root]');
+    if (!root || root.dataset['wired'] === 'true') return;
+    root.dataset['wired'] = 'true';
+
+    const btn = root.querySelector<HTMLButtonElement>('[data-ac-copy]');
+    const label = root.querySelector<HTMLElement>('.ac-copy-label');
+    const idleGlyph = root.querySelector<HTMLElement>('[data-ac-glyph="idle"]');
+    const copiedGlyph = root.querySelector<HTMLElement>('[data-ac-glyph="copied"]');
+    const manual = root.querySelector<HTMLElement>('.ac-copy-manual');
+    const field = root.querySelector<HTMLInputElement>('.ac-copy-url');
+    const dismiss = root.querySelector<HTMLButtonElement>('.ac-copy-dismiss');
+    if (!btn || !label || !manual || !field) return;
+
+    const idleLabel = label.textContent ?? '';
+    const copiedLabel = root.dataset['acCopied'] ?? 'link copied';
+    const url = location.origin + (root.dataset['acUrl'] ?? location.pathname);
+    let timer: number | undefined;
+
+    const showIdle = (): void => {
+      btn.classList.remove('is-copied');
+      label.textContent = idleLabel;
+      if (idleGlyph) idleGlyph.hidden = false;
+      if (copiedGlyph) copiedGlyph.hidden = true;
+    };
+
+    btn.addEventListener('click', async () => {
+      try {
+        if (!navigator.clipboard?.writeText) throw new Error('no clipboard');
+        await navigator.clipboard.writeText(url);
+        // Write resolved — only now claim success.
+        btn.classList.add('is-copied');
+        label.textContent = copiedLabel;
+        if (idleGlyph) idleGlyph.hidden = true;
+        if (copiedGlyph) copiedGlyph.hidden = false;
+        clearTimeout(timer);
+        timer = window.setTimeout(showIdle, 1900);
+      } catch {
+        // Blocked — reveal the URL so it stays copyable by hand.
+        btn.hidden = true;
+        manual.hidden = false;
+        field.value = url;
+        field.focus();
+        field.select();
+      }
+    });
+
+    field.addEventListener('click', () => field.select());
+    dismiss?.addEventListener('click', () => {
+      manual.hidden = true;
+      btn.hidden = false;
+      showIdle();
+      btn.focus();
+    });
+  }
+  document.addEventListener('astro:page-load', wireCopyLink);
+</script>

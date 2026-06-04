@@ -1,5 +1,6 @@
 ---
 import BaseLayout from './BaseLayout.astro';
+import ArticleColophon from '@components/ArticleColophon.astro';
 import ContentArt from '@components/ContentArt.astro';
 import type { CollectionEntry } from 'astro:content';
 import { ROUTES, type Locale } from '@lib/routes';
@@ -35,13 +36,12 @@ const indexHref = ROUTES.works[locale];
 
 // Per-locale chrome copy. Strings live in this component (project
 // convention); i18n.ts is the routing module, not a translation store.
-// The em dash in `signature` is the approved editorial-signoff use of
-// `—` (chrome surface, not prose) — same exemption as PieceLayout's.
+// The signature (and its em-dash chrome exemption) moved into
+// `ArticleColophon.astro` with the rest of the foot.
 const copy = {
   en: {
     back: '← back to works',
     allWorks: '← all works',
-    backToTop: 'back to top ↑',
     specsTitle: 'specs',
     iterationsTitle: 'iterations',
     changelogTitle: 'changelog',
@@ -49,12 +49,10 @@ const copy = {
     lastTouched: 'last touched',
     filedUnder: 'filed under',
     navLabel: 'work navigation',
-    signature: '— Nicolas',
   },
   es: {
     back: '← volver a obras',
     allWorks: '← todas las obras',
-    backToTop: 'volver arriba ↑',
     specsTitle: 'ficha',
     iterationsTitle: 'iteraciones',
     changelogTitle: 'cambios',
@@ -62,7 +60,6 @@ const copy = {
     lastTouched: 'última edición',
     filedUnder: 'archivado en',
     navLabel: 'navegación de la obra',
-    signature: '— Nicolás',
   },
 } as const;
 const t = copy[locale];
@@ -238,23 +235,23 @@ const revDisplay = (d: string) => d.split('-').join(' · ');
       )
     }
 
-    <footer class="work-detail-foot">
-      <p class="work-detail-foot-meta">
-        <span>
-          {t.lastTouched}
-          <time datetime={lastTouchedDatetime}>{lastTouchedDisplay}</time>
-        </span>
-        <span class="sep" aria-hidden="true">·</span>
-        <span>{t.filedUnder} {kind}</span>
-      </p>
-      <p class="work-detail-foot-sig">{t.signature}</p>
-      <nav class="work-detail-foot-nav" aria-label={t.navLabel}>
-        <a class="work-detail-foot-nav-link" href={indexHref} data-astro-prefetch>
-          {t.allWorks}
-        </a>
-        <span class="sep" aria-hidden="true">·</span>
-        <a class="work-detail-foot-nav-link" href="#work-detail-top">{t.backToTop}</a>
-      </nav>
-    </footer>
+    <ArticleColophon
+      locale={locale}
+      backHref={indexHref}
+      backLabel={t.allWorks}
+      topHref="#work-detail-top"
+      permalinkPath={path}
+      navLabel={t.navLabel}
+    >
+      <span>
+        <span class="ac-label">{t.lastTouched}</span>
+        <time datetime={lastTouchedDatetime}>{lastTouchedDisplay}</time>
+      </span>
+      <span class="ac-sep" aria-hidden="true">·</span>
+      <span>
+        <span class="ac-label">{t.filedUnder}</span>
+        {kind}
+      </span>
+    </ArticleColophon>
   </article>
 </BaseLayout>

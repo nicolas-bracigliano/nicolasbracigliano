@@ -94,21 +94,44 @@ test('work entry pages emit og:image meta pointing at the generated PNG', async 
   await expect(ogImage).toHaveAttribute('content', /\/og\/works\/en-this-site\.png$/);
 });
 
-test('note entries render an auto-computed read-time in the footer', async ({ page }) => {
+test('note detail page renders an auto-computed read-time in the colophon', async ({ page }) => {
+  // The slug page has its own composition (NoteDetail, not NoteEntry):
+  // read-time renders in the shared ArticleColophon meta line, computed
+  // from the body when frontmatter `minutes:` is absent.
   await page.goto('/en/notes/hello/');
-  await expect(page.locator('.note-foot')).toContainText(/read time · \d+ min/);
+  await expect(page.locator('.ac-meta')).toContainText(/read time \d+ min/);
 });
 
-test('note entry page hides the "→ link" permalink (it would point at the current page)', async ({
+test('detail pages carry the colophon copy-link wired to their own path', async ({ page }) => {
+  // The quiet copy control lives in the shared ArticleColophon on all
+  // three detail routes; `data-ac-url` is what the clipboard script
+  // copies (origin + path). One assertion per route guards the shared
+  // wiring without re-testing the component three times.
+  for (const path of ['/en/notes/hello/', '/en/pieces/rings-i-keep-redrawing/']) {
+    await page.goto(path);
+    await expect(page.locator('[data-ac-copy-root]')).toHaveAttribute('data-ac-url', path);
+    await expect(page.locator('.ac-copy[data-ac-copy]')).toBeVisible();
+  }
+  await page.goto('/en/works/this-site/');
+  await expect(page.locator('[data-ac-copy-root]')).toHaveAttribute(
+    'data-ac-url',
+    '/en/works/this-site/',
+  );
+});
+
+test('colophon copy-link copies the page URL and reports success honestly', async ({
   page,
+  context,
 }) => {
+  // Click → clipboard write resolves → "link copied" appears. The
+  // is-copied state is only set after the write resolves (never a
+  // silent lie), so asserting the label change also asserts the write.
+  await context.grantPermissions(['clipboard-read', 'clipboard-write']);
   await page.goto('/en/notes/hello/');
-  // `.note-foot` shows just the read-time on the entry page; the
-  // permalink + the `·` separator are dropped because the reader
-  // is already on the entry. The matching foot on the notes index
-  // (one component, two contexts) keeps the link — covered below.
-  await expect(page.locator('.note-foot a')).toHaveCount(0);
-  await expect(page.locator('.note-foot .sep')).toHaveCount(0);
+  await page.locator('.ac-copy[data-ac-copy]').click();
+  await expect(page.locator('.ac-copy[data-ac-copy]')).toHaveClass(/is-copied/);
+  const copied = await page.evaluate(() => navigator.clipboard.readText());
+  expect(copied).toMatch(/\/en\/notes\/hello\/$/);
 });
 
 test('notes index renders the "→ link" permalink on each note', async ({ page }) => {

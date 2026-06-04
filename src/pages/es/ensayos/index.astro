@@ -3,6 +3,7 @@ import { getCollection } from 'astro:content';
 import BaseLayout from '@layouts/BaseLayout.astro';
 import PiecesMasthead from '@components/PiecesMasthead.astro';
 import PieceEntry from '@components/PieceEntry.astro';
+import SectionEnd from '@components/SectionEnd.astro';
 import { ROUTES } from '@lib/routes';
 
 // El índice muestra cada ensayo como una fila (meta + título + lede +
@@ -39,12 +40,6 @@ const siblingPath = ROUTES.pieces.en;
       )
     }
 
-    {
-      pieces.length > 0 && (
-        <footer class="pieces-foot">
-          <span class="eyebrow">↺ &nbsp;ensayos más viejos en el cajón</span>
-        </footer>
-      )
-    }
+    {pieces.length > 0 && <SectionEnd note="ensayos más viejos en el cajón" />}
   </section>
 </BaseLayout>

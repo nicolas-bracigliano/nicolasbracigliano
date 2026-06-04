@@ -1,0 +1,19 @@
+---
+// Shared cap for index/list pages (notes · pieces · works · now): a
+// centered mono eyebrow with the ↺ glyph above a dashed rule. The
+// per-route text is owned by the caller. Detail pages end with
+// `ArticleColophon.astro` instead; the global site footer (© · hecho
+// a mano) is a third, deliberately different object.
+export interface Props {
+  note: string;
+}
+
+const { note } = Astro.props;
+---
+
+<footer class="section-end">
+  <span class="section-end-note">
+    <span class="section-end-glyph" aria-hidden="true">↺</span>
+    {note}
+  </span>
+</footer>

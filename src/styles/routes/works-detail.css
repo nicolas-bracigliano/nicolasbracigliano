@@ -304,54 +304,9 @@
     color: var(--ink-3);
   }
 
-  /* foot — meta line, signature, nav (mirrors `.piece-foot`) */
-  .work-detail-foot {
-    margin-block-start: clamp(3.5rem, 8vw, 6rem);
-    padding-block-start: 1.75rem;
-    border-block-start: 1px dashed var(--rule);
-  }
-  .work-detail-foot-meta {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.625rem;
-    align-items: baseline;
-    font-size: 0.75rem;
-    letter-spacing: 0.04em;
-    color: var(--ink-3);
-    margin: 0;
-  }
-  .work-detail-foot-meta time {
-    color: var(--ink-2);
-    font-variant-numeric: tabular-nums;
-  }
-  .work-detail-foot-sig {
-    font-family: var(--font-display);
-    font-style: italic;
-    font-size: 1.375rem;
-    color: var(--ink);
-    margin: 1.25rem 0 1.75rem;
-  }
-  .work-detail-foot-nav {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 0.625rem;
-    font-size: 0.75rem;
-    letter-spacing: 0.04em;
-    color: var(--ink-3);
-  }
-  .work-detail-foot-nav-link {
-    display: inline-flex;
-    align-items: center;
-    min-block-size: 2.75rem;
-    color: var(--ink-2);
-    text-decoration: none;
-    transition: color var(--speed-micro);
-  }
-  .work-detail-foot-nav-link:hover,
-  .work-detail-foot-nav-link:focus-visible {
-    color: var(--accent-aa);
-  }
+  /* foot — the shared ArticleColophon (meta · signature · nav with the
+     quiet copy-link): markup in `ArticleColophon.astro`, styles in
+     `../footers.css`. Its 2.75 rem nav tap-target floor started here. */
 
   @media (max-width: 720px) {
     .work-detail-spec-row {

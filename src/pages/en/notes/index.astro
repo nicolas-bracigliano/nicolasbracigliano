@@ -3,6 +3,7 @@ import { getCollection, render } from 'astro:content';
 import BaseLayout from '@layouts/BaseLayout.astro';
 import NotesMasthead from '@components/NotesMasthead.astro';
 import NoteEntry from '@components/NoteEntry.astro';
+import SectionEnd from '@components/SectionEnd.astro';
 import { ROUTES } from '@lib/routes';
 
 const notes = (
@@ -42,8 +43,6 @@ const siblingPath = ROUTES.notes.es;
       }
     </ol>
 
-    <footer class="notes-foot">
-      <span class="eyebrow">↺ &nbsp;older notes in the drawer</span>
-    </footer>
+    <SectionEnd note="older notes in the drawer" />
   </section>
 </BaseLayout>

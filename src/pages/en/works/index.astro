@@ -4,6 +4,7 @@ import BaseLayout from '@layouts/BaseLayout.astro';
 import WorksMasthead from '@components/WorksMasthead.astro';
 import WorksFilters from '@components/WorksFilters.astro';
 import WorkCard from '@components/WorkCard.astro';
+import SectionEnd from '@components/SectionEnd.astro';
 import { ROUTES } from '@lib/routes';
 
 const works = (
@@ -28,5 +29,8 @@ const siblingPath = ROUTES.works.es;
     <ul class="works-grid" data-active-filter="all">
       {works.map((w) => <WorkCard entry={w} locale="en" />)}
     </ul>
+
+    {/* DRAFT copy — author to confirm before merge. */}
+    <SectionEnd note="more works on the bench" />
   </section>
 </BaseLayout>
