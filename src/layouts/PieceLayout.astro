@@ -15,11 +15,12 @@
 //                              the first paragraph carrying .lead-p
 //                              (drop-cap anchor)
 //     .diagram-rail (bottom)— if the piece has bottom-placed diagrams
-//     .piece-foot           — dashed top border; mono meta strip
-//                              (written + date + read-time); italic
-//                              serif signature; mono nav row with
-//                              all-pieces back-link + back-to-top
+//     ArticleColophon       — the shared end-of-read block (mono meta
+//                              strip with written + date + read-time;
+//                              signature; nav with all-pieces back-link,
+//                              back-to-top and the quiet copy-link)
 import BaseLayout from './BaseLayout.astro';
+import ArticleColophon from '@components/ArticleColophon.astro';
 import DiagramRail from '@components/DiagramRail.astro';
 import type { CollectionEntry } from 'astro:content';
 import { ROUTES, type Locale } from '@lib/routes';
@@ -52,33 +53,28 @@ if (inlineDiagrams.length > 0) {
 const topDiagrams = diagrams.filter((d) => d.place !== 'bottom');
 const bottomDiagrams = diagrams.filter((d) => d.place === 'bottom');
 
-// Per-locale eyebrow + meta + foot copy. Strings live in this component
+// Per-locale eyebrow + meta copy. Strings live in this component
 // (project convention); i18n.ts is the routing module, not a translation
 // store. The eyebrow drops the collection label per a polish review —
 // it was redundant against the back-link + the H1 underneath.
-// The em dash in `signature` is the one approved use of `—` inside a
-// piece — it's the editorial signoff convention (— Nicolas), not prose
-// body text. §6 voice rule "no em dashes in piece prose" is about
-// argument prose, not chrome surfaces; the signature is chrome. If a
-// future sweep tries to strip em dashes site-wide, exempt this string.
+// The signature (and its em-dash chrome exemption) moved into
+// `ArticleColophon.astro` with the rest of the foot.
 const copy = {
   en: {
     back: '← back to pieces',
     allPieces: '← all pieces',
-    backToTop: 'back to top ↑',
     minLabel: 'min',
     writtenPrefix: 'written',
     readTimePrefix: 'read time',
-    signature: '— Nicolas',
+    navLabel: 'piece navigation',
   },
   es: {
     back: '← volver a ensayos',
     allPieces: '← todos los ensayos',
-    backToTop: 'volver arriba ↑',
     minLabel: 'min',
     writtenPrefix: 'escrito en',
     readTimePrefix: 'tiempo de lectura',
-    signature: '— Nicolás',
+    navLabel: 'navegación del ensayo',
   },
 } as const;
 const t = copy[locale];
@@ -159,42 +155,38 @@ const titleHtml = renderTitle(title);
 
     {bottomDiagrams.length > 0 && <DiagramRail items={bottomDiagrams} />}
 
-    <footer class="piece-foot">
-      <p class="piece-foot-meta">
-        {
-          written && (
-            <>
-              <span class="piece-foot-written">
-                {t.writtenPrefix} {written}
-              </span>
-              <span class="piece-foot-sep" aria-hidden="true">
-                ·
-              </span>
-            </>
-          )
-        }
-        <time datetime={date.toISOString().split('T')[0]}>{dateDisplay}</time>
-        {
-          minutes !== null && (
-            <>
-              <span class="piece-foot-sep" aria-hidden="true">
-                ·
-              </span>
-              <span class="piece-foot-time">
-                {t.readTimePrefix} {minutes} {t.minLabel}
-              </span>
-            </>
-          )
-        }
-      </p>
-
-      <p class="piece-foot-sig">{t.signature}</p>
-
-      <nav class="piece-foot-nav" aria-label="piece navigation">
-        <a class="piece-foot-nav-link" href={indexHref} data-astro-prefetch>{t.allPieces}</a>
-        <span class="piece-foot-nav-sep" aria-hidden="true">·</span>
-        <a class="piece-foot-nav-link" href="#piece-top">{t.backToTop}</a>
-      </nav>
-    </footer>
+    <ArticleColophon
+      locale={locale}
+      backHref={indexHref}
+      backLabel={t.allPieces}
+      topHref="#piece-top"
+      permalinkPath={path}
+      navLabel={t.navLabel}
+    >
+      {
+        written && (
+          <>
+            <span class="ac-label">{t.writtenPrefix}</span>
+            <span>{written}</span>
+            <span class="ac-sep" aria-hidden="true">
+              ·
+            </span>
+          </>
+        )
+      }
+      <time datetime={date.toISOString().split('T')[0]}>{dateDisplay}</time>
+      {
+        minutes !== null && (
+          <>
+            <span class="ac-sep" aria-hidden="true">
+              ·
+            </span>
+            <span>
+              <span class="ac-label">{t.readTimePrefix}</span> {minutes} {t.minLabel}
+            </span>
+          </>
+        )
+      }
+    </ArticleColophon>
   </article>
 </BaseLayout>

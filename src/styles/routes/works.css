@@ -258,6 +258,7 @@
     border-block-start: 1px dashed var(--rule);
     padding-block-start: 0.5rem;
     margin: 0.375rem 0 0;
+    min-height: 6.25rem;
   }
   .work-card-specs dt {
     /* `--ink-2` for AA at this size (10px). The dashed-bordered

@@ -148,11 +148,8 @@
     color: var(--ink-3);
     margin-block: 2rem;
   }
-  .pieces-foot {
-    text-align: center;
-    margin: 3.5rem 0 0;
-    color: var(--ink-3);
-  }
+  /* The index cap is the shared SectionEnd (↺ eyebrow + dashed rule) —
+     markup in `SectionEnd.astro`, styles in `../footers.css`. */
 
   /* ─── Slug page (`/en/pieces/[slug]`, `/es/ensayos/[slug]`) ──────── */
 
@@ -444,67 +441,9 @@
 
   /* ─── Slug page foot ──────────────────────────────────────────────── */
 
-  /* Three rows: mono meta strip (written · date · read time), italic
-     serif signature, mono nav (all-pieces back-link + back-to-top).
-     Generous vertical breathing room so the foot reads as the end of
-     the piece, not as a chrome strip glued on. */
-  .piece-foot {
-    max-width: 72ch;
-    margin-top: 5rem;
-    padding-top: 1.75rem;
-    border-top: 1px dashed var(--rule);
-  }
-  .piece-foot-meta {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.625rem;
-    align-items: baseline;
-    font-family: var(--font-body);
-    font-size: 0.8125rem;
-    letter-spacing: 0.04em;
-    color: var(--ink-3);
-    margin: 0;
-  }
-  .piece-foot-meta time {
-    color: var(--ink-2);
-    font-variant-numeric: tabular-nums;
-  }
-  .piece-foot-written,
-  .piece-foot-time {
-    color: var(--ink-3);
-  }
-  .piece-foot-sep {
-    opacity: 0.5;
-  }
-  .piece-foot-sig {
-    margin: 1.5rem 0 2.5rem;
-    font-family: var(--font-display);
-    font-size: 1.375rem;
-    font-style: italic;
-    color: var(--ink);
-  }
-  .piece-foot-nav {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.625rem;
-    align-items: baseline;
-    font-family: var(--font-body);
-    font-size: 0.8125rem;
-    letter-spacing: 0.04em;
-    color: var(--ink-3);
-  }
-  .piece-foot-nav-link {
-    color: var(--ink-3);
-    text-decoration: none;
-    transition: color 220ms ease;
-  }
-  .piece-foot-nav-link:hover,
-  .piece-foot-nav-link:focus-visible {
-    color: var(--accent);
-  }
-  .piece-foot-nav-sep {
-    opacity: 0.5;
-  }
+  /* The foot is the shared ArticleColophon (meta · signature · nav with
+     the quiet copy-link) — markup in `ArticleColophon.astro`, styles in
+     `../footers.css`. Nothing piece-specific remains here. */
 
   /* ─── Mobile breakpoints ──────────────────────────────────────────── */
 

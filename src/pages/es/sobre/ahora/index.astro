@@ -3,6 +3,7 @@ import { getEntry } from 'astro:content';
 import BaseLayout from '@layouts/BaseLayout.astro';
 import NowMasthead from '@components/NowMasthead.astro';
 import NowItem from '@components/NowItem.astro';
+import SectionEnd from '@components/SectionEnd.astro';
 import { ROUTES } from '@lib/routes';
 import { getSibling, entryRouteFor, resolveWorkLinks } from '@lib/i18n';
 import { assertNowEntry } from '@lib/now-items';
@@ -61,5 +62,11 @@ const workLinks = await resolveWorkLinks(items, 'es');
         ))
       }
     </ol>
+
+    {
+      /* DRAFT copy — author to confirm before merge. Echoes §7's
+        "replace, don't append" convention for /now. */
+    }
+    <SectionEnd note="se reemplaza, no se acumula" />
   </section>
 </BaseLayout>

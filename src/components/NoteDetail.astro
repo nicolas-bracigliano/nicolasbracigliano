@@ -1,0 +1,244 @@
+---
+// Slug-page composition for /en/notes/[slug] and /es/notas/[slug]: a
+// single leaf torn from the notebook, made shareable. Replaces the old
+// arrangement (NoteEntry with `isStandalone` inside a one-item list) so
+// the index row and the detail page can diverge cleanly — the same
+// split pieces made in ADR 0012 (PieceEntry vs PieceLayout).
+//
+// Structure (top to bottom):
+//   .nd-head      — sentence eyebrow (back-link · "note" · read-time),
+//                   the leaf rail (circled kind-glyph · "leaf 04 / 12"
+//                   counter · date), real H1, italic lede, tag row
+//   .nd-grid      — mono prose (shared .note-prose treatment — the body
+//                   face stays JetBrains Mono per design system §9; the
+//                   firewall between notes and pieces holds on the
+//                   detail page too) + sticky margin note (✸)
+//   .nd-wander    — older/newer cards; a dashed placeholder marks
+//                   either end of the notebook
+//   ArticleColophon — the shared end-of-read block (meta · signature ·
+//                   nav with the quiet copy-link); notes pass
+//                   "noted [· place] · date · read time" as the meta
+//
+// This component is the detail-only renderer; the index row stays in
+// `NoteEntry.astro`.
+import type { CollectionEntry } from 'astro:content';
+import { ROUTES, type Locale } from '@lib/routes';
+import { readingTimeMinutes } from '@lib/reading-time';
+import { formatEntryDate } from '@lib/format-entry-date';
+import ArticleColophon from './ArticleColophon.astro';
+import MarginNote from './MarginNote.astro';
+import ContentArt from './ContentArt.astro';
+
+/** Pre-resolved neighbour for the wander cards. The page builds these
+ *  from the same sorted collection `getStaticPaths` already loads, so
+ *  this component stays presentational (no collection fetch). */
+export interface NeighborVM {
+  title: string;
+  href: string;
+  dateDisplay: string;
+  iso: string;
+}
+
+export interface Props {
+  entry: CollectionEntry<'notes'>;
+  locale: Locale;
+  /** 1-based position among this locale's published notes, oldest = 1. */
+  leafNo: number;
+  leafTotal: number;
+  older: NeighborVM | null;
+  newer: NeighborVM | null;
+  /** The note's own route — the colophon copy-link copies origin+path. */
+  permalinkPath: string;
+}
+
+const { entry, locale, leafNo, leafTotal, older, newer, permalinkPath } = Astro.props;
+const { title, lede, tags, aside, noted, date, minutes: minutesOverride } = entry.data;
+const indexHref = ROUTES.notes[locale];
+
+// Same convention as NoteEntry/PieceLayout: manual override wins; if the
+// body is absent (loader edge case) hide read-time rather than fake it.
+const minutes = minutesOverride ?? (entry.body ? readingTimeMinutes(entry.body) : null);
+
+const dateDisplay = formatEntryDate(date, { kind: 'note', locale });
+const isoDate = date.toISOString().split('T')[0];
+
+const pad = (n: number) => String(n).padStart(2, '0');
+
+// Per-locale UI copy lives in the component (project convention;
+// i18n.ts is the routing module, not a translation store).
+// NOTE: the ES strings are DRAFTS pending the author's review — wording
+// like "hoja"/"anotado" and the older/newer register (vs the index's
+// "cajón" metaphor) are editorial calls, not translation mechanics.
+const copy = {
+  en: {
+    back: '← back to notes',
+    noteLabel: 'note',
+    minLabel: 'min',
+    leafLabel: 'leaf',
+    marginLabel: 'margin note',
+    older: 'older',
+    newer: 'newer',
+    wanderLabel: 'more notes',
+    notedLabel: 'noted',
+    readTime: 'read time',
+    allNotes: '← all notes',
+    footNavLabel: 'note navigation',
+  },
+  es: {
+    back: '← volver a notas',
+    noteLabel: 'nota',
+    minLabel: 'min',
+    leafLabel: 'hoja',
+    marginLabel: 'nota al margen',
+    older: 'más vieja',
+    newer: 'más nueva',
+    wanderLabel: 'más notas',
+    notedLabel: 'anotado',
+    readTime: 'lectura',
+    allNotes: '← todas las notas',
+    footNavLabel: 'navegación de la nota',
+  },
+} as const;
+const t = copy[locale];
+---
+
+<article class="note-detail" id="note-top">
+  <header class="nd-head">
+    <p class="nd-eyebrow">
+      <a class="nd-eyebrow-back" href={indexHref} data-astro-prefetch>{t.back}</a>
+      <span class="nd-eyebrow-sep" aria-hidden="true">·</span>
+      <span>{t.noteLabel}</span>
+      {
+        minutes !== null && (
+          <>
+            <span class="nd-eyebrow-sep" aria-hidden="true">
+              ·
+            </span>
+            <span>
+              {minutes} {t.minLabel}
+            </span>
+          </>
+        )
+      }
+    </p>
+
+    <div class="nd-rail">
+      {
+        /* The circled badge wraps ContentArt's `.note-glyph.g-<kind>` div;
+           guard on `kind` so a kindless note doesn't draw an empty ring
+           (ContentArt itself renders nothing without a kind). */
+        entry.data.kind && (
+          <div class={`nd-glyph g-${entry.data.kind}`}>
+            <ContentArt entry={entry} />
+          </div>
+        )
+      }
+      <span class="nd-leaf">
+        {t.leafLabel}
+        <span class="nd-leaf-no">{pad(leafNo)}</span>
+        <span class="nd-leaf-of"> / {pad(leafTotal)}</span>
+      </span>
+      <time class="nd-date" datetime={isoDate}>{dateDisplay}</time>
+    </div>
+
+    <h1 class="nd-h1">{title}</h1>
+    {lede && <p class="nd-lede">{lede}</p>}
+    {
+      tags && tags.length > 0 && (
+        <div class="nd-tags">
+          {tags.map((tag) => (
+            <span class="nd-tag">#{tag}</span>
+          ))}
+        </div>
+      )
+    }
+  </header>
+
+  <div class="nd-grid">
+    <div class="nd-body">
+      {
+        /* `.note-prose` carries the shared mono body treatment (incl. the
+          `---` → dotted-hr ornament). */
+      }
+      <div class="note-prose">
+        <slot />
+      </div>
+    </div>
+
+    {
+      /* Exactly one margin note on the page, so a real <aside> landmark
+        is fine here — unlike the index, where N notes would emit N
+        complementary landmarks (see the note-right comment in
+        NoteEntry.astro). Labelled to keep it unique among landmarks. */
+      aside && (
+        <aside class="nd-margin" aria-label={t.marginLabel}>
+          <MarginNote text={aside} mark="✸" />
+        </aside>
+      )
+    }
+  </div>
+
+  {
+    (older || newer) && (
+      <nav class="nd-wander" aria-label={t.wanderLabel}>
+        {older ? (
+          <a class="nd-wander-card nd-wander-prev" href={older.href} data-astro-prefetch>
+            <span class="nd-wander-dir">← {t.older}</span>
+            <span class="nd-wander-title">{older.title}</span>
+            <time class="nd-wander-date" datetime={older.iso}>
+              {older.dateDisplay}
+            </time>
+          </a>
+        ) : (
+          <span class="nd-wander-card is-empty" aria-hidden="true" />
+        )}
+        {newer ? (
+          <a class="nd-wander-card nd-wander-next" href={newer.href} data-astro-prefetch>
+            <span class="nd-wander-dir">{t.newer} →</span>
+            <span class="nd-wander-title">{newer.title}</span>
+            <time class="nd-wander-date" datetime={newer.iso}>
+              {newer.dateDisplay}
+            </time>
+          </a>
+        ) : (
+          <span class="nd-wander-card is-empty" aria-hidden="true" />
+        )}
+      </nav>
+    )
+  }
+
+  <ArticleColophon
+    locale={locale}
+    backHref={indexHref}
+    backLabel={t.allNotes}
+    topHref="#note-top"
+    permalinkPath={permalinkPath}
+    navLabel={t.footNavLabel}
+  >
+    <span class="ac-label">{t.notedLabel}</span>
+    {
+      noted && (
+        <>
+          <span class="ac-sep" aria-hidden="true">
+            ·
+          </span>
+          <span>{noted}</span>
+        </>
+      )
+    }
+    <span class="ac-sep" aria-hidden="true">·</span>
+    <time datetime={isoDate}>{dateDisplay}</time>
+    {
+      minutes !== null && (
+        <>
+          <span class="ac-sep" aria-hidden="true">
+            ·
+          </span>
+          <span>
+            <span class="ac-label">{t.readTime}</span> {minutes} {t.minLabel}
+          </span>
+        </>
+      )
+    }
+  </ArticleColophon>
+</article>

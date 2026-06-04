@@ -4,7 +4,13 @@
      (each glyph tinted by --ink-blue / --accent / --mate / --accent),
      centre column holds prose, right rail holds a sticky tilted
      margin-note. Collapses to one column under 880 px; left rail
-     becomes a narrow date strip and right rail vanishes. */
+     becomes a narrow date strip and right rail vanishes.
+
+     The slug page ("note detail", .nd-* rules at the bottom of this
+     file) shares .note-prose and .margin-note with the index but has
+     its own composition — see NoteDetail.astro. Index-row-only rules
+     are scoped under `.note` so they can't leak into the detail page
+     (the glyph display:none at the mobile breakpoint bit once). */
 
   .notes.wrap {
     max-width: 1100px;
@@ -72,7 +78,10 @@
     font-size: 0.625rem;
     letter-spacing: 0.06em;
   }
-  .note-glyph {
+  /* Index-row placement/dimming scoped to `.note`; the per-kind colours
+     below stay global on purpose — the detail rail's circled glyph
+     (.nd-glyph) reuses them. */
+  .note .note-glyph {
     margin-block-start: 0.875rem;
     display: inline-block;
     color: var(--ink-2);
@@ -193,27 +202,8 @@
     margin-block-end: 0.25rem;
   }
 
-  .notes-foot {
-    text-align: center;
-    margin-block-start: 3.75rem;
-    color: var(--ink-3);
-    font-size: 0.75rem;
-  }
-  .notes-foot .back-link {
-    color: var(--ink-2);
-    border: 0;
-    text-decoration: none;
-    letter-spacing: 0.04em;
-    transition: color var(--speed-micro);
-  }
-  .notes-foot .back-link:hover,
-  .notes-foot .back-link:focus-visible {
-    color: var(--accent-aa);
-  }
-
-  .notes--single .notes-list {
-    padding-block-start: clamp(2.5rem, 6vw, 5rem);
-  }
+  /* The index cap is the shared SectionEnd (↺ eyebrow + dashed rule) —
+     markup in `SectionEnd.astro`, styles in `../footers.css`. */
 
   @media (max-width: 880px) {
     .note {
@@ -223,11 +213,263 @@
     .note-right {
       display: none;
     }
-    .note-glyph {
+    .note .note-glyph {
       display: none;
     }
     .note-date {
       letter-spacing: 0.02em;
+    }
+  }
+
+  /* ─── Note detail (slug page) ──────────────────────────────────────────
+     One leaf torn from the notebook (NoteDetail.astro): eyebrow → leaf
+     rail → H1/lede/tags → mono prose + sticky margin note → older/newer
+     wander → ArticleColophon (shared; styled by ../footers.css). The
+     body face stays JetBrains Mono via the shared .note-prose rules
+     above (design system §9 — the notes/pieces firewall holds on the
+     detail page); only the title and lede read serif, same as the
+     index. */
+
+  .note-detail {
+    max-width: 55rem;
+    margin-inline: auto;
+    padding-block-start: clamp(2.25rem, 6vw, 4.5rem);
+    padding-block-end: 1.25rem;
+    padding-inline: var(--gutter);
+  }
+
+  .nd-head {
+    margin-block-end: 2.25rem;
+  }
+  .nd-eyebrow {
+    font-family: var(--font-body);
+    font-size: 0.75rem;
+    letter-spacing: 0.06em;
+    color: var(--ink-3);
+    margin: 0 0 1.375rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    align-items: baseline;
+  }
+  .nd-eyebrow-back {
+    color: var(--ink-2);
+    text-decoration: none;
+    transition: color var(--speed-micro);
+  }
+  .nd-eyebrow-back:hover,
+  .nd-eyebrow-back:focus-visible {
+    color: var(--accent-aa);
+  }
+  .nd-eyebrow-sep {
+    opacity: 0.5;
+  }
+
+  /* The date · glyph · leaf rail — the "torn from a notebook" signature. */
+  .nd-rail {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding-block-end: 1.125rem;
+    border-block-end: 1px dashed var(--rule);
+    margin-block-end: 1.5rem;
+  }
+  .nd-glyph {
+    display: inline-flex;
+    inline-size: 2.375rem;
+    block-size: 2.375rem;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--rule);
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  /* Centre ContentArt's inner .note-glyph (kind colour comes from the
+     global per-kind rules above; the index-only margin/dim is scoped
+     away under `.note`). Hero images get clamped to glyph size so a
+     custom SVG can't blow out the ring. */
+  .nd-glyph .note-glyph {
+    display: flex;
+  }
+  .nd-glyph .note-glyph img {
+    inline-size: 1.375rem;
+    block-size: 1.375rem;
+  }
+  .nd-glyph.g-code {
+    border-color: color-mix(in oklab, var(--ink-blue) 30%, var(--rule));
+  }
+  .nd-glyph.g-guitar,
+  .nd-glyph.g-coffee {
+    border-color: color-mix(in oklab, var(--accent) 30%, var(--rule));
+  }
+  .nd-glyph.g-garden {
+    border-color: color-mix(in oklab, var(--mate) 30%, var(--rule));
+  }
+  .nd-leaf {
+    font-family: var(--font-body);
+    font-size: 0.6875rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+  }
+  .nd-leaf-no {
+    color: var(--accent-aa);
+    font-variant-numeric: tabular-nums;
+  }
+  .nd-leaf-of {
+    font-variant-numeric: tabular-nums;
+  }
+  .nd-date {
+    margin-inline-start: auto;
+    font-family: var(--font-body);
+    font-size: 0.75rem;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.06em;
+    color: var(--ink-3);
+  }
+
+  .nd-h1 {
+    font-family: var(--font-display);
+    font-weight: 400;
+    font-size: clamp(2.125rem, 4.6vw, 3.5rem);
+    line-height: 1.08;
+    letter-spacing: -0.02em;
+    margin: 0 0 0.875rem;
+    text-wrap: pretty;
+  }
+  .nd-lede {
+    font-family: var(--font-display);
+    font-style: italic;
+    font-size: clamp(1.125rem, 2.2vw, 1.375rem);
+    line-height: 1.45;
+    color: var(--ink-2);
+    margin: 0 0 1.125rem;
+    max-width: 46ch;
+  }
+  .nd-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.625rem;
+  }
+  .nd-tag {
+    font-family: var(--font-body);
+    font-size: 0.6875rem;
+    letter-spacing: 0.04em;
+    color: var(--ink-3);
+  }
+
+  /* Body + sticky margin note. The 60ch measure comes from the grid
+     track, not the column — .nd-body needs no width rule of its own. */
+  .nd-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 60ch) 1fr;
+    gap: clamp(1.75rem, 5vw, 3.5rem);
+    align-items: start;
+    padding-block-start: 1.875rem;
+    border-block-start: 1px solid var(--rule);
+  }
+  .nd-margin {
+    position: relative;
+  }
+  /* Detail-scale margin note: a step up from the index's 0.75rem rail
+     treatment (the page is the note, so its aside earns more presence). */
+  .nd-margin .margin-note {
+    font-size: 0.875rem;
+    line-height: 1.5;
+    padding: 0.625rem 0.875rem;
+    border-inline-start: 2px solid var(--accent-aa);
+    background: color-mix(in oklab, var(--accent) 5%, transparent);
+    inset-block-start: 6rem;
+    transform: rotate(-0.5deg);
+  }
+  .nd-margin .margin-mark {
+    font-size: 0.9375rem;
+    margin-block-end: 0.375rem;
+  }
+
+  /* Older / newer wander. Hover lift relies on reset.css's global
+     reduced-motion clamp, same as the works cards. */
+  .nd-wander {
+    display: grid;
+    /* minmax(0, …) — same long-unbreakable-string discipline as the
+       index grid's `minmax(0, 1fr)` body column. */
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 1rem;
+    margin-block-start: 3.5rem;
+  }
+  .nd-wander-card {
+    display: flex;
+    flex-direction: column;
+    gap: 0.375rem;
+    padding: 1.125rem 1.25rem;
+    border: 1px solid var(--rule);
+    border-radius: 3px;
+    background: var(--paper);
+    text-decoration: none;
+    transition:
+      transform 280ms cubic-bezier(0.2, 0.7, 0.2, 1),
+      border-color var(--speed-micro);
+  }
+  a.nd-wander-card:hover,
+  a.nd-wander-card:focus-visible {
+    border-color: var(--ink-3);
+    transform: translateY(-3px);
+  }
+  a.nd-wander-card:hover .nd-wander-title,
+  a.nd-wander-card:focus-visible .nd-wander-title {
+    color: var(--accent-aa);
+  }
+  .nd-wander-card.is-empty {
+    background: transparent;
+    border-style: dashed;
+    opacity: 0.4;
+  }
+  .nd-wander-next {
+    text-align: end;
+  }
+  .nd-wander-dir {
+    font-family: var(--font-body);
+    font-size: 0.6563rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+  }
+  .nd-wander-title {
+    font-family: var(--font-display);
+    font-size: 1.125rem;
+    letter-spacing: -0.01em;
+    color: var(--ink);
+    transition: color var(--speed-micro);
+    overflow-wrap: anywhere;
+  }
+  .nd-wander-date {
+    font-family: var(--font-body);
+    font-size: 0.6875rem;
+    font-variant-numeric: tabular-nums;
+    color: var(--ink-3);
+  }
+
+  @media (max-width: 51.25rem) {
+    .nd-grid {
+      grid-template-columns: 1fr;
+      gap: 1.75rem;
+    }
+    /* Margin note reads inline under the prose, untilted. */
+    .nd-margin .margin-note {
+      position: static;
+      transform: none;
+    }
+  }
+
+  @media (max-width: 35rem) {
+    .nd-wander {
+      grid-template-columns: 1fr;
+    }
+    .nd-wander-next {
+      text-align: start;
+    }
+    .nd-wander-card.is-empty {
+      display: none;
     }
   }
 }

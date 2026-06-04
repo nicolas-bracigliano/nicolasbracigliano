@@ -1,0 +1,210 @@
+/* ─── Shared footers: SectionEnd + ArticleColophon ───────────────────
+   Component-scoped stylesheet (same rationale as diagrams.css): these
+   two end-of-page patterns are shared across routes, so their rules
+   don't belong to any one `./routes/` file.
+
+     .section-end       — index/list cap (notes, pieces, works, now):
+                          centered mono eyebrow + ↺ glyph, dashed rule.
+     .article-colophon  — detail-page colophon (note · piece · work):
+                          meta line · signature · nav with the quiet
+                          copy-link control and its manual fallback.
+
+   Markup lives in `src/components/{SectionEnd,ArticleColophon}.astro`. */
+
+@layer routes {
+  /* ─── section end (index cap) ─────────────────────────────────────── */
+
+  .section-end {
+    text-align: center;
+    margin-block-start: 3.5rem;
+    padding-block-start: 1.75rem;
+    border-block-start: 1px dashed var(--rule);
+  }
+  .section-end-note {
+    font-family: var(--font-body);
+    font-size: 0.6875rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+  .section-end-glyph {
+    color: var(--accent-aa);
+    font-size: 0.875rem;
+  }
+
+  /* ─── article colophon (detail foot) ──────────────────────────────── */
+
+  .article-colophon {
+    max-width: 62ch;
+    margin-block-start: 4.5rem;
+    padding-block-start: 1.75rem;
+    border-block-start: 1px dashed var(--rule);
+    font-family: var(--font-body);
+    font-size: 0.75rem;
+    color: var(--ink-3);
+  }
+  .ac-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    align-items: baseline;
+    letter-spacing: 0.04em;
+    margin: 0;
+  }
+  .ac-label {
+    color: var(--ink-3);
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    font-size: 0.6563rem;
+  }
+  .ac-meta time {
+    color: var(--ink-2);
+    font-variant-numeric: tabular-nums;
+  }
+  .ac-sep {
+    opacity: 0.5;
+  }
+
+  .ac-sig {
+    margin: 0.875rem 0 0;
+    font-family: var(--font-display);
+    font-style: italic;
+    font-size: 1.25rem;
+    color: var(--ink);
+  }
+  .ac-sig .ac-muted {
+    font-family: var(--font-body);
+    font-style: normal;
+    font-size: 0.6875rem;
+    color: var(--ink-3);
+  }
+
+  /* Nav row: back-link · back-to-top · (spacer) · copy-link. Links and
+     the copy button keep the 2.75 rem min tap target the works foot
+     established — an a11y floor the prototype's tighter rows lacked. */
+  .ac-nav {
+    margin-block-start: 1.5rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.625rem;
+    align-items: center;
+    font-size: 0.75rem;
+    letter-spacing: 0.04em;
+  }
+  .ac-nav-link {
+    display: inline-flex;
+    align-items: center;
+    min-block-size: 2.75rem;
+    color: var(--ink-3);
+    text-decoration: none;
+    transition: color var(--speed-micro);
+  }
+  .ac-nav-link:hover,
+  .ac-nav-link:focus-visible {
+    color: var(--accent-aa);
+  }
+  /* 6px (literal, matching `.nav a`'s padding-block-end in base.css —
+     not rem, so the text-to-underline gap can't diverge from the
+     chrome's) between the text and the underline the hover draws; the
+     draw itself lives in animations.css with the nav's. The copy
+     control's glyph + label sit inside one `.ac-copy-inner` so the
+     underline spans both and they centre on the same padded box. */
+  .ac-nav-label,
+  .ac-copy-inner {
+    padding-block-end: 6px;
+  }
+  .ac-copy-inner {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+  }
+
+  /* push the copy-link to the opposite end of the nav row */
+  .ac-spacer {
+    flex: 1 1 auto;
+  }
+
+  /* The quiet copy control — text, not a pill. Hover underline is the
+     chrome's animated draw (animations.css), on the label span. */
+  .ac-copy {
+    display: inline-flex;
+    align-items: center;
+    white-space: nowrap;
+    min-block-size: 2.75rem;
+    font-family: var(--font-body);
+    font-size: 0.75rem;
+    letter-spacing: 0.04em;
+    color: var(--ink-3);
+    border: 0;
+    padding: 0.125rem 0;
+    background: none;
+    transition: color var(--speed-micro);
+  }
+  .ac-copy:hover,
+  .ac-copy:focus-visible {
+    color: var(--accent-aa);
+  }
+  .ac-copy.is-copied {
+    color: var(--mate);
+  }
+  .ac-copy-glyph {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+  /* `display` beats the `hidden` attribute's UA default — re-assert it,
+     same as `.ac-copy-manual[hidden]` below (the idle/copied glyph swap
+     relies on `hidden`). */
+  .ac-copy-glyph[hidden] {
+    display: none;
+  }
+
+  /* manual fallback: clipboard blocked → reveal a select-all URL field */
+  .ac-copy-manual {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    min-width: 0;
+  }
+  .ac-copy-manual[hidden] {
+    display: none;
+  }
+  .ac-copy-url {
+    font-family: var(--font-body);
+    font-size: 0.75rem;
+    color: var(--ink-2);
+    background: var(--paper);
+    /* --ink-3, not --rule: a text input's boundary is a UI component
+       under WCAG 1.4.11 (3:1) — --rule sits at ~1.4:1 on paper. */
+    border: 1px solid var(--ink-3);
+    border-radius: 4px;
+    padding: 0.25rem 0.5rem;
+    max-width: 16.25rem;
+    min-width: 0;
+    width: 30ch;
+    /* Same 2.75rem floor as every other colophon control — in the
+       blocked-clipboard path this field IS the primary control. */
+    min-block-size: 2.75rem;
+  }
+  .ac-copy-url:focus {
+    border-color: var(--accent);
+  }
+  .ac-copy-dismiss {
+    border: 0;
+    padding: 0.125rem 0.25rem;
+  }
+
+  @media (max-width: 35rem) {
+    .ac-nav {
+      flex-wrap: wrap;
+    }
+    /* break the copy-link onto its own row */
+    .ac-spacer {
+      flex-basis: 100%;
+      block-size: 0;
+    }
+  }
+}

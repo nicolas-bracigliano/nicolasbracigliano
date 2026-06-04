@@ -24,6 +24,10 @@
 /* Component-scoped (not a route): the ⌘K command palette (the site's
    search). See the design-system command-palette section. */
 @import url('./cmdk.css');
+/* Component-scoped (not a route): the shared end-of-page footers —
+   SectionEnd (index caps) + ArticleColophon (detail colophon with the
+   copy-link control). */
+@import url('./footers.css');
 
 @layer base {
   html {
@@ -562,13 +566,17 @@
    --------------------------------------------------------------- */
 @media print {
   /* Suppress chrome + interactive affordances. The reader has
-     the URL in the footer of the printed page already. */
+     the URL in the footer of the printed page already. The
+     colophon's nav row (back-link · back-to-top · copy-link) is
+     all interactive, so it goes wholesale; the colophon meta and
+     signature still print. */
   .chrome,
   .foot-rail,
   .skip-link,
   #theme-toggle,
   .lang-toggle,
-  .about-intro {
+  .about-intro,
+  .ac-nav {
     display: none !important;
   }
 

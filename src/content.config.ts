@@ -58,9 +58,14 @@ const notes = defineCollection({
          *  per-kind maps in `src/components/ContentArt.astro`. Omit for
          *  no glyph. See ADR 0013. */
         kind: z.enum(NOTE_KINDS).optional(),
-        /** Manual override; if omitted, NoteEntry computes from `entry.body`. */
+        /** Manual override; if omitted, NoteEntry/NoteDetail compute from
+         *  `entry.body`. */
         minutes: z.number().int().positive().optional(),
         aside: z.string().optional(),
+        /** Optional place for the detail-page colophon (e.g. "Melbourne, AU").
+         *  Mirrors pieces' `written`: author-supplied, localised per file;
+         *  `NoteDetail.astro` omits the segment gracefully when absent. */
+        noted: z.string().max(80).optional(),
         hero: image().optional(),
       })
       .refine((d) => DATED_TRANSLATION_ID.test(d.translationId), {

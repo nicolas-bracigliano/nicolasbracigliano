@@ -3,6 +3,7 @@ import { getCollection } from 'astro:content';
 import BaseLayout from '@layouts/BaseLayout.astro';
 import PiecesMasthead from '@components/PiecesMasthead.astro';
 import PieceEntry from '@components/PieceEntry.astro';
+import SectionEnd from '@components/SectionEnd.astro';
 import { ROUTES } from '@lib/routes';
 
 // The index renders each piece as a row (meta + title + lede + tags,
@@ -39,12 +40,6 @@ const siblingPath = ROUTES.pieces.es;
       )
     }
 
-    {
-      pieces.length > 0 && (
-        <footer class="pieces-foot">
-          <span class="eyebrow">↺ &nbsp;older pieces in the drawer</span>
-        </footer>
-      )
-    }
+    {pieces.length > 0 && <SectionEnd note="older pieces in the drawer" />}
   </section>
 </BaseLayout>
