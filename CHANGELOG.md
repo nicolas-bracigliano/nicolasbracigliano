@@ -1,5 +1,25 @@
 # Changelog
 
+## [1.22.0](https://github.com/nicolas-bracigliano/nicolasbracigliano/compare/v1.21.2...v1.22.0) (2026-06-04)
+
+
+### Features
+
+* dedicated note detail page plus shared article colophon and copy link ([9109437](https://github.com/nicolas-bracigliano/nicolasbracigliano/commit/91094375ba43bcce42ea77e36c6a020ed27847d8))
+* **notes:** give the note detail page its own composition ([97ea463](https://github.com/nicolas-bracigliano/nicolasbracigliano/commit/97ea463615a8f240d7e6e63878084d91a78e870c))
+* unify detail feet and index caps into shared footers ([11d53b3](https://github.com/nicolas-bracigliano/nicolasbracigliano/commit/11d53b328707a3d54a7c9ee411aaec7dde04f17e))
+
+
+### Bug Fixes
+
+* apply the five minor findings from the deep review ([52afe59](https://github.com/nicolas-bracigliano/nicolasbracigliano/commit/52afe5988782612a6e044338a12f363058a54be2))
+* give the manual copy-link field the colophon's tap-target floor ([fa22b61](https://github.com/nicolas-bracigliano/nicolasbracigliano/commit/fa22b61e9bc662676428d3ab8431ea34bb641632))
+
+
+### Refactors
+
+* improve AsciiSignature layout and styling ([6919792](https://github.com/nicolas-bracigliano/nicolasbracigliano/commit/691979200e6343b69c0dc151e4e4511c16756f26))
+
 ## [1.21.2](https://github.com/nicolas-bracigliano/nicolasbracigliano/compare/v1.21.1...v1.21.2) (2026-06-03)
 
 
