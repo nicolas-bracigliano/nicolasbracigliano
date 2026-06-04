@@ -1,5 +1,24 @@
 # Changelog
 
+## [1.21.2](https://github.com/nicolas-bracigliano/nicolasbracigliano/compare/v1.21.1...v1.21.2) (2026-06-03)
+
+
+### Bug Fixes
+
+* set HSTS max-age to 1 year to match the zone cap and stay preload-eligible ([5834637](https://github.com/nicolas-bracigliano/nicolasbracigliano/commit/58346371e89df90def6349980b6413c3d201ceb2))
+* **worker:** serve security.txt and apply security headers to worker responses ([93ded27](https://github.com/nicolas-bracigliano/nicolasbracigliano/commit/93ded27c1c078708e6bec64b373899c2d73ff162))
+* **worker:** serve security.txt and apply security headers to worker responses ([a28e2ae](https://github.com/nicolas-bracigliano/nicolasbracigliano/commit/a28e2ae7d5e427ffc6a73fae18259c71894d0648))
+
+
+### Refactors
+
+* harden security-header sync test and make the worker Text rule explicit ([32296d6](https://github.com/nicolas-bracigliano/nicolasbracigliano/commit/32296d6691c98736604d2d3f68f903a2b72334e5))
+
+
+### Documentation
+
+* record verified analytics zone status in security.md ([5f8613a](https://github.com/nicolas-bracigliano/nicolasbracigliano/commit/5f8613a82dc8cadb374d53e3ba6be236d679c00a))
+
 ## [1.21.1](https://github.com/nicolas-bracigliano/nicolasbracigliano/compare/v1.21.0...v1.21.1) (2026-06-03)
 
 
