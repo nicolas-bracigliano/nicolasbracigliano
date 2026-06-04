@@ -20,9 +20,9 @@ const givenName = locale === 'es' ? 'Nicolás' : 'Nicolas';
 const setInTypeOn = locale === 'es' ? 'compuesto el' : 'set in type on';
 ---
 
-<p class="colofon-sig">
-  <span class="serif-italic">— {givenName}</span>
-  <span class="muted"> · Melbourne · {setInTypeOn} {today}</span>
+<p class="colofon-sig serif-italic">
+  — {givenName}
+  <span class="muted"> · Melbourne</span>
 </p>
 
 {
@@ -34,7 +34,7 @@ const setInTypeOn = locale === 'es' ? 'compuesto el' : 'set in type on';
   class="ascii-sig"
   aria-hidden="true">
 {`  ╭───────────────────╮
-  │   N  ·  B  ·  '${yearTwoDigit} │
+  │   N  ·  B  ·  '${yearTwoDigit}  │
   ╰───────────────────╯`}
 </pre>
 <span class="ascii-sig-meta">— {setInTypeOn} {today} · hecho a mano —</span>
