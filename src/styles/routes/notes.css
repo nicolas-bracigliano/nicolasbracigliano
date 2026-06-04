@@ -391,7 +391,9 @@
      reduced-motion clamp, same as the works cards. */
   .nd-wander {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    /* minmax(0, …) — same long-unbreakable-string discipline as the
+       index grid's `minmax(0, 1fr)` body column. */
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
     gap: 1rem;
     margin-block-start: 3.5rem;
   }
@@ -438,6 +440,7 @@
     letter-spacing: -0.01em;
     color: var(--ink);
     transition: color var(--speed-micro);
+    overflow-wrap: anywhere;
   }
   .nd-wander-date {
     font-family: var(--font-body);

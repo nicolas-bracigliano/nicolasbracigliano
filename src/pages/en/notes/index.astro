@@ -43,6 +43,6 @@ const siblingPath = ROUTES.notes.es;
       }
     </ol>
 
-    <SectionEnd note="older notes in the drawer" />
+    {notes.length > 0 && <SectionEnd note="older notes in the drawer" />}
   </section>
 </BaseLayout>

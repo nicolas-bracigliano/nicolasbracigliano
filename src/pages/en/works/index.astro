@@ -31,6 +31,6 @@ const siblingPath = ROUTES.works.es;
     </ul>
 
     {/* DRAFT copy — author to confirm before merge. */}
-    <SectionEnd note="more works on the bench" />
+    {works.length > 0 && <SectionEnd note="more works on the bench" />}
   </section>
 </BaseLayout>

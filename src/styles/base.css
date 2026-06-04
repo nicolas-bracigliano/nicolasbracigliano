@@ -566,13 +566,17 @@
    --------------------------------------------------------------- */
 @media print {
   /* Suppress chrome + interactive affordances. The reader has
-     the URL in the footer of the printed page already. */
+     the URL in the footer of the printed page already. The
+     colophon's nav row (back-link · back-to-top · copy-link) is
+     all interactive, so it goes wholesale; the colophon meta and
+     signature still print. */
   .chrome,
   .foot-rail,
   .skip-link,
   #theme-toggle,
   .lang-toggle,
-  .about-intro {
+  .about-intro,
+  .ac-nav {
     display: none !important;
   }
 

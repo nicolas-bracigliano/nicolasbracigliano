@@ -41,6 +41,6 @@ const siblingPath = ROUTES.notes.en;
       }
     </ol>
 
-    <SectionEnd note="notas más viejas en el cajón" />
+    {notes.length > 0 && <SectionEnd note="notas más viejas en el cajón" />}
   </section>
 </BaseLayout>

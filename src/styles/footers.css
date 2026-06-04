@@ -177,7 +177,9 @@
     font-size: 0.75rem;
     color: var(--ink-2);
     background: var(--paper);
-    border: 1px solid var(--rule);
+    /* --ink-3, not --rule: a text input's boundary is a UI component
+       under WCAG 1.4.11 (3:1) — --rule sits at ~1.4:1 on paper. */
+    border: 1px solid var(--ink-3);
     border-radius: 4px;
     padding: 0.25rem 0.5rem;
     max-width: 16.25rem;
