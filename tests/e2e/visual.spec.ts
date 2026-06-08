@@ -11,8 +11,9 @@ import { test, expect } from '@playwright/test';
 // alongside this file under tests/e2e/visual.spec.ts-snapshots/.
 //
 // If a legitimate visual change lands, regenerate baselines via:
-//   pnpm test:e2e -- --update-snapshots tests/e2e/visual.spec.ts
-// and commit the updated PNGs.
+//   pnpm exec playwright test tests/e2e/visual.spec.ts --update-snapshots
+// (`pnpm test:e2e --update-snapshots …`works too.)
+// Commit the updated PNGs under visual.spec.ts-snapshots/.
 
 const DESKTOP_VIEWPORT = { width: 1280, height: 720 } as const;
 const MOBILE_VIEWPORT = { width: 375, height: 667 } as const;
