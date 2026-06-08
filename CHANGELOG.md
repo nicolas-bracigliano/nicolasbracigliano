@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.23.0](https://github.com/nicolas-bracigliano/nicolasbracigliano/compare/v1.22.0...v1.23.0) (2026-06-08)
+
+
+### Features
+
+* add Australia/Melbourne timezone to date formatting in NoteEntry, PieceEntry, and PieceLayout components, and update date tests to ensure correct handling of ISO date strings ([5e15096](https://github.com/nicolas-bracigliano/nicolasbracigliano/commit/5e150968b82bbeff0e98456ac6147f20d8bc6718))
+
+
+### Documentation
+
+* update README and architecture documentation to reflect new security.txt handling in Cloudflare Worker ([ec7f133](https://github.com/nicolas-bracigliano/nicolasbracigliano/commit/ec7f133d5614c488227eda881140d50587b9234f))
+
 ## [1.22.0](https://github.com/nicolas-bracigliano/nicolasbracigliano/compare/v1.21.2...v1.22.0) (2026-06-04)
 
 
