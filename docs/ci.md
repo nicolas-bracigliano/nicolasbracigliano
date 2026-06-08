@@ -69,7 +69,7 @@ too).
 
 Paths that DO trigger the heavy jobs (the "code" filter group):
 
-- `src/**`, `public/**`, `tests/**`, `scripts/**`, `functions/**`
+- `src/**`, `public/**`, `tests/**`, `scripts/**`
 - `astro.config.*`, `wrangler.toml`, `lighthouserc.json`
 - `package.json`, `pnpm-lock.yaml`, `pnpm-workspace.yaml`
 - `tsconfig.json`, `playwright.config.ts`
