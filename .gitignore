@@ -29,6 +29,7 @@ lighthouserc.pr.generated.json
 # build artefacts
 *.log
 *.tsbuildinfo
+*.pnpm-store/
 
 # Claude Code session state (harness scratch — never commit)
 .claude/

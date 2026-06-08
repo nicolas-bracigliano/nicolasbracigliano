@@ -29,6 +29,7 @@ const dateFormatter = new Intl.DateTimeFormat(locale === 'es' ? 'es-AR' : 'en-AU
   year: 'numeric',
   month: '2-digit',
   day: '2-digit',
+  timeZone: 'Australia/Melbourne',
 });
 // "2026 · 05 · 18" — split the formatter output and rejoin with bullets.
 const dateParts = dateFormatter.formatToParts(date).filter((p) => p.type !== 'literal');

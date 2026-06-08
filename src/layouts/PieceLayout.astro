@@ -85,6 +85,7 @@ const dateFormatter = new Intl.DateTimeFormat(locale === 'es' ? 'es-AR' : 'en-AU
   year: 'numeric',
   month: '2-digit',
   day: '2-digit',
+  timeZone: 'Australia/Melbourne',
 });
 const dateParts = dateFormatter.formatToParts(date).filter((p) => p.type !== 'literal');
 const dateDisplay = [

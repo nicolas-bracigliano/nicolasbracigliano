@@ -8,16 +8,16 @@ predictable, not by being elaborate.
 
 ```
 ┌───────────────────────────────────────────────────────────────────────┐
-│ functions/                       Cloudflare adapters (vendor surface) │
-│    └── index.ts ─── wraps src/lib/pick-locale.ts.acceptLanguageRedirect│
+│ src/worker.ts                Cloudflare adapter (vendor surface)      │
+│    └── wraps src/lib/{pick-locale,security-txt}.ts; rest → ASSETS    │
 └───────────────────────────────────────────────────────────────────────┘
                               ▲
                               │ (depends inward only)
 ┌───────────────────────────────────────────────────────────────────────┐
 │ src/pages/             Astro routes — orchestration, no logic         │
 │ src/layouts/           Astro templates — markup + slots               │
-│ src/components/        (empty for now — promote .astro snippets here  │
-│                        when they're reused in 2+ places)              │
+│ src/components/        Reusable .astro snippets — mastheads, cards,   │
+│                        diagrams/, art/                                │
 └───────────────────────────────────────────────────────────────────────┘
                               ▲
                               │
@@ -33,6 +33,7 @@ predictable, not by being elaborate.
 ┌───────────────────────────────────────────────────────────────────────┐
 │ src/lib/routes.ts      Pure routing primitives — zero framework deps  │
 │ src/lib/pick-locale.ts Pure Accept-Language picker + EdgeHandler type │
+│ src/lib/security-txt.ts Host-neutral /.well-known/security.txt body   │
 │ src/lib/reading-time.ts Pure markdown→minutes                         │
 │ src/styles/            tokens.css, reset.css, base.css                │
 └───────────────────────────────────────────────────────────────────────┘
@@ -49,14 +50,15 @@ inner layers never know about outer. In practice:
 - `src/lib/routes.ts` has zero framework imports — it runs in any JS runtime.
 - `src/lib/i18n.ts` may import from `astro:content` and from `./routes`,
   but **not** from layouts or pages.
-- Pages and layouts may import from `@lib/*`, but **not** from `functions/`.
-- `functions/` may import from `src/lib/*` (the platform-neutral parts),
+- Pages and layouts may import from `@lib/*`, but **not** from `src/worker.ts`.
+- `src/worker.ts` may import from `src/lib/*` (the platform-neutral parts),
   but is the only place allowed to know about Cloudflare types.
 
 ## The adapter pattern (one place we use it)
 
 The Cloudflare Worker at `src/worker.ts` is a small adapter that wraps
-`src/lib/pick-locale.ts`'s `acceptLanguageRedirect` and delegates every
+`src/lib/pick-locale.ts`'s `acceptLanguageRedirect` and serves
+`/.well-known/security.txt` via `src/lib/security-txt.ts`, delegating every
 other path to the Workers Static Assets binding. The redirect logic
 itself is a platform-neutral `EdgeHandler`
 (`(req: Request) => Response`), the same shape any modern edge runtime
@@ -79,8 +81,8 @@ Cloudflare lock-in surface and how to leave.
 | A helper that needs `astro:content`    | `src/lib/i18n.ts` (or a sibling `*.ts` next to it)                                                                                               |
 | A reusable `.astro` snippet            | `src/components/` — only once it's used in 2+ places                                                                                             |
 | A design token                         | `src/styles/tokens.css`                                                                                                                          |
-| Per-route styling                      | `src/styles/base.css` `@layer routes` (split into `routes/*.css` later)                                                                          |
-| Cloudflare-specific code               | `functions/` — keep it adapter-thin                                                                                                              |
+| Per-route styling                      | `src/styles/routes/*.css`, imported from `base.css`                                                                                              |
+| Cloudflare-specific code               | `src/worker.ts` — keep it adapter-thin                                                                                                           |
 | Header / redirect / cache rule         | `public/_headers` or `public/_redirects` — mirror the change in `docs/security.md § Host-neutral header directives`                              |
 | Build-time generated artefact          | a script in `scripts/`, wired into a `package.json` script                                                                                       |
 | A consequential architectural decision | `docs/decisions/NNNN-kebab-name.md` — use the next free 0006+ number; see `docs/decisions/README.md` for the format. Append-only; never rewrite. |
@@ -96,7 +98,7 @@ the line count for no behavioural win.
 
 What we have instead is **separation by concern, layered just enough**:
 
-- One adapter (`functions/`) keeps the one vendor-specific file isolated.
+- One adapter (`src/worker.ts`) keeps the one vendor-specific file isolated.
 - One impure boundary (`src/lib/i18n.ts`) is the only place that talks to
   the content store; everything below it is pure and testable in milliseconds.
 - The content tree is the input; the static `dist/` is the output; the

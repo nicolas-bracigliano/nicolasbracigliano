@@ -19,7 +19,7 @@ The codebase is the colophon. Every consequential choice (the strict `script-src
 
 - **Strict CSP under View Transitions.** `default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'` over Astro's `<ClientRouter />`. The combination is non-obvious: ClientRouter injects runtime view-transition styles that can't be hashed at build time, and every hoisted `<script>` has to externalize for `script-src 'self'` to hold. See [ADR 0002](./docs/decisions/0002-csp-style-src-unsafe-inline.md) for the style-src trade-off and [ADR 0008](./docs/decisions/0008-externalize-hoisted-scripts-for-csp.md) for the script-side fix. CI enforces the contract: every route is asserted to ship zero inline `<script>` bodies on every PR.
 
-- **Cloudflare Workers Static Assets, one tiny Worker.** [`src/worker.ts`](./src/worker.ts) handles exactly one dynamic concern, an `Accept-Language` redirect at `/`, and delegates everything else to the asset binding. `run_worker_first = true` in [`wrangler.toml`](./wrangler.toml) keeps the redirect alive past Cloudflare's `not_found_handling = "404-page"` short-circuit (a real bug the test suite now catches; the [ADR 0001 postscript](./docs/decisions/0001-cloudflare-pages.md) tells the migration story).
+- **Cloudflare Workers Static Assets, one tiny Worker.** [`src/worker.ts`](./src/worker.ts) handles two dynamic paths — an `Accept-Language` redirect at `/` and `/.well-known/security.txt` — and delegates everything else to the asset binding. `run_worker_first = true` in [`wrangler.toml`](./wrangler.toml) keeps the redirect alive past Cloudflare's `not_found_handling = "404-page"` short-circuit (a real bug the test suite now catches; the [ADR 0001 postscript](./docs/decisions/0001-cloudflare-pages.md) tells the migration story).
 
 - **Bilingual mirrored routes.** Every page exists at `/en/<slug>` and `/es/<slug>` with localised URL segments (`/en/notes/` ↔ `/es/notas/`, `/en/works/` ↔ `/es/obras/`, `/en/colophon/` ↔ `/es/colofón/`). [`src/lib/routes.ts`](./src/lib/routes.ts) is the single source of truth, [ADR 0003](./docs/decisions/0003-mirrored-bilingual-routes.md) is the rationale, and the post-deploy CI smoke script ([`scripts/smoke-routes.ts`](./scripts/smoke-routes.ts)) derives its route list from `ROUTES` + published content frontmatter at runtime. Adding a route is one edit, not two.
 
@@ -74,7 +74,7 @@ src/
   content/      # notes · pieces · works · pages, typed by content.config.ts
   lib/          # routes.ts (route source of truth), i18n, content helpers
   styles/       # tokens + base + per-route CSS in src/styles/routes/
-  worker.ts     # the one dynamic concern: Accept-Language redirect at /
+  worker.ts     # dynamic edge: Accept-Language redirect at / + security.txt
 docs/           # design-system · architecture · security · ci · decisions/ (ADRs)
 ```
 
