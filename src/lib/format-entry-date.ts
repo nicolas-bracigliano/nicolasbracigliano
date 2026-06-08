@@ -42,6 +42,7 @@ function fullDate(date: Date, locale: Locale): string {
     year: 'numeric',
     month: '2-digit',
     day: '2-digit',
+    timeZone: 'Australia/Melbourne',
   })
     .formatToParts(date)
     .filter((p) => p.type !== 'literal');
