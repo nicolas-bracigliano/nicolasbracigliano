@@ -15,11 +15,11 @@ allowBuilds:
   sharp: true
   workerd: true
 
-# Force-upgrade three transitive dev dependencies that ship with
+# Force-upgrade transitive dependencies that ship with
 # known security advisories. All three are pulled in through
 # tooling (typechecker, Lighthouse CI) — none are runtime-exposed —
 # but `pnpm audit` flags them and upstream releases of
-# `@astrojs/check` / `@lhci/cli` haven't rolled forward yet.
+# Astro / `@astrojs/check` / `@lhci/cli` haven't rolled forward yet.
 #
 # (Versions below are Renovate-pinned; the floors that matter are
 # the ones the advisories name.)
@@ -40,6 +40,10 @@ allowBuilds:
 #                   resolved against ^0.2.4 and is still vulnerable to
 #                   the newer advisory. Pulled in twice via @lhci/cli
 #                   (direct and via inquirer → external-editor).
+# - esbuild (≥0.28.1) — patches GHSA-gv7w-rqvm-qjhr (missing binary
+#                   integrity verification in Deno module path) and
+#                   GHSA-g7r4-m6w7-qqqr (Windows dev-server file read).
+#                   Pulled in via Astro, Vite, and vitefu → Vite.
 #
 # Revisit when upstream releases pick up the patched transitives
 # natively — these overrides can then be removed.
@@ -48,3 +52,4 @@ overrides:
   yaml: 2.9.0
   uuid: 11.1.1
   tmp: 0.2.7
+  esbuild: 0.28.1
