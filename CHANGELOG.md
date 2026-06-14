@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.24.0](https://github.com/nicolas-bracigliano/nicolasbracigliano/compare/v1.23.0...v1.24.0) (2026-06-14)
+
+
+### Features
+
+* add multiple favicon options and a preview HTML page for selection ([fe1645c](https://github.com/nicolas-bracigliano/nicolasbracigliano/commit/fe1645c44da2c952fcd0106f2d3d0bafd83c79bf))
+
+
+### Bug Fixes
+
+* update favicon SVG and add versioning to favicon link in BaseLayout ([aebf923](https://github.com/nicolas-bracigliano/nicolasbracigliano/commit/aebf92325c6b865ab8a1610e740d890ea70c5f2e))
+
 ## [1.23.0](https://github.com/nicolas-bracigliano/nicolasbracigliano/compare/v1.22.0...v1.23.0) (2026-06-08)
 
 
