@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-labelledby="title">
+  <title id="title">Paper fold NB favicon option</title>
+  <rect width="64" height="64" rx="12" fill="#1a1814"/>
+  <path d="M12 12h30l10 10v30H12z" fill="#f6f4ef"/>
+  <path d="M42 12v10h10z" fill="#b8512a"/>
+  <text x="32" y="41" text-anchor="middle" font-family="Newsreader, Iowan Old Style, Georgia, serif" font-size="28" font-weight="800" fill="#1a1814">NB</text>
+</svg>

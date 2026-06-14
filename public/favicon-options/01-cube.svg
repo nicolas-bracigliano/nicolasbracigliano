@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-labelledby="title">
+  <title id="title">NB cube favicon option</title>
+  <rect width="64" height="64" rx="12" fill="#f6f4ef"/>
+  <path d="M18 20h28v28H18z" fill="#1a1814"/>
+  <path d="M46 20l8 6v28l-8-6z" fill="#b8512a"/>
+  <path d="M18 20l8-8h28l-8 8z" fill="#3e3a34"/>
+  <text x="32" y="39" text-anchor="middle" font-family="JetBrains Mono, ui-monospace, Menlo, monospace" font-size="15" font-weight="800" letter-spacing="1" fill="#f6f4ef">NB</text>
+</svg>
