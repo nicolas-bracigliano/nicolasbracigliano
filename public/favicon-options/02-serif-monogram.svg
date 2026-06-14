@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-labelledby="title">
+  <title id="title">NB serif monogram favicon option</title>
+  <rect width="64" height="64" rx="12" fill="#1a1814"/>
+  <circle cx="50" cy="14" r="4" fill="#b8512a"/>
+  <text x="32" y="42" text-anchor="middle" font-family="Newsreader, Iowan Old Style, Georgia, serif" font-size="32" font-weight="700" fill="#f6f4ef">NB</text>
+</svg>

@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-labelledby="title">
+  <title id="title">Line cube favicon option</title>
+  <rect width="64" height="64" rx="12" fill="#f6f4ef"/>
+  <path d="M16 24l16-10 16 10v18L32 52 16 42z" fill="none" stroke="#1a1814" stroke-width="5" stroke-linejoin="round"/>
+  <path d="M16 24l16 10 16-10M32 34v18" fill="none" stroke="#1a1814" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M48 24v18L32 52V34z" fill="#b8512a" opacity="0.88"/>
+</svg>

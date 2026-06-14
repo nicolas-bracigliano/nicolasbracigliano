@@ -1,0 +1,322 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title>Favicon options</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #f6f4ef;
+        --bg-2: #ece9e0;
+        --paper: #fbfaf6;
+        --ink: #1a1814;
+        --ink-2: #3e3a34;
+        --ink-3: #736b5e;
+        --rule: #d4cfc2;
+        --accent: #b8512a;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--ink);
+        font-family: "JetBrains Mono", ui-monospace, Menlo, monospace;
+      }
+
+      main {
+        width: min(1120px, calc(100% - 32px));
+        margin: 0 auto;
+        padding: 48px 0;
+      }
+
+      header {
+        display: grid;
+        gap: 10px;
+        max-width: 760px;
+        margin-bottom: 30px;
+      }
+
+      h1 {
+        margin: 0;
+        font-family: "Newsreader", "Iowan Old Style", Georgia, serif;
+        font-size: clamp(2rem, 6vw, 4rem);
+        font-weight: 650;
+        line-height: 0.95;
+        letter-spacing: 0;
+      }
+
+      p {
+        margin: 0;
+        color: var(--ink-2);
+        font-size: 0.95rem;
+        line-height: 1.6;
+      }
+
+      .baseline {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        width: fit-content;
+        margin-bottom: 28px;
+        padding: 12px 14px;
+        background: var(--bg-2);
+        border: 1px solid var(--rule);
+        border-radius: 8px;
+      }
+
+      .baseline img {
+        width: 32px;
+        height: 32px;
+      }
+
+      .baseline span {
+        color: var(--ink-3);
+        font-size: 0.78rem;
+        text-transform: uppercase;
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 16px;
+      }
+
+      .option {
+        display: grid;
+        gap: 16px;
+        padding: 18px;
+        background: var(--paper);
+        border: 1px solid var(--rule);
+        border-radius: 8px;
+      }
+
+      .hero {
+        display: grid;
+        place-items: center;
+        min-height: 144px;
+        background:
+          linear-gradient(45deg, var(--bg-2) 25%, transparent 25%),
+          linear-gradient(-45deg, var(--bg-2) 25%, transparent 25%),
+          linear-gradient(45deg, transparent 75%, var(--bg-2) 75%),
+          linear-gradient(-45deg, transparent 75%, var(--bg-2) 75%);
+        background-position:
+          0 0,
+          0 8px,
+          8px -8px,
+          -8px 0;
+        background-size: 16px 16px;
+        border-radius: 6px;
+      }
+
+      .hero img {
+        width: 96px;
+        height: 96px;
+        filter: drop-shadow(0 8px 14px rgb(26 24 20 / 18%));
+      }
+
+      .sizes {
+        display: flex;
+        align-items: end;
+        gap: 14px;
+        min-height: 64px;
+      }
+
+      .sizes figure {
+        display: grid;
+        justify-items: center;
+        gap: 6px;
+        margin: 0;
+      }
+
+      .sizes figcaption {
+        color: var(--ink-3);
+        font-size: 0.68rem;
+      }
+
+      .size-16 {
+        width: 16px;
+        height: 16px;
+      }
+
+      .size-32 {
+        width: 32px;
+        height: 32px;
+      }
+
+      .size-48 {
+        width: 48px;
+        height: 48px;
+      }
+
+      h2 {
+        margin: 0;
+        color: var(--ink);
+        font-size: 0.95rem;
+        letter-spacing: 0;
+      }
+
+      .note {
+        color: var(--ink-3);
+        font-size: 0.78rem;
+        line-height: 1.45;
+      }
+
+      code {
+        color: var(--accent);
+        font-family: inherit;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <header>
+        <h1>Favicon options</h1>
+        <p>Eleven small-mark directions for Nicolas Bracigliano, tuned around the site's ink, paper, terracotta, and NB cube language.</p>
+      </header>
+
+      <div class="baseline">
+        <img src="../favicon.svg" alt="Current favicon"/>
+        <span>Current favicon</span>
+      </div>
+
+      <section class="grid" aria-label="Favicon candidates">
+        <article class="option">
+          <div class="hero"><img src="./01-cube.svg" alt="Option 1 cube favicon"/></div>
+          <div class="sizes" aria-label="Size preview">
+            <figure><img class="size-16" src="./01-cube.svg" alt=""/><figcaption>16</figcaption></figure>
+            <figure><img class="size-32" src="./01-cube.svg" alt=""/><figcaption>32</figcaption></figure>
+            <figure><img class="size-48" src="./01-cube.svg" alt=""/><figcaption>48</figcaption></figure>
+          </div>
+          <h2>01 Cube</h2>
+          <p class="note">Closest to the header mark: dimensional, compact, and unmistakably tied to the existing NB cube.</p>
+          <p class="note"><code>01-cube.svg</code></p>
+        </article>
+
+        <article class="option">
+          <div class="hero"><img src="./02-serif-monogram.svg" alt="Option 2 serif monogram favicon"/></div>
+          <div class="sizes" aria-label="Size preview">
+            <figure><img class="size-16" src="./02-serif-monogram.svg" alt=""/><figcaption>16</figcaption></figure>
+            <figure><img class="size-32" src="./02-serif-monogram.svg" alt=""/><figcaption>32</figcaption></figure>
+            <figure><img class="size-48" src="./02-serif-monogram.svg" alt=""/><figcaption>48</figcaption></figure>
+          </div>
+          <h2>02 Serif Monogram</h2>
+          <p class="note">More editorial and personal, leaning into the site's colophon-not-portfolio tone.</p>
+          <p class="note"><code>02-serif-monogram.svg</code></p>
+        </article>
+
+        <article class="option">
+          <div class="hero"><img src="./03-folded-n.svg" alt="Option 3 folded N favicon"/></div>
+          <div class="sizes" aria-label="Size preview">
+            <figure><img class="size-16" src="./03-folded-n.svg" alt=""/><figcaption>16</figcaption></figure>
+            <figure><img class="size-32" src="./03-folded-n.svg" alt=""/><figcaption>32</figcaption></figure>
+            <figure><img class="size-48" src="./03-folded-n.svg" alt=""/><figcaption>48</figcaption></figure>
+          </div>
+          <h2>03 Folded N</h2>
+          <p class="note">A conservative evolution of the current single-letter favicon, with a warmer accent and sharper silhouette.</p>
+          <p class="note"><code>03-folded-n.svg</code></p>
+        </article>
+
+        <article class="option">
+          <div class="hero"><img src="./04-colophon-stamp.svg" alt="Option 4 colophon stamp favicon"/></div>
+          <div class="sizes" aria-label="Size preview">
+            <figure><img class="size-16" src="./04-colophon-stamp.svg" alt=""/><figcaption>16</figcaption></figure>
+            <figure><img class="size-32" src="./04-colophon-stamp.svg" alt=""/><figcaption>32</figcaption></figure>
+            <figure><img class="size-48" src="./04-colophon-stamp.svg" alt=""/><figcaption>48</figcaption></figure>
+          </div>
+          <h2>04 Colophon Stamp</h2>
+          <p class="note">Paper-first and tactile, like a small maker's mark or printed imprint.</p>
+          <p class="note"><code>04-colophon-stamp.svg</code></p>
+        </article>
+
+        <article class="option">
+          <div class="hero"><img src="./05-split-initials.svg" alt="Option 5 split initials favicon"/></div>
+          <div class="sizes" aria-label="Size preview">
+            <figure><img class="size-16" src="./05-split-initials.svg" alt=""/><figcaption>16</figcaption></figure>
+            <figure><img class="size-32" src="./05-split-initials.svg" alt=""/><figcaption>32</figcaption></figure>
+            <figure><img class="size-48" src="./05-split-initials.svg" alt=""/><figcaption>48</figcaption></figure>
+          </div>
+          <h2>05 Split Initials</h2>
+          <p class="note">The boldest tab icon: high contrast, balanced initials, and easy to spot among crowded browser tabs.</p>
+          <p class="note"><code>05-split-initials.svg</code></p>
+        </article>
+
+        <article class="option">
+          <div class="hero"><img src="./06-two-tile.svg" alt="Option 6 two tile favicon"/></div>
+          <div class="sizes" aria-label="Size preview">
+            <figure><img class="size-16" src="./06-two-tile.svg" alt=""/><figcaption>16</figcaption></figure>
+            <figure><img class="size-32" src="./06-two-tile.svg" alt=""/><figcaption>32</figcaption></figure>
+            <figure><img class="size-48" src="./06-two-tile.svg" alt=""/><figcaption>48</figcaption></figure>
+          </div>
+          <h2>06 Two Tile</h2>
+          <p class="note">A crisp two-panel NB that keeps the initials separate and very legible at tab size.</p>
+          <p class="note"><code>06-two-tile.svg</code></p>
+        </article>
+
+        <article class="option">
+          <div class="hero"><img src="./07-prompt-n.svg" alt="Option 7 prompt N favicon"/></div>
+          <div class="sizes" aria-label="Size preview">
+            <figure><img class="size-16" src="./07-prompt-n.svg" alt=""/><figcaption>16</figcaption></figure>
+            <figure><img class="size-32" src="./07-prompt-n.svg" alt=""/><figcaption>32</figcaption></figure>
+            <figure><img class="size-48" src="./07-prompt-n.svg" alt=""/><figcaption>48</figcaption></figure>
+          </div>
+          <h2>07 Prompt N</h2>
+          <p class="note">A developer-flavored mark: terminal dark, warm prompt chevron, and a single sturdy N.</p>
+          <p class="note"><code>07-prompt-n.svg</code></p>
+        </article>
+
+        <article class="option">
+          <div class="hero"><img src="./08-paper-fold.svg" alt="Option 8 paper fold favicon"/></div>
+          <div class="sizes" aria-label="Size preview">
+            <figure><img class="size-16" src="./08-paper-fold.svg" alt=""/><figcaption>16</figcaption></figure>
+            <figure><img class="size-32" src="./08-paper-fold.svg" alt=""/><figcaption>32</figcaption></figure>
+            <figure><img class="size-48" src="./08-paper-fold.svg" alt=""/><figcaption>48</figcaption></figure>
+          </div>
+          <h2>08 Paper Fold</h2>
+          <p class="note">A small document/bookplate cue, pairing the site's written colophon voice with the NB mark.</p>
+          <p class="note"><code>08-paper-fold.svg</code></p>
+        </article>
+
+        <article class="option">
+          <div class="hero"><img src="./09-line-cube.svg" alt="Option 9 line cube favicon"/></div>
+          <div class="sizes" aria-label="Size preview">
+            <figure><img class="size-16" src="./09-line-cube.svg" alt=""/><figcaption>16</figcaption></figure>
+            <figure><img class="size-32" src="./09-line-cube.svg" alt=""/><figcaption>32</figcaption></figure>
+            <figure><img class="size-48" src="./09-line-cube.svg" alt=""/><figcaption>48</figcaption></figure>
+          </div>
+          <h2>09 Line Cube</h2>
+          <p class="note">Letterless but brand-adjacent: a simple cube silhouette with the terracotta face doing the memory work.</p>
+          <p class="note"><code>09-line-cube.svg</code></p>
+        </article>
+
+        <article class="option">
+          <div class="hero"><img src="./10-tricolor-nb.svg" alt="Option 10 tricolor NB favicon"/></div>
+          <div class="sizes" aria-label="Size preview">
+            <figure><img class="size-16" src="./10-tricolor-nb.svg" alt=""/><figcaption>16</figcaption></figure>
+            <figure><img class="size-32" src="./10-tricolor-nb.svg" alt=""/><figcaption>32</figcaption></figure>
+            <figure><img class="size-48" src="./10-tricolor-nb.svg" alt=""/><figcaption>48</figcaption></figure>
+          </div>
+          <h2>10 Tricolor NB</h2>
+          <p class="note">A slightly more expressive option that pulls in the site's mate and blue accents without losing the ink base.</p>
+          <p class="note"><code>10-tricolor-nb.svg</code></p>
+        </article>
+
+        <article class="option">
+          <div class="hero"><img src="./11-master-mark.svg" alt="Option 11 master mark favicon"/></div>
+          <div class="sizes" aria-label="Size preview">
+            <figure><img class="size-16" src="./11-master-mark.svg" alt=""/><figcaption>16</figcaption></figure>
+            <figure><img class="size-32" src="./11-master-mark.svg" alt=""/><figcaption>32</figcaption></figure>
+            <figure><img class="size-48" src="./11-master-mark.svg" alt=""/><figcaption>48</figcaption></figure>
+          </div>
+          <h2>11 Master Mark</h2>
+          <p class="note">My pick: font-free NB geometry, the current dark-square discipline, and a terracotta B/cube edge that still reads at tiny sizes.</p>
+          <p class="note"><code>11-master-mark.svg</code></p>
+        </article>
+      </section>
+    </main>
+  </body>
+</html>

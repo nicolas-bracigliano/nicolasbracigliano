@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-labelledby="title">
+  <title id="title">Tricolor NB favicon option</title>
+  <rect width="64" height="64" rx="12" fill="#1a1814"/>
+  <circle cx="18" cy="17" r="5" fill="#b8512a"/>
+  <circle cx="46" cy="47" r="5" fill="#5a6a3a"/>
+  <path d="M16 46V18h7l18 18V18h7v28h-7L23 28v18z" fill="#f6f4ef"/>
+  <rect x="14" y="51" width="36" height="4" rx="2" fill="#2d4a7a"/>
+</svg>
