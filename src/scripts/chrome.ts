@@ -12,8 +12,6 @@ const HIDE_AT_SCROLL_PX = 120;
 const ALWAYS_SHOW_BELOW_PX = 60;
 const DY_DEBOUNCE_PX = 5;
 
-const root = document.documentElement;
-
 function readStoredTheme(): Theme | null {
   try {
     return parseStoredTheme(localStorage.getItem('theme'));
@@ -30,7 +28,7 @@ function resolveTheme(): Theme {
 }
 
 function applyTheme(theme: Theme): void {
-  root.dataset.theme = theme;
+  document.documentElement.dataset.theme = theme;
   const btn = document.getElementById('theme-toggle');
   btn?.setAttribute('aria-checked', String(theme === 'noche'));
 }
@@ -102,7 +100,7 @@ document.addEventListener('astro:before-swap', (event) => {
   // Boundary cast: `astro:before-swap` isn't in lib.dom's event map, so the
   // listener receives a generic `Event`; cast to Astro's typed event.
   const evt = event as TransitionBeforeSwapEvent;
-  const current = root.dataset.theme;
+  const current = document.documentElement.dataset.theme;
   if (current === 'dia' || current === 'noche') {
     evt.newDocument.documentElement.dataset.theme = current;
   }
@@ -136,7 +134,7 @@ document.addEventListener('click', (event) => {
 
   const themeBtn = target?.closest<HTMLButtonElement>('#theme-toggle');
   if (themeBtn) {
-    const next: Theme = root.dataset.theme === 'noche' ? 'dia' : 'noche';
+    const next: Theme = document.documentElement.dataset.theme === 'noche' ? 'dia' : 'noche';
     applyTheme(next);
     try {
       localStorage.setItem('theme', next);
