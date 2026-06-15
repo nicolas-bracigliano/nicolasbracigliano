@@ -70,6 +70,28 @@ test('day/night toggle is role="switch" with aria-checked', async ({ page }) => 
   await expect(toggle).toHaveAttribute('aria-checked', /^(true|false)$/);
 });
 
+test('theme follows OS changes after client-side navigation when no override is stored', async ({
+  page,
+}) => {
+  await page.emulateMedia({ colorScheme: 'light' });
+  await page.addInitScript(() => localStorage.removeItem('theme'));
+  await page.goto('/en/');
+
+  const html = page.locator('html');
+  await expect(html).toHaveAttribute('data-theme', 'dia');
+
+  await page.locator('.nav a[href="/en/notes/"]').click();
+  await page.waitForURL('**/en/notes/');
+  await expect(html).toHaveAttribute('data-theme', 'dia');
+
+  await page.emulateMedia({ colorScheme: 'dark' });
+  await expect(html).toHaveAttribute('data-theme', 'noche');
+
+  await page.emulateMedia({ colorScheme: 'light' });
+  await expect(html).toHaveAttribute('data-theme', 'dia');
+  await expect.poll(() => page.evaluate(() => localStorage.getItem('theme'))).toBeNull();
+});
+
 test('language toggle persists choice to localStorage', async ({ page }) => {
   await page.goto('/en/');
   await page.locator('.lang-toggle a[data-lang="es"]').click();
