@@ -81,7 +81,7 @@
     "stylelint": "17.12.0",
     "stylelint-config-standard": "40.0.0",
     "typescript": "6.0.3",
-    "vitest": "4.1.7",
+    "vitest": "4.1.9",
     "wrangler": "4.103.0",
     "yaml": "2.9.0"
   }
