@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.24.2](https://github.com/nicolas-bracigliano/nicolasbracigliano/compare/v1.24.1...v1.24.2) (2026-06-27)
+
+
+### Bug Fixes
+
+* **deps:** update astro core to v6.4.8 ([#161](https://github.com/nicolas-bracigliano/nicolasbracigliano/issues/161)) ([e6cc7a7](https://github.com/nicolas-bracigliano/nicolasbracigliano/commit/e6cc7a728361edb1db4aa14ca3fca3601ba76843))
+* **deps:** update Cloudflare tooling for undici security ([2dde545](https://github.com/nicolas-bracigliano/nicolasbracigliano/commit/2dde545f401862cd920b0f26e9a3dd2073e5fafc))
+
 ## [1.24.1](https://github.com/nicolas-bracigliano/nicolasbracigliano/compare/v1.24.0...v1.24.1) (2026-06-16)
 
 
