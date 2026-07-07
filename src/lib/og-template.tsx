@@ -1,4 +1,4 @@
-// Satori JSX template for OG cards. Used by /og/[collection]/[slug].png.ts.
+// Satori JSX template for OG cards. Used by /og/[collection]/[file].ts.
 // Fonts must be provided to satori; see scripts/subset-fonts.mjs for the
 // one-shot dev task that produces public/fonts/og-newsreader.ttf.
 

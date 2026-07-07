@@ -37,7 +37,7 @@ The codebase is the colophon. Every consequential choice (the strict `script-src
 
 ## Stack
 
-- **Framework:** Astro 6 (`output: 'static'`, no SSR adapter)
+- **Framework:** Astro 7 (`output: 'static'`, no SSR adapter)
 - **Runtime:** Node 24 LTS, pnpm 11 via Corepack
 - **Content:** Markdown in repo, typed via Zod content collections
 - **Hosting:** Cloudflare Workers Static Assets, served from [`src/worker.ts`](./src/worker.ts) + [`wrangler.toml`](./wrangler.toml)

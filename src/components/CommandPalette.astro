@@ -2,7 +2,7 @@
 // ⌘K command palette — the site's search ("jump to anything"). Mounted
 // once in BaseLayout so it's available on every route. Its index is a
 // small per-locale JSON file (/cmdk/<locale>.json, built by
-// src/pages/cmdk/[lang].json.ts from the content collections); the client
+// src/pages/cmdk/{en,es}.json.ts from the content collections); the client
 // (src/scripts/cmdk.ts) fetches it once on first open and matches against
 // it. The chrome "jump to…" trigger (a magnifier icon on mobile) carries
 // `data-cmdk-open`, which the script delegates on. Keeping the index out of

@@ -11,7 +11,7 @@ lifecycle: ongoing
 number: '01'
 lede: 'El colofón que estás leyendo.'
 specs:
-  framework: 'astro 6'
+  framework: 'astro 7'
   hosting: 'cloudflare workers'
   lenguaje: 'typescript (estricto)'
   tipos: 'newsreader · jetbrains mono'

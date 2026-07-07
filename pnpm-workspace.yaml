@@ -33,9 +33,9 @@ allowBuilds:
 #                   integrity verification in Deno module path) and
 #                   GHSA-g7r4-m6w7-qqqr (Windows dev-server file read).
 #                   Pulled in via Astro, Vite, and vitefu → Vite.
-# - vite (≥7.3.5) — patches GHSA-fx2h-pf6j-xcff (`server.fs.deny`
-#                   bypass on Windows alternate paths). Pulled in via
-#                   Astro and vitefu → Vite.
+# - vite — no override needed after the Astro 7 upgrade. Astro now
+#                   resolves Vite 8+, which is already above the
+#                   vulnerable range for GHSA-fx2h-pf6j-xcff.
 # - js-yaml (≥4.1.2; using published 4.2.0) — patches GHSA-h67p-54hq-rp68
 #                   (quadratic-complexity DoS in merge key handling via
 #                   repeated aliases). Pulled in via Astro internal helpers.
@@ -48,5 +48,4 @@ overrides:
   uuid: 11.1.1
   tmp: 0.2.7
   esbuild: 0.28.1
-  vite: 7.3.6
   js-yaml: 4.2.0

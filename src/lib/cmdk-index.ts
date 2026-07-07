@@ -1,8 +1,8 @@
 // Single source of truth for the ⌘K command palette's index. Built at
 // build time from the same content collections the routes render from
 // (notes / works / pieces) plus the static route list — so there is no
-// separate index to maintain. `src/pages/cmdk/[lang].json.ts` prerenders
-// the result as a per-locale JSON endpoint; `src/scripts/cmdk.ts` fetches
+// separate index to maintain. `src/pages/cmdk/{en,es}.json.ts` prerenders
+// the result as per-locale JSON endpoints; `src/scripts/cmdk.ts` fetches
 // it on first open and matches against it.
 //
 // This is *navigation, not full-text search* (design-system §-command
