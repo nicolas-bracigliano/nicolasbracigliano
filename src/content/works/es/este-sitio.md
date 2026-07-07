@@ -16,9 +16,12 @@ specs:
   lenguaje: 'typescript (estricto)'
   tipos: 'newsreader · jetbrains mono'
 iterations:
+  - rev: 'v1.24'
+    date: '2026-07-07'
+    status: ongoing
+    note: 'Migración a Astro 7: compilador Rust, Vite 8/Rolldown, endpoints JSON estáticos para la paleta de comandos y rutas OG ajustadas para prerender con trailing slash.'
   - rev: 'v1.19'
     date: '2026-06-02'
-    status: ongoing
     note: 'La página de obra pasa a ser una columna editorial: volanta, bajada, hero, ficha técnica y esta bitácora de iteraciones.'
   - rev: 'v1.16'
     date: '2026-06-02'
