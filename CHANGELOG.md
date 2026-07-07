@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.24.3](https://github.com/nicolas-bracigliano/nicolasbracigliano/compare/v1.24.2...v1.24.3) (2026-07-06)
+
+
+### Bug Fixes
+
+* **deps:** update astrojs integrations ([#167](https://github.com/nicolas-bracigliano/nicolasbracigliano/issues/167)) ([1df9000](https://github.com/nicolas-bracigliano/nicolasbracigliano/commit/1df900060180fc4f6b19c141527daf76d1e048b8))
+
 ## [1.24.2](https://github.com/nicolas-bracigliano/nicolasbracigliano/compare/v1.24.1...v1.24.2) (2026-06-27)
 
 
