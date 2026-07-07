@@ -44,7 +44,20 @@ test.describe('mobile foot-rail', () => {
     expect(box.height).toBeGreaterThanOrEqual(44);
   });
 
-  test('foot-rail active route has the accent tick', async ({ page }) => {
+  test('foot-rail links stay comfortably above the 44 px floor', async ({ page }) => {
+    await page.goto('/en/');
+    const links = page.locator('.foot-rail a');
+    const count = await links.count();
+    expect(count).toBe(6);
+    for (let i = 0; i < count; i++) {
+      const box = await links.nth(i).boundingBox();
+      expect(box, `foot-rail link ${i} must have a bounding box`).not.toBeNull();
+      if (!box) continue;
+      expect(box.height).toBeGreaterThanOrEqual(48);
+    }
+  });
+
+  test('foot-rail active route is still marked semantically', async ({ page }) => {
     await page.goto('/en/');
     const home = page.locator('.foot-rail a[aria-current="page"]');
     await expect(home).toHaveCount(1);
@@ -86,6 +99,9 @@ test.describe('mobile foot-rail', () => {
       expect(liBox, 'li box').not.toBeNull();
       expect(aBox, 'a box').not.toBeNull();
       if (!liBox || !aBox) continue;
+      expect(aBox.height, `label ${i} should keep the taller tap target`).toBeGreaterThanOrEqual(
+        48,
+      );
       expect(aBox.width, `label ${i} should fit in its <li>`).toBeLessThanOrEqual(
         liBox.width + 0.5,
       );

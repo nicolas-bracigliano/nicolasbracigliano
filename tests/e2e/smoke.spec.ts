@@ -70,6 +70,20 @@ test('day/night toggle is role="switch" with aria-checked', async ({ page }) => 
   await expect(toggle).toHaveAttribute('aria-checked', /^(true|false)$/);
 });
 
+test('install metadata advertises raster app icons', async ({ page }) => {
+  await page.goto('/en/');
+  await expect(page.locator('link[rel="apple-touch-icon"]')).toHaveAttribute(
+    'href',
+    '/apple-touch-icon.png?v=1',
+  );
+  await expect(page.locator('link[rel="apple-touch-icon"]')).toHaveAttribute('sizes', '180x180');
+  await expect(page.locator('link[rel="manifest"]')).toHaveAttribute('href', '/site.webmanifest');
+  await expect(page.locator('meta[name="apple-mobile-web-app-title"]')).toHaveAttribute(
+    'content',
+    'Nicolas Bracigliano',
+  );
+});
+
 test('theme follows OS changes after client-side navigation when no override is stored', async ({
   page,
 }) => {
