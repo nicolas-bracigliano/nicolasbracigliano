@@ -1,7 +1,7 @@
 import { defineCollection } from 'astro:content';
 import { glob } from 'astro/loaders';
-// Astro 6 deprecates the `z` re-export from `astro:content`; import from
-// `astro/zod` instead (Astro 6 ships zod v4).
+// Astro 6+ deprecates the `z` re-export from `astro:content`; import from
+// `astro/zod` instead.
 import { z } from 'astro/zod';
 // Shared schema for the /now route's bench-tour items. Defining it
 // in `./lib/now-items` (vs inline here) lets `NowItem.astro` import

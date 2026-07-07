@@ -31,7 +31,7 @@ async function fetchFirst(urls: readonly string[]): Promise<CmdkEntry[] | null> 
     try {
       const r = await fetch(url);
       // Boundary cast: the index is our own prerendered, schema-built
-      // endpoint (src/pages/cmdk/[lang].json.ts), so trust its shape rather
+      // endpoint (src/pages/cmdk/{en,es}.json.ts), so trust its shape rather
       // than re-validating every entry at runtime.
       if (r.ok) return (await r.json()) as CmdkEntry[];
     } catch {
@@ -46,13 +46,10 @@ function loadIndex(root: HTMLElement): Promise<CmdkEntry[] | null> {
   if (!src) return Promise.resolve(null);
   let cached = indexCache.get(src);
   if (!cached) {
-    // `trailingSlash: 'always'` serves this `.json` endpoint at `/x.json/`
-    // under `astro dev` but `/x.json` in the build. Try the form the
-    // current env answers first (import.meta.env.DEV is build-time
-    // replaced), then fall back to the other — so a future change to the
-    // trailingSlash config degrades to one extra request, not a silent
-    // break.
-    const candidates = import.meta.env.DEV ? [`${src}/`, src] : [src, `${src}/`];
+    // Static `.json` endpoints serve at `/x.json` in both dev and build.
+    // Keep the slash form as a defensive fallback so a future routing
+    // config change degrades to one extra request, not a silent break.
+    const candidates = [src, `${src}/`];
     cached = fetchFirst(candidates).then((r) => {
       if (r === null) indexCache.delete(src); // don't cache a failure — let it retry
       return r;

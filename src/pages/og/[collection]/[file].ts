@@ -7,7 +7,7 @@ import { ogSlugFor } from '@lib/i18n';
 
 // Satori + Resvg integration. Requires `public/fonts/og-newsreader.ttf` —
 // run `pnpm run subset-fonts` to produce it. Until then, the endpoint
-// falls back to a solid-colour 1200×630 PNG via Sharp so the build never
+// falls back to a solid-colour 1200x630 PNG via Sharp so the build never
 // breaks on a fresh clone.
 
 const FONT_PATH = resolve(process.cwd(), 'public/fonts/og-newsreader.ttf');
@@ -21,7 +21,7 @@ export async function getStaticPaths() {
   const allOgs = grouped.flat().filter(({ entry }) => entry.data.status === 'published');
 
   return allOgs.map(({ collection, entry }) => ({
-    params: { collection, slug: ogSlugFor(entry) },
+    params: { collection, file: `${ogSlugFor(entry)}.png` },
     props: { entry, collection },
   }));
 }

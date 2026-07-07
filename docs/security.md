@@ -178,7 +178,7 @@ needs to look like on the new host. Update both columns in lock-step.
 ### CSP delivery — \_headers only
 
 CSP is delivered **exclusively** by `public/_headers` at the edge. We do
-not emit `<meta http-equiv="content-security-policy">` because Astro 6's
+not emit `<meta http-equiv="content-security-policy">` because Astro's
 `<ClientRouter />` (used for native View Transitions) injects per-build
 view-transition styles at runtime, and Astro's build-time CSP hashing
 cannot cover them. The CSP spec also says `'unsafe-inline'` is _ignored_

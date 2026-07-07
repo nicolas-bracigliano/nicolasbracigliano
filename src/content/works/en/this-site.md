@@ -11,14 +11,17 @@ lifecycle: ongoing
 number: '01'
 lede: 'The colophon you are reading.'
 specs:
-  framework: 'astro 6'
+  framework: 'astro 7'
   hosting: 'cloudflare workers'
   language: 'typescript (strict)'
   fonts: 'newsreader · jetbrains mono'
 iterations:
+  - rev: 'v1.24'
+    date: '2026-07-07'
+    status: ongoing
+    note: 'Astro 7 migration: Rust compiler path, Vite 8/Rolldown, static command-palette JSON endpoints, and OG image routes reshaped for trailing-slash prerendering.'
   - rev: 'v1.19'
     date: '2026-06-02'
-    status: ongoing
     note: 'The works detail page becomes an editorial single column: eyebrow, deck, hero, specs, and this iterations ledger.'
   - rev: 'v1.16'
     date: '2026-06-02'
