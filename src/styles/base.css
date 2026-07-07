@@ -439,9 +439,9 @@
       inset-inline: 0;
       inset-block-end: 0;
       z-index: var(--z-chrome);
-      background: var(--bg);
-      border-block-start: 1px dashed var(--rule);
-      padding-block-end: env(safe-area-inset-bottom, 0);
+      background-color: color-mix(in oklab, var(--bg) 96%, var(--paper) 4%);
+      border-block-start: 1px solid var(--rule);
+      padding: 0.25rem 0.75rem calc(0.35rem + env(safe-area-inset-bottom, 0));
       transition: transform var(--speed-page);
     }
     .foot-rail.is-hidden {
@@ -451,9 +451,9 @@
       display: flex;
       justify-content: space-around;
       align-items: stretch;
-      gap: 0;
+      gap: 0.15rem;
       margin: 0;
-      padding: 0 0.5rem;
+      padding: 0;
       list-style: none;
     }
     .foot-rail li {
@@ -465,12 +465,15 @@
       align-items: center;
       justify-content: center;
       flex: 1;
-      min-height: 44px;
-      padding: 0 0.25rem;
+      min-height: 50px;
+      min-width: 0;
+      padding: 0.25rem 0.15rem;
       color: var(--ink-2);
       text-decoration: none;
       text-transform: lowercase;
-      font-size: 0.85rem;
+      text-underline-offset: 0.45em;
+      font-size: 0.76rem;
+      line-height: 1;
       position: relative;
     }
     /* Very narrow viewports (≤ 380 px): 6 items × ~60 px ≈ 360 px,
@@ -480,27 +483,23 @@
        slightly-wider screens via the cascade. */
     @media (max-width: 380px) {
       .foot-rail a {
-        font-size: 0.75rem;
-        padding: 0 0.125rem;
+        font-size: 0.72rem;
+        padding-inline: 0.125rem;
       }
     }
     .foot-rail a[aria-current='page'] {
       color: var(--accent-aa);
+      font-weight: 600;
+      text-decoration-line: underline;
+      text-decoration-thickness: 1px;
+      text-decoration-color: var(--accent);
     }
-    /* Tick is a line decoration, not text — raw --accent is fine here. */
     .foot-rail a[aria-current='page']::before {
-      content: '';
-      position: absolute;
-      inset-block-start: 6px;
-      inset-inline-start: 50%;
-      transform: translateX(-50%);
-      width: 1.5rem;
-      height: 2px;
-      background: var(--accent);
+      content: none;
     }
 
     body {
-      padding-block-end: calc(44px + env(safe-area-inset-bottom, 0));
+      padding-block-end: calc(60px + env(safe-area-inset-bottom, 0));
     }
   }
 
