@@ -82,6 +82,10 @@ test('install metadata advertises raster app icons', async ({ page }) => {
     'content',
     'Nicolas Bracigliano',
   );
+
+  const precomposedIcon = await page.request.get('/apple-touch-icon-precomposed.png');
+  expect(precomposedIcon.ok()).toBe(true);
+  expect(precomposedIcon.headers()['content-type']).toContain('image/png');
 });
 
 test('theme follows OS changes after client-side navigation when no override is stored', async ({
