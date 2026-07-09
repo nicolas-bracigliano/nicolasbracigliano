@@ -465,8 +465,18 @@ test('/about/now/ — the code item "see also" links to the matching work, local
     await page.goto(path);
     const link = page.locator('.now-code .now-see-also a');
     await expect(link).toHaveAttribute('href', href);
-    await expect(link).toHaveText(label);
+    await expect(link.locator('.now-see-path')).toHaveText(label);
     await expect(link).toHaveAttribute('aria-label', `${eyebrow} ${label}`);
+    await expect(link.locator('.now-see-arrow')).toHaveText('→');
+
+    await link.hover();
+    await expect(link.locator('.now-see-path')).toHaveCSS('text-decoration-line', 'underline');
+    await expect(link.locator('.now-see-arrow')).toHaveCSS('text-decoration-line', 'none');
+
+    await link.locator('.now-see-arrow').click();
+    await expect(page).toHaveURL(new RegExp(`${href.replaceAll('/', '\\/')}$`));
+
+    await page.goto(path);
     // Negative: an item without a `work:` ref renders no see-also at all.
     await expect(page.locator('.now-guitar .now-see-also')).toHaveCount(0);
   }

@@ -131,10 +131,10 @@
   }
 
   /* "See also" foot line to the catalogued work — surfaces a relationship
-     without making the whole entry a button (only the path is the link).
+     without making the whole entry a button (only the path + arrow are the link).
      A dashed rule (half-strength rule colour) sets it off from the detail
      dl; an uppercase grey eyebrow (`.muted`), the accent path link, and a
-     decorative accent arrow pushed to the right rule that slides on
+     decorative accent arrow inside the link pushed to the right rule that slides on
      hover/focus. Body font is already mono (--font-body), restated here
      for intent. Sizes sit on the file's type steps (0.6875rem row /
      0.625rem eyebrow, like .now-where / .now-detail dt) and motion uses
@@ -168,12 +168,17 @@
     background-image: none;
     padding-block-end: 0;
     text-decoration: none;
+    display: inline-flex;
+    align-items: baseline;
+    gap: 0.625rem;
+    flex: 1;
+    min-width: 0;
     transition:
       color var(--speed-micro),
       transform var(--speed-micro);
   }
-  .now-see-also a:hover,
-  .now-see-also a:focus-visible {
+  .now-see-also a:hover .now-see-path,
+  .now-see-also a:focus-visible .now-see-path {
     text-decoration: underline;
     text-underline-offset: 0.25em;
   }
@@ -181,6 +186,7 @@
     color: var(--accent-aa);
     transition: transform var(--speed-micro);
     margin-inline-start: auto;
+    flex: 0 0 auto;
   }
   .now-see-also:hover .now-see-arrow,
   .now-see-also:focus-within .now-see-arrow {
