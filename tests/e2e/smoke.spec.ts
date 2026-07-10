@@ -463,20 +463,29 @@ test('/about/now/ — the code item "see also" links to the matching work, local
     },
   ]) {
     await page.goto(path);
-    const link = page.locator('.now-code .now-see-also a');
-    await expect(link).toHaveAttribute('href', href);
-    await expect(link.locator('.now-see-path')).toHaveText(label);
-    await expect(link).toHaveAttribute('aria-label', `${eyebrow} ${label}`);
-    await expect(link.locator('.now-see-arrow')).toHaveText('→');
+    const row = page.locator('.now-code .now-see-also');
+    const pathLink = row.locator('.now-see-path-link');
+    const arrowLink = row.locator('.now-see-arrow-link');
+    const spacer = row.locator('.now-see-spacer');
 
-    await link.hover();
-    await expect(link.locator('.now-see-path')).toHaveCSS('text-decoration-line', 'underline');
-    await expect(link.locator('.now-see-arrow')).toHaveCSS('text-decoration-line', 'none');
+    await expect(pathLink).toHaveAttribute('href', href);
+    await expect(pathLink.locator('.now-see-path')).toHaveText(label);
+    await expect(pathLink).toHaveAttribute('aria-label', `${eyebrow} ${label}`);
+    await expect(arrowLink).toHaveAttribute('href', href);
+    await expect(arrowLink.locator('.now-see-arrow')).toHaveText('→');
 
-    await link.locator('.now-see-arrow').hover();
-    await expect(link.locator('.now-see-arrow')).toHaveCSS('cursor', 'pointer');
+    await pathLink.hover();
+    await expect(pathLink.locator('.now-see-path')).toHaveCSS('text-decoration-line', 'underline');
+    await expect(arrowLink.locator('.now-see-arrow')).toHaveCSS('text-decoration-line', 'none');
+    await expect(pathLink).toHaveCSS('cursor', 'pointer');
 
-    await link.locator('.now-see-arrow').click();
+    await spacer.hover();
+    await expect(spacer).toHaveCSS('cursor', 'auto');
+
+    await arrowLink.hover();
+    await expect(arrowLink).toHaveCSS('cursor', 'pointer');
+
+    await arrowLink.click();
     await expect(page).toHaveURL(new RegExp(`${href.replaceAll('/', '\\/')}$`));
 
     await page.goto(path);
