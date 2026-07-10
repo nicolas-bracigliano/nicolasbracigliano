@@ -473,6 +473,9 @@ test('/about/now/ — the code item "see also" links to the matching work, local
     await expect(link.locator('.now-see-path')).toHaveCSS('text-decoration-line', 'underline');
     await expect(link.locator('.now-see-arrow')).toHaveCSS('text-decoration-line', 'none');
 
+    await link.locator('.now-see-arrow').hover();
+    await expect(link.locator('.now-see-arrow')).toHaveCSS('cursor', 'pointer');
+
     await link.locator('.now-see-arrow').click();
     await expect(page).toHaveURL(new RegExp(`${href.replaceAll('/', '\\/')}$`));
 

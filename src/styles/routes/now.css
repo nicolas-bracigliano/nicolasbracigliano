@@ -173,6 +173,7 @@
     gap: 0.625rem;
     flex: 1;
     min-width: 0;
+    cursor: pointer;
     transition:
       color var(--speed-micro),
       transform var(--speed-micro);
@@ -187,6 +188,7 @@
     transition: transform var(--speed-micro);
     margin-inline-start: auto;
     flex: 0 0 auto;
+    cursor: pointer;
   }
   .now-see-also:hover .now-see-arrow,
   .now-see-also:focus-within .now-see-arrow {
