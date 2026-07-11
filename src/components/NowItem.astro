@@ -62,24 +62,37 @@ const num = `№ ${String(position).padStart(2, '0')}`;
     </dl>
     {
       /* "See also" foot link to the catalogued work, when the now item
-        graduated into one. The path is the link; the eyebrow (`.muted`,
-        the promoted global grey utility) and the decorative arrow sit
-        beside it. The link's aria-label folds the eyebrow in so its
+        graduated into one. The path and arrow are separate links to the
+        same target with an inert spacer between them, so the right-aligned
+        arrow stays clickable without turning the empty row space into a
+        hand-cursor link. The path link's aria-label folds the eyebrow in so its
         accessible name reads "see also /works/this-site" — without it the
         name is a bare path with no relationship cue. The eyebrow span is
-        aria-hidden to avoid double-announcing the same words the label
-        now carries; the arrow is decorative throughout. */
+        aria-hidden to avoid double-announcing the same words the label carries. */
       workHref && (
         <p class="now-see-also">
           <span class="muted" aria-hidden="true">
             {seeAlsoLabel}
           </span>
-          <a href={workHref} aria-label={`${seeAlsoLabel} ${workLabel}`} data-astro-prefetch>
-            {workLabel}
+          <a
+            class="now-see-path-link"
+            href={workHref}
+            aria-label={`${seeAlsoLabel} ${workLabel}`}
+            data-astro-prefetch
+          >
+            <span class="now-see-path">{workLabel}</span>
           </a>
-          <span class="now-see-arrow" aria-hidden="true">
-            →
-          </span>
+          <span class="now-see-spacer" aria-hidden="true" />
+          <a
+            class="now-see-arrow-link"
+            href={workHref}
+            aria-label={`${seeAlsoLabel} ${workLabel}`}
+            data-astro-prefetch
+          >
+            <span class="now-see-arrow" aria-hidden="true">
+              →
+            </span>
+          </a>
         </p>
       )
     }
