@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.24.4](https://github.com/nicolas-bracigliano/nicolasbracigliano/compare/v1.24.3...v1.24.4) (2026-07-21)
+
+
+### Bug Fixes
+
+* **deps:** update dependency astro to v7.1.0 [security] ([3447ff7](https://github.com/nicolas-bracigliano/nicolasbracigliano/commit/3447ff72a65c44f3c3244db6245f8785d5f150fd))
+* **deps:** update dependency astro to v7.1.0 [security] ([74bc7fe](https://github.com/nicolas-bracigliano/nicolasbracigliano/commit/74bc7fe67a5521b00a90a268f316b0a43b6915eb))
+
 ## [1.24.3](https://github.com/nicolas-bracigliano/nicolasbracigliano/compare/v1.24.2...v1.24.3) (2026-07-06)
 
 
