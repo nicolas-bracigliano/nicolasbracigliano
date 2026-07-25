@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.24.5](https://github.com/nicolas-bracigliano/nicolasbracigliano/compare/v1.24.4...v1.24.5) (2026-07-25)
+
+
+### Bug Fixes
+
+* **deps:** bump sharp to 0.35.3 for patched libvips 8.18.3 ([9285000](https://github.com/nicolas-bracigliano/nicolasbracigliano/commit/928500082a43f40f15265d92fa166cbc2f2d46ac))
+* **deps:** bump sharp to 0.35.3 for patched libvips 8.18.3 ([286e39b](https://github.com/nicolas-bracigliano/nicolasbracigliano/commit/286e39b2bda9e579ee7f724d3000895aa968fd9c))
+
+
+### CI / Tooling
+
+* **renovate:** raise security-PR release-age floor to 1 day ([6883162](https://github.com/nicolas-bracigliano/nicolasbracigliano/commit/6883162da9b2e3545bbce28cc7bb303dd4f30cdf))
+
 ## [1.24.4](https://github.com/nicolas-bracigliano/nicolasbracigliano/compare/v1.24.3...v1.24.4) (2026-07-21)
 
 
