@@ -21,10 +21,25 @@
   "osvVulnerabilityAlerts": true,
 
   "vulnerabilityAlerts": {
+    "description": [
+      "Security fixes bypass the 3-day global cooldown, but not entirely:",
+      "pnpm enforces its own 24h `minimumReleaseAge` floor at install time",
+      "(built-in default as of pnpm 11 — there is no repo-level config for it).",
+      "At '0 days' Renovate could open a PR whose lockfile references a release",
+      "younger than that floor; `pnpm install --frozen-lockfile` then fails with",
+      "ERR_PNPM_MINIMUM_RELEASE_AGE_VIOLATION, so CI never goes green and the",
+      "`automerge` below can't fire — a security PR blocked by construction.",
+      "'1 day' makes the two gates agree. It costs nothing real: the PR has to",
+      "wait for CI regardless, and install time is always later than lockfile",
+      "generation time, so the age only grows between the two checks.",
+      "Note this gates the *updated* package only. Transitives floated by",
+      "lockFileMaintenance aren't covered here; pnpm's floor stays the backstop",
+      "for those, and a failed install just means re-running once it ages out."
+    ],
     "enabled": true,
     "labels": ["security"],
     "schedule": ["at any time"],
-    "minimumReleaseAge": "0 days",
+    "minimumReleaseAge": "1 day",
     "automerge": true
   },
 
