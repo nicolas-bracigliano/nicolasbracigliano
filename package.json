@@ -60,7 +60,7 @@
   "devDependencies": {
     "@astrojs/check": "0.9.9",
     "@axe-core/playwright": "4.12.1",
-    "@cloudflare/vitest-pool-workers": "0.16.18",
+    "@cloudflare/vitest-pool-workers": "0.18.8",
     "@eslint/js": "10.0.1",
     "@lhci/cli": "0.15.1",
     "@playwright/test": "1.61.1",
