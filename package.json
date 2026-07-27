@@ -76,7 +76,7 @@
     "lefthook": "2.1.10",
     "license-checker": "25.0.1",
     "lightningcss": "1.33.0",
-    "prettier": "3.9.5",
+    "prettier": "3.9.6",
     "prettier-plugin-astro": "0.14.1",
     "satori": "0.26.0",
     "stylelint": "17.14.1",
