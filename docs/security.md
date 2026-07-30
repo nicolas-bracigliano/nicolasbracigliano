@@ -84,13 +84,12 @@ completes. Treat ADR 0004 as the authority on the Renovate consequence; this
 section is the inventory. `platformAutomerge: false` remains correct and
 ADR 0004 needs no amendment — adding the rule is what unblocks it.
 
-Worth noting how this file came to be wrong, because it is the failure mode
-CLAUDE.md warns about: ADR 0004 knew branch protection was configured on
-2026-05-25, while the Commit signing section above went on claiming
-server-side enforcement was "pending" for two more months. Nothing was
-inconsistent about the repo — only about which document you happened to
-read. When you change a posture, grep for every doc that asserts a status
-about it, not just the obvious one.
+Worth noting how this file came to be wrong, since the same thing will happen
+again: ADR 0004 knew branch protection was configured on 2026-05-25, while
+the Commit signing section above went on claiming server-side enforcement was
+"pending" for two more months. Nothing was inconsistent about the repo — only
+about which document you happened to read. When you change a posture, grep
+for every doc that asserts a status about it, not just the obvious one.
 
 ## DNSSEC
 

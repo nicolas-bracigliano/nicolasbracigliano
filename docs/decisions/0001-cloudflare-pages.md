@@ -1,6 +1,6 @@
 # 0001 — Cloudflare Pages as host
 
-**Status**: Superseded — the deployment target migrated to Cloudflare Workers Static Assets on 2026-05-24 (PR #49). See the **Postscript** at the bottom of this file for the migration. The host-level decision (Cloudflare's free tier with edge logic for the `/` redirect, DNSSEC + HSTS + server-side analytics) still stands; only the specific Cloudflare product changed.
+**Status**: Superseded — the deployment target migrated to Cloudflare Workers Static Assets on 2026-05-24 (PR #49). See the **Postscript** at the bottom of this file for the migration. The host-level decision (Cloudflare's free tier with edge logic for the `/` redirect, DNSSEC + HSTS + server-side zone analytics) still stands; only the specific Cloudflare product changed. One stated differentiator was narrowed on 2026-07-30 — see the amendment note under **Alternatives considered**.
 **Date**: 2026-05-21
 
 ## Context
@@ -34,6 +34,15 @@ Use **Cloudflare Pages** with one Pages Function for the `/` redirect. Static ou
 
 Cloudflare alone offers **server-side Web Analytics** (derived from edge logs with no client beacon, no cookie, no CSP loosening) — that's the genuine differentiator for the privacy stance, not just price.
 
+> **Amended 2026-07-30 — this differentiator was overstated.** The claim conflates two different Cloudflare products, and only one of them is server-side.
+>
+> - **Zone Traffic analytics** _is_ server-side exactly as described: derived from edge logs, no beacon, no cookie, no CSP loosening, on by default for a proxied zone. This half of the claim holds, and it is collecting today.
+> - **Web Analytics** — the page-level product named in the sentence above — is **not** server-side. Both of its setup modes load a beacon from `https://static.cloudflareinsights.com/beacon.min.js`; "Automatic setup" only means Cloudflare injects the tag into the HTML at the edge instead of you pasting it in. Under this site's `script-src 'self'` the script is blocked outright, so it cannot be adopted without widening the CSP — which would contradict [0002](./0002-csp-style-src-unsafe-inline.md) and [0008](./0008-externalize-hoisted-scripts-for-csp.md).
+>
+> Knock-on for the table above: the **Vercel** row is dinged for "Web Analytics is a paid client-side beacon". Cloudflare's is a _free_ client-side beacon. On that specific axis the comparison is free-versus-paid, not server-side-versus-beacon — Cloudflare still wins on cost, but the privacy gap between them is narrower than written.
+>
+> **The decision itself is unaffected.** It rests on the free tier, DNSSEC/HSTS as one-switch features, edge logic for the `/` redirect, an auditable `wrangler` deploy, and `output: 'static'` portability — none of which depend on this claim. What changed is the honest scope of the analytics advantage: aggregate zone data, not page-level. Page-level metrics now come from Worker invocation logs instead; see `docs/security.md § Analytics` for that trade-off and why the beacon route stays closed.
+
 ## Consequences
 
 **What we accept:**
@@ -45,7 +54,7 @@ Cloudflare alone offers **server-side Web Analytics** (derived from edge logs wi
 **What we gain:**
 
 - Free tier indefinitely at this site's traffic.
-- Server-side analytics (the unique feature).
+- Server-side analytics (the unique feature). _Amended 2026-07-30: true of **zone traffic** analytics only — the page-level Web Analytics product is beacon-based. See the amendment note under Alternatives considered._
 - DNSSEC, HSTS preload, edge DDoS, brotli — all first-class with one switch.
 - `wrangler` deploy from GitHub Actions, not the git integration → the build artefact is auditable.
 
