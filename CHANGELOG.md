@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.24.6](https://github.com/nicolas-bracigliano/nicolasbracigliano/compare/v1.24.5...v1.24.6) (2026-07-30)
+
+
+### Documentation
+
+* add ADR 0015 for mail on iCloud+ custom domain ([dc918a0](https://github.com/nicolas-bracigliano/nicolasbracigliano/commit/dc918a0505cf6bafd974d4703fa7b5aadeb34d06))
+* add ADR 0015 for mail on iCloud+ custom domain ([73de0b0](https://github.com/nicolas-bracigliano/nicolasbracigliano/commit/73de0b0a90b0473ea89d75969c8ed506c2bbdf57))
+
 ## [1.24.5](https://github.com/nicolas-bracigliano/nicolasbracigliano/compare/v1.24.4...v1.24.5) (2026-07-25)
 
 
