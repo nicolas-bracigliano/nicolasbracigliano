@@ -8,8 +8,8 @@ next push to any branch produces a working preview URL on Cloudflare
 Workers and `nicolasbracigliano.com` resolves to a real site.
 
 **Estimated time**: ~3 hours, spread across one or two sittings.
-Several steps have wait windows (DNSSEC propagation, email-forwarding
-MX validation) so it's fine to do this in chunks.
+Several steps have wait windows (DNSSEC propagation, mail MX
+validation) so it's fine to do this in chunks.
 
 **Cross-references**:
 
@@ -29,14 +29,15 @@ Verify you have:
 
 - [ ] Owner-level access to the GitHub repo (`nicolas-bracigliano/nicolasbracigliano`).
 - [ ] A Cloudflare account, or willingness to create one (free tier
-      is fine for everything here; Pages, DNS, Analytics, and Email
-      Forwarding all sit in the free plan).
+      is fine for everything here; Pages, DNS, and Analytics all sit
+      in the free plan).
 - [ ] Registrar access for `nicolasbracigliano.com` (to point the
       nameservers at Cloudflare and add the DNSSEC DS record).
 - [ ] An SSH key on this machine that's NOT shared with another use
       (or willingness to generate one — Step 6 covers it).
-- [ ] Your primary email inbox accessible (Step 7 forwards
-      `security@nicolasbracigliano.com` there).
+- [ ] A mailbox for `security@nicolasbracigliano.com` (Step 7; now an
+      iCloud+ Custom Email Domain address — see
+      [ADR 0015](./decisions/0015-mail-on-icloud-custom-domain.md)).
 
 Open these tabs and keep them open through the session:
 
@@ -366,11 +367,24 @@ cd ~- && rm -rf /tmp/.sigtest /tmp/.git
 
 ---
 
-## Step 7 — Email forwarding for `security@`
+## Step 7 — Mail for `security@`
 
-**Goal**: `security@nicolasbracigliano.com` forwards to your
-real inbox, so the RFC 9116 `security.txt` contact actually
-reaches you.
+**Status**: superseded — see
+[ADR 0015](./decisions/0015-mail-on-icloud-custom-domain.md).
+Mail for the domain now runs on **iCloud+ Custom Email Domain**
+(cutover 2026-06-04), not Cloudflare Email Routing. The apex MX set
+is exclusive, so this was a swap, not an addition: Email Routing is
+retired and its records are gone from the zone.
+
+**Goal** (unchanged): `security@nicolasbracigliano.com` reaches you,
+so the RFC 9116 `security.txt` contact isn't decorative.
+
+If you're standing this up fresh on a new domain, ADR 0015 § Decision
+has the record set and the reasoning. The steps below are kept as the
+historical record of what Phase 0 actually did — don't follow them.
+
+<details>
+<summary>Original Phase 0 steps (Cloudflare Email Routing, retired)</summary>
 
 1. Cloudflare dashboard → `nicolasbracigliano.com` zone → **Email**
    → **Email Routing** → **Get started**.
@@ -381,25 +395,38 @@ reaches you.
    - **Action**: **Send to an email** → your real inbox.
 4. Cloudflare emails your real inbox a verification link. Click it.
 
+The limitation that retired this: Email Routing forwards but offers
+no SMTP submission, so a report arriving at `security@` could be read
+but not replied to _as_ that address.
+
+</details>
+
 ### Best practices
 
-- **Don't use a personal address as the destination if you can
-  avoid it.** A dedicated `inbox+security@example.com` (Gmail / Fastmail
-  plus-addressing) makes filtering trivial later.
-- **Test before relying.** From a different email account:
-  `Subject: test  Body: hello` to `security@nicolasbracigliano.com`.
-  Should land in the destination inbox within a minute.
 - **Don't list more than one contact in `public/.well-known/security.txt`.**
   Single point of receipt = no ambiguity. The current file lists
   `security@nicolasbracigliano.com` only; keep it that way.
+- **Test before relying.** From a different email account:
+  `Subject: test  Body: hello` to `security@nicolasbracigliano.com`.
+  Should land within a minute. Then reply, and confirm the `From:`
+  is the custom domain — that's the half Email Routing couldn't do.
+- **`security.txt`'s `Expires:` rotates itself.** Currently
+  `2027-05-21`. `security-txt-rotate.yml` runs monthly and opens a PR
+  when fewer than 60 days remain — no manual step, but the PR does
+  need merging.
 
 ### Verification
 
 ```sh
-dig MX nicolasbracigliano.com +short
-# Should show *.cloudflare.com MX records
+# Use DoH, not dig: the origin network intercepts port-53 DNS and
+# serves stale forged answers even against an authoritative server
+# (see ADR 0015 § Verification).
+curl -s -H 'accept: application/dns-json' \
+  "https://cloudflare-dns.com/dns-query?name=nicolasbracigliano.com&type=MX" \
+  | python3 -c 'import sys,json;[print(a["data"]) for a in json.load(sys.stdin)["Answer"]]'
+# → 10 mx01.mail.icloud.com.  /  10 mx02.mail.icloud.com.
 
-# Then send a test from another inbox and watch your destination.
+# Then send a test from another inbox, and reply to it.
 ```
 
 ---
@@ -466,9 +493,10 @@ gh run list --limit 1                       # most recent CI green,
 # Commit signing
 git log -1 --show-signature                 # any commit, signed
 
-# Email
+# Email (ADR 0015 — iCloud+ Custom Email Domain)
 # Send a test to security@nicolasbracigliano.com from another inbox;
-# expect delivery within ~60 seconds.
+# expect delivery within ~60 seconds. Reply, and confirm the From: is
+# the custom domain and the far end sees dkim=pass / dmarc=pass.
 ```
 
 ---

@@ -6,22 +6,23 @@ When in doubt about whether a decision rates an ADR, ask: **would I want to know
 
 ## Index
 
-| ID                                                    | Status              | Title                                                            |
-| ----------------------------------------------------- | ------------------- | ---------------------------------------------------------------- |
-| [0001](./0001-cloudflare-pages.md)                    | Superseded (PR #49) | Cloudflare Pages as host                                         |
-| [0002](./0002-csp-style-src-unsafe-inline.md)         | Accepted            | Loosen `style-src` to enable native View Transitions             |
-| [0003](./0003-mirrored-bilingual-routes.md)           | Accepted            | Mirrored `/en` `/es` route trees with `ROUTES` map               |
-| [0004](./0004-renovate-internal-automerge.md)         | Pending revisit     | Renovate uses internal merger, not `platformAutomerge`           |
-| [0005](./0005-theme-state-auto-override-retire.md)    | Accepted            | Theme state model — auto + override + silent retire              |
-| [0006](./0006-no-first-paint-animation.md)            | Accepted            | No first-paint animation (axe + animation timing)                |
-| [0007](./0007-tsconfig-strictness-flipped.md)         | Accepted            | Tighten TypeScript strictness flags (post-bootstrap)             |
-| [0008](./0008-externalize-hoisted-scripts-for-csp.md) | Accepted            | Externalize every hoisted `<script>` so production CSP allows it |
-| [0009](./0009-github-actions-sha-pinning.md)          | Accepted            | Pin every GitHub Action to an immutable SHA                      |
-| [0010](./0010-asymmetric-bilingual-route-naming.md)   | Accepted            | EN/ES route slugs may diverge (refines ADR 0003)                 |
-| [0011](./0011-long-form-piece-shape.md)               | Accepted            | Long-form piece shape (kernel + six sections)                    |
-| [0012](./0012-pieces-editorial-layout.md)             | Accepted            | `/pieces` editorial-article layout                               |
-| [0013](./0013-per-entry-art.md)                       | Accepted            | Per-entry art via `hero:`, per-kind defaults from a registry     |
-| [0014](./0014-bench-now-single-source.md)             | Accepted            | `now.md` is the single source for the home bench and `/now`      |
+| ID                                                    | Status              | Title                                                             |
+| ----------------------------------------------------- | ------------------- | ----------------------------------------------------------------- |
+| [0001](./0001-cloudflare-pages.md)                    | Superseded (PR #49) | Cloudflare Pages as host                                          |
+| [0002](./0002-csp-style-src-unsafe-inline.md)         | Accepted            | Loosen `style-src` to enable native View Transitions              |
+| [0003](./0003-mirrored-bilingual-routes.md)           | Accepted            | Mirrored `/en` `/es` route trees with `ROUTES` map                |
+| [0004](./0004-renovate-internal-automerge.md)         | Pending revisit     | Renovate uses internal merger, not `platformAutomerge`            |
+| [0005](./0005-theme-state-auto-override-retire.md)    | Accepted            | Theme state model — auto + override + silent retire               |
+| [0006](./0006-no-first-paint-animation.md)            | Accepted            | No first-paint animation (axe + animation timing)                 |
+| [0007](./0007-tsconfig-strictness-flipped.md)         | Accepted            | Tighten TypeScript strictness flags (post-bootstrap)              |
+| [0008](./0008-externalize-hoisted-scripts-for-csp.md) | Accepted            | Externalize every hoisted `<script>` so production CSP allows it  |
+| [0009](./0009-github-actions-sha-pinning.md)          | Accepted            | Pin every GitHub Action to an immutable SHA                       |
+| [0010](./0010-asymmetric-bilingual-route-naming.md)   | Accepted            | EN/ES route slugs may diverge (refines ADR 0003)                  |
+| [0011](./0011-long-form-piece-shape.md)               | Accepted            | Long-form piece shape (kernel + six sections)                     |
+| [0012](./0012-pieces-editorial-layout.md)             | Accepted            | `/pieces` editorial-article layout                                |
+| [0013](./0013-per-entry-art.md)                       | Accepted            | Per-entry art via `hero:`, per-kind defaults from a registry      |
+| [0014](./0014-bench-now-single-source.md)             | Accepted            | `now.md` is the single source for the home bench and `/now`       |
+| [0015](./0015-mail-on-icloud-custom-domain.md)        | Accepted            | Mail on iCloud+ Custom Email Domain, not Cloudflare Email Routing |
 
 ## ADR format
 
