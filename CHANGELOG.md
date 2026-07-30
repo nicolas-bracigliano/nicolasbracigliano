@@ -1,5 +1,20 @@
 # Changelog
 
+## [1.24.7](https://github.com/nicolas-bracigliano/nicolasbracigliano/compare/v1.24.6...v1.24.7) (2026-07-30)
+
+
+### Performance
+
+* **headers:** cache content-hashed /_astro assets immutably ([31e2429](https://github.com/nicolas-bracigliano/nicolasbracigliano/commit/31e24293dd62161f1bad4f0ef5aeadd27591d919))
+* **worker:** cache /_astro immutably and scope run_worker_first to two paths ([f98ef66](https://github.com/nicolas-bracigliano/nicolasbracigliano/commit/f98ef66b8f38787833c13e8a0903d86d76388208))
+* **worker:** log page views by adding the locale prefixes to run_worker_first ([6a464cf](https://github.com/nicolas-bracigliano/nicolasbracigliano/commit/6a464cfd624f8c5dd6566b0324830160f3dcde3e))
+* **worker:** scope run_worker_first to the two paths the Worker handles ([a81e301](https://github.com/nicolas-bracigliano/nicolasbracigliano/commit/a81e301502be626e9976fd41921b837b1702bce5))
+
+
+### Documentation
+
+* **security:** make Workers Logs explicit instead of self-contradicting ([b1e7157](https://github.com/nicolas-bracigliano/nicolasbracigliano/commit/b1e71572825d74875291c269ad5204fca572ae45))
+
 ## [1.24.6](https://github.com/nicolas-bracigliano/nicolasbracigliano/compare/v1.24.5...v1.24.6) (2026-07-30)
 
 
