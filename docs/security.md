@@ -73,34 +73,62 @@ available with no JS, no cookies, no CSP loosening, no PII:
   Traffic) aggregates request / bandwidth / country / status-code stats
   from edge logs. On by default for any proxied zone — already collecting.
 - **Web Analytics** (dashboard → Web Analytics) adds page-level
-  view / referrer / Core Web Vitals stats. Enable it via **Automatic
-  setup**, which Cloudflare offers for proxied hostnames and measures
-  server-side. Do **not** use Manual setup: its beacon injects a
-  `cloudflareinsights.com` script plus a `connect-src`, which breaks the
-  strict CSP and the "no beacon, no cookies" promise (README, §16).
+  view / referrer / Core Web Vitals stats. **Do not enable it — neither
+  setup mode is compatible with this site's CSP.** This bullet previously
+  claimed Automatic setup "measures server-side"; that was wrong, and it is
+  corrected here because a decision was very nearly made on it (2026-07-30).
+  Both modes load the same beacon from
+  `https://static.cloudflareinsights.com/beacon.min.js` — "Automatic" only
+  means Cloudflare injects the tag into your HTML at the edge instead of you
+  pasting it in. Cloudflare's own docs say "You may need to update your
+  Content Security Policy settings to load this script." Under
+  `script-src 'self'` the script is simply blocked, so the result is a
+  console violation and no data. Two details worth recording so nobody
+  re-derives them: the beacon POSTs to `/cdn-cgi/rum`, which is
+  _same-origin_ on a proxied zone, so `connect-src 'self'` would actually
+  permit the data leg — only the script load fails; and Web Analytics is
+  genuinely cookie-free, so it is the "no beacon" and "no third-party
+  requests" halves of the promise it breaks, not "no cookies". Adopting it
+  would mean widening `script-src`, which contradicts
+  [ADR 0002](./decisions/0002-csp-style-src-unsafe-inline.md) and
+  [ADR 0008](./decisions/0008-externalize-hoisted-scripts-for-csp.md), and
+  should not happen without an ADR of its own.
 
-A third surface exists and is **on**: **Workers Logs**
-(`[observability]` in `wrangler.toml`, `enabled = true`). It retains
-invocation logs for the Worker in the Cloudflare dashboard. Two things bound
-what that covers:
+A third surface exists and is **on**, and since Web Analytics is ruled out
+above it is the site's only page-level metric: **Workers Logs**
+(`[observability]` in `wrangler.toml`, `enabled = true`). It retains Worker
+invocation logs in the Cloudflare dashboard.
 
-- Only the paths the Worker is invoked for, which since the
-  `run_worker_first` narrowing is exactly `/` and
-  `/.well-known/security.txt`. Every other request — all HTML, CSS, JS,
-  fonts, OG cards — is asset-served and produces no Worker log.
-- It is retention of requests the edge already sees and already aggregates
-  via Zone Traffic analytics above, not a new collection surface. Nothing
-  client-side is involved: no script ships, no cookie is set, no
-  third-party host is contacted, so the README's page-level promise is
-  unaffected.
+**What it covers.** Only the paths the Worker is invoked for. That is the
+`run_worker_first` list in `wrangler.toml`: the apex redirect, security.txt,
+and — listed purely to produce these logs — the `/en/*` and `/es/*` page
+prefixes. Verified against `wrangler dev` on 2026-07-30 with a temporary
+`console.log` probe: `/en/*` matches the bare `/en/` and the
+percent-encoded `/es/colof%C3%B3n/`, while `/_astro/*`, `/fonts/*`,
+`/og/*`, `/cmdk/*`, `/rss-*.xml`, `/sitemap*`, `/robots.txt` and unmatched
+404 paths all bypass the Worker entirely. So this is a page-view log, not a
+per-request log — the build puts zero non-HTML files under `/en` or `/es`,
+which is what makes the prefixes a clean filter.
 
-`/` is the apex and therefore where most first-time visitors land, so this
-is not zero-coverage — it is a deliberate trade for being able to debug the
-one dynamic route the site has. To turn it off, set `enabled = false` in
-`[observability]` **and** delete the `[observability.logs]` /
-`[observability.traces]` sub-blocks; leaving the top level `false` with the
-sub-blocks enabled does not disable logging (the nested `enabled` overrides
-the parent, which is the state this config was in until 2026-07-30).
+**Why it is compatible with the no-tracking posture.** It is retention of
+requests the edge already sees and already aggregates via Zone Traffic
+analytics above, not a new collection surface. Nothing client-side is
+involved: no script ships, no cookie is set, no third-party host is
+contacted. That is the whole reason it was chosen over Web Analytics.
+
+**What it is not.** Retention is days, not months, and there is no
+aggregation UI — you query it by hand. It answers "what happened this
+week", not "what are my trends this quarter". A 404 at an unmatched path
+produces no Worker log; Zone Traffic analytics still counts it at the edge.
+
+**Turning it off.** Set `enabled = false` in `[observability]` **and**
+delete the `[observability.logs]` / `[observability.traces]` sub-blocks.
+Leaving the top level `false` with the sub-blocks enabled does **not**
+disable logging — the nested `enabled` overrides the parent, which is the
+state this config was in until 2026-07-30. Note that turning it off leaves
+the site with no page-level metrics at all, and that the `/en/*` and
+`/es/*` entries in `run_worker_first` exist only to feed it: if you disable
+logging, remove them too or you are paying invocations for nothing.
 
 ## Draft preview
 

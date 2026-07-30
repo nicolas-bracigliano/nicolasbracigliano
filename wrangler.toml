@@ -50,38 +50,60 @@ not_found_handling = "404-page"
 # binding name works.
 binding = "ASSETS"
 
-# Run the Worker before the static-asset lookup, but ONLY for the two
-# paths `src/worker.ts` actually handles.
+# Run the Worker before the static-asset lookup, for these paths only.
 #
-# Why it's needed at all: without it, Cloudflare's assets layer intercepts
-# `/` (no `dist/index.html` matches → `not_found_handling = "404-page"`
-# serves `dist/404.html` directly) and the Worker is never invoked, so
-# `acceptLanguageRedirect` in `src/worker.ts` is dead code on the deployed
-# Worker. Observed in PR #54: browser hits `/` returned the 404 page
+# The list has TWO KINDS of entry and they exist for different reasons. Read
+# this before adding or removing one.
+#
+# ── Kind 1: the Worker genuinely handles it ──
+#   "/"                          → acceptLanguageRedirect
+#   "/.well-known/security.txt"  → securityTxtResponse
+#
+# These MUST be here or the feature breaks. Without `/`, Cloudflare's assets
+# layer intercepts it (no `dist/index.html` matches → `not_found_handling =
+# "404-page"` serves `dist/404.html` directly) and the Worker is never
+# invoked, so `acceptLanguageRedirect` is dead code on the deployed Worker.
+# Observed in PR #54: browser hits `/` returned the 404 page
 # (cf-cache-status: HIT on the cached 404), while curl from a different
-# edge / cache state reached origin and got the 302.
+# edge / cache state reached origin and got the 302. Both paths mirror a
+# branch in `src/worker.ts`'s `fetch`; the security.txt literal is exported
+# as `SECURITY_TXT_PATH` from `src/lib/security-txt.ts` (this file can't
+# import it, so it's the one duplicated string).
 #
-# Why a LIST and not `true`: `true` routes every request through the Worker
-# — HTML, CSS, JS, fonts, OG PNGs — each one paying a Worker invocation and
-# an extra hop only to fall through to `env.ASSETS.fetch(request)` on the
-# very next line. The two paths below are the complete set the Worker has
-# its own branch for; everything else is asset-served, so scoping costs
-# nothing and takes the Worker out of the hot path for ~100% of traffic.
-# (Side effect worth knowing: only these two paths can produce Worker
-# invocation logs now — see `[observability]` below.)
+# ── Kind 2: observability only ──
+#   "/en/*"  "/es/*"
+#
+# The Worker has NO branch for these — it falls straight through to
+# `env.ASSETS.fetch(request)`, exactly as if they weren't listed. They are
+# here on purpose anyway: a Worker invocation is what produces a Workers
+# Logs entry, so listing the two locale prefixes is what gives us per-page
+# view logs. Delete them and page-view observability silently goes to zero
+# while every test still passes — there is no assertion that can catch it,
+# which is why this comment is long.
+#
+# The choice is deliberate rather than `true`. `true` routes EVERY request
+# through the Worker — CSS, JS, fonts, OG PNGs, the ⌘K index — each paying
+# an invocation and a hop to do nothing. A page view pulls ~10 assets, so
+# `true` cost roughly 10x the invocations for the same information. These
+# two prefixes are HTML-only in the build (`/_astro/*`, `/fonts/*`, `/og/*`,
+# `/cmdk/*`, `/rss-*.xml`, `/sitemap*` all live outside them), so we capture
+# 100% of page views and none of the asset noise.
+#
+# Known gap, accepted: a 404 at an unmatched path (`/nope/`) is outside both
+# prefixes, so it produces no Worker log. Zone Traffic analytics still counts
+# it at the edge. Full trade-off, and why Cloudflare Web Analytics is NOT the
+# answer here, in `docs/security.md § Analytics`.
 #
 # Pattern syntax is Cloudflare's route matcher: an exact path matches only
-# itself, a trailing `/*` matches a prefix, and a leading `!` negates. So
-# `"/"` is the root alone, NOT a prefix for everything under it. Both entries
-# mirror a branch in `src/worker.ts`'s `fetch` — keep them in sync, and note
-# that the security.txt path is exported as `SECURITY_TXT_PATH` from
-# `src/lib/security-txt.ts` (this file can't import it, so it's the one
-# duplicated literal).
+# itself, a trailing `/*` matches the prefix INCLUDING the bare directory
+# (`/en/*` matches `/en/`, verified against wrangler dev), and a leading `!`
+# negates.
 #
 # Post-deploy verification: `scripts/smoke-routes.ts` asserts `/` → 302 and
-# a 200 at `SECURITY_TXT_PATH` on every deploy, so a mis-scoped pattern here
-# fails CI rather than silently reverting the redirect to dead code.
-run_worker_first = ["/", "/.well-known/security.txt"]
+# a 200 at `SECURITY_TXT_PATH` on every deploy, so a mis-scoped Kind 1 entry
+# fails CI rather than silently reverting the redirect to dead code. Kind 2
+# entries have no such net — see above.
+run_worker_first = ["/", "/.well-known/security.txt", "/en/*", "/es/*"]
 
 # `_headers` and `_redirects` from `public/` are copied into
 # `dist/` by Astro at build time. Cloudflare Workers Static
@@ -99,16 +121,23 @@ run_worker_first = ["/", "/.well-known/security.txt"]
 # file. Stating it once, truthfully, beats a contradiction that resolves in
 # Cloudflare's favour.
 #
-# Scope, and why it's compatible with the no-tracking posture: since
-# `run_worker_first` was narrowed to `["/", "/.well-known/security.txt"]`,
-# the Worker is only invoked for those two paths — so these are the only
-# requests that can produce an invocation log. That is still meaningful
-# (`/` is the apex, where most first-time visitors land), but it is a
-# retained, Worker-scoped view of requests Cloudflare's edge already sees
-# and already aggregates for any proxied zone — not a new collection
+# These logs ARE the site's page-view metrics — that is the deliberate
+# reason `run_worker_first` above lists `/en/*` and `/es/*`. Cloudflare Web
+# Analytics is not an option here: both its setup modes load a beacon from
+# `static.cloudflareinsights.com`, which `script-src 'self'` forbids (and
+# which would break the "no beacon" promise). A Worker invocation log is the
+# only page-level signal available that ships no client JS at all.
+#
+# Scope: page views under the two locale prefixes, plus the apex redirect
+# and security.txt. Assets are excluded, so this is not a per-request log.
+# It is a retained, Worker-scoped view of requests Cloudflare's edge already
+# sees and already aggregates for any proxied zone — not a new collection
 # surface, and nothing client-side. The README's "no beacon, no cookies, no
 # third-party requests" claim is about the page, and stays true: no JS
 # ships, no cookie is set, no third-party host is contacted.
+#
+# Retention is days, not months, and there is no aggregation UI — this
+# answers "what happened this week", not "what are my trends this quarter".
 #
 # Documented in `docs/security.md § Analytics` alongside the two zone-level
 # surfaces. If you ever want this genuinely off, set `enabled = false` here
