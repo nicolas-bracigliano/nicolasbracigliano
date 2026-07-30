@@ -131,7 +131,9 @@ if `Expires` is < 30 days away.
 
 **Status**: zone is live and proxied (verified 2026-06-03 — Cloudflare
 authoritative NS, apex on Cloudflare anycast, `server: cloudflare` +
-`cf-ray` on every response). Page-level Web Analytics not yet toggled on.
+`cf-ray` on every response). Page-level Web Analytics is **not** in use and
+**cannot** be adopted without widening the CSP — see the Web Analytics bullet
+below. Page-level metrics come from Worker invocation logs instead.
 
 Because the domain is a fully proxied zone, two server-side surfaces are
 available with no JS, no cookies, no CSP loosening, no PII:
