@@ -1,6 +1,8 @@
-import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import { SECURITY_HEADERS, withSecurityHeaders } from '../../src/lib/security-headers';
+// `parseHeadersBlock` used to live here; it moved to the shared helper when
+// `cache-headers.test.ts` needed the same parse.
+import { parseHeadersBlock, readHeadersFile } from './helpers/headers';
 
 // Worker-generated responses (the `/` redirect, `/.well-known/security.txt`)
 // bypass the Static Assets layer, so the `/*` rules in `public/_headers`
@@ -46,31 +48,8 @@ describe('withSecurityHeaders', () => {
   });
 });
 
-/** Parse a named block (e.g. `/*`) from a Cloudflare `_headers` file into a
- *  name->value map. Skips `#` comments and stops at the next path or a blank
- *  line — the same shape Cloudflare's own parser recognises. */
-function parseHeadersBlock(raw: string, path: string): Record<string, string> {
-  const lines = raw.split('\n');
-  const start = lines.findIndex((l) => l.trim() === path);
-  if (start === -1) throw new Error(`block ${path} not found in _headers`);
-  const block: Record<string, string> = {};
-  for (let i = start + 1; i < lines.length; i++) {
-    const line = lines[i];
-    // End of block: a non-indented line (next path) or a blank line.
-    if (line === undefined || line.trim() === '' || !/^\s/.test(line)) break;
-    if (line.trim().startsWith('#')) continue; // comment
-    const idx = line.indexOf(':');
-    if (idx === -1) continue;
-    block[line.slice(0, idx).trim()] = line.slice(idx + 1).trim();
-  }
-  return block;
-}
-
 describe('SECURITY_HEADERS stays consistent with public/_headers', () => {
-  const assetBlock = parseHeadersBlock(
-    readFileSync(new URL('../../public/_headers', import.meta.url), 'utf-8'),
-    '/*',
-  );
+  const assetBlock = parseHeadersBlock(readHeadersFile(), '/*');
 
   it('matches the _headers value for every header it declares (no drift)', () => {
     // Subset, not verbatim: `_headers` may carry headers we deliberately
