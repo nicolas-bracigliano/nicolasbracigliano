@@ -13,6 +13,17 @@
   Cross-Origin-Resource-Policy: same-origin
   X-Frame-Options: DENY
 
+# Vite content-hashes every filename it emits here
+# (`BaseLayout.DSiEMvyq.css`, `client.C0wFFCQs.js`), so a given URL's bytes
+# can never change — a new build produces a new URL. Safe to cache forever.
+# Without this block the asset layer's default applies
+# (`public, max-age=0, must-revalidate`), which costs a conditional
+# round-trip per script and stylesheet on every repeat visit even though the
+# response is always a 304. Same reasoning as `/fonts/*` below; the fonts got
+# the treatment first because they're the single biggest payload (~79 KB).
+/_astro/*
+  Cache-Control: public, max-age=31536000, immutable
+
 /fonts/*
   Cache-Control: public, max-age=31536000, immutable
 
