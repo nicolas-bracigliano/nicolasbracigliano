@@ -79,6 +79,29 @@ available with no JS, no cookies, no CSP loosening, no PII:
   `cloudflareinsights.com` script plus a `connect-src`, which breaks the
   strict CSP and the "no beacon, no cookies" promise (README, §16).
 
+A third surface exists and is **on**: **Workers Logs**
+(`[observability]` in `wrangler.toml`, `enabled = true`). It retains
+invocation logs for the Worker in the Cloudflare dashboard. Two things bound
+what that covers:
+
+- Only the paths the Worker is invoked for, which since the
+  `run_worker_first` narrowing is exactly `/` and
+  `/.well-known/security.txt`. Every other request — all HTML, CSS, JS,
+  fonts, OG cards — is asset-served and produces no Worker log.
+- It is retention of requests the edge already sees and already aggregates
+  via Zone Traffic analytics above, not a new collection surface. Nothing
+  client-side is involved: no script ships, no cookie is set, no
+  third-party host is contacted, so the README's page-level promise is
+  unaffected.
+
+`/` is the apex and therefore where most first-time visitors land, so this
+is not zero-coverage — it is a deliberate trade for being able to debug the
+one dynamic route the site has. To turn it off, set `enabled = false` in
+`[observability]` **and** delete the `[observability.logs]` /
+`[observability.traces]` sub-blocks; leaving the top level `false` with the
+sub-blocks enabled does not disable logging (the nested `enabled` overrides
+the parent, which is the state this config was in until 2026-07-30).
+
 ## Draft preview
 
 `getStaticPaths` filters on `status: 'published'`, so drafts are invisible

@@ -89,10 +89,32 @@ run_worker_first = ["/", "/.well-known/security.txt"]
 # The redirect for `/es/colofon` → `/es/colofón` and every
 # security header in `_headers` flow through automatically.
 
-# Collect logs and traces to debug your Worker, persist in
-# the dashboard or export to external providers
+# Workers Logs — ON, deliberately.
+#
+# This block used to read `enabled = false` at the top level while
+# `[observability.logs]` below set `enabled = true`. That is not a
+# belt-and-braces "off": the nested `enabled` DEFAULTS to the top-level
+# value and an explicit setting overrides it, so logging was on the whole
+# time and the top-level `false` was just misleading anyone reading the
+# file. Stating it once, truthfully, beats a contradiction that resolves in
+# Cloudflare's favour.
+#
+# Scope, and why it's compatible with the no-tracking posture: since
+# `run_worker_first` was narrowed to `["/", "/.well-known/security.txt"]`,
+# the Worker is only invoked for those two paths — so these are the only
+# requests that can produce an invocation log. That is still meaningful
+# (`/` is the apex, where most first-time visitors land), but it is a
+# retained, Worker-scoped view of requests Cloudflare's edge already sees
+# and already aggregates for any proxied zone — not a new collection
+# surface, and nothing client-side. The README's "no beacon, no cookies, no
+# third-party requests" claim is about the page, and stays true: no JS
+# ships, no cookie is set, no third-party host is contacted.
+#
+# Documented in `docs/security.md § Analytics` alongside the two zone-level
+# surfaces. If you ever want this genuinely off, set `enabled = false` here
+# AND remove the two sub-blocks below — don't leave them disagreeing again.
 [observability]
-enabled = false
+enabled = true
 head_sampling_rate = 1
 
 [observability.logs]
