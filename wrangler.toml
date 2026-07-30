@@ -34,8 +34,8 @@ rules = [{ type = "Text", globs = ["**/.well-known/security.txt"], fallthrough =
 # Astro outputs the built site here. Uploaded as part of the
 # Worker deployment; static files (HTML, CSS, fonts, OG PNGs,
 # the ⌘K search index at /cmdk/*.json) are served from Cloudflare's
-# edge without invoking the Worker. Default `run_worker_first = false` is
-# what we want — assets win for every path that has one.
+# edge without invoking the Worker — assets win for every path that has
+# one, except the two explicitly listed in `run_worker_first` below.
 directory = "./dist"
 
 # When no asset matches a request, serve the built `dist/404.html`
@@ -50,18 +50,38 @@ not_found_handling = "404-page"
 # binding name works.
 binding = "ASSETS"
 
-# Make the Worker run for every request, before any static asset
-# lookup. Without this, Cloudflare's assets layer intercepts `/`
-# (no `dist/index.html` matches → `not_found_handling = "404-page"`
-# serves `dist/404.html` directly) and the Worker is never invoked,
-# so `acceptLanguageRedirect` in `src/worker.ts` is dead code on
-# the deployed Worker. Observed: browser hits `/` returned the
-# 404 page (cf-cache-status: HIT on the cached 404), while curl
-# from a different edge / cache state reached origin and got the
-# 302. With `run_worker_first = true` the Worker handles `/`
-# consistently and delegates everything else to `env.ASSETS`
-# via the existing `worker.ts` code path.
-run_worker_first = true
+# Run the Worker before the static-asset lookup, but ONLY for the two
+# paths `src/worker.ts` actually handles.
+#
+# Why it's needed at all: without it, Cloudflare's assets layer intercepts
+# `/` (no `dist/index.html` matches → `not_found_handling = "404-page"`
+# serves `dist/404.html` directly) and the Worker is never invoked, so
+# `acceptLanguageRedirect` in `src/worker.ts` is dead code on the deployed
+# Worker. Observed in PR #54: browser hits `/` returned the 404 page
+# (cf-cache-status: HIT on the cached 404), while curl from a different
+# edge / cache state reached origin and got the 302.
+#
+# Why a LIST and not `true`: `true` routes every request through the Worker
+# — HTML, CSS, JS, fonts, OG PNGs — each one paying a Worker invocation and
+# an extra hop only to fall through to `env.ASSETS.fetch(request)` on the
+# very next line. The two paths below are the complete set the Worker has
+# its own branch for; everything else is asset-served, so scoping costs
+# nothing and takes the Worker out of the hot path for ~100% of traffic.
+# (Side effect worth knowing: only these two paths can produce Worker
+# invocation logs now — see `[observability]` below.)
+#
+# Pattern syntax is Cloudflare's route matcher: an exact path matches only
+# itself, a trailing `/*` matches a prefix, and a leading `!` negates. So
+# `"/"` is the root alone, NOT a prefix for everything under it. Both entries
+# mirror a branch in `src/worker.ts`'s `fetch` — keep them in sync, and note
+# that the security.txt path is exported as `SECURITY_TXT_PATH` from
+# `src/lib/security-txt.ts` (this file can't import it, so it's the one
+# duplicated literal).
+#
+# Post-deploy verification: `scripts/smoke-routes.ts` asserts `/` → 302 and
+# a 200 at `SECURITY_TXT_PATH` on every deploy, so a mis-scoped pattern here
+# fails CI rather than silently reverting the redirect to dead code.
+run_worker_first = ["/", "/.well-known/security.txt"]
 
 # `_headers` and `_redirects` from `public/` are copied into
 # `dist/` by Astro at build time. Cloudflare Workers Static
