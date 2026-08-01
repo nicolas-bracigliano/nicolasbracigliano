@@ -1,24 +1,45 @@
 # Security notes
 
-> **Current state vs. target state.** Several sections below describe the
-> target configuration (DNSSEC, server-side analytics, commit signing,
-> branch protection). Some are not live yet — they're pending account
-> setup or pending branch-protection rule configuration on `main` (now
-> available since the repo went public on 2026-05-25; see ADR 0004
-> postscript for the Renovate revisit that depends on it).
-> Recipes below are how to wire each one up when you get there.
+> **Current state vs. target state.** Reconciled against reality on
+> 2026-07-30 — this file had drifted, describing as "pending" two things
+> that were already live. Live now: **DNSSEC** (verified, chain of trust
+> resolves), **commit signing** (enforced server-side by a repo ruleset),
+> **zone traffic analytics** (collecting), and a **ruleset on `main`**
+> covering signatures, force-push, deletion, review, and a required
+> `preview` deployment. Still outstanding: a `required_status_checks` rule,
+> which is the one thing ADR 0004's Renovate revisit is waiting on — see
+> [Branch protection](#branch-protection) below. Each section states its own
+> status; treat the section, not this banner, as authoritative.
 
 ## Commit signing
 
-**Status**: local hook only. Server-side enforcement pending GitHub
-branch protection rule configuration on `main` (available since the
-repo went public on 2026-05-25).
+**Status**: **enforced server-side.** The `required_signatures` rule is
+active on `main` via the repo ruleset (see
+[Branch protection](#branch-protection)). Verified 2026-07-30.
 
-SSH commit signing is intended to be enforced server-side via branch
-protection on `main`. Until that lands, the `pre-push` hook in
-`lefthook.yml` is the only enforcement — it refuses to push unsigned
-commits as a fast feedback loop, but only fires on this developer's
-machine.
+This section previously read "local hook only, server-side enforcement
+pending". That was stale — and worth knowing _why_ it looked pending, since
+the same trap will catch the next person who checks:
+
+```bash
+# Says "Branch not protected" — this is the LEGACY api and returns 404
+# for a repo protected by a ruleset. Not evidence of anything.
+gh api repos/nicolas-bracigliano/nicolasbracigliano/branches/main/protection
+
+# This is the one that tells the truth.
+gh api repos/nicolas-bracigliano/nicolasbracigliano/rulesets
+gh api repos/nicolas-bracigliano/nicolasbracigliano/rulesets/<id> --jq '.rules[].type'
+```
+
+The classic branch-protection UI page is empty for the same reason. Rulesets
+live under Settings → Rules → Rulesets.
+
+The `pre-push` hook in `lefthook.yml` is now a fast local feedback loop
+rather than the only line of defence: it catches an unsigned commit before
+you burn a push and a CI run, and the ruleset catches it regardless. Note
+the hook only fires when `commit.gpgsign=true` is set locally, so a
+contributor who hasn't configured signing gets a no-op locally and a hard
+server-side rejection.
 
 Setup:
 
@@ -34,24 +55,70 @@ keys → **Signing keys** (separate section from authentication keys).
 Edits via the GitHub web UI or mobile won't be signed. Treat them as forbidden
 on `main` — the branch protection rule rejects them.
 
+## Branch protection
+
+**Status**: active as a **repo ruleset** named `Base`, targeting the default
+branch. Created 2026-05-25, audited 2026-07-30.
+
+| Rule                                                                                      | Effect                                |
+| ----------------------------------------------------------------------------------------- | ------------------------------------- |
+| `required_signatures`                                                                     | unsigned commits rejected             |
+| `non_fast_forward`                                                                        | no force-push                         |
+| `deletion`                                                                                | branch can't be deleted               |
+| `pull_request` — 1 approval, code-owner review required, stale reviews not auto-dismissed | no direct pushes; review gate         |
+| `required_deployments` — `preview`                                                        | the `preview` deployment must succeed |
+
+**The gap, deliberately recorded:** there is **no `required_status_checks`
+rule**. Nothing in the ruleset stops a PR merging with red CI — the enforced
+gates are review and a successful `preview` deployment (which does mean the
+build must at least pass). Test, Lighthouse, and e2e results are advisory as
+far as the platform is concerned; today they hold because of discipline, not
+configuration.
+
+That gap is precisely what [ADR 0004](./decisions/0004-renovate-internal-automerge.md)'s
+revisit is blocked on, and **that ADR's second postscript already recorded it
+correctly** — it names the `Base` ruleset, notes the missing
+`required_status_checks`, and explains that `platformAutomerge: true` without
+it would let GitHub merge the moment Renovate enables auto-merge, before CI
+completes. Treat ADR 0004 as the authority on the Renovate consequence; this
+section is the inventory. `platformAutomerge: false` remains correct and
+ADR 0004 needs no amendment — adding the rule is what unblocks it.
+
+Worth noting how this file came to be wrong, since the same thing will happen
+again: ADR 0004 knew branch protection was configured on 2026-05-25, while
+the Commit signing section above went on claiming server-side enforcement was
+"pending" for two more months. Nothing was inconsistent about the repo — only
+about which document you happened to read. When you change a posture, grep
+for every doc that asserts a status about it, not just the obvious one.
+
 ## DNSSEC
 
-**Status**: pending Cloudflare zone setup (the Worker exists; the DNS
-zone for `nicolasbracigliano.com` is what activates DNSSEC).
+**Status**: **live and validating.** Verified 2026-07-30.
 
-Once the zone is active, enable DNSSEC for `nicolasbracigliano.com`
-in the Cloudflare DNS dashboard. Cloudflare will produce a DS record
-(KSK). Copy that DS record to the registrar for the apex domain. The
-chain of trust is live once the registrar publishes the DS at the TLD
-level (usually within an hour).
+- DS record published at the TLD: keytag `2371`, `ECDSAP256SHA256`, digest
+  type 2.
+- A resolver query returns `AD: true` (authenticated data), meaning the
+  chain of trust resolves end to end rather than merely being configured.
 
-Verify with:
+Verify with a **DoH** query rather than `dig`:
 
 ```bash
-dig +dnssec nicolasbracigliano.com
+curl -sS -H 'accept: application/dns-json' \
+  'https://cloudflare-dns.com/dns-query?name=nicolasbracigliano.com&type=DS&do=true'
+# expect: "AD": true, plus a DS record in Answer
 ```
 
-You should see `RRSIG` records alongside the answer set.
+`dig +dnssec` is the textbook command but is **not reliable from every
+network** — an ISP that intercepts port-53 DNS can return forged or stale
+answers even when you pass `@<authoritative-server>`, which makes a working
+chain look broken. DoH runs over HTTPS on 443 and can't be intercepted the
+same way, so it is the trustworthy check. Use `dig` only to cross-confirm a
+DoH result, never as the sole signal.
+
+How it was originally wired, kept for the record: enable DNSSEC for the zone
+in the Cloudflare DNS dashboard, which produces a DS record (KSK); copy that
+DS to the registrar for the apex domain. The chain goes live once the
+registrar publishes the DS at the TLD level, usually within an hour.
 
 ## Vulnerability disclosure
 
