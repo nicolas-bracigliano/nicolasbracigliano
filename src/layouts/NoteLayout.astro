@@ -33,7 +33,10 @@ const ogImage = ogImageUrlFor(entry);
   path={path}
   siblingPath={siblingPath}
   ogImage={ogImage}
+  ogType="article"
+  publishedTime={entry.data.date}
   {...lede && { description: lede }}
+  {...entry.data.updated && { modifiedTime: entry.data.updated }}
 >
   <NoteDetail
     entry={entry}
