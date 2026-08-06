@@ -4,6 +4,16 @@
 
 export type Theme = 'dia' | 'noche';
 
+/** Browser-chrome tint per theme, emitted as `<meta name="theme-color">`.
+ *  Mirrors `--bg` in `src/styles/tokens.css` — `tests/unit/theme.test.ts`
+ *  parses that file and fails if these drift from it, which also covers
+ *  the duplicated literals in `public/theme-init.js` (plain ES5, runs
+ *  before any bundled code, so it can't import this). */
+export const THEME_COLOR: Readonly<Record<Theme, string>> = {
+  dia: '#f6f4ef',
+  noche: '#14130f',
+};
+
 /** Validate a raw localStorage value. Anything other than `'dia'` or
  *  `'noche'` is treated as no stored preference. */
 export function parseStoredTheme(raw: string | null): Theme | null {
