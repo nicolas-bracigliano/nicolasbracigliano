@@ -106,7 +106,7 @@ Bilingual URL pattern: `/es/...` and `/en/...` mirror each other. The language t
 | `/colofón` · `/colophon`      | Stack, fonts, hosting, workflow, principles     | shipping         |
 | `/404`                        | Page not found                                  | shipping         |
 | `/ensayos` · `/pieces`        | Long-form pieces (per ADR 0010)                 | shipping (empty) |
-| `/rss.xml`                    | RSS feed (per-language variant)                 | **[planned]**    |
+| `/rss-en.xml` · `/rss-es.xml` | RSS feed (per-language variant)                 | shipping         |
 
 Hidden routes are reachable by direct link but absent from the nav. They make the nav shorter and reward the curious. `/now` is one of these.
 
