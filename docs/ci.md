@@ -154,8 +154,10 @@ versions upload --preview-alias=preview`. Both emit a
     route list is derived at runtime by `scripts/smoke-routes.ts`
     so it tracks `routes.ts` and content additions without a
     parallel hardcoded list. Retry-on-4xx (six attempts × 3 s)
-    handles the post-deploy asset-propagation window per the
-    CLAUDE.md gotcha.
+    handles the post-deploy propagation window, where a
+    just-deployed URL 404s while its siblings serve. `fetch()` and
+    `curl --retry` don't retry 4xx, so `smoke-routes.ts` rolls its
+    own loop — deliberate, don't simplify it away.
   - **Body content**: `/en/` response must contain `<title>` and
     the wordmark string `Bracigliano`. Catches an Astro build
     that silently emitted empty pages.

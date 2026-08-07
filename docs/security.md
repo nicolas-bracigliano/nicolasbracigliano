@@ -258,8 +258,12 @@ removed from runners on 2026-09-16.
 The action runs `gitleaks detect` over the **full git history**, so it sees
 field names that current files no longer use. `translationKey` was renamed to
 `translationId` in #88, but historical commits still carry `translationKey:`
-lines, which trip the default `generic-api-key` rule (the `…Key` gotcha in
-CLAUDE.md). History is immutable, so `.gitleaks.toml` at the repo root
+lines, which trip the default `generic-api-key` rule: it fires on any field
+name containing `key` / `secret` / `token` paired with an entropic value, and
+a kebab-slug plus a date clears the entropy threshold. Name non-secret
+identifiers `Id` / `Identifier` / `Ref` and the rule never sees them —
+renaming the field is more robust than allow-listing the rule, which is what
+#88 did. History is immutable, so `.gitleaks.toml` at the repo root
 allow-lists that specific field assignment (kebab-slug value only) rather than
 the rule or the files — a real high-entropy secret on any other line, or even
 on a `translationKey:` line, still trips. The local pre-commit hook runs
