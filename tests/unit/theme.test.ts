@@ -115,10 +115,19 @@ describe('THEME_COLOR stays in sync with tokens.css and theme-init.js', () => {
     expect(THEME_COLOR.noche).toBe(bgFor(/\[data-theme='noche'\]\s*\{/));
   });
 
-  it('matches the literals inlined in public/theme-init.js', () => {
+  it('matches the literals inlined in public/theme-init.js, per branch', () => {
     // theme-init.js can't import THEME_COLOR, so assert its copies directly.
-    expect(themeInit).toContain(THEME_COLOR.noche);
-    expect(themeInit).toContain(THEME_COLOR.dia);
+    //
+    // Deliberately NOT two `toContain` calls: the file contains both hexes
+    // whichever way round the ternary is written, so a presence check passes
+    // on `theme === 'noche' ? <dia> : <noche>` — a one-token slip that
+    // inverts the URL-bar tint on every load. Tie each hex to its branch.
+    const ternary = /theme === 'noche'\s*\?\s*'(#[0-9a-f]{3,8})'\s*:\s*'(#[0-9a-f]{3,8})'/i.exec(
+      themeInit,
+    );
+    expect(ternary, 'no theme-color ternary found in public/theme-init.js').not.toBeNull();
+    expect(ternary![1]!.toLowerCase()).toBe(THEME_COLOR.noche);
+    expect(ternary![2]!.toLowerCase()).toBe(THEME_COLOR.dia);
   });
 
   it('uses distinct colours per theme', () => {

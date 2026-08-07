@@ -108,6 +108,16 @@ document.addEventListener('astro:before-swap', (event) => {
   const current = document.documentElement.dataset.theme;
   if (current === 'dia' || current === 'noche') {
     evt.newDocument.documentElement.dataset.theme = current;
+    // Same one-frame problem, same fix, for the browser-chrome tint. The
+    // incoming <head> carries the SSR'd Día default and `theme-color` is not
+    // one of the elements Astro persists across a swap (only
+    // `[transition:persist]`, stylesheets by href, and scripts by src), so
+    // without this a Noche reader gets a Día URL bar between the swap and
+    // `astro:page-load`. `theme-init.js` does not re-run — its <script src>
+    // IS persisted — so `applyTheme` is otherwise the only restore.
+    evt.newDocument
+      .querySelector('meta[name="theme-color"]')
+      ?.setAttribute('content', THEME_COLOR[current]);
   }
 });
 

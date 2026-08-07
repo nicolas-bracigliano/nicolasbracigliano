@@ -8,6 +8,7 @@ import { ClientRouter } from 'astro:transitions';
 import { ROUTES, buildHreflangAlternates, otherLocale, type Locale } from '@lib/routes';
 import { getNavItems } from '@lib/chrome-nav';
 import { FEEDS, RSS_MIME } from '@lib/feeds';
+import { THEME_COLOR } from '@lib/theme-tokens';
 import CommandPalette from '@components/CommandPalette.astro';
 
 export interface Props {
@@ -145,10 +146,14 @@ function isActive(key: keyof typeof ROUTES, currentPath: string): boolean {
          an explicit Día override on a dark OS too. So: ship the Día value as
          the SSR default (correct with no JS), and let `theme-init.js` rewrite
          it before paint once the real theme is resolved. `chrome.ts` keeps it
-         in sync on toggle and after ClientRouter swaps. Values track
-         `--bg` in `tokens.css`; the tests pin the pair. */
+         in sync on toggle and after ClientRouter swaps.
+
+         The value comes from `@lib/theme-tokens` rather than a literal: this
+         is the tint every JS-disabled visitor gets and the one every page
+         paints with before `theme-init.js` runs, so a copy here that silently
+         drifted from `--bg` would be the most visible of the lot. */
     }
-    <meta name="theme-color" content="#f6f4ef" />
+    <meta name="theme-color" content={THEME_COLOR.dia} />
 
     <meta name="apple-mobile-web-app-title" content="Nicolas Bracigliano" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg?v=1" />

@@ -906,7 +906,55 @@ test('theme-color tracks the active theme, not the OS preference', async ({ page
 
   // And it must survive a ClientRouter navigation, which replaces <head>
   // with freshly-SSR'd markup carrying the Día default.
+  //
+  // Navigate while in NOCHE on purpose. Asserting the Día value after a swap
+  // would be tautological — Día is exactly what the incoming SSR'd head
+  // carries, so that assertion passes even with the restore logic deleted.
+  // Only the Noche case actually exercises the restore.
+  await page.locator('#theme-toggle').click();
+  await expect(page.locator('html')).toHaveAttribute('data-theme', 'noche');
+  await expect(meta).toHaveAttribute('content', '#14130f');
+
   await page.locator('.nav a[href="/en/notes/"]').click();
   await page.waitForURL('**/en/notes/');
-  await expect(meta).toHaveAttribute('content', '#f6f4ef');
+  await expect(page.locator('html')).toHaveAttribute('data-theme', 'noche');
+  await expect(meta).toHaveAttribute('content', '#14130f');
+});
+
+test('theme-color is patched into the incoming document before the swap', async ({ page }) => {
+  // The end-state assertion above cannot see this: `astro:page-load` fixes
+  // the meta a moment after the swap, and Playwright's assertions poll, so a
+  // missing before-swap patch still converges to the right value. What it
+  // would leave is a one-frame Día URL bar on a Noche page mid-navigation —
+  // the same defect the existing data-theme before-swap handler exists to
+  // prevent (ADR 0005). So inspect `newDocument` at swap time instead.
+  await page.addInitScript(() => localStorage.setItem('theme', 'noche'));
+  await page.goto('/en/');
+  await expect(page.locator('html')).toHaveAttribute('data-theme', 'noche');
+
+  await page.evaluate(() => {
+    const w = window as unknown as Record<string, unknown>;
+    w.__swapMeta = 'listener-never-fired';
+    // chrome.ts registers its own before-swap listener at module load, which
+    // is earlier than this one, so its patch has already run when we read.
+    document.addEventListener(
+      'astro:before-swap',
+      (e) => {
+        const ev = e as unknown as { newDocument: Document };
+        w.__swapMeta =
+          ev.newDocument.querySelector('meta[name="theme-color"]')?.getAttribute('content') ??
+          'meta-missing';
+      },
+      { once: true },
+    );
+  });
+
+  await page.locator('.nav a[href="/en/notes/"]').click();
+  await page.waitForURL('**/en/notes/');
+
+  const atSwap = await page.evaluate(
+    () => (window as unknown as Record<string, unknown>).__swapMeta,
+  );
+  // Día here would mean the incoming head arrived unpatched — the flash.
+  expect(atSwap).toBe('#14130f');
 });

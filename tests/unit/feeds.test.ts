@@ -37,7 +37,12 @@ describe('FEEDS', () => {
     // again, the autodiscovery link and the feed disagree with no symptom.
     for (const locale of SUPPORTED_LOCALES) {
       const source = read(`../../src/pages${FEEDS[locale].path}.ts`);
-      expect(source, `${locale} feed should import FEEDS`).toContain('@lib/feeds');
+      // Match the import STATEMENT, not the bare string: the file's header
+      // comment mentions `@lib/feeds` in prose, so a `toContain` check passes
+      // even with the import deleted.
+      expect(source, `${locale} feed should import FEEDS`).toMatch(
+        /^import\s+\{[^}]*\bFEEDS\b[^}]*\}\s+from\s+'@lib\/feeds';$/m,
+      );
       expect(source, `${locale} feed should not inline its title`).not.toContain(
         `'${FEEDS[locale].title}'`,
       );
