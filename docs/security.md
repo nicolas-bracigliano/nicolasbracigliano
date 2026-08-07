@@ -287,16 +287,23 @@ The `public/_headers` file uses Cloudflare/Netlify syntax. If you ever move the
 site, this table is the host-neutral source of truth for what each directive
 needs to look like on the new host. Update both columns in lock-step.
 
+One caveat on the HSTS row: on Cloudflare the served value comes from the
+zone (SSL/TLS → Edge Certificates), not from `_headers`. The value here
+mirrors the `_headers` fallback, which is what a host without a zone-level
+override would actually serve. Keep `max-age` at a year or more or `preload`
+stops being valid.
+
 | Logical directive              | Cloudflare/Netlify `_headers`                                                                         | Vercel `vercel.json` `headers`                                           | nginx                                                                  |
 | ------------------------------ | ----------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------ | ---------------------------------------------------------------------- |
 | Strict CSP (script-src strict) | `Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; …` | `{ "key": "Content-Security-Policy", "value": "default-src 'self'; …" }` | `add_header Content-Security-Policy "default-src 'self'; …" always;`   |
-| HSTS preload                   | `Strict-Transport-Security: max-age=63072000; includeSubDomains; preload`                             | same value, JSON object                                                  | `add_header Strict-Transport-Security "…" always;`                     |
+| HSTS preload                   | `Strict-Transport-Security: max-age=31536000; includeSubDomains; preload`                             | same value, JSON object                                                  | `add_header Strict-Transport-Security "…" always;`                     |
 | MIME sniffing off              | `X-Content-Type-Options: nosniff`                                                                     | same                                                                     | `add_header X-Content-Type-Options nosniff always;`                    |
 | Referrer policy                | `Referrer-Policy: strict-origin-when-cross-origin`                                                    | same                                                                     | `add_header Referrer-Policy "strict-origin-when-cross-origin" always;` |
 | Permissions policy             | `Permissions-Policy: accelerometer=(), camera=(), …`                                                  | same                                                                     | `add_header Permissions-Policy "…" always;`                            |
 | Cross-origin opener            | `Cross-Origin-Opener-Policy: same-origin`                                                             | same                                                                     | `add_header Cross-Origin-Opener-Policy same-origin always;`            |
 | Cross-origin resource          | `Cross-Origin-Resource-Policy: same-origin`                                                           | same                                                                     | `add_header Cross-Origin-Resource-Policy same-origin always;`          |
 | Frame deny                     | `X-Frame-Options: DENY`                                                                               | same                                                                     | `add_header X-Frame-Options DENY always;`                              |
+| Immutable build assets         | `/_astro/* … Cache-Control: public, max-age=31536000, immutable`                                      | `source: "/_astro/(.*)"`                                                 | same shape                                                             |
 | Immutable fonts                | `/fonts/* … Cache-Control: public, max-age=31536000, immutable`                                       | `source: "/fonts/(.*)"`                                                  | same shape                                                             |
 
 ### CSP delivery — \_headers only
