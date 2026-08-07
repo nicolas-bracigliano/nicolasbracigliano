@@ -8,6 +8,9 @@
 // re-init: the handlers query the live DOM (overlay, triggers) at
 // interaction time. The module is hoisted (loads once); these listeners
 // persist for the session. See the design-system command-palette section.
+// That querying is per-interaction and cheap except on `mousemove`, which
+// fires for the whole session whether or not the palette is up — hence the
+// `isOpen` fast negative below.
 import { navigate } from 'astro:transitions/client';
 import { match, type CmdkEntry, type CmdkKind } from '@lib/cmdk-match';
 
@@ -15,6 +18,18 @@ let lastFocused: HTMLElement | null = null;
 let results: CmdkEntry[] = [];
 let active = 0;
 let seq = 0;
+
+// Fast negative for the hot path. `false` means "definitely closed", which
+// lets `mousemove` bail on a property read instead of a querySelector 60–120
+// times a second for the entire session. Deliberately *not* the source of
+// truth: the `root.hidden` check still runs behind it, because a
+// <ClientRouter /> swap can retire an open overlay and mount a fresh hidden
+// one without close() ever running. That leaves the flag stale-*true*, which
+// costs one wasted query per move — the pre-change behaviour — and breaks
+// nothing. Caching the element instead would go stale in the dangerous
+// direction: a detached node the handlers keep addressing after the first
+// client-side navigation, and the palette silently stops responding.
+let isOpen = false;
 
 const overlay = (): HTMLElement | null => document.querySelector('[data-cmdk]');
 const els = (root: HTMLElement) => ({
@@ -239,6 +254,7 @@ function open(): void {
   if (!root || !root.hidden) return;
   lastFocused = document.activeElement instanceof HTMLElement ? document.activeElement : null;
   root.hidden = false;
+  isOpen = true;
   setShell(root, true);
   applyAria(root);
   const { input } = els(root);
@@ -250,6 +266,10 @@ function open(): void {
 }
 
 function close(): void {
+  // Ahead of the guard: whichever branch runs, the palette is not open once
+  // this returns. Clearing it after the early-out would strand the flag on
+  // `true` when a swap has already taken the overlay out from under us.
+  isOpen = false;
   const root = overlay();
   if (!root || root.hidden) return;
   // Lift inert before restoring focus, so the trigger is focusable again.
@@ -345,7 +365,13 @@ document.addEventListener('click', (ev) => {
 });
 
 // Hover sets the active row (pointer + keyboard share one highlight).
+// The `isOpen` gate is the only listener that needs one: every other
+// document-level handler here fires per discrete interaction, while this one
+// fires continuously any time the pointer moves and the palette is closed for
+// nearly all of it. Keyboard-driven `open()` must still work from a cold
+// flag, so `keydown` and `click` stay ungated by construction.
 document.addEventListener('mousemove', (ev) => {
+  if (!isOpen) return;
   const root = overlay();
   if (!root || root.hidden) return;
   if (!(ev.target instanceof HTMLElement)) return;
