@@ -325,7 +325,11 @@ url(evil.com)` exfiltration vector).
 Cloudflare (originally Pages, now Workers Static Assets after PR #49 — see [ADR 0001 postscript](./decisions/0001-cloudflare-pages.md)) was chosen because:
 
 - Free tier covers a personal site indefinitely.
-- Server-side Web Analytics (zero JS, zero cookies) is unique to Cloudflare.
+- Server-side **zone traffic** analytics (aggregated from edge logs: zero JS,
+  zero cookies, no CSP loosening) comes free with any proxied zone, and that
+  is a genuine Cloudflare advantage. It is the _zone-level_ product only. The
+  page-level **Web Analytics** product is beacon-based in both setup modes and
+  is unusable here — see [Analytics](#analytics).
 - DNSSEC + HSTS preload + edge DDoS protection are first-class.
 - A small Worker (`src/worker.ts`) handles the `/` Accept-Language
   redirect — no SSR adapter, no framework lock-in for the rest of the site.

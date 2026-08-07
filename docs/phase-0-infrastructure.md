@@ -219,10 +219,37 @@ on resolvers that enforce (~20% of public traffic).
 
 ---
 
-## Step 4 — Cloudflare Web Analytics
+## Step 4 — Analytics
 
-**Goal**: per-page traffic analytics without shipping any JavaScript
-to the browser. Cloudflare counts requests at the edge.
+**Status**: corrected 2026-07-30 — **do not follow the original
+steps below**. Cloudflare **Web Analytics** has no server-side mode.
+Both of its setup modes load a beacon from
+`https://static.cloudflareinsights.com/beacon.min.js`; "Automatic
+setup" only means Cloudflare injects the tag into your HTML at the
+edge instead of you pasting it in. Under this site's
+`script-src 'self'` the script is blocked outright, so following the
+step as written produces a console violation and zero data.
+
+**Goal** (unchanged): per-page traffic figures without shipping any
+JavaScript to the browser.
+
+**What actually delivers it**: nothing to click in the Web Analytics
+UI.
+
+- **Zone Traffic analytics** (zone → **Analytics & Logs** →
+  **Traffic**) is the genuinely server-side surface — request /
+  bandwidth / country / status-code stats read off edge logs. It is
+  on by default for any proxied zone, so Step 2 already turned it on.
+- **Page-level views** come from **Workers Logs** instead
+  (`[observability]` in `wrangler.toml`, already `enabled = true`),
+  which is why `run_worker_first` lists the `/en/*` and `/es/*`
+  prefixes.
+
+[`docs/security.md` § Analytics](./security.md#analytics) has the full
+trade-off, the CSP reasoning, and why the beacon route stays closed.
+
+<details>
+<summary>Original Phase 0 steps (Web Analytics "server-side mode", which does not exist)</summary>
 
 1. In Cloudflare: left sidebar → **Analytics & Logs** → **Web
    Analytics**. Click **Manage site** for `nicolasbracigliano.com`.
@@ -233,12 +260,19 @@ to the browser. Cloudflare counts requests at the edge.
 3. Save. Analytics start populating within a few minutes of the
    first request hitting the deployed site.
 
+Kept as the record of what Phase 0 believed. Step 2 is the error: the
+picker offers "Automatic setup" and "Manual setup", both beacon-based.
+
+</details>
+
 ### Best practices
 
-- **Server-side analytics has no PII by design.** No cookies, no
-  fingerprinting, no GDPR consent banner needed. Don't add Google
-  Analytics or Plausible "for completeness" — the design system §
-  doesn't want client-side tracking JS.
+- **Keep analytics server-side.** Zone Traffic analytics and Workers
+  Logs carry no PII by design: no cookies, no fingerprinting, no GDPR
+  consent banner needed. Don't add Google Analytics or Plausible "for
+  completeness", and don't reach for Cloudflare's Web Analytics as a
+  substitute — the design system § doesn't want client-side tracking
+  JS, and the CSP won't load it anyway.
 - **Don't enable bot-mode "I'm Under Attack"** unless you actually
   see a sustained attack. It triggers a JS challenge on every visit,
   which violates the no-JS-tracking budget and breaks the page-load
