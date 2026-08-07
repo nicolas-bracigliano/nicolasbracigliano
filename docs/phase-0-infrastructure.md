@@ -176,6 +176,13 @@ curl -I https://nicolasbracigliano.com/en/
 
 ## Step 3 — DNSSEC
 
+**Status**: done — live and validating. The DS record is published at
+the TLD (keytag `2371`, `ECDSAP256SHA256`, digest type 2) and
+resolvers return `AD: true`, so the chain resolves end to end rather
+than merely being configured. Verified 2026-07-30; `docs/security.md`
+§ DNSSEC is the current record. The steps below stay as written
+because they are still the recipe for a fresh domain.
+
 **Goal**: chain-of-trust signatures on every DNS response, so a
 hostile resolver can't spoof `nicolasbracigliano.com`'s records.
 
@@ -203,11 +210,16 @@ hostile resolver can't spoof `nicolasbracigliano.com`'s records.
 ### Verification
 
 ```sh
-dig +dnssec nicolasbracigliano.com
-# Look for RRSIG records in the ANSWER section.
+# Use DoH, not dig: the origin network intercepts port-53 DNS and can
+# serve forged or stale answers even against an explicit
+# @authoritative server, which makes a working chain look broken
+# (see `docs/security.md` § DNSSEC).
+curl -sS -H 'accept: application/dns-json' \
+  'https://cloudflare-dns.com/dns-query?name=nicolasbracigliano.com&type=DS&do=true'
+# → "AD": true, plus the DS record you pasted into the registrar.
 
-dig DS nicolasbracigliano.com @8.8.8.8 +short
-# Should show the same digest you pasted into the registrar.
+# `dig +dnssec` is the textbook command. Use it to cross-confirm a DoH
+# result, never as the sole signal.
 
 # Or via a one-shot online checker:
 # https://dnssec-analyzer.verisignlabs.com/nicolasbracigliano.com
@@ -541,10 +553,15 @@ Run all of these after Steps 1–7 are done. If anything fails, fix
 that step before continuing to Phase 2.
 
 ```sh
-# DNS + DNSSEC
-dig nicolasbracigliano.com NS +short        # 2 cloudflare names
-dig +dnssec nicolasbracigliano.com          # RRSIG present
-dig DS nicolasbracigliano.com @8.8.8.8 +short
+# DNS + DNSSEC — over DoH, not dig. The origin network intercepts
+# port-53 DNS (see `docs/security.md` § DNSSEC); dig cross-confirms
+# but doesn't decide.
+curl -sS -H 'accept: application/dns-json' \
+  'https://cloudflare-dns.com/dns-query?name=nicolasbracigliano.com&type=NS'
+# → 2 cloudflare names
+curl -sS -H 'accept: application/dns-json' \
+  'https://cloudflare-dns.com/dns-query?name=nicolasbracigliano.com&type=DS&do=true'
+# → "AD": true, plus a DS record in Answer
 
 # HTTPS + security headers
 curl -I https://nicolasbracigliano.com/en/  # 200, server: cloudflare,
