@@ -5,7 +5,7 @@
 // live in `./theme.ts` so they're unit-testable without a DOM.
 
 import type { TransitionBeforeSwapEvent } from 'astro:transitions/client';
-import { decideOnOsChange, parseStoredTheme, pickTheme, type Theme } from './theme';
+import { decideOnOsChange, parseStoredTheme, pickTheme, THEME_COLOR, type Theme } from './theme';
 
 const MOBILE_BREAKPOINT = '(max-width: 720px)';
 const HIDE_AT_SCROLL_PX = 120;
@@ -31,6 +31,11 @@ function applyTheme(theme: Theme): void {
   document.documentElement.dataset.theme = theme;
   const btn = document.getElementById('theme-toggle');
   btn?.setAttribute('aria-checked', String(theme === 'noche'));
+  // Keep mobile browser chrome on the active theme. `theme-init.js` sets
+  // this before first paint; this covers the toggle, cross-tab `storage`
+  // sync, OS-change retirement, and post-ClientRouter swaps (which replace
+  // <head>, so the tag is a fresh element carrying the SSR'd Día default).
+  document.querySelector('meta[name="theme-color"]')?.setAttribute('content', THEME_COLOR[theme]);
 }
 
 // Foot-rail scroll-direction handler. Only attached at mobile widths via
@@ -103,6 +108,16 @@ document.addEventListener('astro:before-swap', (event) => {
   const current = document.documentElement.dataset.theme;
   if (current === 'dia' || current === 'noche') {
     evt.newDocument.documentElement.dataset.theme = current;
+    // Same one-frame problem, same fix, for the browser-chrome tint. The
+    // incoming <head> carries the SSR'd Día default and `theme-color` is not
+    // one of the elements Astro persists across a swap (only
+    // `[transition:persist]`, stylesheets by href, and scripts by src), so
+    // without this a Noche reader gets a Día URL bar between the swap and
+    // `astro:page-load`. `theme-init.js` does not re-run — its <script src>
+    // IS persisted — so `applyTheme` is otherwise the only restore.
+    evt.newDocument
+      .querySelector('meta[name="theme-color"]')
+      ?.setAttribute('content', THEME_COLOR[current]);
   }
 });
 

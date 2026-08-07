@@ -810,3 +810,151 @@ test.describe('route-masthead eyebrow renders a hairline rule', () => {
     });
   }
 });
+
+// ── head metadata: og:type, RSS autodiscovery, theme-color ──
+//
+// All three are invisible on the page, so nothing but a test notices when
+// they regress. The og:type split in particular is a prop pass-through
+// (BaseLayout defaults to `website`; NoteLayout/PieceLayout override it),
+// exactly the kind of wiring that gets dropped in a refactor.
+
+test('dated long-form is og:type=article with a published timestamp', async ({ page }) => {
+  await page.goto('/en/notes/hello/');
+  await expect(page.locator('meta[property="og:type"]')).toHaveAttribute('content', 'article');
+  // ISO 8601, which is what the Open Graph spec asks for.
+  await expect(page.locator('meta[property="article:published_time"]')).toHaveAttribute(
+    'content',
+    /^\d{4}-\d{2}-\d{2}T/,
+  );
+});
+
+test('pieces are og:type=article too', async ({ page }) => {
+  await page.goto('/en/pieces/where-agile-gets-stuck/');
+  await expect(page.locator('meta[property="og:type"]')).toHaveAttribute('content', 'article');
+});
+
+test('index routes stay og:type=website and emit no article timestamps', async ({ page }) => {
+  // The failure this guards: defaulting BaseLayout to `article` would make
+  // every index and static page claim to be a dated document.
+  for (const path of ['/en/', '/en/notes/', '/en/works/', '/en/colophon/']) {
+    await page.goto(path);
+    await expect(page.locator('meta[property="og:type"]')).toHaveAttribute('content', 'website');
+    await expect(page.locator('meta[property^="article:"]')).toHaveCount(0);
+  }
+});
+
+test('every page advertises both RSS feeds, current locale first', async ({ page }) => {
+  // Order matters: a reader that takes the first match should subscribe
+  // you to the language you are actually reading.
+  await page.goto('/en/notes/');
+  const en = page.locator('link[rel="alternate"][type="application/rss+xml"]');
+  await expect(en).toHaveCount(2);
+  await expect(en.first()).toHaveAttribute('href', '/rss-en.xml');
+
+  await page.goto('/es/notas/');
+  const es = page.locator('link[rel="alternate"][type="application/rss+xml"]');
+  await expect(es).toHaveCount(2);
+  await expect(es.first()).toHaveAttribute('href', '/rss-es.xml');
+});
+
+test('the advertised feed title matches the feed document title', async ({ page, request }) => {
+  // The reason `@lib/feeds` exists. A reader shows the link's `title`, so
+  // if it drifts from the feed's own <title> the subscription is mislabelled
+  // and nothing on either side looks wrong in isolation.
+  await page.goto('/en/');
+  const advertised = await page
+    .locator('link[rel="alternate"][type="application/rss+xml"]')
+    .first()
+    .getAttribute('title');
+  expect(advertised).toBeTruthy();
+
+  const xml = await (await request.get('/rss-en.xml')).text();
+  const raw = /<title>([\s\S]*?)<\/title>/.exec(xml)?.[1];
+  expect(raw, 'no <title> in the feed').toBeTruthy();
+
+  // Compare like for like: the feed is XML so `&` is serialised as `&amp;`,
+  // while `getAttribute` hands back the parsed value with `&`. Comparing the
+  // decoded forms is an equality check, which is stricter than a substring
+  // match and won't pass on an accidental prefix.
+  const decoded = raw!
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&quot;/g, '"')
+    .replace(/&apos;/g, "'")
+    .replace(/&amp;/g, '&');
+  expect(decoded).toBe(advertised);
+});
+
+test('theme-color tracks the active theme, not the OS preference', async ({ page }) => {
+  // Dark applies only via [data-theme='noche'], which JS sets — there is no
+  // prefers-color-scheme fallback in tokens.css. So the tag must follow the
+  // resolved theme. A media-query pair would tint the URL bar dark against a
+  // light page for a no-JS visitor or an explicit Día override on a dark OS.
+  const meta = page.locator('meta[name="theme-color"]');
+
+  await page.emulateMedia({ colorScheme: 'dark' });
+  await page.addInitScript(() => localStorage.removeItem('theme'));
+  await page.goto('/en/');
+  await expect(page.locator('html')).toHaveAttribute('data-theme', 'noche');
+  await expect(meta).toHaveAttribute('content', '#14130f');
+
+  // Explicit override back to Día on a dark OS: the tag must follow the
+  // override, which is precisely the case a media query would get wrong.
+  await page.locator('#theme-toggle').click();
+  await expect(page.locator('html')).toHaveAttribute('data-theme', 'dia');
+  await expect(meta).toHaveAttribute('content', '#f6f4ef');
+
+  // And it must survive a ClientRouter navigation, which replaces <head>
+  // with freshly-SSR'd markup carrying the Día default.
+  //
+  // Navigate while in NOCHE on purpose. Asserting the Día value after a swap
+  // would be tautological — Día is exactly what the incoming SSR'd head
+  // carries, so that assertion passes even with the restore logic deleted.
+  // Only the Noche case actually exercises the restore.
+  await page.locator('#theme-toggle').click();
+  await expect(page.locator('html')).toHaveAttribute('data-theme', 'noche');
+  await expect(meta).toHaveAttribute('content', '#14130f');
+
+  await page.locator('.nav a[href="/en/notes/"]').click();
+  await page.waitForURL('**/en/notes/');
+  await expect(page.locator('html')).toHaveAttribute('data-theme', 'noche');
+  await expect(meta).toHaveAttribute('content', '#14130f');
+});
+
+test('theme-color is patched into the incoming document before the swap', async ({ page }) => {
+  // The end-state assertion above cannot see this: `astro:page-load` fixes
+  // the meta a moment after the swap, and Playwright's assertions poll, so a
+  // missing before-swap patch still converges to the right value. What it
+  // would leave is a one-frame Día URL bar on a Noche page mid-navigation —
+  // the same defect the existing data-theme before-swap handler exists to
+  // prevent (ADR 0005). So inspect `newDocument` at swap time instead.
+  await page.addInitScript(() => localStorage.setItem('theme', 'noche'));
+  await page.goto('/en/');
+  await expect(page.locator('html')).toHaveAttribute('data-theme', 'noche');
+
+  await page.evaluate(() => {
+    const w = window as unknown as Record<string, unknown>;
+    w.__swapMeta = 'listener-never-fired';
+    // chrome.ts registers its own before-swap listener at module load, which
+    // is earlier than this one, so its patch has already run when we read.
+    document.addEventListener(
+      'astro:before-swap',
+      (e) => {
+        const ev = e as unknown as { newDocument: Document };
+        w.__swapMeta =
+          ev.newDocument.querySelector('meta[name="theme-color"]')?.getAttribute('content') ??
+          'meta-missing';
+      },
+      { once: true },
+    );
+  });
+
+  await page.locator('.nav a[href="/en/notes/"]').click();
+  await page.waitForURL('**/en/notes/');
+
+  const atSwap = await page.evaluate(
+    () => (window as unknown as Record<string, unknown>).__swapMeta,
+  );
+  // Día here would mean the incoming head arrived unpatched — the flash.
+  expect(atSwap).toBe('#14130f');
+});

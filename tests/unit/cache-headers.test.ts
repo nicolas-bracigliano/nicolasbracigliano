@@ -15,7 +15,12 @@
 // the new path is really hashed.
 
 import { describe, expect, it } from 'vitest';
-import { headerBlockPaths, parseHeadersBlock, readHeadersFile } from './helpers/headers';
+import {
+  headerBlockPaths,
+  headerValue,
+  parseHeadersBlock,
+  readHeadersFile,
+} from './helpers/headers';
 
 const IMMUTABLE = 'public, max-age=31536000, immutable';
 
@@ -44,16 +49,16 @@ describe('public/_headers cache policy', () => {
     // The regression this pins: without the block, the asset layer default
     // (`public, max-age=0, must-revalidate`) applies and every repeat visit
     // revalidates every script and stylesheet.
-    expect(parseHeadersBlock(raw, '/_astro/*')['Cache-Control']).toBe(IMMUTABLE);
+    expect(headerValue(parseHeadersBlock(raw, '/_astro/*'), 'Cache-Control')).toBe(IMMUTABLE);
   });
 
   it('caches the subset fonts immutably', () => {
-    expect(parseHeadersBlock(raw, '/fonts/*')['Cache-Control']).toBe(IMMUTABLE);
+    expect(headerValue(parseHeadersBlock(raw, '/fonts/*'), 'Cache-Control')).toBe(IMMUTABLE);
   });
 
   it('does not promise immutability for any non-hashed path', () => {
     const immutablePaths = headerBlockPaths(raw).filter((p) =>
-      (parseHeadersBlock(raw, p)['Cache-Control'] ?? '').includes('immutable'),
+      (headerValue(parseHeadersBlock(raw, p), 'Cache-Control') ?? '').includes('immutable'),
     );
     expect(immutablePaths.sort()).toEqual([...IMMUTABLE_BLOCKS].sort());
   });
@@ -61,7 +66,7 @@ describe('public/_headers cache policy', () => {
   it('keeps OG cards on a short TTL (stable filenames, content can change)', () => {
     // An OG card's URL is derived from the entry slug, so editing a title
     // rewrites the bytes behind an unchanged URL. Must stay bustable.
-    const og = parseHeadersBlock(raw, '/og/*.png')['Cache-Control'] ?? '';
+    const og = headerValue(parseHeadersBlock(raw, '/og/*.png'), 'Cache-Control') ?? '';
     expect(og).not.toContain('immutable');
     expect(og).toContain('max-age=86400');
   });

@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { SECURITY_HEADERS, withSecurityHeaders } from '../../src/lib/security-headers';
 // `parseHeadersBlock` used to live here; it moved to the shared helper when
 // `cache-headers.test.ts` needed the same parse.
-import { parseHeadersBlock, readHeadersFile } from './helpers/headers';
+import { headerValue, parseHeadersBlock, readHeadersFile } from './helpers/headers';
 
 // Worker-generated responses (the `/` redirect, `/.well-known/security.txt`)
 // bypass the Static Assets layer, so the `/*` rules in `public/_headers`
@@ -56,7 +56,7 @@ describe('SECURITY_HEADERS stays consistent with public/_headers', () => {
     // don't replay on worker responses. What must never happen is a
     // *value* drift for a header the Worker does send.
     for (const [name, value] of Object.entries(SECURITY_HEADERS)) {
-      expect(assetBlock[name], `${name} drifted from public/_headers`).toBe(value);
+      expect(headerValue(assetBlock, name), `${name} drifted from public/_headers`).toBe(value);
     }
   });
 

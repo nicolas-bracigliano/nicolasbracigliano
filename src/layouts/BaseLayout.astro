@@ -5,8 +5,10 @@ import '@styles/tokens.css';
 import '@styles/base.css';
 import '@styles/animations.css';
 import { ClientRouter } from 'astro:transitions';
-import { ROUTES, buildHreflangAlternates, type Locale } from '@lib/routes';
+import { ROUTES, buildHreflangAlternates, otherLocale, type Locale } from '@lib/routes';
 import { getNavItems } from '@lib/chrome-nav';
+import { FEEDS, RSS_MIME } from '@lib/feeds';
+import { THEME_COLOR } from '@lib/theme-tokens';
 import CommandPalette from '@components/CommandPalette.astro';
 
 export interface Props {
@@ -28,9 +30,35 @@ export interface Props {
    *  other route that shouldn't be indexed (draft pages, etc.).
    *  Default `false`. */
   noindex?: boolean;
+  /** Dated long-form (notes, pieces) passes `article`, which also emits
+   *  `article:published_time` / `article:modified_time` from the dates
+   *  below. Everything else — index routes, the static pages, the 404 —
+   *  is `website`. Works deliberately stay `website` for now: they're
+   *  catalog entries for made things rather than writing, and nothing
+   *  downstream reads the distinction yet. */
+  ogType?: 'website' | 'article';
+  /** Publication date, emitted as `article:published_time`. Ignored
+   *  unless `ogType === 'article'`. Callers pass `entry.data.date`. */
+  publishedTime?: Date;
+  /** Last-modified date, emitted as `article:modified_time`. Ignored
+   *  unless `ogType === 'article'`. Callers pass `entry.data.updated`,
+   *  which is optional in the schema — spread conditionally so
+   *  `exactOptionalPropertyTypes` stays honest. */
+  modifiedTime?: Date;
 }
 
-const { title, description, locale, path, siblingPath, ogImage, noindex = false } = Astro.props;
+const {
+  title,
+  description,
+  locale,
+  path,
+  siblingPath,
+  ogImage,
+  noindex = false,
+  ogType = 'website',
+  publishedTime,
+  modifiedTime,
+} = Astro.props;
 const site = Astro.site?.toString() ?? 'https://nicolasbracigliano.com';
 const origin = site.replace(/\/$/, '');
 
@@ -64,10 +92,24 @@ function isActive(key: keyof typeof ROUTES, currentPath: string): boolean {
       !noindex && hreflangs.map((h) => <link rel="alternate" hreflang={h.hreflang} href={h.href} />)
     }
 
-    <meta property="og:type" content="website" />
+    <meta property="og:type" content={ogType} />
     <meta property="og:title" content={title} />
     {description && <meta property="og:description" content={description} />}
     {!noindex && <meta property="og:url" content={`${origin}${path}`} />}
+    {
+      /* Article timestamps are only meaningful alongside `og:type=article`;
+         emitting them on a `website` would be noise. ISO 8601 is what the
+         Open Graph spec asks for, and `toISOString()` gives UTC — the dates
+         are date-only in frontmatter, so there is no timezone to lose. */
+      ogType === 'article' && publishedTime && (
+        <meta property="article:published_time" content={publishedTime.toISOString()} />
+      )
+    }
+    {
+      ogType === 'article' && modifiedTime && (
+        <meta property="article:modified_time" content={modifiedTime.toISOString()} />
+      )
+    }
     <meta property="og:locale" content={locale === 'en' ? 'en_US' : 'es_AR'} />
     {
       ogImage && (
@@ -78,6 +120,40 @@ function isActive(key: keyof typeof ROUTES, currentPath: string): boolean {
       )
     }
     <meta name="twitter:card" content="summary_large_image" />
+
+    {
+      /* RSS autodiscovery. Both feeds are advertised on every page, current
+         locale first: a reader that takes the first match subscribes you to
+         the language you're reading, and one that lists all of them shows
+         both. Titles come from `@lib/feeds`, the same constants the feed
+         routes use for their own <title>, so the two can't drift. */
+    }
+    <link rel="alternate" type={RSS_MIME} title={FEEDS[locale].title} href={FEEDS[locale].path} />
+    <link
+      rel="alternate"
+      type={RSS_MIME}
+      title={FEEDS[otherLocale(locale)].title}
+      href={FEEDS[otherLocale(locale)].path}
+    />
+
+    {
+      /* Tints mobile browser chrome to match the page.
+         NOT a `prefers-color-scheme` media pair, deliberately: dark applies
+         only via `[data-theme='noche']`, which `theme-init.js` sets. There is
+         no `@media (prefers-color-scheme: dark)` fallback in tokens.css, so
+         with JS off the site renders Día on every device — a media-query pair
+         would darken the URL bar against a light page. It would be wrong for
+         an explicit Día override on a dark OS too. So: ship the Día value as
+         the SSR default (correct with no JS), and let `theme-init.js` rewrite
+         it before paint once the real theme is resolved. `chrome.ts` keeps it
+         in sync on toggle and after ClientRouter swaps.
+
+         The value comes from `@lib/theme-tokens` rather than a literal: this
+         is the tint every JS-disabled visitor gets and the one every page
+         paints with before `theme-init.js` runs, so a copy here that silently
+         drifted from `--bg` would be the most visible of the lot. */
+    }
+    <meta name="theme-color" content={THEME_COLOR.dia} />
 
     <meta name="apple-mobile-web-app-title" content="Nicolas Bracigliano" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg?v=1" />
