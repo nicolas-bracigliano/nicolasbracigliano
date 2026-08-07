@@ -121,6 +121,8 @@ pnpm subset-fonts
 
 One-shot local task. Downloads and subsets the variable Newsreader + JetBrains Mono into `public/fonts/`. CI does not subset. Commit the resulting files.
 
+The filenames are fixed and `/fonts/*` is served `immutable` for a year, so if the bytes change, bump the `?v=N` on all four references at once — the two `url()` in `src/styles/fonts.css` and the two `<link rel="preload">` hrefs in `src/layouts/BaseLayout.astro`. They must match exactly, or the preload warms a URL the stylesheet never asks for.
+
 ---
 
 ## What runs automatically

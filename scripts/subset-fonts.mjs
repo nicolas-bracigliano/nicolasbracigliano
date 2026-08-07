@@ -12,6 +12,12 @@
 // The script downloads the source TTFs from fontsource (no extra deps), then
 // uses pyftsubset to subset by glyph coverage. Commit the resulting files
 // under public/fonts/; CI consumes them.
+//
+// The sources are `:vf@latest`, so a re-run can change the bytes behind fixed
+// filenames that `/fonts/*` serves as `immutable` for a year. If the woff2
+// change, bump the `?v=N` on all four references — the two `url()` in
+// src/styles/fonts.css and the two preload hrefs in
+// src/layouts/BaseLayout.astro — or returning visitors keep the old face.
 
 import { mkdir, writeFile } from 'node:fs/promises';
 import { existsSync, statSync } from 'node:fs';

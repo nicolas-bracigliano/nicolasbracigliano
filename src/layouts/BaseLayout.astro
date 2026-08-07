@@ -88,18 +88,22 @@ function isActive(key: keyof typeof ROUTES, currentPath: string): boolean {
       /* Preload the self-hosted woff2 so the swap from the fallback stack
         happens early (less FOUT on the type-forward hero). Same-origin,
         but font fetches are always CORS-anonymous, so `crossorigin` is
-        required for the preload to match the actual request. */
+        required for the preload to match the actual request.
+
+        The `?v=N` busts the immutable `/fonts/*` cache on a re-subset; it
+        must byte-match the `url()` in src/styles/fonts.css (where the why
+        is written out) or these preloads warm a URL nothing requests. */
     }
     <link
       rel="preload"
-      href="/fonts/jetbrains-mono-variable.woff2"
+      href="/fonts/jetbrains-mono-variable.woff2?v=1"
       as="font"
       type="font/woff2"
       crossorigin
     />
     <link
       rel="preload"
-      href="/fonts/newsreader-variable.woff2"
+      href="/fonts/newsreader-variable.woff2?v=1"
       as="font"
       type="font/woff2"
       crossorigin
