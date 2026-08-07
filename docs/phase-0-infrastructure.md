@@ -352,8 +352,9 @@ reachable at `preview-<worker-name>.<account>.workers.dev`.
 
 **Goal**: every commit you push to GitHub is signed with your SSH
 key. Pairs with the `pre-push` lefthook that refuses unsigned
-commits, and once GitHub branch protection lands (Step 8 below),
-becomes server-side-enforced.
+commits. Server-side enforcement is already live: the `Base` ruleset
+on `main` carries `required_signatures` (Step 8 below), so the hook
+is a fast local signal rather than the only line of defence.
 
 The `docs/security.md` file has the rationale + recipe; the steps
 below are the action set.
@@ -387,7 +388,7 @@ below are the action set.
   signing identity. Compromising one doesn't compromise the other.
 - **Don't sign on the GitHub web UI.** Edits via the web UI are
   always unsigned. Treat web edits as forbidden on `main`; the
-  upcoming branch protection rule (Step 8) rejects them.
+  `required_signatures` rule (Step 8) rejects them.
 
 ### Verification
 
@@ -467,8 +468,34 @@ curl -s -H 'accept: application/dns-json' \
 
 ## Step 8 — Branch protection
 
-**Status**: available — free since the repo went public on
-2026-05-25. Recommended once Step 6 (commit signing) is wired up.
+**Status**: done 2026-05-25, with one gap — **do not follow the
+original steps below**. Protection is configured as a repo
+**ruleset** named `Base` targeting the default branch, not as a
+legacy branch-protection rule. In force: `required_signatures`,
+`non_fast_forward`, `deletion`, `pull_request` (1 approval,
+code-owner review required), and `required_deployments` (`preview`).
+
+**Where to look, because the obvious places lie.** Settings →
+**Branches** reads empty for a ruleset-governed repo, and so does the
+legacy `repos/.../branches/main/protection` API. Neither is evidence
+that protection is missing. Rulesets live under Settings → **Rules**
+→ **Rulesets**; `docs/security.md` § Commit signing has the `gh api`
+calls that tell the truth.
+
+**The remaining gap**: the ruleset has no `required_status_checks`
+rule, so nothing on the platform side stops a PR merging with red CI.
+Adding it is the one thing left, and it is what unblocks ADR 0004's
+Renovate revisit. `docs/ci.md` § Status checks lists which checks to
+mark required; ADR 0004's second postscript has the rollout sequence.
+
+**Open question for the author**: the live `Base` ruleset has bypass
+actors configured, while the original step 3 below called for "Do not
+allow bypassing the above settings", even for admins. Whether the
+bypass is deliberate or a leftover from setup has not been decided.
+Recorded here rather than resolved in either direction.
+
+<details>
+<summary>Original Phase 0 steps (legacy branch-protection UI, superseded by the ruleset)</summary>
 
 1. GitHub repo → **Settings** → **Branches** → **Add branch
    protection rule**.
@@ -487,6 +514,15 @@ curl -s -H 'accept: application/dns-json' \
 5. Flip Renovate's `platformAutomerge: false` → `true` in
    `renovate.json` so it can self-merge patch bumps that pass CI.
    See ADR 0004's postscript for the safe-rollout sequence.
+
+Two of these are wrong as well as superseded. Step 3's "Do not allow
+bypassing" is not what was configured — see the open question above.
+Step 5 contradicts ADR 0004: `platformAutomerge` stays `false` until
+`required_status_checks` exists, and flipping it before then
+re-introduces the exact merge-before-CI failure that ADR was written
+to prevent.
+
+</details>
 
 ### Best practices
 

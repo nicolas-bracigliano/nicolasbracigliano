@@ -90,10 +90,12 @@ filter logic — it doesn't bypass it.
 
 ## Status checks — required vs informational
 
-When **branch protection** lands on `main` (Phase-0 Step 8 in
-`docs/phase-0-infrastructure.md` — available since the repo went
-public on 2026-05-25), these are the checks to mark as
-**required**:
+**Branch protection** landed on `main` on 2026-05-25 (the `Base`
+ruleset — see `docs/security.md` § Branch protection, and Phase-0
+Step 8 in `docs/phase-0-infrastructure.md`), but it carries no
+`required_status_checks` rule. Nothing on the platform side stops a
+PR merging with red CI today. When that rule is added, these are the
+checks to mark as **required**:
 
 | Check name                     | Required | Why                                                                                                                                                                                    |
 | ------------------------------ | -------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
