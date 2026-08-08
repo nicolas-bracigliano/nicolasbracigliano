@@ -24,6 +24,10 @@
 /_astro/*
   Cache-Control: public, max-age=31536000, immutable
 
+# Not content-hashed — the two filenames are fixed and `pnpm subset-fonts`
+# overwrites them in place. What makes `immutable` honest here is the `?v=N`
+# every reference carries (src/styles/fonts.css and the preload pair in
+# src/layouts/BaseLayout.astro); bump it whenever the bytes change.
 /fonts/*
   Cache-Control: public, max-age=31536000, immutable
 
