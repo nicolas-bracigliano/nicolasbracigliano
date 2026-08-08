@@ -1,6 +1,6 @@
 # Changelog
 
-## [1.25.0](https://github.com/nicolas-bracigliano/nicolasbracigliano/compare/v1.24.8...v1.25.0) (2026-08-07)
+## [1.25.0](https://github.com/nicolas-bracigliano/nicolasbracigliano/compare/v1.24.8...v1.25.0) (2026-08-08)
 
 
 ### Features
@@ -13,6 +13,8 @@
 
 ### Bug Fixes
 
+* **fonts:** version the font URLs so a re-subset can bust the cache ([3227bf5](https://github.com/nicolas-bracigliano/nicolasbracigliano/commit/3227bf552715412c927b7b0c3c3d3372cd27b6b3))
+* **fonts:** version the font URLs so immutable is an honest promise ([3fb068e](https://github.com/nicolas-bracigliano/nicolasbracigliano/commit/3fb068ef82551732f311efe4e93b604469d87c36))
 * **meta:** address review findings on the head-metadata PR ([638b969](https://github.com/nicolas-bracigliano/nicolasbracigliano/commit/638b9694a33d324066112afd707524d365144a31))
 
 ## [1.24.8](https://github.com/nicolas-bracigliano/nicolasbracigliano/compare/v1.24.7...v1.24.8) (2026-08-03)
