@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.25.1](https://github.com/nicolas-bracigliano/nicolasbracigliano/compare/v1.25.0...v1.25.1) (2026-08-09)
+
+
+### Bug Fixes
+
+* **i18n:** honour q=0 rejection and the wildcard in Accept-Language ([f583f59](https://github.com/nicolas-bracigliano/nicolasbracigliano/commit/f583f59d3362ee80c7c068e840d7c39d0567763b))
+
 ## [1.25.0](https://github.com/nicolas-bracigliano/nicolasbracigliano/compare/v1.24.8...v1.25.0) (2026-08-08)
 
 
