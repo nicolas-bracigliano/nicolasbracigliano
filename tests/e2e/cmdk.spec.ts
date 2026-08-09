@@ -43,6 +43,23 @@ test.describe('command palette', () => {
     await expect(page).toHaveURL(/\/en\/colophon\/$/);
   });
 
+  test('hovering a row makes it the active one', async ({ page }) => {
+    // Guards the `isOpen` fast negative in cmdk.ts: `mousemove` bails on the
+    // flag before touching the DOM, so a flag that never flipped true would
+    // kill hover highlighting silently — the palette would still open, still
+    // filter, still navigate by keyboard, and every other test here would
+    // pass. Pointer and keyboard share one highlight, so this also pins that.
+    await page.goto('/en/');
+    await page.keyboard.press('Control+k');
+    const rows = page.locator('.cmdk-item');
+    await expect(rows.first()).toHaveClass(/active/);
+
+    await rows.nth(2).hover();
+    await expect(rows.nth(2)).toHaveClass(/active/);
+    await expect(rows.nth(2)).toHaveAttribute('aria-selected', 'true');
+    await expect(rows.first()).not.toHaveClass(/active/);
+  });
+
   test('escape closes and returns focus to the trigger', async ({ page }) => {
     await page.goto('/en/');
     await page.locator('.cmdk-trigger').click();
