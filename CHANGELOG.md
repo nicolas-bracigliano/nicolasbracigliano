@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.25.2](https://github.com/nicolas-bracigliano/nicolasbracigliano/compare/v1.25.1...v1.25.2) (2026-08-10)
+
+
+### Documentation
+
+* reconcile the analytics and branch-protection claims left behind ([0b9257d](https://github.com/nicolas-bracigliano/nicolasbracigliano/commit/0b9257d6c520b5cf151852f6e0bf40940569858e))
+
 ## [1.25.1](https://github.com/nicolas-bracigliano/nicolasbracigliano/compare/v1.25.0...v1.25.1) (2026-08-09)
 
 
