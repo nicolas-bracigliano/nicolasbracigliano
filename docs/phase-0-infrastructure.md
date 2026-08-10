@@ -176,6 +176,13 @@ curl -I https://nicolasbracigliano.com/en/
 
 ## Step 3 — DNSSEC
 
+**Status**: done — live and validating. The DS record is published at
+the TLD (keytag `2371`, `ECDSAP256SHA256`, digest type 2) and
+resolvers return `AD: true`, so the chain resolves end to end rather
+than merely being configured. Verified 2026-07-30; `docs/security.md`
+§ DNSSEC is the current record. The steps below stay as written
+because they are still the recipe for a fresh domain.
+
 **Goal**: chain-of-trust signatures on every DNS response, so a
 hostile resolver can't spoof `nicolasbracigliano.com`'s records.
 
@@ -203,11 +210,16 @@ hostile resolver can't spoof `nicolasbracigliano.com`'s records.
 ### Verification
 
 ```sh
-dig +dnssec nicolasbracigliano.com
-# Look for RRSIG records in the ANSWER section.
+# Use DoH, not dig: the origin network intercepts port-53 DNS and can
+# serve forged or stale answers even against an explicit
+# @authoritative server, which makes a working chain look broken
+# (see `docs/security.md` § DNSSEC).
+curl -sS -H 'accept: application/dns-json' \
+  'https://cloudflare-dns.com/dns-query?name=nicolasbracigliano.com&type=DS&do=true'
+# → "AD": true, plus the DS record you pasted into the registrar.
 
-dig DS nicolasbracigliano.com @8.8.8.8 +short
-# Should show the same digest you pasted into the registrar.
+# `dig +dnssec` is the textbook command. Use it to cross-confirm a DoH
+# result, never as the sole signal.
 
 # Or via a one-shot online checker:
 # https://dnssec-analyzer.verisignlabs.com/nicolasbracigliano.com
@@ -219,10 +231,37 @@ on resolvers that enforce (~20% of public traffic).
 
 ---
 
-## Step 4 — Cloudflare Web Analytics
+## Step 4 — Analytics
 
-**Goal**: per-page traffic analytics without shipping any JavaScript
-to the browser. Cloudflare counts requests at the edge.
+**Status**: corrected 2026-07-30 — **do not follow the original
+steps below**. Cloudflare **Web Analytics** has no server-side mode.
+Both of its setup modes load a beacon from
+`https://static.cloudflareinsights.com/beacon.min.js`; "Automatic
+setup" only means Cloudflare injects the tag into your HTML at the
+edge instead of you pasting it in. Under this site's
+`script-src 'self'` the script is blocked outright, so following the
+step as written produces a console violation and zero data.
+
+**Goal** (unchanged): per-page traffic figures without shipping any
+JavaScript to the browser.
+
+**What actually delivers it**: nothing to click in the Web Analytics
+UI.
+
+- **Zone Traffic analytics** (zone → **Analytics & Logs** →
+  **Traffic**) is the genuinely server-side surface — request /
+  bandwidth / country / status-code stats read off edge logs. It is
+  on by default for any proxied zone, so Step 2 already turned it on.
+- **Page-level views** come from **Workers Logs** instead
+  (`[observability]` in `wrangler.toml`, already `enabled = true`),
+  which is why `run_worker_first` lists the `/en/*` and `/es/*`
+  prefixes.
+
+[`docs/security.md` § Analytics](./security.md#analytics) has the full
+trade-off, the CSP reasoning, and why the beacon route stays closed.
+
+<details>
+<summary>Original Phase 0 steps (Web Analytics "server-side mode", which does not exist)</summary>
 
 1. In Cloudflare: left sidebar → **Analytics & Logs** → **Web
    Analytics**. Click **Manage site** for `nicolasbracigliano.com`.
@@ -233,12 +272,19 @@ to the browser. Cloudflare counts requests at the edge.
 3. Save. Analytics start populating within a few minutes of the
    first request hitting the deployed site.
 
+Kept as the record of what Phase 0 believed. Step 2 is the error: the
+picker offers "Automatic setup" and "Manual setup", both beacon-based.
+
+</details>
+
 ### Best practices
 
-- **Server-side analytics has no PII by design.** No cookies, no
-  fingerprinting, no GDPR consent banner needed. Don't add Google
-  Analytics or Plausible "for completeness" — the design system §
-  doesn't want client-side tracking JS.
+- **Keep analytics server-side.** Zone Traffic analytics and Workers
+  Logs carry no PII by design: no cookies, no fingerprinting, no GDPR
+  consent banner needed. Don't add Google Analytics or Plausible "for
+  completeness", and don't reach for Cloudflare's Web Analytics as a
+  substitute — the design system § doesn't want client-side tracking
+  JS, and the CSP won't load it anyway.
 - **Don't enable bot-mode "I'm Under Attack"** unless you actually
   see a sustained attack. It triggers a JS challenge on every visit,
   which violates the no-JS-tracking budget and breaks the page-load
@@ -318,8 +364,9 @@ reachable at `preview-<worker-name>.<account>.workers.dev`.
 
 **Goal**: every commit you push to GitHub is signed with your SSH
 key. Pairs with the `pre-push` lefthook that refuses unsigned
-commits, and once GitHub branch protection lands (Step 8 below),
-becomes server-side-enforced.
+commits. Server-side enforcement is already live: the `Base` ruleset
+on `main` carries `required_signatures` (Step 8 below), so the hook
+is a fast local signal rather than the only line of defence.
 
 The `docs/security.md` file has the rationale + recipe; the steps
 below are the action set.
@@ -353,7 +400,7 @@ below are the action set.
   signing identity. Compromising one doesn't compromise the other.
 - **Don't sign on the GitHub web UI.** Edits via the web UI are
   always unsigned. Treat web edits as forbidden on `main`; the
-  upcoming branch protection rule (Step 8) rejects them.
+  `required_signatures` rule (Step 8) rejects them.
 
 ### Verification
 
@@ -433,8 +480,34 @@ curl -s -H 'accept: application/dns-json' \
 
 ## Step 8 — Branch protection
 
-**Status**: available — free since the repo went public on
-2026-05-25. Recommended once Step 6 (commit signing) is wired up.
+**Status**: done 2026-05-25, with one gap — **do not follow the
+original steps below**. Protection is configured as a repo
+**ruleset** named `Base` targeting the default branch, not as a
+legacy branch-protection rule. In force: `required_signatures`,
+`non_fast_forward`, `deletion`, `pull_request` (1 approval,
+code-owner review required), and `required_deployments` (`preview`).
+
+**Where to look, because the obvious places lie.** Settings →
+**Branches** reads empty for a ruleset-governed repo, and so does the
+legacy `repos/.../branches/main/protection` API. Neither is evidence
+that protection is missing. Rulesets live under Settings → **Rules**
+→ **Rulesets**; `docs/security.md` § Commit signing has the `gh api`
+calls that tell the truth.
+
+**The remaining gap**: the ruleset has no `required_status_checks`
+rule, so nothing on the platform side stops a PR merging with red CI.
+Adding it is the one thing left, and it is what unblocks ADR 0004's
+Renovate revisit. `docs/ci.md` § Status checks lists which checks to
+mark required; ADR 0004's second postscript has the rollout sequence.
+
+**Open question for the author**: the live `Base` ruleset has bypass
+actors configured, while the original step 3 below called for "Do not
+allow bypassing the above settings", even for admins. Whether the
+bypass is deliberate or a leftover from setup has not been decided.
+Recorded here rather than resolved in either direction.
+
+<details>
+<summary>Original Phase 0 steps (legacy branch-protection UI, superseded by the ruleset)</summary>
 
 1. GitHub repo → **Settings** → **Branches** → **Add branch
    protection rule**.
@@ -454,6 +527,15 @@ curl -s -H 'accept: application/dns-json' \
    `renovate.json` so it can self-merge patch bumps that pass CI.
    See ADR 0004's postscript for the safe-rollout sequence.
 
+Two of these are wrong as well as superseded. Step 3's "Do not allow
+bypassing" is not what was configured — see the open question above.
+Step 5 contradicts ADR 0004: `platformAutomerge` stays `false` until
+`required_status_checks` exists, and flipping it before then
+re-introduces the exact merge-before-CI failure that ADR was written
+to prevent.
+
+</details>
+
 ### Best practices
 
 - **Don't enable `Require linear history`** unless you're sure.
@@ -471,10 +553,15 @@ Run all of these after Steps 1–7 are done. If anything fails, fix
 that step before continuing to Phase 2.
 
 ```sh
-# DNS + DNSSEC
-dig nicolasbracigliano.com NS +short        # 2 cloudflare names
-dig +dnssec nicolasbracigliano.com          # RRSIG present
-dig DS nicolasbracigliano.com @8.8.8.8 +short
+# DNS + DNSSEC — over DoH, not dig. The origin network intercepts
+# port-53 DNS (see `docs/security.md` § DNSSEC); dig cross-confirms
+# but doesn't decide.
+curl -sS -H 'accept: application/dns-json' \
+  'https://cloudflare-dns.com/dns-query?name=nicolasbracigliano.com&type=NS'
+# → 2 cloudflare names
+curl -sS -H 'accept: application/dns-json' \
+  'https://cloudflare-dns.com/dns-query?name=nicolasbracigliano.com&type=DS&do=true'
+# → "AD": true, plus a DS record in Answer
 
 # HTTPS + security headers
 curl -I https://nicolasbracigliano.com/en/  # 200, server: cloudflare,

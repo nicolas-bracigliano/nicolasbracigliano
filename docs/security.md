@@ -131,7 +131,9 @@ if `Expires` is < 30 days away.
 
 **Status**: zone is live and proxied (verified 2026-06-03 — Cloudflare
 authoritative NS, apex on Cloudflare anycast, `server: cloudflare` +
-`cf-ray` on every response). Page-level Web Analytics not yet toggled on.
+`cf-ray` on every response). Page-level Web Analytics is **not** in use and
+**cannot** be adopted without widening the CSP — see the Web Analytics bullet
+below. Page-level metrics come from Worker invocation logs instead.
 
 Because the domain is a fully proxied zone, two server-side surfaces are
 available with no JS, no cookies, no CSP loosening, no PII:
@@ -256,8 +258,12 @@ removed from runners on 2026-09-16.
 The action runs `gitleaks detect` over the **full git history**, so it sees
 field names that current files no longer use. `translationKey` was renamed to
 `translationId` in #88, but historical commits still carry `translationKey:`
-lines, which trip the default `generic-api-key` rule (the `…Key` gotcha in
-CLAUDE.md). History is immutable, so `.gitleaks.toml` at the repo root
+lines, which trip the default `generic-api-key` rule: it fires on any field
+name containing `key` / `secret` / `token` paired with an entropic value, and
+a kebab-slug plus a date clears the entropy threshold. Name non-secret
+identifiers `Id` / `Identifier` / `Ref` and the rule never sees them —
+renaming the field is more robust than allow-listing the rule, which is what
+#88 did. History is immutable, so `.gitleaks.toml` at the repo root
 allow-lists that specific field assignment (kebab-slug value only) rather than
 the rule or the files — a real high-entropy secret on any other line, or even
 on a `translationKey:` line, still trips. The local pre-commit hook runs
@@ -281,16 +287,23 @@ The `public/_headers` file uses Cloudflare/Netlify syntax. If you ever move the
 site, this table is the host-neutral source of truth for what each directive
 needs to look like on the new host. Update both columns in lock-step.
 
+One caveat on the HSTS row: on Cloudflare the served value comes from the
+zone (SSL/TLS → Edge Certificates), not from `_headers`. The value here
+mirrors the `_headers` fallback, which is what a host without a zone-level
+override would actually serve. Keep `max-age` at a year or more or `preload`
+stops being valid.
+
 | Logical directive              | Cloudflare/Netlify `_headers`                                                                         | Vercel `vercel.json` `headers`                                           | nginx                                                                  |
 | ------------------------------ | ----------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------ | ---------------------------------------------------------------------- |
 | Strict CSP (script-src strict) | `Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; …` | `{ "key": "Content-Security-Policy", "value": "default-src 'self'; …" }` | `add_header Content-Security-Policy "default-src 'self'; …" always;`   |
-| HSTS preload                   | `Strict-Transport-Security: max-age=63072000; includeSubDomains; preload`                             | same value, JSON object                                                  | `add_header Strict-Transport-Security "…" always;`                     |
+| HSTS preload                   | `Strict-Transport-Security: max-age=31536000; includeSubDomains; preload`                             | same value, JSON object                                                  | `add_header Strict-Transport-Security "…" always;`                     |
 | MIME sniffing off              | `X-Content-Type-Options: nosniff`                                                                     | same                                                                     | `add_header X-Content-Type-Options nosniff always;`                    |
 | Referrer policy                | `Referrer-Policy: strict-origin-when-cross-origin`                                                    | same                                                                     | `add_header Referrer-Policy "strict-origin-when-cross-origin" always;` |
 | Permissions policy             | `Permissions-Policy: accelerometer=(), camera=(), …`                                                  | same                                                                     | `add_header Permissions-Policy "…" always;`                            |
 | Cross-origin opener            | `Cross-Origin-Opener-Policy: same-origin`                                                             | same                                                                     | `add_header Cross-Origin-Opener-Policy same-origin always;`            |
 | Cross-origin resource          | `Cross-Origin-Resource-Policy: same-origin`                                                           | same                                                                     | `add_header Cross-Origin-Resource-Policy same-origin always;`          |
 | Frame deny                     | `X-Frame-Options: DENY`                                                                               | same                                                                     | `add_header X-Frame-Options DENY always;`                              |
+| Immutable build assets         | `/_astro/* … Cache-Control: public, max-age=31536000, immutable`                                      | `source: "/_astro/(.*)"`                                                 | same shape                                                             |
 | Immutable fonts                | `/fonts/* … Cache-Control: public, max-age=31536000, immutable`                                       | `source: "/fonts/(.*)"`                                                  | same shape                                                             |
 
 ### CSP delivery — \_headers only
@@ -323,7 +336,11 @@ url(evil.com)` exfiltration vector).
 Cloudflare (originally Pages, now Workers Static Assets after PR #49 — see [ADR 0001 postscript](./decisions/0001-cloudflare-pages.md)) was chosen because:
 
 - Free tier covers a personal site indefinitely.
-- Server-side Web Analytics (zero JS, zero cookies) is unique to Cloudflare.
+- Server-side **zone traffic** analytics (aggregated from edge logs: zero JS,
+  zero cookies, no CSP loosening) comes free with any proxied zone, and that
+  is a genuine Cloudflare advantage. It is the _zone-level_ product only. The
+  page-level **Web Analytics** product is beacon-based in both setup modes and
+  is unusable here — see [Analytics](#analytics).
 - DNSSEC + HSTS preload + edge DDoS protection are first-class.
 - A small Worker (`src/worker.ts`) handles the `/` Accept-Language
   redirect — no SSR adapter, no framework lock-in for the rest of the site.
