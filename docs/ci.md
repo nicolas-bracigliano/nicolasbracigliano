@@ -90,10 +90,12 @@ filter logic — it doesn't bypass it.
 
 ## Status checks — required vs informational
 
-When **branch protection** lands on `main` (Phase-0 Step 8 in
-`docs/phase-0-infrastructure.md` — available since the repo went
-public on 2026-05-25), these are the checks to mark as
-**required**:
+**Branch protection** landed on `main` on 2026-05-25 (the `Base`
+ruleset — see `docs/security.md` § Branch protection, and Phase-0
+Step 8 in `docs/phase-0-infrastructure.md`), but it carries no
+`required_status_checks` rule. Nothing on the platform side stops a
+PR merging with red CI today. When that rule is added, these are the
+checks to mark as **required**:
 
 | Check name                     | Required | Why                                                                                                                                                                                    |
 | ------------------------------ | -------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -152,8 +154,10 @@ versions upload --preview-alias=preview`. Both emit a
     route list is derived at runtime by `scripts/smoke-routes.ts`
     so it tracks `routes.ts` and content additions without a
     parallel hardcoded list. Retry-on-4xx (six attempts × 3 s)
-    handles the post-deploy asset-propagation window per the
-    CLAUDE.md gotcha.
+    handles the post-deploy propagation window, where a
+    just-deployed URL 404s while its siblings serve. `fetch()` and
+    `curl --retry` don't retry 4xx, so `smoke-routes.ts` rolls its
+    own loop — deliberate, don't simplify it away.
   - **Body content**: `/en/` response must contain `<title>` and
     the wordmark string `Bracigliano`. Catches an Astro build
     that silently emitted empty pages.

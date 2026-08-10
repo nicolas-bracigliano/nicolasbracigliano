@@ -1,6 +1,9 @@
 {
   "name": "Nicolas Bracigliano",
   "short_name": "Nicolas",
+  "id": "/",
+  "lang": "en",
+  "scope": "/",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#f6f4ef",

@@ -2,7 +2,14 @@
 // Imported by `chrome.ts` (which wires them up to the runtime) and by
 // `tests/unit/theme.test.ts` (which exercises them in isolation).
 
-export type Theme = 'dia' | 'noche';
+// `Theme` and `THEME_COLOR` live in `@lib/theme-tokens` so that
+// `BaseLayout.astro` can reach them too — see that file for why. Re-exported
+// here so existing `./theme` importers (chrome.ts, the unit test) are
+// unaffected by where the constant physically sits.
+export type { Theme } from '@lib/theme-tokens';
+export { THEME_COLOR } from '@lib/theme-tokens';
+
+import type { Theme } from '@lib/theme-tokens';
 
 /** Validate a raw localStorage value. Anything other than `'dia'` or
  *  `'noche'` is treated as no stored preference. */

@@ -13,8 +13,23 @@
 import { readFileSync } from 'node:fs';
 
 /** Parse a named block (e.g. `/*`) from a Cloudflare `_headers` file into a
- *  name->value map. Skips `#` comments and stops at the next path or a blank
- *  line — the same shape Cloudflare's own parser recognises. */
+ *  map keyed by LOWERCASED header name. Use `headerValue()` to read from it
+ *  rather than indexing directly, so callers can't reintroduce a
+ *  case-sensitive lookup.
+ *
+ *  Deliberately mirrors Cloudflare's own parser, which this originally did
+ *  not. Two divergences mattered and both let a real rule slip past the
+ *  guards silently:
+ *
+ *   1. Cloudflare trims every line and lowercases header names. Keying on the
+ *      verbatim spelling meant `cache-control:` (lowercase — legal, and what
+ *      Cloudflare normalises to anyway) parsed into a key no assertion looked
+ *      at, so `immutable` on a non-hashed path passed the guard.
+ *   2. Cloudflare continues a rule past blank lines until the next path line.
+ *      Breaking on the first blank line hid every header after it.
+ *
+ *  Indentation is irrelevant to Cloudflare, so it is irrelevant here: a line
+ *  is a new block iff it parses as a path (starts with `/` or a scheme). */
 export function parseHeadersBlock(raw: string, path: string): Record<string, string> {
   const lines = raw.split('\n');
   const start = lines.findIndex((l) => l.trim() === path);
@@ -22,14 +37,26 @@ export function parseHeadersBlock(raw: string, path: string): Record<string, str
   const block: Record<string, string> = {};
   for (let i = start + 1; i < lines.length; i++) {
     const line = lines[i];
-    // End of block: a non-indented line (next path) or a blank line.
-    if (line === undefined || line.trim() === '' || !/^\s/.test(line)) break;
-    if (line.trim().startsWith('#')) continue; // comment
-    const idx = line.indexOf(':');
+    if (line === undefined) break;
+    const trimmed = line.trim();
+    if (trimmed === '') continue; // blank lines do NOT end a rule
+    if (trimmed.startsWith('#')) continue; // comment
+    if (isBlockPath(trimmed)) break; // next rule begins
+    const idx = trimmed.indexOf(':');
     if (idx === -1) continue;
-    block[line.slice(0, idx).trim()] = line.slice(idx + 1).trim();
+    block[trimmed.slice(0, idx).trim().toLowerCase()] = trimmed.slice(idx + 1).trim();
   }
   return block;
+}
+
+/** Case-insensitive read of a header from a parsed block. */
+export function headerValue(block: Record<string, string>, name: string): string | undefined {
+  return block[name.toLowerCase()];
+}
+
+/** A `_headers` line is a rule path if it names a path or a full URL. */
+function isBlockPath(trimmed: string): boolean {
+  return trimmed.startsWith('/') || /^https?:\/\//i.test(trimmed);
 }
 
 /** Every path block declared in a `_headers` file, in source order. A block
@@ -38,8 +65,8 @@ export function parseHeadersBlock(raw: string, path: string): Record<string, str
 export function headerBlockPaths(raw: string): string[] {
   return raw
     .split('\n')
-    .filter((l) => l.trim() !== '' && !/^\s/.test(l) && !l.trim().startsWith('#'))
-    .map((l) => l.trim());
+    .map((l) => l.trim())
+    .filter((l) => l !== '' && !l.startsWith('#') && isBlockPath(l));
 }
 
 /** Read the repo's `public/_headers` once, as raw text. */

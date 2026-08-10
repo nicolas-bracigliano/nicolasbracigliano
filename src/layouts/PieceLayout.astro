@@ -110,7 +110,10 @@ const titleHtml = renderTitle(title);
   path={path}
   siblingPath={siblingPath}
   ogImage={ogImage}
+  ogType="article"
+  publishedTime={entry.data.date}
   {...lede && { description: lede }}
+  {...entry.data.updated && { modifiedTime: entry.data.updated }}
 >
   <article class="piece-page" id="piece-top">
     <header class="piece-head">

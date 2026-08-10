@@ -20,6 +20,15 @@
   theme = theme || 'dia';
   document.documentElement.dataset.theme = theme;
 
+  /* Repoint <meta name="theme-color"> at the resolved theme, before
+   * paint, so mobile browser chrome matches the page instead of lagging
+   * a frame behind. The SSR ships the Día value (see BaseLayout for why
+   * it is a single tag and not a prefers-color-scheme media pair).
+   * Hexes mirror `--bg` in tokens.css; `tests/unit/theme.test.ts` pins
+   * them against that file so this copy can't drift silently. */
+  var meta = document.querySelector('meta[name="theme-color"]');
+  if (meta) meta.setAttribute('content', theme === 'noche' ? '#14130f' : '#f6f4ef');
+
   /* Sync the toggle's aria-checked the moment the DOM finishes
    * parsing — the SSR ships `aria-checked="false"` (a default the
    * server can't personalise), so screen readers landing on a

@@ -35,7 +35,7 @@ rules = [{ type = "Text", globs = ["**/.well-known/security.txt"], fallthrough =
 # Worker deployment; static files (HTML, CSS, fonts, OG PNGs,
 # the ⌘K search index at /cmdk/*.json) are served from Cloudflare's
 # edge without invoking the Worker — assets win for every path that has
-# one, except the two explicitly listed in `run_worker_first` below.
+# one, except the four explicitly listed in `run_worker_first` below.
 directory = "./dist"
 
 # When no asset matches a request, serve the built `dist/404.html`

@@ -1,6 +1,10 @@
 import rss from '@astrojs/rss';
 import { getCollection } from 'astro:content';
 import type { APIContext } from 'astro';
+// Title/description/language live in `@lib/feeds` so the autodiscovery
+// `<link rel="alternate">` in BaseLayout can't drift from this feed's
+// own <title>. See that file's header.
+import { FEEDS } from '@lib/feeds';
 
 export async function GET(context: APIContext) {
   const notes = await getCollection(
@@ -21,10 +25,10 @@ export async function GET(context: APIContext) {
     }));
 
   return rss({
-    title: 'Nicolas Bracigliano — notes & pieces (EN)',
-    description: 'Notes and pieces from a senior software engineer in Melbourne.',
+    title: FEEDS.en.title,
+    description: FEEDS.en.description,
     site: context.site ?? 'https://nicolasbracigliano.com',
     items,
-    customData: '<language>en-au</language>',
+    customData: `<language>${FEEDS.en.language}</language>`,
   });
 }

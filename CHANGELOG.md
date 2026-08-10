@@ -1,5 +1,29 @@
 # Changelog
 
+## [1.25.1](https://github.com/nicolas-bracigliano/nicolasbracigliano/compare/v1.25.0...v1.25.1) (2026-08-09)
+
+
+### Bug Fixes
+
+* **i18n:** honour q=0 rejection and the wildcard in Accept-Language ([f583f59](https://github.com/nicolas-bracigliano/nicolasbracigliano/commit/f583f59d3362ee80c7c068e840d7c39d0567763b))
+
+## [1.25.0](https://github.com/nicolas-bracigliano/nicolasbracigliano/compare/v1.24.8...v1.25.0) (2026-08-08)
+
+
+### Features
+
+* **meta:** advertise both RSS feeds for autodiscovery ([195d311](https://github.com/nicolas-bracigliano/nicolasbracigliano/commit/195d311caf5751af8f467dd03c542c57151ce964))
+* **meta:** article metadata, RSS autodiscovery and theme-color ([013b5e1](https://github.com/nicolas-bracigliano/nicolasbracigliano/commit/013b5e10e1887f802487c2acb7df769a1f3f7094))
+* **meta:** mark dated long-form as og:type article ([508cab4](https://github.com/nicolas-bracigliano/nicolasbracigliano/commit/508cab4bdee889db99449a70259103733900d00c))
+* **meta:** tint mobile browser chrome to the active theme ([a847630](https://github.com/nicolas-bracigliano/nicolasbracigliano/commit/a847630630b6d9c35f27e11c4f77e96203e3c819))
+
+
+### Bug Fixes
+
+* **fonts:** version the font URLs so a re-subset can bust the cache ([3227bf5](https://github.com/nicolas-bracigliano/nicolasbracigliano/commit/3227bf552715412c927b7b0c3c3d3372cd27b6b3))
+* **fonts:** version the font URLs so immutable is an honest promise ([3fb068e](https://github.com/nicolas-bracigliano/nicolasbracigliano/commit/3fb068ef82551732f311efe4e93b604469d87c36))
+* **meta:** address review findings on the head-metadata PR ([638b969](https://github.com/nicolas-bracigliano/nicolasbracigliano/commit/638b9694a33d324066112afd707524d365144a31))
+
 ## [1.24.8](https://github.com/nicolas-bracigliano/nicolasbracigliano/compare/v1.24.7...v1.24.8) (2026-08-03)
 
 

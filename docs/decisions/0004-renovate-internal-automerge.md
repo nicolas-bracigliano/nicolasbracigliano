@@ -1,6 +1,6 @@
 # 0004 — Renovate uses internal merger, not `platformAutomerge`
 
-**Status**: Accepted — pending revisit. The original justification (branch protection unavailable on a private repo without GitHub Pro) evaporated when the repo went public on 2026-05-25. See the **Postscript** for the revisit conditions; the flag still reads `platformAutomerge: false` until branch protection is configured and validated.
+**Status**: Accepted — pending revisit. The original justification (branch protection unavailable on a private repo without GitHub Pro) evaporated when the repo went public on 2026-05-25, and branch protection was configured that same day (the `Base` ruleset). See the **second Postscript** for what is still blocking: the ruleset carries no `required_status_checks` rule, so the flag stays `platformAutomerge: false` until one is added and the migration validated.
 **Date**: 2026-05-22
 
 ## Context
@@ -22,11 +22,11 @@ At the time this ADR was written, the repo was **private** and we didn't have Gi
 
 ## Alternatives considered
 
-| Option                                                   | Why not                                                                                                                                                                                                                                                     |
-| -------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **`platformAutomerge: true` + GitHub branch protection** | The right answer once branch protection is configured. The repo became public on 2026-05-25, making branch protection free and available — but the flag stays `false` until the protection rules are set up and the migration validated. See Postscript.    |
-| **`automerge: false` (no automerge at all)**             | The CI gates (typecheck, lint, 29 unit + 32 e2e, build, Lighthouse, axe a11y, html-validate, audit) are _exactly_ the rigorous checks that make automerge safe. Disabling it makes every dep update a human chore — defeating the point of investing in CI. |
-| **Manual review of every Renovate PR**                   | Hours of weekly toil for a one-person project. No.                                                                                                                                                                                                          |
+| Option                                                   | Why not                                                                                                                                                                                                                                                                                                                                                                                                                             |
+| -------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **`platformAutomerge: true` + GitHub branch protection** | The right answer once branch protection requires the CI checks. The repo became public on 2026-05-25, making branch protection free and available. _Amended 2026-08-07: it was configured the same day (the `Base` ruleset), so the blocker is narrower than this row read — the ruleset has no `required_status_checks` rule, and the flag stays `false` until it does and the migration is validated._ See the second Postscript. |
+| **`automerge: false` (no automerge at all)**             | The CI gates (typecheck, lint, 29 unit + 32 e2e, build, Lighthouse, axe a11y, html-validate, audit) are _exactly_ the rigorous checks that make automerge safe. Disabling it makes every dep update a human chore — defeating the point of investing in CI.                                                                                                                                                                         |
+| **Manual review of every Renovate PR**                   | Hours of weekly toil for a one-person project. No.                                                                                                                                                                                                                                                                                                                                                                                  |
 
 ## Consequences
 
@@ -39,14 +39,14 @@ At the time this ADR was written, the repo was **private** and we didn't have Gi
 
 - Automerge works _correctly_ without depending on a feature we don't have.
 - All CI gates run before merge — same safety properties as platform automerge with branch protection, achieved differently.
-- One less thing to configure when we eventually add branch protection. The flag exists, ready to flip.
+- One less thing to configure when the required-checks rule lands. The flag exists, ready to flip.
 
 ## When to revisit
 
-- Branch protection rules on `main` are configured (now possible — see Postscript).
+- A `required_status_checks` rule is added to the `Base` ruleset on `main`. Branch protection itself has been configured since 2026-05-25; this rule is the single piece still missing, and it is the piece this ADR depends on. See the second Postscript.
 - Renovate's internal merger develops a bug or limitation that makes platform automerge the only viable option.
 
-When any of those happen: flip `platformAutomerge: false` → `true` in `renovate.json` and configure the branch protection. No other code changes required.
+When any of those happen: flip `platformAutomerge: false` → `true` in `renovate.json` and add the required-checks rule to the ruleset. No other code changes required.
 
 ## Postscript — 2026-05-25
 

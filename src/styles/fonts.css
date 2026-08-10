@@ -11,13 +11,21 @@
  * `font-weight` is the instanced `wght`-axis span of each face — the source
  * variable fonts (Newsreader 200-800, JetBrains Mono 100-800) are trimmed by
  * `pnpm subset-fonts` to the weights the site actually uses (Newsreader
- * 400-600, JetBrains Mono 100-700), which keeps the pair under 80 KB. */
+ * 400-600, JetBrains Mono 100-700), which keeps the pair under 80 KB.
+ *
+ * The `?v=N` is the cache buster. `/fonts/*` is served
+ * `max-age=31536000, immutable` (public/_headers) but the filenames are fixed
+ * and `pnpm subset-fonts` overwrites them in place, so a re-subset needs a new
+ * URL or returning visitors keep the old face for a year. Bump N here AND in
+ * the two `<link rel="preload">` hrefs in src/layouts/BaseLayout.astro — the
+ * preload href must byte-match this `url()` or the browser fetches the font
+ * twice and the preload stops being used. */
 @font-face {
   font-family: Newsreader;
   font-style: normal;
   font-weight: 400 600;
   font-display: swap;
-  src: url('/fonts/newsreader-variable.woff2') format('woff2');
+  src: url('/fonts/newsreader-variable.woff2?v=1') format('woff2');
 }
 
 @font-face {
@@ -25,5 +33,5 @@
   font-style: normal;
   font-weight: 100 700;
   font-display: swap;
-  src: url('/fonts/jetbrains-mono-variable.woff2') format('woff2');
+  src: url('/fonts/jetbrains-mono-variable.woff2?v=1') format('woff2');
 }
