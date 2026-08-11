@@ -8,6 +8,7 @@ import FieldNotesSidebar from '@components/FieldNotesSidebar.astro';
 import Coffee from '@components/Coffee.astro';
 import Mate from '@components/Mate.astro';
 import { ROUTES } from '@lib/routes';
+import { FEEDS } from '@lib/feeds';
 import { getSibling, entryRouteFor } from '@lib/i18n';
 import { assertNowEntry, benchItemsFrom } from '@lib/now-items';
 import { buildLatest } from '@lib/latest-entries';
@@ -37,11 +38,18 @@ const [notes, works, pieces] = await Promise.all([
 ]);
 const latest = buildLatest({ note: notes, work: works, piece: pieces });
 
+// Feed hrefs come from `@lib/feeds`, the same source BaseLayout's
+// autodiscovery <link> and the two feed routes read. Typed out here they sat
+// outside every guard: `tests/unit/feeds.test.ts` pins FEEDS.path against the
+// route file that builds it, so renaming `rss-en.xml.ts` and FEEDS.en.path in
+// step stays green while these two links quietly 404.
+// `tests/unit/feed-path-single-source.test.ts` fails on a reintroduced literal.
+// Labels are author copy; only the hrefs are derived.
 const elsewhere = [
   { label: 'github', href: 'https://github.com/nicolas-bracigliano' },
   { label: 'maker world', href: 'https://makerworld.com/en/@NicoBrachi' },
-  { label: 'rss.xml', href: '/rss-en.xml', suffix: '(en)' },
-  { label: 'rss.xml', href: '/rss-es.xml', suffix: '(es)' },
+  { label: 'rss.xml', href: FEEDS.en.path, suffix: '(en)' },
+  { label: 'rss.xml', href: FEEDS.es.path, suffix: '(es)' },
 ];
 
 const reading = [{ title: 'Nexus', author: 'Yuval Noah Harari' }];

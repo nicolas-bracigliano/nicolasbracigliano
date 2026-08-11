@@ -8,6 +8,7 @@ import FieldNotesSidebar from '@components/FieldNotesSidebar.astro';
 import Coffee from '@components/Coffee.astro';
 import Mate from '@components/Mate.astro';
 import { ROUTES } from '@lib/routes';
+import { FEEDS } from '@lib/feeds';
 import { getSibling, entryRouteFor } from '@lib/i18n';
 import { assertNowEntry, benchItemsFrom } from '@lib/now-items';
 import { buildLatest } from '@lib/latest-entries';
@@ -37,11 +38,19 @@ const [notes, works, pieces] = await Promise.all([
 ]);
 const latest = buildLatest({ note: notes, work: works, piece: pieces });
 
+// Los href de los feeds salen de `@lib/feeds`, la misma fuente que leen el
+// <link> de autodescubrimiento de BaseLayout y las dos rutas de feed.
+// Escritos a mano acá quedaban fuera de todo control: `tests/unit/feeds.test.ts`
+// compara FEEDS.path contra el archivo de ruta que lo construye, así que
+// renombrar `rss-en.xml.ts` junto con FEEDS.en.path pasa en verde mientras
+// estos dos enlaces dan 404 en silencio.
+// `tests/unit/feed-path-single-source.test.ts` falla si vuelve un literal.
+// Las etiquetas son texto del autor; sólo los href se derivan.
 const elsewhere = [
   { label: 'github', href: 'https://github.com/nicolas-bracigliano' },
   { label: 'maker world', href: 'https://makerworld.com/en/@NicoBrachi' },
-  { label: 'rss.xml', href: '/rss-en.xml', suffix: '(en)' },
-  { label: 'rss.xml', href: '/rss-es.xml', suffix: '(es)' },
+  { label: 'rss.xml', href: FEEDS.en.path, suffix: '(en)' },
+  { label: 'rss.xml', href: FEEDS.es.path, suffix: '(es)' },
 ];
 
 const reading = [{ title: 'Nexus', author: 'Yuval Noah Harari' }];
