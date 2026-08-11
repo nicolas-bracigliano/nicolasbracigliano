@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.25.3](https://github.com/nicolas-bracigliano/nicolasbracigliano/compare/v1.25.2...v1.25.3) (2026-08-11)
+
+
+### Refactors
+
+* **feeds:** route in-page RSS links through the FEEDS source ([72937cc](https://github.com/nicolas-bracigliano/nicolasbracigliano/commit/72937ccc4e26cc6346028f293af8466ed53cefd0))
+
 ## [1.25.2](https://github.com/nicolas-bracigliano/nicolasbracigliano/compare/v1.25.1...v1.25.2) (2026-08-10)
 
 
