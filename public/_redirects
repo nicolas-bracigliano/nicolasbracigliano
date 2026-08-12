@@ -1,3 +1,7 @@
-# Normalize the unaccented variant of /es/colofón
-/es/colofon       /es/colofón       301
-/es/colofon/      /es/colofón/      301
+# Preserve the former Build notes routes.
+/en/colophon      /en/build/             301
+/en/colophon/     /en/build/             301
+/es/colof%C3%B3n       /es/como-esta-hecho/   301
+/es/colof%C3%B3n/      /es/como-esta-hecho/   301
+/es/colofon       /es/como-esta-hecho/   301
+/es/colofon/      /es/como-esta-hecho/   301

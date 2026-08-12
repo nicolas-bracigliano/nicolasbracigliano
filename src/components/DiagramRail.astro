@@ -23,6 +23,7 @@ import C4Level from './diagrams/C4Level.astro';
 import CprFramework from './diagrams/CprFramework.astro';
 import AgileRoadKnot from './diagrams/AgileRoadKnot.astro';
 import { isDiagramKey } from '@lib/diagram-registry';
+import type { Locale } from '@lib/routes';
 
 export interface DiagramRailItem {
   key: string;
@@ -43,9 +44,10 @@ export interface Props {
   /** Diagram entries to render in order. An unknown `key` is a
    *  build-time error (see file header). */
   items: readonly DiagramRailItem[];
+  locale: Locale;
 }
 
-const { items } = Astro.props;
+const { items, locale } = Astro.props;
 
 // Validate + resolve in one pass: `isDiagramKey` narrows `item.key` to
 // `DiagramKey`, so the resolved item is typed without a cast. An unknown
@@ -71,14 +73,14 @@ const resolved = items.map((item) => {
        BaseLayout's `description`. */
     resolved.map(({ key, caption }) => {
       const capProp = caption ? { caption } : {};
-      if (key === 'clean-arch-rings') return <CleanArchRings {...capProp} />;
-      if (key === 'c4-wheel') return <C4Wheel {...capProp} />;
-      if (key === 'c4-context') return <C4Level level={1} {...capProp} />;
-      if (key === 'c4-containers') return <C4Level level={2} {...capProp} />;
-      if (key === 'c4-components') return <C4Level level={3} {...capProp} />;
-      if (key === 'c4-code') return <C4Level level={4} {...capProp} />;
-      if (key === 'cpr-framework') return <CprFramework {...capProp} />;
-      if (key === 'agile-road-knot') return <AgileRoadKnot {...capProp} />;
+      if (key === 'clean-arch-rings') return <CleanArchRings locale={locale} {...capProp} />;
+      if (key === 'c4-wheel') return <C4Wheel locale={locale} {...capProp} />;
+      if (key === 'c4-context') return <C4Level level={1} locale={locale} {...capProp} />;
+      if (key === 'c4-containers') return <C4Level level={2} locale={locale} {...capProp} />;
+      if (key === 'c4-components') return <C4Level level={3} locale={locale} {...capProp} />;
+      if (key === 'c4-code') return <C4Level level={4} locale={locale} {...capProp} />;
+      if (key === 'cpr-framework') return <CprFramework locale={locale} {...capProp} />;
+      if (key === 'agile-road-knot') return <AgileRoadKnot locale={locale} {...capProp} />;
       // Exhaustive — TS narrows `key` to `never` here, so adding a new
       // REGISTRY_KEYS entry without a matching case fails TS-check with
       // a clear error.

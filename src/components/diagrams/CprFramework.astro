@@ -6,12 +6,30 @@
 // The hierarchy is bottom-up: Content is the first conversation; once
 // a pattern emerges, Pattern is the next; if patterns continue, the
 // conversation becomes Relationship-level.
+import type { Locale } from '@lib/routes';
+
 export interface Props {
   caption?: string;
   label?: string;
+  locale: Locale;
 }
-const { caption, label } = Astro.props;
+const { caption, label, locale } = Astro.props;
 const labelled = label !== undefined;
+const copy = {
+  en: {
+    relationship: 'trust, the bigger picture',
+    pattern: 'the recurring trend',
+    content: 'this one instance',
+    escalates: 'escalates',
+  },
+  es: {
+    relationship: 'confianza, panorama general',
+    pattern: 'la tendencia recurrente',
+    content: 'este caso puntual',
+    escalates: 'escala',
+  },
+} as const;
+const t = copy[locale];
 ---
 
 <figure
@@ -47,9 +65,9 @@ const labelled = label !== undefined;
       stroke-width="0.1"
       text-anchor="middle"
     >
-      <text x="120" y="52">trust, the bigger picture</text>
-      <text x="120" y="116">the recurring trend</text>
-      <text x="120" y="180">this one instance</text>
+      <text x="120" y="52">{t.relationship}</text>
+      <text x="120" y="116">{t.pattern}</text>
+      <text x="120" y="180">{t.content}</text>
     </g>
     {/* Escalation arrow on the right edge — bottom up. */}
     <g class="d-arrow">
@@ -63,7 +81,7 @@ const labelled = label !== undefined;
         font-style="italic"
         font-size="8"
         stroke-width="0.1"
-        text-anchor="middle">escalates</text
+        text-anchor="middle">{t.escalates}</text
       >
     </g>
   </svg>

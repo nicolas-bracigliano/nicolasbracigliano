@@ -26,6 +26,8 @@
 // already-verified list surfaces for no functional gain — left for the
 // writer to decide as a separate change.
 
+import { type WorkLifecycle, workLifecycleLabel } from './content-kinds.ts';
+
 type Locale = 'en' | 'es';
 
 /** The kinds this formatter distinguishes. Declared locally rather than
@@ -73,15 +75,18 @@ function shortMonth(date: Date, locale: Locale): string {
 }
 
 /** The date string for a latest-entries row. `lifecycle` only applies to
- *  works; an ongoing work renders "2026 · ongoing" (the raw lifecycle
- *  word, as `WorkCard` shows it — not localized) instead of a month. */
+ *  works; an ongoing work renders its localized status instead of a month. */
 export function formatEntryDate(
   date: Date,
-  { kind, lifecycle, locale }: { kind: EntryKind; lifecycle?: string | undefined; locale: Locale },
+  {
+    kind,
+    lifecycle,
+    locale,
+  }: { kind: EntryKind; lifecycle?: WorkLifecycle | undefined; locale: Locale },
 ): string {
   if (kind === 'work') {
     return lifecycle === 'ongoing'
-      ? `${year(date, locale)} · ${lifecycle}`
+      ? `${year(date, locale)} · ${workLifecycleLabel(lifecycle, locale)}`
       : shortMonth(date, locale);
   }
   return fullDate(date, locale);

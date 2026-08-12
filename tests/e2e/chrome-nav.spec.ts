@@ -18,7 +18,7 @@ test.describe('desktop chrome nav', () => {
     // as whitespace. Trim before comparing — the test is about the labels,
     // not the slash prefix (which has its own CSS rule + media-query test).
     const labels = (await items.allInnerTexts()).map((t) => t.trim());
-    expect(labels).toEqual(['home', 'notes', 'works', 'pieces', 'about', 'colophon']);
+    expect(labels).toEqual(['home', 'notes', 'works', 'pieces', 'about', 'build']);
   });
 
   test('foot-rail is hidden on desktop', async ({ page }) => {

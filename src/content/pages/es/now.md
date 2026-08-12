@@ -89,7 +89,7 @@ items:
   - kind: coffee
     where: 'en la taza · café + mate'
     title: 'Brimstone, y La Merced'
-    prose: 'A la mañana: 22 g entran, 38 g salen, 28-30 segundos. Brimstone, CommonFolks Mornington, mucho cuerpo con notas de chocolate, y tambien algo de frutos rojos y ciruela. Cerca de las 10:30, mate. La Merced Campo, amargo. Últimamente el cuello de botella es la máquina, no los granos.'
+    prose: 'A la mañana: 22 g entran, 38 g salen, 28-30 segundos. Brimstone, CommonFolks Mornington, mucho cuerpo con notas de chocolate, y también algo de frutos rojos y ciruela. Cerca de las 10:30, mate. La Merced Campo, amargo. Últimamente el cuello de botella es la máquina, no los granos.'
     detail:
       - dt: 'granos'
         dd: 'Brimstone · Uganda / Kenia'

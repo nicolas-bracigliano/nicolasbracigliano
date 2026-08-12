@@ -15,7 +15,7 @@
 //                   detail page too) + sticky margin note (✸)
 //   .nd-wander    — older/newer cards; a dashed placeholder marks
 //                   either end of the notebook
-//   ArticleColophon — the shared end-of-read block (meta · signature ·
+//   ArticleFooter — the shared end-of-read block (meta · signature ·
 //                   nav with the quiet copy-link); notes pass
 //                   "noted [· place] · date · read time" as the meta
 //
@@ -25,7 +25,7 @@ import type { CollectionEntry } from 'astro:content';
 import { ROUTES, type Locale } from '@lib/routes';
 import { readingTimeMinutes } from '@lib/reading-time';
 import { formatEntryDate } from '@lib/format-entry-date';
-import ArticleColophon from './ArticleColophon.astro';
+import ArticleFooter from './ArticleFooter.astro';
 import MarginNote from './MarginNote.astro';
 import ContentArt from './ContentArt.astro';
 
@@ -47,7 +47,7 @@ export interface Props {
   leafTotal: number;
   older: NeighborVM | null;
   newer: NeighborVM | null;
-  /** The note's own route — the colophon copy-link copies origin+path. */
+  /** The note's own route — the footer copy-link copies origin+path. */
   permalinkPath: string;
 }
 
@@ -207,7 +207,7 @@ const t = copy[locale];
     )
   }
 
-  <ArticleColophon
+  <ArticleFooter
     locale={locale}
     backHref={indexHref}
     backLabel={t.allNotes}
@@ -240,5 +240,5 @@ const t = copy[locale];
         </>
       )
     }
-  </ArticleColophon>
+  </ArticleFooter>
 </article>

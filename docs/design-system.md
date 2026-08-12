@@ -27,10 +27,11 @@ The reference for everything about this site. Read this before changing color, c
 - **2026‑06‑02** — §12 corrected: the first-visit intro overlay on `/about/` is **shipped**, not dropped. The 2026‑05‑21 scope note cut it, but the about editorial layout (2026‑05‑23, #22) shipped it as `role="presentation"` + `aria-hidden` (no focus trap) with a `prefers-reduced-motion` clamp and a once-per-session gate. Why: the log recorded the cut but never the reinstatement, so the §12 a11y list still claimed it was removed.
 - **2026‑06‑02** — the `/works` detail page pivots from "index card at a larger scale" to an editorial single column at the pieces register: eyebrow (back-link · № · kind · lifecycle dot), display H1 at the `.piece-title` scale, italic deck, hero figure, then conditional sections — specs, story, iterations, changelog, elsewhere — closed by a dashed foot with signature and nav. The works schema gains optional `heroCaption:`, `iterations:` (rev / date / lifecycle-status chip / note), `changelog:` (date / note), and `elsewhere:` (label / href / note); all default empty, so a work with none shows the floor with no empty shells. Iteration chips reuse the lifecycle vocabulary (`shipping · ongoing · draft · archived`) and the `.status-dot--*` colour mapping. Why: the catalog card answers "what is this"; a work that's been through five revisions needs somewhere to answer "how did it get here" without writing a piece.
 - **2026‑06‑02** — budget log reconciled. Two `lighthouserc.json` raises shipped without a change-log line: `document:size` 20 KB → 27 KB (2026‑05‑27, #80, About prose moved to content-driven markdown) and `total:size` 51 KB → 52 KB (2026‑06‑01, per-kind vignettes unified into shared sources, §13). The 2026‑05‑31 entry above stops at 51 KB; 52 KB is the current ceiling with ~1 KB headroom (see `lighthouserc.json` `//budget`). Why: the budgets that bite should be traceable in the log, not only in the file comment.
-- **2026‑06‑02** — the self-hosted web fonts are now actually loaded. Newsreader and JetBrains Mono shipped in `public/fonts/` and were named in the `--font-display`/`--font-body` stacks, but there was never an `@font-face` rule, so every visitor got the fallback stack (the woff2 were dead weight). Added `src/styles/fonts.css` (`@font-face`, variable `wght`, `font-display: swap`) loaded site-wide via BaseLayout, plus a preload for each woff2, and `pnpm subset-fonts` now `wght`-instances the variable fonts to the weights the site uses (~79 KB combined). `total:size` raised 52000 → 135000 to admit them (the per-type `document`/`script` caps are unchanged and remain the content guardrails; see `lighthouserc.json` `//budget`). Lighthouse perf/LCP/FCP/CLS all still pass — `swap` paints the fallback first, so the font load is off the critical path. Why: the colophon and README claimed "self-hosted fonts" the site wasn't serving, and the typographic identity (§9) only rendered for visitors who happened to have the faces installed.
-- **2026‑06‑04** — the `/notes` detail page pivots from "index row reused standalone" to its own composition (`NoteDetail.astro`): sentence eyebrow (back-link · note · read-time), a leaf rail (circled kind-glyph · `leaf 04 / 12` counter · date), real H1, mono prose with a sticky `✸` margin note, and older/newer wander cards. The body face stays JetBrains Mono (§9) — only title/lede are serif, same as the index. Notes schema gains optional `noted:` (colophon place, mirrors pieces' `written:`). The split follows ADR 0012's index-component/detail-layout pattern; no new ADR. Why: the slug page was a one-item list pretending to be a page — no H1, no way onward to the next note, nothing worth sharing a link to.
-- **2026‑06‑04** — shared footers (§11). The three detail feet (pieces, works, the new notes colophon) unify into **ArticleColophon** — per-route meta line · signature · nav with a quiet **copy-link** (text, not a pill; "link copied" only after the clipboard write resolves, blocked clipboard reveals a select-all URL field; a small bundled script, CSP-safe per ADR 0008). Index/list caps (notes, pieces, works, now) unify into **SectionEnd** (`↺` eyebrow + dashed rule). Styles live in `src/styles/footers.css` (component-scoped, like diagrams/cmdk); the per-route foot CSS is removed. The nav keeps the 2.75 rem tap-target floor the works foot established. Why: sharing happens at the end of a read, and the end of every read should be the same trustworthy object — one implementation instead of three drifting ones.
+- **2026‑06‑02** — the self-hosted web fonts are now actually loaded. Newsreader and JetBrains Mono shipped in `public/fonts/` and were named in the `--font-display`/`--font-body` stacks, but there was never an `@font-face` rule, so every visitor got the fallback stack (the woff2 were dead weight). Added `src/styles/fonts.css` (`@font-face`, variable `wght`, `font-display: swap`) loaded site-wide via BaseLayout, plus a preload for each woff2, and `pnpm subset-fonts` now `wght`-instances the variable fonts to the weights the site uses (~79 KB combined). `total:size` raised 52000 → 135000 to admit them (the per-type `document`/`script` caps are unchanged and remain the content guardrails; see `lighthouserc.json` `//budget`). Lighthouse perf/LCP/FCP/CLS all still pass — `swap` paints the fallback first, so the font load is off the critical path. Why: the Build notes page and README claimed "self-hosted fonts" the site wasn't serving, and the typographic identity (§9) only rendered for visitors who happened to have the faces installed.
+- **2026‑06‑04** — the `/notes` detail page pivots from "index row reused standalone" to its own composition (`NoteDetail.astro`): sentence eyebrow (back-link · note · read-time), a leaf rail (circled kind-glyph · `leaf 04 / 12` counter · date), real H1, mono prose with a sticky `✸` margin note, and older/newer wander cards. The body face stays JetBrains Mono (§9) — only title/lede are serif, same as the index. Notes schema gains optional `noted:` (footer place, mirrors pieces' `written:`). The split follows ADR 0012's index-component/detail-layout pattern; no new ADR. Why: the slug page was a one-item list pretending to be a page — no H1, no way onward to the next note, nothing worth sharing a link to.
+- **2026‑06‑04** — shared footers (§11). The three detail feet (pieces, works, notes) unify into **ArticleFooter** — per-route meta line · signature · nav with a quiet **copy-link** (text, not a pill; "link copied" only after the clipboard write resolves, blocked clipboard reveals a select-all URL field; a small bundled script, CSP-safe per ADR 0008). Index/list caps (notes, pieces, works, now) unify into **SectionEnd** (`↺` eyebrow + dashed rule). Styles live in `src/styles/footers.css` (component-scoped, like diagrams/cmdk); the per-route foot CSS is removed. The nav keeps the 2.75 rem tap-target floor the works foot established. Why: sharing happens at the end of a read, and the end of every read should be the same trustworthy object — one implementation instead of three drifting ones.
 - **2026‑07‑07** — Astro 6.4.6 → 7.0.6. Kept the unified Markdown processor for `remarkInjectMarginNotes`, removed the now-stale Vite 7 override so Astro resolves Vite 8/Rolldown, and replaced dotted dynamic endpoints (`cmdk/[lang].json.ts`, `og/[collection]/[slug].png.ts`) with static/filename-param endpoints that prerender cleanly under `trailingSlash: 'always'`. Why: Astro 7's Rust compiler and Vite 8 speed path are worth taking, but the route shapes that mixed dynamic params, file extensions, and forced trailing slashes failed prerender param matching.
+- **2026‑08‑12** — retired the “en proceso, en público” homepage line, moved the package-derived version to the global footer, renamed the site-implementation routes to `/en/build/` and `/es/como-esta-hecho/`, and replaced the old publishing metaphor with plain Build/ArticleFooter terminology across copy, code, and documentation. Permanent redirects preserve every former route. Why: the old language felt performative and no longer matched the site's quieter, more direct voice.
 
 When something material changes, add a line. Keep the log short: date, what changed, why. If you can't write the _why_ in one clause, you probably shouldn't make the change.
 
@@ -38,7 +39,7 @@ When something material changes, add a line. Keep the log short: date, what chan
 
 ## 1 · Concept (don't expand)
 
-A small, hand-built personal site for **Nicolas Bracigliano** — senior software engineer in Melbourne, AU. The site is a place to keep the work, the drafts, and the receipts. Not a portfolio (the portfolio is the work). More like the colophon of a book: a back-of-the-house view of the maker, the tools, and the process.
+A small, hand-built personal site for **Nicolas Bracigliano** — software engineer in Melbourne, AU. The site is a place to keep the work, the drafts, and the receipts: a back-of-the-house view of the maker, the tools, and the process.
 
 Two sentences. Don't grow them.
 
@@ -46,7 +47,7 @@ Two sentences. Don't grow them.
 
 Negative-space rules. These prevent more feature creep than positive ones.
 
-- **Not a portfolio.** The portfolio is the work itself. This site is the _colophon_ — the colour, the press, the maker.
+- **Not a portfolio.** The portfolio is the work itself. This site keeps the work alongside the tools, drafts, and decisions behind it.
 - **Not a SaaS.** No marketing copy. No "transform your workflow." No round-number claims of impact.
 - **Not a blog platform.** Don't add features for hypothetical other users. Every feature has to earn its place in _Nicolas's_ daily workflow.
 - **Not a CMS.** Content lives in Markdown files, edited in a text editor, committed to git. No admin panel. Ever.
@@ -56,16 +57,16 @@ Negative-space rules. These prevent more feature creep than positive ones.
 
 Each route gets a distinct visual metaphor. This is what makes the system feel hand-built rather than templated. Promote this to the top of your mind before anything else.
 
-| Route       | Treatment                   | Visual metaphor                                                                                                                                 |
-| ----------- | --------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
-| `/`         | Workshop bench              | Vignette grid of what's on the bench right now                                                                                                  |
-| `/now`      | Numbered bench tour         | Calm column, one detailed update per craft                                                                                                      |
-| `/notes`    | Marginalia notebook         | Dated entries, left-margin tags, right-margin asides; detail pages are a single leaf — leaf counter, sticky aside, older/newer wander, colophon |
-| `/pieces`   | Editorial article           | Centered single column, display title, drop cap, inline pull quotes                                                                             |
-| `/works`    | Index-card catalog          | Stackable cards with status dots and spec lists; detail pages are editorial single columns                                                      |
-| `/about`    | Editorial article + sidebar | Body copy with §-section marks + facts cards                                                                                                    |
-| `/colophon` | Typewriter credits roll     | Monospace key-value blocks + ASCII signature                                                                                                    |
-| `/404`      | Misplaced letter            | Single illustration, calm copy, ways back                                                                                                       |
+| Route     | Treatment                   | Visual metaphor                                                                                                                               |
+| --------- | --------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
+| `/`       | Workshop bench              | Vignette grid of what's on the bench right now                                                                                                |
+| `/now`    | Numbered bench tour         | Calm column, one detailed update per craft                                                                                                    |
+| `/notes`  | Marginalia notebook         | Dated entries, left-margin tags, right-margin asides; detail pages are a single leaf — leaf counter, sticky aside, older/newer wander, footer |
+| `/pieces` | Editorial article           | Centered single column, display title, drop cap, inline pull quotes                                                                           |
+| `/works`  | Index-card catalog          | Stackable cards with status dots and spec lists; detail pages are editorial single columns                                                    |
+| `/about`  | Editorial article + sidebar | Body copy with §-section marks + facts cards                                                                                                  |
+| `/build`  | Typewriter credits roll     | Monospace key-value blocks + ASCII signature                                                                                                  |
+| `/404`    | Misplaced letter            | Single illustration, calm copy, ways back                                                                                                     |
 
 Routes share the type and palette systems. They share nothing else by force. **If a new route doesn't have a distinct metaphor, it doesn't belong in the nav.**
 
@@ -80,33 +81,30 @@ Each principle is paired with a concrete test. If you can't pass the test, you'v
    _Test:_ Does this page mention only code? Add one non-code reference somewhere on it (in copy, in a vignette, in a margin note) — or move it to `/works`. The home page should always cross at least two crafts.
 
 3. **Tools are part of the work.**
-   _Test:_ If a reader asks "what's this built with?", the answer is one click away (the colophon). If they ask "why?", at least three principles in §4 are visible on the page they're reading.
+   _Test:_ If a reader asks "what's this built with?", the answer is one click away (Build notes). If they ask "why?", at least three principles in §4 are visible on the page they're reading.
 
-4. **En público, en proceso.**
-   _Test:_ Does this entry pretend to be finished? Add a status, a date, or an aside that admits what's unresolved. _"Five iterations, still wrong about the fillets"_ is better than _"v5, shipping."_
-
-5. **Curiosity over conclusion.**
+4. **Curiosity over conclusion.**
    _Test:_ Read the headline aloud. Is it a claim or a question? Claims are fine _if_ the body opens by complicating them. If the body's first sentence is the same as the headline, rewrite one of them.
    _Typographic expression:_ notes (claims in process) ship in mono; pieces (argued positions) ship in serif. See [§9 · Type](#9--type).
 
-6. **Performance, accessibility, security as aesthetics.**
+5. **Performance, accessibility, security as aesthetics.**
    _Test:_ Lighthouse > 95 on every static page. Tab-key reaches every interactive element in a sensible order. No third-party requests. If any is false, fix it before publishing the next entry.
 
 ## 5 · Information architecture
 
 Bilingual URL pattern: `/es/...` and `/en/...` mirror each other. The language toggle persists choice in `localStorage`. Missing translations show the available language with a small note linking to it. Do **not** auto-translate or hide the toggle.
 
-| Route (ES / EN)               | Purpose                                         | Status           |
-| ----------------------------- | ----------------------------------------------- | ---------------- |
-| `/`                           | Identity-first home: bio, bench, latest entries | shipping         |
-| `/notas` · `/notes`           | Short notes, TILs, micro-posts                  | shipping         |
-| `/obras` · `/works`           | Projects — digital and physical                 | shipping         |
-| `/sobre` · `/about`           | Fuller bio, contact                             | shipping         |
-| `/sobre/ahora` · `/about/now` | Current focus ("now" page)                      | shipping         |
-| `/colofón` · `/colophon`      | Stack, fonts, hosting, workflow, principles     | shipping         |
-| `/404`                        | Page not found                                  | shipping         |
-| `/ensayos` · `/pieces`        | Long-form pieces (per ADR 0010)                 | shipping (empty) |
-| `/rss-es.xml` · `/rss-en.xml` | RSS feed (per-language variant)                 | shipping         |
+| Route (ES / EN)               | Purpose                                         | Status   |
+| ----------------------------- | ----------------------------------------------- | -------- |
+| `/`                           | Identity-first home: bio, bench, latest entries | shipping |
+| `/notas` · `/notes`           | Short notes, TILs, micro-posts                  | shipping |
+| `/obras` · `/works`           | Projects — digital and physical                 | shipping |
+| `/sobre` · `/about`           | Fuller bio, contact                             | shipping |
+| `/sobre/ahora` · `/about/now` | Current focus ("now" page)                      | shipping |
+| `/como-esta-hecho` · `/build` | Stack, fonts, hosting, workflow, principles     | shipping |
+| `/404`                        | Page not found                                  | shipping |
+| `/ensayos` · `/pieces`        | Long-form pieces (per ADR 0010)                 | shipping |
+| `/rss-es.xml` · `/rss-en.xml` | RSS feed (per-language variant)                 | shipping |
 
 Hidden routes are reachable by direct link but absent from the nav. They make the nav shorter and reward the curious. `/now` is one of these.
 
@@ -199,7 +197,7 @@ If the source has no anecdote and the piece needs one, ask the author. Don't com
 
 Reserve Spanish for words that are emphatically the right word. Use sparingly.
 
-✓ _colofón, mate, huerta, hecho a mano_
+✓ _mate, huerta, hecho a mano_
 ✗ _casa, sobre, obras_ (using Spanish for things that read perfectly in English is performative)
 
 ### The five-word test
@@ -221,7 +219,7 @@ This is the bridge between _system_ and _daily use_. Notes ship in mono — see 
    minutes: 2 # estimate read time honestly
    lang: en
    aside: '(optional) one line for the right margin'
-   noted: 'Melbourne, AU' # optional place for the detail-page colophon; omitted gracefully
+   noted: 'Melbourne, AU' # optional place for the detail-page footer; omitted gracefully
    hero: ./art.svg # optional per-entry SVG; replaces the kind-default glyph
    ```
 
@@ -438,8 +436,8 @@ Listed for orientation. The CSS files are the source of truth.
 - **Work card** — vignette + spec list + status. Hover stacks a paper card behind via `::before` translate.
 - **Facts card** (About sidebar) — small-caps title, `dl` of rows, optional footer link.
 - **Section end** — shared cap for index/list pages (notes, pieces, works, now): centered mono eyebrow + `↺` glyph above a dashed rule. Per-route text is the caller's.
-- **Article colophon** — shared end-of-read block on every detail page (note · piece · work): per-route meta line · `— Nicolas · Melbourne` signature · nav (back-link, back-to-top, and the quiet **copy-link**). The copy control is text, not a pill — a loud "share" button would break the room — and is honest about outcomes: "link copied" only after the clipboard write resolves; blocked clipboard reveals a select-all URL field instead. These two plus the global site footer (© · hecho a mano) are deliberately different objects; component-internal rows (note read-time, work status, ⌘K hints, 404 line) are not footers.
-- **ASCII signature** — `╭─ NB · '26 ─╮` at the foot of Colofón.
+- **Article footer** — shared end-of-read block on every detail page (note · piece · work): per-route meta line · `— Nicolas · Melbourne` signature · nav (back-link, back-to-top, and the quiet **copy-link**). The copy control is text, not a pill — a loud "share" button would break the room — and is honest about outcomes: "link copied" only after the clipboard write resolves; blocked clipboard reveals a select-all URL field instead. These two plus the global site footer (`© Nicolas Bracigliano · year · Build/Sitio · version`) are deliberately different objects; component-internal rows (note read-time, work status, ⌘K hints, 404 line) are not footers.
+- **ASCII signature** — `╭─ NB · '26 ─╮` at the foot of Build notes.
 - **NotFound** — 404 illustration + map back.
 - **Command palette (⌘K)** — the site's search. Full contract below.
 
@@ -491,7 +489,7 @@ The principles call for per-route playfulness, which means breaking the system i
 
 - **Add a route with no parallel in the IA table.** Allowed once a year. Must have its own visual metaphor (§3) and must be reachable from at least one existing page.
 - **Use a new accent color.** Allowed for a single page or a single component, never as a new token. If it survives six months, promote it to the palette.
-- **Skip the type system.** Allowed for ASCII art, code samples, and the colofón ornaments — anything where the monospace grid itself is the meaning.
+- **Skip the type system.** Allowed for ASCII art, code samples, and the Build notes ornaments — anything where the monospace grid itself is the meaning.
 - **Skip the principles.** Never. The principles are how you decide _which_ rule to break.
 
 ## 15 · Anti-patterns (specific to this site)
@@ -505,7 +503,7 @@ The site has known tells. Document them so they don't repeat.
 5. **Notes that are secretly arguments.** A note carrying a thesis it's defending has betrayed its category; that's a piece. Move it to `/pieces` · `/ensayos`. Polish alone isn't the tell: a note can be a finished short account and still be a note. The firewall is the face (notes are mono, pieces are serif; see [§9 · Type](#9--type)). A short story in mono is still a note; an argument in mono is a mis-filed piece.
 6. **Decorative SVG everywhere.** Two illustrations per page max. If a third tries to enter, choose between them.
 7. **Quotable closing lines.** Every section ending with a quotable summary reads as LLM-generated. Let some sections end un-resolved.
-8. **Performative completeness.** Listing every keyboard, every espresso machine, every guitar by exact model in the colofón. Pick one or two. Restraint is the brand.
+8. **Performative completeness.** Listing every keyboard, every espresso machine, every guitar by exact model in Build notes. Pick one or two. Restraint is the brand.
 
 ## 16 · Production targets (commitments)
 
@@ -520,9 +518,8 @@ The prototype loads dependencies from CDNs and uses Babel-in-browser; production
 ## 17 · Open questions
 
 1. **Real avatar.** Pick a direction from `AVATAR-OPTIONS.md` and commission or draw.
-2. **Real copy.** Most body copy on Home, About, Notes, Now, and Colofón is currently invented. Replace with material Nicolas actually wrote.
-3. **Print stylesheet.** Notes and essays should print like typed letters. Dedicated `@media print` pass.
-4. **`/drafts` index.** A public list of unfinished posts — the site claims "en proceso, en público"; right now nothing demonstrates that.
+2. **Print stylesheet.** Notes and essays should print like typed letters. Dedicated `@media print` pass.
+3. **`/drafts` index.** A public list of unfinished posts, if the body of draft work becomes substantial enough to justify a dedicated surface.
 
 ### Shipped (moved out of this list)
 

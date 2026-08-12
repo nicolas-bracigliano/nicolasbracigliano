@@ -2,7 +2,7 @@
   "name": "nicolasbracigliano-com",
   "version": "1.25.4",
   "private": true,
-  "description": "Personal site — colophon, bilingual (en/es), Astro 7 on Cloudflare Workers Static Assets.",
+  "description": "Bilingual personal site built with Astro 7 and Cloudflare Workers Static Assets.",
   "homepage": "https://nicolasbracigliano.com",
   "repository": {
     "type": "git",

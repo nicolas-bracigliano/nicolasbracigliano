@@ -1,10 +1,11 @@
 // Adapter smoke test for the Cloudflare Worker entry. The
 // redirect logic itself is covered by `pick-locale.test.ts`
 // against the platform-neutral handler; this asserts the
-// adapter's wiring: `/` invokes the redirect, anything else
-// delegates to `env.ASSETS.fetch`.
+// adapter's wiring: `/` invokes the locale redirect, former public paths
+// invoke permanent redirects, and anything else delegates to `env.ASSETS.fetch`.
 
 import { describe, expect, it, vi } from 'vitest';
+import { LEGACY_ROUTE_REDIRECTS } from '../../src/lib/routes';
 import worker from '../../src/worker';
 
 describe('Cloudflare Worker entry', () => {
@@ -39,6 +40,24 @@ describe('Cloudflare Worker entry', () => {
     expect(assetsFetch).toHaveBeenCalledTimes(1);
     expect(res.status).toBe(200);
   });
+
+  it.each(LEGACY_ROUTE_REDIRECTS)(
+    'permanently redirects legacy route $from to $to before asset lookup',
+    async ({ from, to }) => {
+      // `Request` percent-encodes the accented Spanish source, reproducing
+      // the pathname shape Cloudflare passes to the Worker in production.
+      const request = new Request(`https://nicolasbracigliano.com${from}`);
+      const assetsFetch = vi.fn();
+      const env = { ASSETS: { fetch: assetsFetch } };
+
+      const res = await worker.fetch(request, env);
+
+      expect(res.status).toBe(301);
+      expect(new URL(res.headers.get('Location') ?? '').pathname).toBe(to);
+      expect(res.headers.get('Content-Security-Policy')).toContain("default-src 'self'");
+      expect(assetsFetch).not.toHaveBeenCalled();
+    },
+  );
 
   it('serves /.well-known/security.txt itself instead of delegating to assets', async () => {
     // Workers Static Assets won't serve dot-prefixed dirs, so the

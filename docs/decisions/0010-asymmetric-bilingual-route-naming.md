@@ -49,15 +49,16 @@ This refines ADR 0003 — mirroring is still the default. Asymmetric naming is t
 
 ## Precedents
 
-The `ROUTES` map currently holds three asymmetric pairs:
+The `ROUTES` map currently holds four asymmetric pairs:
 
 | Key      | EN            | ES                                                         |
 | -------- | ------------- | ---------------------------------------------------------- |
 | `works`  | `/en/works/`  | `/es/obras/`                                               |
 | `notes`  | `/en/notes/`  | `/es/notas/` (mostly mirrored — different inflection only) |
 | `pieces` | `/en/pieces/` | `/es/ensayos/`                                             |
+| `build`  | `/en/build/`  | `/es/como-esta-hecho/`                                     |
 
-The remaining routes (`home`, `about`, `now`, `colophon`) ship symmetric pairs (`/en/about/` ↔ `/es/sobre/` is asymmetric in form but mechanical translation — `sobre` is the plain Spanish for "about").
+The remaining routes (`home`, `about`, `now`) use direct mechanical translations (`/en/about/` ↔ `/es/sobre/`, for example) rather than deliberately different labels.
 
 ## When to revisit
 

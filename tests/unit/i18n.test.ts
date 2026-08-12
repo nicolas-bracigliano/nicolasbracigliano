@@ -100,8 +100,8 @@ describe('entryRouteFor', () => {
     expect(entryRouteFor(page({ lang: 'es', slug: 'about' }))).toBe('/es/sobre/');
     expect(entryRouteFor(page({ lang: 'en', slug: 'now' }))).toBe('/en/about/now/');
     expect(entryRouteFor(page({ lang: 'es', slug: 'now' }))).toBe('/es/sobre/ahora/');
-    expect(entryRouteFor(page({ lang: 'en', slug: 'colophon' }))).toBe('/en/colophon/');
-    expect(entryRouteFor(page({ lang: 'es', slug: 'colophon' }))).toBe('/es/colofón/');
+    expect(entryRouteFor(page({ lang: 'en', slug: 'build' }))).toBe('/en/build/');
+    expect(entryRouteFor(page({ lang: 'es', slug: 'build' }))).toBe('/es/como-esta-hecho/');
   });
 
   it('falls back to /{lang}/ for unknown page slugs', () => {

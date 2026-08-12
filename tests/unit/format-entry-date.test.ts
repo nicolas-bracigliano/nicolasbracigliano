@@ -64,5 +64,8 @@ describe('formatEntryDate', () => {
     expect(formatEntryDate(work, { kind: 'work', lifecycle: 'shipping', locale: 'es' })).toMatch(
       YEAR_FIRST_MONTH,
     );
+    expect(formatEntryDate(work, { kind: 'work', lifecycle: 'ongoing', locale: 'es' })).toBe(
+      '2026 · en proceso',
+    );
   });
 });

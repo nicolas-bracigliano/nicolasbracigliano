@@ -11,9 +11,9 @@ const entry = (over: Partial<CmdkEntry> & Pick<CmdkEntry, 'kind' | 'title'>): Cm
 
 describe('subsequence', () => {
   it('matches in-order character runs and rejects out-of-order', () => {
-    expect(subsequence('colophon', 'clphn')).toBe(true);
-    expect(subsequence('colophon', 'colophon')).toBe(true);
-    expect(subsequence('colophon', 'nopal')).toBe(false); // out of order
+    expect(subsequence('build notes', 'bldnts')).toBe(true);
+    expect(subsequence('build notes', 'build')).toBe(true);
+    expect(subsequence('build notes', 'nopal')).toBe(false); // out of order
     expect(subsequence('catch-all tray', 'coffee')).toBe(false); // no 'o'/'ff'
   });
 });
@@ -21,15 +21,15 @@ describe('subsequence', () => {
 describe('score', () => {
   const e = entry({
     kind: 'page',
-    title: 'colophon',
+    title: 'build notes',
     sub: 'how this site is made',
     tags: ['meta'],
   });
 
   it('ranks title-prefix above title-substring above sub/tag-substring', () => {
-    expect(score(entry({ kind: 'page', title: 'colophon' }), 'colo')).toBe(100);
-    expect(score(entry({ kind: 'page', title: 'the colophon' }), 'colo')).toBeLessThan(100);
-    expect(score(entry({ kind: 'page', title: 'the colophon' }), 'colo')).toBeGreaterThan(60);
+    expect(score(entry({ kind: 'page', title: 'build notes' }), 'build')).toBe(100);
+    expect(score(entry({ kind: 'page', title: 'the build notes' }), 'build')).toBeLessThan(100);
+    expect(score(entry({ kind: 'page', title: 'the build notes' }), 'build')).toBeGreaterThan(60);
     expect(score(e, 'made')).toBe(60); // only in the subtitle
     expect(score(e, 'meta')).toBe(60); // only in tags
   });
@@ -50,14 +50,14 @@ describe('score', () => {
     expect(score(entry({ kind: 'piece', title: 'C4, four times in a row' }), 'coffee')).toBe(0);
 
     // Typo tolerance still works against the title.
-    expect(score(entry({ kind: 'page', title: 'colophon' }), 'clophn')).toBe(30);
+    expect(score(entry({ kind: 'page', title: 'build notes' }), 'bldnts')).toBe(30);
   });
 });
 
 describe('match', () => {
   const index: CmdkEntry[] = [
     entry({ kind: 'page', title: 'home', sub: 'the workbench' }),
-    entry({ kind: 'page', title: 'colophon', sub: 'how this site is made' }),
+    entry({ kind: 'page', title: 'build notes', sub: 'how this site is made' }),
     entry({
       kind: 'now',
       title: 'Padre Ethiopia',

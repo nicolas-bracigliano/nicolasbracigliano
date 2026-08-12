@@ -3,12 +3,20 @@
 // four C4 abstraction levels (Context · Container · Component · Code).
 // Use as the orienting visual at the top of a C4-related piece; the
 // per-level detail lives in `C4Level.astro`.
+import type { Locale } from '@lib/routes';
+
 export interface Props {
   caption?: string;
   label?: string;
+  locale: Locale;
 }
-const { caption, label } = Astro.props;
+const { caption, label, locale } = Astro.props;
 const labelled = label !== undefined;
+const labels = {
+  en: ['Context', 'Container', 'Component', 'Code'],
+  es: ['Contexto', 'Contenedor', 'Componente', 'Código'],
+} as const;
+const [context, container, component, code] = labels[locale];
 ---
 
 <figure
@@ -29,10 +37,10 @@ const labelled = label !== undefined;
     </g>
     {/* Quadrant labels + numeric markers — sit on the grid in label colour. */}
     <g class="d-label" font-size="11" text-anchor="middle">
-      <text x="70" y="72">Context</text>
-      <text x="170" y="72">Container</text>
-      <text x="170" y="172">Component</text>
-      <text x="70" y="172">Code</text>
+      <text x="70" y="72">{context}</text>
+      <text x="170" y="72">{container}</text>
+      <text x="170" y="172">{component}</text>
+      <text x="70" y="172">{code}</text>
     </g>
     <g class="d-label" font-style="italic" font-size="7" opacity="0.7" text-anchor="middle">
       <text x="70" y="86">1</text>

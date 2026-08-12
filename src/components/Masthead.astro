@@ -1,9 +1,9 @@
 ---
 // Home-page masthead (design system §3 — Workshop bench). Two columns
 // on desktop: line-art portrait + caption on the left, big serif h1
-// + bio + meta on the right. Single column under 720px.
+// + bio on the right. Single column under 720px.
 //
-// Eyebrow, h1, bio and meta are slots so the page can compose locale-
+// Eyebrow, h1 and bio are slots so the page can compose locale-
 // specific copy with inline <Coffee /> + <Mate /> vignettes. The
 // portrait is the inline linocut SVG (`Portrait.astro`); the wrapping
 // markup is component-agnostic, so swapping it for an <Image /> would
@@ -30,7 +30,6 @@ const { portraitCaption } = Astro.props;
       <p class="eyebrow"><slot name="eyebrow" /></p>
       <slot name="h1" />
       <p class="masthead-bio"><slot name="bio" /></p>
-      <p class="masthead-meta"><slot name="meta" /></p>
     </div>
   </div>
 </section>

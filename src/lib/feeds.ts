@@ -34,13 +34,13 @@ export const FEEDS: Readonly<Record<Locale, FeedMeta>> = {
   en: {
     path: '/rss-en.xml',
     title: 'Nicolas Bracigliano — notes & pieces (EN)',
-    description: 'Notes and pieces from a senior software engineer in Melbourne.',
+    description: 'Notes and pieces from a software engineer in Melbourne.',
     language: 'en-au',
   },
   es: {
     path: '/rss-es.xml',
     title: 'Nicolas Bracigliano — notas y ensayos (ES)',
-    description: 'Notas y ensayos de un ingeniero de software senior en Melbourne.',
+    description: 'Notas y ensayos de un ingeniero de software en Melbourne.',
     language: 'es',
   },
 };

@@ -5,7 +5,7 @@ lang: es
 translationId: about
 date: 2026-05-21
 status: published
-lede: 'Ingeniero de software senior en Melbourne, trabajando en público, en proceso.'
+lede: 'Ingeniero de software en Melbourne.'
 ---
 
 ## Cómo llegué hasta acá
@@ -16,7 +16,7 @@ Venía con un libro de DOS y QBasic, y lo leí como otros chicos leen historieta
 
 ## En qué trabajo
 
-De día: ingeniero senior trabajando en un producto de ciberseguridad. Lo que me mantiene son las consecuencias: cuando el trabajo es bueno, hay personas y organizaciones más seguras por eso, y de eso no me canso. La gente con la que lo hago es excepcional, algo que no digo a la ligera.
+De día: construyo un producto de ciberseguridad. Lo que me mantiene son las consecuencias: cuando el trabajo es bueno, hay personas y organizaciones más seguras por eso, y de eso no me canso. La gente con la que lo hago es excepcional, algo que no digo a la ligera.
 
 Fuera de horario: pequeños proyectos (excusas para escribir código), un constante flujo de [objetos imprimibles en 3D](/es/obras/), mis momentos semanales con mi guitarra, y una discusión permanente con mis árboles frutales y mis ligustros. Todo documentado en alguna parte de este sitio.
 

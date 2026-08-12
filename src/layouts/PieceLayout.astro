@@ -15,12 +15,12 @@
 //                              the first paragraph carrying .lead-p
 //                              (drop-cap anchor)
 //     .diagram-rail (bottom)— if the piece has bottom-placed diagrams
-//     ArticleColophon       — the shared end-of-read block (mono meta
+//     ArticleFooter       — the shared end-of-read block (mono meta
 //                              strip with written + date + read-time;
 //                              signature; nav with all-pieces back-link,
 //                              back-to-top and the quiet copy-link)
 import BaseLayout from './BaseLayout.astro';
-import ArticleColophon from '@components/ArticleColophon.astro';
+import ArticleFooter from '@components/ArticleFooter.astro';
 import DiagramRail from '@components/DiagramRail.astro';
 import type { CollectionEntry } from 'astro:content';
 import { ROUTES, type Locale } from '@lib/routes';
@@ -58,7 +58,7 @@ const bottomDiagrams = diagrams.filter((d) => d.place === 'bottom');
 // store. The eyebrow drops the collection label per a polish review —
 // it was redundant against the back-link + the H1 underneath.
 // The signature (and its em-dash chrome exemption) moved into
-// `ArticleColophon.astro` with the rest of the foot.
+// `ArticleFooter.astro` with the rest of the foot.
 const copy = {
   en: {
     back: '← back to pieces',
@@ -151,15 +151,15 @@ const titleHtml = renderTitle(title);
       {lede && <p class="piece-lede">{lede}</p>}
     </header>
 
-    {topDiagrams.length > 0 && <DiagramRail items={topDiagrams} />}
+    {topDiagrams.length > 0 && <DiagramRail items={topDiagrams} locale={locale} />}
 
     <div class="piece-prose">
       <slot />
     </div>
 
-    {bottomDiagrams.length > 0 && <DiagramRail items={bottomDiagrams} />}
+    {bottomDiagrams.length > 0 && <DiagramRail items={bottomDiagrams} locale={locale} />}
 
-    <ArticleColophon
+    <ArticleFooter
       locale={locale}
       backHref={indexHref}
       backLabel={t.allPieces}
@@ -191,6 +191,6 @@ const titleHtml = renderTitle(title);
           </>
         )
       }
-    </ArticleColophon>
+    </ArticleFooter>
   </article>
 </BaseLayout>

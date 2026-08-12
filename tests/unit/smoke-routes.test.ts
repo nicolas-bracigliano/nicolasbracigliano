@@ -1,6 +1,8 @@
+import { readFileSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
 import { buildTargets, type ContentEntry } from '../../scripts/smoke-routes.ts';
-import { ROUTES } from '../../src/lib/routes';
+import { LEGACY_ROUTE_REDIRECTS, ROUTES } from '../../src/lib/routes';
 import { SECURITY_TXT_PATH } from '../../src/lib/security-txt';
 
 // `buildTargets` is the pure dispatch core of the CI smoke script
@@ -58,6 +60,32 @@ describe('buildTargets', () => {
     }
   });
 
+  it('checks every legacy Build route redirect and its destination', () => {
+    const targets = buildTargets([]);
+    for (const redirect of LEGACY_ROUTE_REDIRECTS) {
+      expect(targets).toContainEqual({
+        path: redirect.from,
+        expected: 301,
+        location: redirect.to,
+      });
+    }
+  });
+
+  it('keeps public/_redirects aligned with the post-deploy targets', () => {
+    const redirectsPath = fileURLToPath(new URL('../../public/_redirects', import.meta.url));
+    const rows = readFileSync(redirectsPath, 'utf8')
+      .split('\n')
+      .map((line) => line.trim())
+      .filter((line) => line.length > 0 && !line.startsWith('#'))
+      .map((line) => line.split(/\s+/));
+
+    for (const redirect of LEGACY_ROUTE_REDIRECTS) {
+      // Cloudflare matches the encoded request pathname at the asset layer;
+      // raw Unicode sources are ignored for `/es/colofón`.
+      expect(rows).toContainEqual([encodeURI(redirect.from), redirect.to, '301']);
+    }
+  });
+
   it('builds content URLs as ROUTES[collection][lang] + slug + "/"', () => {
     const targets = buildTargets([
       entry('notes', 'hello', 'en'),
@@ -107,8 +135,8 @@ describe('buildTargets', () => {
 
   it('handles an empty entry list (all-static target list)', () => {
     const targets = buildTargets([]);
-    // 7 named routes × 2 locales = 14 static + 1 root + 1 security.txt
-    // + 1 sentinel = 17
-    expect(targets.length).toBe(17);
+    // 7 named routes × 2 locales = 14 static + 6 legacy redirects
+    // + 1 root + 1 security.txt + 1 sentinel = 23
+    expect(targets.length).toBe(23);
   });
 });

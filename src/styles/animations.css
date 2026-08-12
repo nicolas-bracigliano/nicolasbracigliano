@@ -343,7 +343,7 @@
       color: var(--ink);
     }
 
-    /* Article-colophon nav links + copy-link — same underline draw as
+    /* Article-footer nav links + copy-link — same underline draw as
        the nav. Drawn on the inner span (label, or glyph+label for the
        copy control), not the anchor/button: those are 2.75rem
        tap-target boxes, so their bottom edge sits too far below the

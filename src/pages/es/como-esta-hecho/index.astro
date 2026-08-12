@@ -1,0 +1,82 @@
+---
+import { getEntry } from 'astro:content';
+import BaseLayout from '@layouts/BaseLayout.astro';
+import BuildMasthead from '@components/BuildMasthead.astro';
+import BuildSection from '@components/BuildSection.astro';
+import BuildRow from '@components/BuildRow.astro';
+import AsciiSignature from '@components/AsciiSignature.astro';
+import { ROUTES } from '@lib/routes';
+import { getSibling, entryRouteFor } from '@lib/i18n';
+
+const entry = await getEntry('pages', 'es/build');
+if (!entry) throw new Error('Missing pages/es/build');
+const sibling = await getSibling(entry);
+const { title, lede } = entry.data;
+
+const path = ROUTES.build.es;
+const siblingPath = sibling ? entryRouteFor(sibling) : null;
+---
+
+<BaseLayout
+  title={title}
+  locale="es"
+  path={path}
+  siblingPath={siblingPath}
+  {...lede && { description: lede }}
+>
+  <section class="build wrap">
+    <BuildMasthead locale="es" />
+
+    <BuildSection tag="01" title="Hecho con">
+      <BuildRow dt="lenguaje"> html · css · typescript (sin framework en la página) </BuildRow>
+      <BuildRow dt="generador">
+        <a href="/es/obras/este-sitio/">astro 7</a> · salida estática · casi sin JS
+      </BuildRow>
+      <BuildRow dt="probado">playwright en chromium · axe-core a11y · lighthouse ci</BuildRow>
+      <BuildRow dt="búsqueda">paleta ⌘K · índice de navegación, sin texto completo</BuildRow>
+    </BuildSection>
+
+    <BuildSection tag="02" title="Compuesto en">
+      <BuildRow dt="titular">
+        <span class="serif">Newsreader</span> · variable, 400–600
+      </BuildRow>
+      <BuildRow dt="cuerpo">
+        <span class="mono-display">JetBrains Mono</span> · variable, 100–700
+      </BuildRow>
+      <BuildRow dt="alternativas">iowan old style, georgia · ui-monospace, menlo</BuildRow>
+      <BuildRow dt="a11y"> mín. 15 px en cuerpo · interlínea 1.55 · contraste AA+ </BuildRow>
+    </BuildSection>
+
+    <BuildSection tag="03" title="Alojado en">
+      <BuildRow dt="sirve">cloudflare workers · static assets</BuildRow>
+      <BuildRow dt="recursos">fuentes propias · sin scripts de terceros</BuildRow>
+      <BuildRow dt="privacidad">
+        sin cookies · sin analítica del lado del cliente · sin beacon
+      </BuildRow>
+      <BuildRow dt="dns">cloudflare · DNSSEC + HSTS preload</BuildRow>
+    </BuildSection>
+
+    <BuildSection tag="04" title="Flujo">
+      <BuildRow dt="escribir">markdown en /src/content, tipado con Zod</BuildRow>
+      <BuildRow dt="vista previa">astro dev · recarga en vivo al guardar</BuildRow>
+      <BuildRow dt="publicar">git push → github actions → wrangler deploy</BuildRow>
+      <BuildRow dt="borrador">un estado en el frontmatter, fuera del build</BuildRow>
+    </BuildSection>
+
+    <BuildSection tag="05" title="Principios" accent>
+      <BuildRow dt="hecho a mano"> cada página muestra el oficio. nada se replica. </BuildRow>
+      <BuildRow dt="un hacedor, muchos oficios">
+        código, guitarra, huerta, 3D: caras de una sola persona.
+      </BuildRow>
+      <BuildRow dt="las herramientas se ven">esta página existe por esa razón.</BuildRow>
+      <BuildRow dt="curiosidad antes que conclusión"> los títulos pueden ser preguntas. </BuildRow>
+      <BuildRow dt="perf, a11y, seguridad">como estética, no como casilleros.</BuildRow>
+    </BuildSection>
+
+    <BuildSection tag="06" title="El escritorio">
+      <BuildRow dt="combustible">mate todo el día · un long black a la mañana</BuildRow>
+    </BuildSection>
+
+    <AsciiSignature locale="es" />
+  </section>
+</BaseLayout>

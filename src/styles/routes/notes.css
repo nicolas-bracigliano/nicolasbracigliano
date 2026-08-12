@@ -224,7 +224,7 @@
   /* ─── Note detail (slug page) ──────────────────────────────────────────
      One leaf torn from the notebook (NoteDetail.astro): eyebrow → leaf
      rail → H1/lede/tags → mono prose + sticky margin note → older/newer
-     wander → ArticleColophon (shared; styled by ../footers.css). The
+     wander → ArticleFooter (shared; styled by ../footers.css). The
      body face stays JetBrains Mono via the shared .note-prose rules
      above (design system §9 — the notes/pieces firewall holds on the
      detail page); only the title and lede read serif, same as the

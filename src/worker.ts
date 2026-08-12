@@ -1,15 +1,18 @@
 // Cloudflare Worker entry point. Hosts the Astro build via the
 // Workers Static Assets binding (configured in `wrangler.toml`)
-// and handles the two paths the asset layer can't serve on its own:
+// and handles the paths the asset layer can't serve reliably on its own:
 //   - the root `/` does an Accept-Language redirect to `/en/` or `/es/`;
 //   - `/.well-known/security.txt` is served from the bundled file,
 //     because Workers Static Assets won't serve dot-prefixed dirs.
+//   - former Build-notes routes redirect permanently, including the
+//     percent-encoded accented Spanish path that `_redirects` cannot match
+//     when its source is written as raw Unicode.
 //
-// The redirect logic lives in `src/lib/pick-locale.ts` and the
-// security.txt response in `src/lib/security-txt.ts`, both as
-// platform-neutral helpers covered by unit tests. This file is the
-// thin adapter between the Workers entry shape (default export with
-// `fetch`) and those helpers.
+// The locale redirect lives in `src/lib/pick-locale.ts`, legacy-route matching
+// in `src/lib/routes.ts`, and the security.txt response in
+// `src/lib/security-txt.ts`; all are platform-neutral helpers covered by unit
+// tests. This file is the thin adapter between the Workers entry shape
+// (default export with `fetch`) and those helpers.
 //
 // Everything else falls through to `env.ASSETS.fetch`, which serves
 // the matching file from `dist/` or — if no file matches — returns
@@ -17,6 +20,7 @@
 // "404-page"` in `wrangler.toml`.
 
 import { acceptLanguageRedirect } from './lib/pick-locale';
+import { legacyRouteRedirectTarget } from './lib/routes';
 import { withSecurityHeaders } from './lib/security-headers';
 import { SECURITY_TXT_PATH, securityTxtResponse } from './lib/security-txt';
 // Bundled as a string via the wrangler `Text` rule in `wrangler.toml`
@@ -43,6 +47,10 @@ export default {
     }
     if (url.pathname === SECURITY_TXT_PATH) {
       return withSecurityHeaders(securityTxtResponse(securityTxt));
+    }
+    const legacyTarget = legacyRouteRedirectTarget(url.pathname);
+    if (legacyTarget) {
+      return withSecurityHeaders(Response.redirect(new URL(legacyTarget, url), 301));
     }
     return env.ASSETS.fetch(request);
   },

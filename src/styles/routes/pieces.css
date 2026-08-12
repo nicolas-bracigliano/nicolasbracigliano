@@ -441,8 +441,8 @@
 
   /* ─── Slug page foot ──────────────────────────────────────────────── */
 
-  /* The foot is the shared ArticleColophon (meta · signature · nav with
-     the quiet copy-link) — markup in `ArticleColophon.astro`, styles in
+  /* The foot is the shared ArticleFooter (meta · signature · nav with
+     the quiet copy-link) — markup in `ArticleFooter.astro`, styles in
      `../footers.css`. Nothing piece-specific remains here. */
 
   /* ─── Mobile breakpoints ──────────────────────────────────────────── */
