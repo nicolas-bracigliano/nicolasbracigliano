@@ -4,6 +4,9 @@ allowBuilds:
   sharp: true
   workerd: true
 
+minimumReleaseAgeExclude:
+  - astro@7.2.1
+
 # Force-upgrade transitive dependencies that ship with
 # known security advisories. These are pulled in through
 # tooling (typechecker, Lighthouse CI) — none are runtime-exposed —
