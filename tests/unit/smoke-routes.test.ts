@@ -135,8 +135,8 @@ describe('buildTargets', () => {
 
   it('handles an empty entry list (all-static target list)', () => {
     const targets = buildTargets([]);
-    // 7 named routes × 2 locales = 14 static + 6 legacy redirects
-    // + 1 root + 1 security.txt + 1 sentinel = 23
-    expect(targets.length).toBe(23);
+    // 7 named routes × 2 locales = 14 static + 8 legacy redirects
+    // + 1 root + 1 security.txt + 1 sentinel = 25
+    expect(targets.length).toBe(25);
   });
 });

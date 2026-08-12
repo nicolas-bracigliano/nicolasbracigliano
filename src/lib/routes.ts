@@ -30,10 +30,10 @@ export const ROUTES = {
   pieces: { en: '/en/pieces/', es: '/es/ensayos/' },
 } as const;
 
-/** Former public paths kept as permanent redirects after the Build notes
- *  rename. The Worker owns the redirect so percent-encoded Unicode paths are
- *  handled consistently; `public/_redirects` retains equivalent asset-layer
- *  rules as a fallback. The post-deploy smoke test verifies status + Location. */
+/** Former public paths kept as permanent redirects after route renames. The
+ *  Worker owns the redirect so percent-encoded Unicode paths are handled
+ *  consistently; `public/_redirects` retains equivalent asset-layer rules as
+ *  a fallback. The post-deploy smoke test verifies status + Location. */
 export const LEGACY_ROUTE_REDIRECTS = [
   { from: '/en/colophon', to: ROUTES.build.en },
   { from: '/en/colophon/', to: ROUTES.build.en },
@@ -41,6 +41,14 @@ export const LEGACY_ROUTE_REDIRECTS = [
   { from: '/es/colofón/', to: ROUTES.build.es },
   { from: '/es/colofon', to: ROUTES.build.es },
   { from: '/es/colofon/', to: ROUTES.build.es },
+  {
+    from: '/es/ensayos/anillos-que-sigo-redibujando',
+    to: '/es/ensayos/circulos-que-sigo-redibujando/',
+  },
+  {
+    from: '/es/ensayos/anillos-que-sigo-redibujando/',
+    to: '/es/ensayos/circulos-que-sigo-redibujando/',
+  },
 ] as const;
 
 /** Resolve a request pathname to its legacy redirect destination.

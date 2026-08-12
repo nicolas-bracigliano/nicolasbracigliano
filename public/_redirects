@@ -5,3 +5,7 @@
 /es/colof%C3%B3n/      /es/como-esta-hecho/   301
 /es/colofon       /es/como-esta-hecho/   301
 /es/colofon/      /es/como-esta-hecho/   301
+
+# Preserve the Spanish essay URL renamed from "anillos" to "circulos".
+/es/ensayos/anillos-que-sigo-redibujando    /es/ensayos/circulos-que-sigo-redibujando/   301
+/es/ensayos/anillos-que-sigo-redibujando/   /es/ensayos/circulos-que-sigo-redibujando/   301
