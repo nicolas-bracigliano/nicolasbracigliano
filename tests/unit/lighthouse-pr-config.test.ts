@@ -2,6 +2,7 @@ import { describe, expect, it, beforeAll } from 'vitest';
 import { execFileSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { buildTargets, discoverEntries } from '../../scripts/smoke-routes';
 
 // PR CI runs Lighthouse against a trimmed URL set so feedback stays fast.
 // Rather than maintain a second config file by hand, the PR config is
@@ -79,6 +80,20 @@ describe('lighthouse PR config generator', () => {
     const canonicalUrls = new Set(canonical.ci.collect.url);
     for (const url of generated.ci.collect.url) {
       expect(canonicalUrls, `${url} (PR) must also be in lighthouserc.json`).toContain(url);
+    }
+  });
+
+  it('every canonical URL is a current published route', async () => {
+    const entries = await discoverEntries(join(ROOT, 'src', 'content'));
+    const publishedPaths = new Set(
+      buildTargets(entries)
+        .filter((target) => target.expected === 200)
+        .map((target) => target.path),
+    );
+
+    for (const url of canonical.ci.collect.url) {
+      const pathname = new URL(url).pathname;
+      expect(publishedPaths, `${pathname} must resolve to a published route`).toContain(pathname);
     }
   });
 });
