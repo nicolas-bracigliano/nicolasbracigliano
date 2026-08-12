@@ -99,9 +99,9 @@ describe('buildTargets', () => {
   });
 
   it('uses the ES route segment for ES entries', () => {
-    const targets = buildTargets([entry('pieces', 'anillos', 'es')]);
+    const targets = buildTargets([entry('pieces', 'circulos', 'es')]);
     // ES pieces live at /es/ensayos/ per ADR 0010 — asymmetric routing.
-    expect(targets.some((t) => t.path === '/es/ensayos/anillos/')).toBe(true);
+    expect(targets.some((t) => t.path === '/es/ensayos/circulos/')).toBe(true);
   });
 
   it('filters out non-published entries', () => {

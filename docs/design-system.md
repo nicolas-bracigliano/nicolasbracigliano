@@ -280,7 +280,7 @@ The mirror of §7, for long-form. Pieces are arguments — slower, polished, str
 
 6. **Bilingual:** ES = **parallel composition, not translation**. Rioplatense markers required: `vos`/`sos`, `escribís`/`mencioná`/`tomá`-style conjugations, `pileta`/`huerta`/`tipo`. Applies to body, captions, ledes, margin-note text, all frontmatter strings — a reviewer reading only the frontmatter shouldn't be able to spot which language was "the original."
 
-7. **Code-name capitalisation across languages.** Framework labels stay in English even inside Spanish prose: Content / Pattern / Relationship (CPR), Container / Component (C4), Use Cases / Interface Adapters (Rings). Treated as proper nouns, capitalised, preserved verbatim across siblings.
+7. **Framework terminology across languages.** Preserve labels that function as code names, such as Content / Pattern / Relationship in CPR. In Spanish, use established translations for generic technical labels: Contenedor / Componente in C4 and Casos de Uso / Adaptadores de Interfaz in the Clean Architecture piece. Treat them as proper terms, capitalise them consistently, and do not mix translated and untranslated variants within the same locale.
 
 8. **Tags:** 2–3, framework-first. EN keeps the framework as an English noun phrase; ES keeps the English loanword + translates the domain term. Worked examples:
    - `[clean-architecture, software-design]` / `[clean-architecture, diseño-de-software]`

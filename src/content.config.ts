@@ -213,9 +213,9 @@ const pieces = defineCollection({
         // generated heading anchor, which is derived from the heading
         // TEXT. So the same conceptual diagram needs different `after`
         // values per locale — the EN piece's `## Why rings` (slug
-        // `why-rings`) and the ES piece's `## Por qué los anillos`
-        // (slug `por-que-los-anillos`) reference the same diagram with
-        // different keys. Translation pairs must keep these in sync;
+        // `why-rings`) and the ES piece's `## Por qué círculos y no cajas`
+        // (slug `por-que-circulos-y-no-cajas`) reference the same diagram
+        // with different keys. Translation pairs must keep these in sync;
         // there's no schema-level enforcement.
         diagrams: z
           .array(
