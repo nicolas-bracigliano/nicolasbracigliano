@@ -1,6 +1,6 @@
 {
   "name": "nicolasbracigliano-com",
-  "version": "1.26.1",
+  "version": "1.26.2",
   "private": true,
   "description": "Bilingual personal site built with Astro 7 and Cloudflare Workers Static Assets.",
   "homepage": "https://nicolasbracigliano.com",

@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.26.2](https://github.com/nicolas-bracigliano/nicolasbracigliano/compare/v1.26.1...v1.26.2) (2026-08-12)
+
+
+### Bug Fixes
+
+* **ci:** update renamed Lighthouse route ([50a5275](https://github.com/nicolas-bracigliano/nicolasbracigliano/commit/50a5275e87100af8f64f6f87d9f6f0bf4a9089c0))
+* **ci:** update renamed Lighthouse route ([2bfe51a](https://github.com/nicolas-bracigliano/nicolasbracigliano/commit/2bfe51aa5a4ac3f854fcf754b4aea9dce8b19952))
+
 ## [1.26.1](https://github.com/nicolas-bracigliano/nicolasbracigliano/compare/v1.26.0...v1.26.1) (2026-08-12)
 
 
