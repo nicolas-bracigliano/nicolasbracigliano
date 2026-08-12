@@ -20,6 +20,9 @@ export default defineConfig({
   },
   webServer: {
     command: 'pnpm preview --port 4321',
+    // Astro 7.2 backgrounds preview automatically when it detects an AI agent.
+    // Playwright must own the foreground process so readiness and teardown work.
+    env: { ASTRO_PREVIEW_BACKGROUND: '0' },
     port: PORT,
     reuseExistingServer: !process.env.CI,
     timeout: 60_000,
