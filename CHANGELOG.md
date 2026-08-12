@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.25.4](https://github.com/nicolas-bracigliano/nicolasbracigliano/compare/v1.25.3...v1.25.4) (2026-08-12)
+
+
+### Documentation
+
+* **notes:** update espresso machine comparison ([67b2d4f](https://github.com/nicolas-bracigliano/nicolasbracigliano/commit/67b2d4ff3f449b174c53776681a6135566de9bf1))
+
 ## [1.25.3](https://github.com/nicolas-bracigliano/nicolasbracigliano/compare/v1.25.2...v1.25.3) (2026-08-11)
 
 
