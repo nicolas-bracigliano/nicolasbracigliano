@@ -12,7 +12,7 @@ number: '02'
 lede: 'Carcasa de madera alrededor del TV, con un hogar apaisado y una repisa de piedra.'
 specs:
   madera: 'nogal'
-  piedra: 'tbd'
+  piedra: 'Mármol Calacatta Oro'
   medidas: '3 × 2.7 × 0.46 m'
   tv: '75″'
   fireplace: 'eléctrico · 2 m apaisado'

@@ -12,7 +12,7 @@ number: '02'
 lede: 'Wooden shell around the TV, with a landscape fire and a stone shelf.'
 specs:
   wood: 'walnut'
-  stone: 'tbd'
+  stone: 'Calacatta Gold marble'
   size: '3 × 2.7 × 0.46 m'
   tv: '75″'
   fireplace: 'electric · 2 m landscape'
