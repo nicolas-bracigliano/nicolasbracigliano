@@ -105,19 +105,6 @@
     color: var(--ink-2);
     margin: 0;
   }
-  .masthead-meta {
-    margin-block-start: 1.75rem;
-    font-size: 0.7rem;
-    letter-spacing: 0.16em;
-    text-transform: uppercase;
-    color: var(--ink-3);
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.75rem;
-    align-items: center;
-    max-width: none;
-  }
-
   /* Mate pulsing dot in the eyebrow — animation in animations.css */
   .dot {
     display: inline-block;
@@ -585,7 +572,7 @@
      fuera de lugar" — were rendering in roman, not italic.
      Promoted alongside `.muted`. The handful of scoped rules that
      remain (`.about-prose .about-out .serif-italic`,
-     `.colofon-sig .muted`, `.work-art--code .work-art-type-list
+     `.build-sig .muted`, `.work-art--code .work-art-type-list
      .muted`) are real overrides that add layout or substitute
      colour, not duplicates. */
   .serif-italic {
@@ -600,7 +587,7 @@
      defined inside scoped parents (`.masthead-text .eyebrow`,
      `.bench-head .eyebrow`, `.latest-head .eyebrow`, `.field-col
      .eyebrow`). Six route mastheads (notes / works / about /
-     colophon / now / 404) sat outside all four parents and were
+     build / now / 404) sat outside all four parents and were
      rendering in body monospace with no tracking, no uppercase, no
      muted colour — a quiet but real prototype-floor miss. Promoted
      to a global utility with the four core declarations every
@@ -616,7 +603,7 @@
 
   /* `.eyebrow--rule` — opt-in modifier that prepends a hairline
      to the label. The route mastheads (About / Notes / Works /
-     Colophon) carried "——— Label" as text content from the
+     Build notes) carried "——— Label" as text content from the
      prototype port. With `.eyebrow`'s `letter-spacing: 0.18em`
      applied (added in PR #28), three adjacent "—" glyphs sit
      ~2 px apart and read as three dashes instead of one rule.
@@ -645,10 +632,9 @@
   }
 
   /* `.sep` — the dimmed "·" separator between metadata fields.
-     Three places painted `opacity: 0.5` scoped (`.masthead-meta
-     .sep`, `.note-foot .sep`, the work-detail eyebrow/foot); a fourth
-     consumer (the first `·` in the home masthead, before the mate
-     dot) sat outside any scoped parent and rendered at full
+     The note foot and work-detail eyebrow/foot originally painted
+     this opacity locally, while the home masthead separator before
+     the mate dot sat outside either scope and rendered at full
      opacity. Hoisted to a global. The mobile-hide rule
      `.masthead-text .eyebrow .sep:has(+ .now-time)` still lives
      below — it's a different layer (visibility, not opacity). */

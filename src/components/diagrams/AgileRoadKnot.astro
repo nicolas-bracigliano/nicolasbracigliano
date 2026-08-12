@@ -3,12 +3,20 @@
 // straightens into a clean line on the right. Visual shorthand for the
 // chaos-to-clarity journey the agile piece is about. No literal arrows
 // or labels — the metaphor carries it.
+import type { Locale } from '@lib/routes';
+
 export interface Props {
   caption?: string;
   label?: string;
+  locale: Locale;
 }
-const { caption, label } = Astro.props;
+const { caption, label, locale } = Astro.props;
 const labelled = label !== undefined;
+const copy = {
+  en: { start: 'where it usually starts', end: 'where it should land' },
+  es: { start: 'donde suele empezar', end: 'adonde debería llegar' },
+} as const;
+const t = copy[locale];
 ---
 
 <figure
@@ -39,8 +47,8 @@ const labelled = label !== undefined;
       <path d="M292 62 L 300 68 L 292 74"></path>
     </g>
     <g class="d-label" font-style="italic" font-size="9" opacity="0.7">
-      <text x="20" y="120">where it usually starts</text>
-      <text x="300" y="120" text-anchor="end">where it should land</text>
+      <text x="20" y="120">{t.start}</text>
+      <text x="300" y="120" text-anchor="end">{t.end}</text>
     </g>
   </svg>
   {caption && <figcaption>{caption}</figcaption>}

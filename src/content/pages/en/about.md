@@ -5,7 +5,7 @@ lang: en
 translationId: about
 date: 2026-05-21
 status: published
-lede: 'Senior software engineer in Melbourne, working in public, in process.'
+lede: 'Software engineer in Melbourne.'
 ---
 
 ## How I got here
@@ -16,7 +16,7 @@ It came with a book about DOS and QBasic, and I read it the way other kids read 
 
 ## What I work on
 
-Day job: senior engineering on a cybersecurity product. What keeps me in it is the stakes: when the work holds, people and organisations are safer for it, and that doesn't get old. The people I do it with are exceptional, which I don't say lightly.
+Day job: building a cybersecurity product. What keeps me in it is the stakes: when the work holds, people and organisations are safer for it, and that doesn't get old. The people I do it with are exceptional, which I don't say lightly.
 
 Off the clock: small projects (excuses to write code), a steady drip of [3D-printable objects](/en/works/), weekly time with the guitar, and an ongoing argument with my fruit trees and hedges. Everything is documented somewhere on this site.
 

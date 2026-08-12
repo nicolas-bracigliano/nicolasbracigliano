@@ -13,15 +13,35 @@
 // `aria-hidden` by default; if `label` is provided, the figure becomes
 // `role="img"` with the label and the SVG carries a `<title>` so the
 // diagram is accessible both via screen reader and as standalone SVG.
+import type { Locale } from '@lib/routes';
+
 export interface Props {
   /** Optional visible caption below the diagram. */
   caption?: string;
   /** Optional accessible label. When set, the diagram stops being
    *  `aria-hidden` and announces itself to screen readers. */
   label?: string;
+  locale: Locale;
 }
-const { caption, label } = Astro.props;
+const { caption, label, locale } = Astro.props;
 const labelled = label !== undefined;
+const copy = {
+  en: {
+    entities: 'Entities',
+    useCases: 'Use Cases',
+    adapters: 'Interface Adapters',
+    frameworks: 'Frameworks & Drivers',
+    dependencies: ['Source Code Dependencies'],
+  },
+  es: {
+    entities: 'Entidades',
+    useCases: 'Casos de uso',
+    adapters: 'Adaptadores de interfaz',
+    frameworks: 'Frameworks y drivers',
+    dependencies: ['Dependencias del', 'código fuente'],
+  },
+} as const;
+const t = copy[locale];
 ---
 
 <figure
@@ -37,10 +57,10 @@ const labelled = label !== undefined;
       <circle cx="120" cy="120" r="24"></circle>
     </g>
     <g class="d-label" font-size="7" text-anchor="middle">
-      <text x="120" y="122">Entities</text>
-      <text x="120" y="88">Use Cases</text>
-      <text x="120" y="61">Interface Adapters</text>
-      <text x="120" y="32">Frameworks &amp; Drivers</text>
+      <text x="120" y="122">{t.entities}</text>
+      <text x="120" y="88">{t.useCases}</text>
+      <text x="120" y="61">{t.adapters}</text>
+      <text x="120" y="32">{t.frameworks}</text>
     </g>
     {/* Dependency-rule arrow: points inward, top → centre. */}
     <g class="d-arrow">
@@ -50,12 +70,20 @@ const labelled = label !== undefined;
       </g>
       <text
         x="199"
-        y="113"
+        y={locale === 'es' ? '106' : '113'}
         font-style="italic"
         font-size="6"
         stroke-width="0.3"
-        text-anchor="middle">Source Code Dependencies</text
+        text-anchor="middle"
       >
+        {
+          t.dependencies.map((line, index) => (
+            <tspan x="199" dy={index === 0 ? '0' : '7'}>
+              {line}
+            </tspan>
+          ))
+        }
+      </text>
     </g>
   </svg>
   {caption && <figcaption>{caption}</figcaption>}

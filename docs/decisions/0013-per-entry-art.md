@@ -11,7 +11,7 @@ Before this ADR, decorative art was per-kind, not per-entry:
 - `src/components/NoteGlyph.astro` did the same for a 5-value `glyph:` enum on notes.
 - `src/components/BenchCard.astro` reinvented the pattern a third time with four inline SVG vignettes keyed on bench `kind`.
 
-Three independent switches, all keyed on what amounts to the same site-wide taxonomy (now consolidated as `ContentKind` per PR #88). The friction wasn't theoretical: the colophon's "this site" work shipped with a custom `art: font-specimen` value that existed nowhere else, because per-kind defaults made every code-kind work look the same.
+Three independent switches, all keyed on what amounts to the same site-wide taxonomy (now consolidated as `ContentKind` per PR #88). The friction wasn't theoretical: the Build notes page's "this site" work shipped with a custom `art: font-specimen` value that existed nowhere else, because per-kind defaults made every code-kind work look the same.
 
 The repo already had the right pattern for this in one place — `DiagramRail.astro` + `src/lib/diagram-registry.ts` + per-diagram components in `src/components/diagrams/`. Adding a diagram = drop one `.astro` file + one registry line. Two named touch points. Scales.
 
@@ -36,7 +36,7 @@ The registry maps live inside `ContentArt.astro` rather than a separate `art-reg
 
 ## What we accept
 
-- **`this-site` loses `font-specimen`.** The colophon work shipped a custom HTML/CSS specimen vignette (big italic `Aa` plus a meta line). Converting that to a self-contained SVG drops the CSS-variable-driven typography that made it match the site fonts. We accept the loss: the colophon now shows the code-default (terminal log), and re-introducing the specimen as a real per-entry hero is a follow-up that proves the new mechanism on a real case.
+- **`this-site` loses `font-specimen`.** The Build notes work shipped a custom HTML/CSS specimen vignette (big italic `Aa` plus a meta line). Converting that to a self-contained SVG drops the CSS-variable-driven typography that made it match the site fonts. We accept the loss: Build notes now shows the code-default (terminal log), and re-introducing the specimen as a real per-entry hero is a follow-up that proves the new mechanism on a real case.
 - **BenchCard stays specialised.** The home-page bench cards bake user-content into the SVG (`guitarLabel`, `seedlingTag` are rendered as `<text>` inside the vignette). The registry's "stateless per-kind component" shape doesn't fit; a `BenchCard kind="guitar"` is already per-instance. Refactoring it would force a leaky props-by-kind abstraction across all the other components. BenchCard keeps its inline SVGs.
 - **The `print` and `read` kinds have no note glyph yet.** No existing note uses them; `NOTE_KINDS` excludes them by design. Adding either is a one-line change here plus a new component in `art/glyphs/`.
 

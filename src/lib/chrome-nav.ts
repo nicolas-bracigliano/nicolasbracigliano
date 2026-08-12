@@ -25,7 +25,7 @@ const EN: ReadonlyArray<NavItem> = [
   { key: 'works', label: 'works' },
   { key: 'pieces', label: 'pieces' },
   { key: 'about', label: 'about' },
-  { key: 'colophon', label: 'colophon' },
+  { key: 'build', label: 'build' },
 ];
 
 const ES: ReadonlyArray<NavItem> = [
@@ -34,7 +34,7 @@ const ES: ReadonlyArray<NavItem> = [
   { key: 'works', label: 'obras' },
   { key: 'pieces', label: 'ensayos' },
   { key: 'about', label: 'sobre' },
-  { key: 'colophon', label: 'colofón' },
+  { key: 'build', label: 'sitio' },
 ];
 
 export function getNavItems(locale: Locale): ReadonlyArray<NavItem> {

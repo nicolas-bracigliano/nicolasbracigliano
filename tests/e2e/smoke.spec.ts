@@ -1,5 +1,10 @@
+import { readFileSync } from 'node:fs';
 import { test, expect } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
+
+const { version: VERSION } = JSON.parse(
+  readFileSync(new URL('../../package.json', import.meta.url), 'utf8'),
+) as { version: string };
 
 const ROUTES = [
   { path: '/en/', lang: 'en', title: 'Nicolas Bracigliano' },
@@ -12,8 +17,8 @@ const ROUTES = [
   { path: '/es/sobre/', lang: 'es' },
   { path: '/en/about/now/', lang: 'en' },
   { path: '/es/sobre/ahora/', lang: 'es' },
-  { path: '/en/colophon/', lang: 'en' },
-  { path: '/es/colofón/', lang: 'es' },
+  { path: '/en/build/', lang: 'en' },
+  { path: '/es/como-esta-hecho/', lang: 'es' },
   { path: '/en/pieces/', lang: 'en' },
   { path: '/es/ensayos/', lang: 'es' },
   // One slug per locale to exercise the editorial slug-page layout
@@ -62,6 +67,28 @@ for (const route of ROUTES) {
     expect(serious).toEqual([]);
   });
 }
+
+test('global footer localizes the Build link and shows the package version', async ({ page }) => {
+  for (const expected of [
+    { path: '/en/', label: 'Build', href: '/en/build/' },
+    { path: '/es/', label: 'Sitio', href: '/es/como-esta-hecho/' },
+  ]) {
+    await page.goto(expected.path);
+    const footer = page.locator('.footer');
+    await expect(footer.getByRole('link', { name: expected.label })).toHaveAttribute(
+      'href',
+      expected.href,
+    );
+    await expect(footer).toContainText(`v${VERSION}`);
+  }
+});
+
+test('Build notes pages do not restore the retired process slogan', async ({ page }) => {
+  for (const path of ['/en/build/', '/es/como-esta-hecho/']) {
+    await page.goto(path);
+    await expect(page.locator('body')).not.toContainText('en público, en proceso');
+  }
+});
 
 test('day/night toggle is role="switch" with aria-checked', async ({ page }) => {
   await page.goto('/en/');
@@ -134,16 +161,18 @@ test('work entry pages emit og:image meta pointing at the generated PNG', async 
   await expect(ogImage).toHaveAttribute('content', /\/og\/works\/en-this-site\.png$/);
 });
 
-test('note detail page renders an auto-computed read-time in the colophon', async ({ page }) => {
+test('note detail page renders an auto-computed read-time in the article footer', async ({
+  page,
+}) => {
   // The slug page has its own composition (NoteDetail, not NoteEntry):
-  // read-time renders in the shared ArticleColophon meta line, computed
+  // read-time renders in the shared ArticleFooter meta line, computed
   // from the body when frontmatter `minutes:` is absent.
   await page.goto('/en/notes/hello/');
   await expect(page.locator('.ac-meta')).toContainText(/read time \d+ min/);
 });
 
-test('detail pages carry the colophon copy-link wired to their own path', async ({ page }) => {
-  // The quiet copy control lives in the shared ArticleColophon on all
+test('detail pages carry the footer copy-link wired to their own path', async ({ page }) => {
+  // The quiet copy control lives in the shared ArticleFooter on all
   // three detail routes; `data-ac-url` is what the clipboard script
   // copies (origin + path). One assertion per route guards the shared
   // wiring without re-testing the component three times.
@@ -159,7 +188,7 @@ test('detail pages carry the colophon copy-link wired to their own path', async 
   );
 });
 
-test('colophon copy-link copies the page URL and reports success honestly', async ({
+test('article footer copy-link copies the page URL and reports success honestly', async ({
   page,
   context,
 }) => {
@@ -184,25 +213,25 @@ test('notes index renders the "→ link" permalink on each note', async ({ page 
   await expect(links.first()).toHaveAttribute('href', /^\/en\/notes\/[a-z-]+\/$/);
 });
 
-test('colophon Principles section carries the .is-accent modifier', async ({ page }) => {
-  await page.goto('/en/colophon/');
+test('Build notes Principles section carries the .is-accent modifier', async ({ page }) => {
+  await page.goto('/en/build/');
   // The Principles section is the one styled with the warm-tint <dl>.
   // We assert structurally rather than by index so reordering blocks
   // doesn't break the test.
-  const principles = page.locator('.colofon-block.is-accent');
+  const principles = page.locator('.build-block.is-accent');
   await expect(principles).toHaveCount(1);
   await expect(principles).toContainText('Principles');
 });
 
-test('colophon /es/ Principios section carries the .is-accent modifier', async ({ page }) => {
-  await page.goto('/es/colofón/');
-  const principios = page.locator('.colofon-block.is-accent');
+test('Cómo está hecho Principios section carries the .is-accent modifier', async ({ page }) => {
+  await page.goto('/es/como-esta-hecho/');
+  const principios = page.locator('.build-block.is-accent');
   await expect(principios).toHaveCount(1);
   await expect(principios).toContainText('Principios');
 });
 
 test('ASCII signature renders with the current two-digit year', async ({ page }) => {
-  await page.goto('/en/colophon/');
+  await page.goto('/en/build/');
   const yearTwoDigit = new Date().getFullYear().toString().slice(-2);
   // The block reads `│   N  ·  B  ·  'NN │` — assert the year segment.
   await expect(page.locator('.ascii-sig')).toContainText(`'${yearTwoDigit}`);
@@ -752,8 +781,8 @@ test.describe('CSP `script-src self` contract — zero inline scripts', () => {
     '/es/sobre/',
     '/en/about/now/',
     '/es/sobre/ahora/',
-    '/en/colophon/',
-    '/es/colofón/',
+    '/en/build/',
+    '/es/como-esta-hecho/',
     '/404.html',
   ] as const;
 
@@ -783,11 +812,11 @@ test.describe('route-masthead eyebrow renders a hairline rule', () => {
     '/en/about/',
     '/en/notes/',
     '/en/works/',
-    '/en/colophon/',
+    '/en/build/',
     '/es/sobre/',
     '/es/notas/',
     '/es/obras/',
-    '/es/colofón/',
+    '/es/como-esta-hecho/',
   ] as const;
 
   for (const path of ROUTES) {
@@ -836,7 +865,7 @@ test('pieces are og:type=article too', async ({ page }) => {
 test('index routes stay og:type=website and emit no article timestamps', async ({ page }) => {
   // The failure this guards: defaulting BaseLayout to `article` would make
   // every index and static page claim to be a dated document.
-  for (const path of ['/en/', '/en/notes/', '/en/works/', '/en/colophon/']) {
+  for (const path of ['/en/', '/en/notes/', '/en/works/', '/en/build/']) {
     await page.goto(path);
     await expect(page.locator('meta[property="og:type"]')).toHaveAttribute('content', 'website');
     await expect(page.locator('meta[property^="article:"]')).toHaveCount(0);

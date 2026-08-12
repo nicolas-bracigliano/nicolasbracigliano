@@ -1,0 +1,80 @@
+---
+import { getEntry } from 'astro:content';
+import BaseLayout from '@layouts/BaseLayout.astro';
+import BuildMasthead from '@components/BuildMasthead.astro';
+import BuildSection from '@components/BuildSection.astro';
+import BuildRow from '@components/BuildRow.astro';
+import AsciiSignature from '@components/AsciiSignature.astro';
+import { ROUTES } from '@lib/routes';
+import { getSibling, entryRouteFor } from '@lib/i18n';
+
+const entry = await getEntry('pages', 'en/build');
+if (!entry) throw new Error('Missing pages/en/build');
+const sibling = await getSibling(entry);
+const { title, lede } = entry.data;
+
+const path = ROUTES.build.en;
+const siblingPath = sibling ? entryRouteFor(sibling) : null;
+---
+
+<BaseLayout
+  title={title}
+  locale="en"
+  path={path}
+  siblingPath={siblingPath}
+  {...lede && { description: lede }}
+>
+  <section class="build wrap">
+    <BuildMasthead locale="en" />
+
+    <BuildSection tag="01" title="Built with">
+      <BuildRow dt="language">html · css · typescript (no framework on the page)</BuildRow>
+      <BuildRow dt="generator">
+        <a href="/en/works/this-site/">astro 7</a> · static output · near-zero JS
+      </BuildRow>
+      <BuildRow dt="tested">playwright in chromium · axe-core a11y · lighthouse ci</BuildRow>
+      <BuildRow dt="search">⌘K palette · navigation index, no full-text</BuildRow>
+    </BuildSection>
+
+    <BuildSection tag="02" title="Set in">
+      <BuildRow dt="headline">
+        <span class="serif">Newsreader</span> · variable, 400–600
+      </BuildRow>
+      <BuildRow dt="body">
+        <span class="mono-display">JetBrains Mono</span> · variable, 100–700
+      </BuildRow>
+      <BuildRow dt="fallbacks">iowan old style, georgia · ui-monospace, menlo</BuildRow>
+      <BuildRow dt="a11y">min 15 px body · 1.55 line height · contrast AA+</BuildRow>
+    </BuildSection>
+
+    <BuildSection tag="03" title="Hosted on">
+      <BuildRow dt="serves">cloudflare workers · static assets</BuildRow>
+      <BuildRow dt="assets">self-hosted fonts · no third-party scripts</BuildRow>
+      <BuildRow dt="privacy">no cookies · no client-side analytics · no beacon</BuildRow>
+      <BuildRow dt="dns">cloudflare · DNSSEC + HSTS preload</BuildRow>
+    </BuildSection>
+
+    <BuildSection tag="04" title="Workflow">
+      <BuildRow dt="write">markdown in /src/content, typed via Zod</BuildRow>
+      <BuildRow dt="preview">astro dev · livereload on save</BuildRow>
+      <BuildRow dt="publish">git push → github actions → wrangler deploy</BuildRow>
+      <BuildRow dt="draft">a status in frontmatter, kept out of the build</BuildRow>
+    </BuildSection>
+
+    <BuildSection tag="05" title="Principles" accent>
+      <BuildRow dt="hecho a mano">every page shows craft. nothing is templated.</BuildRow>
+      <BuildRow dt="one maker, many crafts">
+        code, guitar, garden, 3D: facets of one person.
+      </BuildRow>
+      <BuildRow dt="tools are visible">this page exists for that reason.</BuildRow>
+      <BuildRow dt="curiosity over conclusion">titles can be questions.</BuildRow>
+      <BuildRow dt="perf, a11y, security">as aesthetics, not as checkboxes.</BuildRow>
+    </BuildSection>
+
+    <BuildSection tag="06" title="The desk">
+      <BuildRow dt="fuel">mate all day · a long black every morning</BuildRow>
+    </BuildSection>
+
+    <AsciiSignature locale="en" />
+  </section>
+</BaseLayout>

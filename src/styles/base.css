@@ -12,7 +12,7 @@
 @import url('./routes/pieces.css');
 @import url('./routes/home.css');
 @import url('./routes/notes.css');
-@import url('./routes/colophon.css');
+@import url('./routes/build.css');
 @import url('./routes/works.css');
 @import url('./routes/works-detail.css');
 @import url('./routes/about.css');
@@ -25,7 +25,7 @@
    search). See the design-system command-palette section. */
 @import url('./cmdk.css');
 /* Component-scoped (not a route): the shared end-of-page footers —
-   SectionEnd (index caps) + ArticleColophon (detail colophon with the
+   SectionEnd (index caps) + ArticleFooter (detail footer with the
    copy-link control). */
 @import url('./footers.css');
 
@@ -477,7 +477,7 @@
       position: relative;
     }
     /* Very narrow viewports (≤ 380 px): 6 items × ~60 px ≈ 360 px,
-       so labels like "colofón" / "ensayos" may visually tighten.
+       so labels like "ensayos" may visually tighten.
        Shrink the font half a step and tighten padding to keep each
        label readable without truncation. Falls back gracefully on
        slightly-wider screens via the cascade. */
@@ -566,8 +566,8 @@
 @media print {
   /* Suppress chrome + interactive affordances. The reader has
      the URL in the footer of the printed page already. The
-     colophon's nav row (back-link · back-to-top · copy-link) is
-     all interactive, so it goes wholesale; the colophon meta and
+     article footer's nav row (back-link · back-to-top · copy-link) is
+     all interactive, so it goes wholesale; the footer meta and
      signature still print. */
   .chrome,
   .foot-rail,

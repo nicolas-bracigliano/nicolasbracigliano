@@ -2,16 +2,17 @@
 
 **Status**: Accepted
 **Date**: 2026-05-21
+**Amended**: 2026-08-12 — Build notes renamed; legacy paths retained as permanent redirects.
 
 ## Context
 
-The site is bilingual (English + Spanish, design system §5) with **localised URL segments**: `/en/notes/` ↔ `/es/notas/`, `/en/works/` ↔ `/es/obras/`, `/en/colophon/` ↔ `/es/colofón/`, `/en/about/now/` ↔ `/es/sobre/ahora/`, etc. The Spanish segments aren't just translated — they're meant to _be_ the Spanish word, including the accented `ó` in `colofón` because the design system insists Spanish words must read as Spanish, not as transliteration.
+The site is bilingual (English + Spanish, design system §5) with **localised URL segments**: `/en/notes/` ↔ `/es/notas/`, `/en/works/` ↔ `/es/obras/`, `/en/build/` ↔ `/es/como-esta-hecho/`, `/en/about/now/` ↔ `/es/sobre/ahora/`, etc. Spanish paths use natural Spanish words or phrases rather than copying the English segment.
 
 We also need:
 
 - Per-page `<link rel="alternate" hreflang>` to the sibling translation
 - A "missing translation" fallback (when an entry is published in only one language, design system §5)
-- The pages collection's `home`/`about`/`now`/`colophon` slugs must map to per-locale URLs (not just `/{lang}/{slug}/`)
+- The pages collection's `home`/`about`/`now`/`build` slugs must map to per-locale URLs (not just `/{lang}/{slug}/`)
 
 ## Decision
 
@@ -25,8 +26,8 @@ We also need:
     works: { en: '/en/works/', es: '/es/obras/' },
     about: { en: '/en/about/', es: '/es/sobre/' },
     now: { en: '/en/about/now/', es: '/es/sobre/ahora/' },
-    colophon: { en: '/en/colophon/', es: '/es/colofón/' },
-    essays: { en: '/en/essays/', es: '/es/ensayos/' },
+    build: { en: '/en/build/', es: '/es/como-esta-hecho/' },
+    pieces: { en: '/en/pieces/', es: '/es/ensayos/' },
   } as const;
   ```
 
@@ -49,7 +50,7 @@ The `ROUTES` constant solves three problems at once: typed lookup for navigation
 **What we accept:**
 
 - **Adding a route is a four-step change**: (1) add to `ROUTES`, (2) create the page in `/en/`, (3) create the page in `/es/`, (4) write the content in both languages. If you forget any of these, CI catches it: the `findSiblingIn` test fails if a `translationId` is published without its sibling.
-- **The ES route segment for `colofón` contains a non-ASCII character**. Cloudflare Workers Static Assets serves it correctly (clients that send the literal UTF-8 byte get 307-redirected to the percent-encoded canonical form, then 200). Some clients normalise (`/es/colofon` vs `/es/colofón`); mitigated by a 301 in `public/_redirects` from the unaccented form.
+- **Renamed routes need permanent redirects.** The former `/en/colophon/`, `/es/colofón/`, and unaccented `/es/colofon/` variants redirect to the Build notes routes in `src/worker.ts`; equivalent percent-encoded rules remain in `public/_redirects` as an asset-layer fallback. The Worker owns the behavior because Cloudflare receives the accented path percent-encoded and does not match a raw-Unicode `_redirects` source. The post-deploy smoke test checks every legacy form and its `Location` header.
 - **No automatic locale fallback**. If the user requests `/es/essays/` and we only have `/en/essays/` content, they see the empty index page — not the English fallback. This is intentional per design system §2 ("Not bilingual in the half-measure sense"): either a page exists in both languages or the language toggle disables itself.
 
 **What we gain:**

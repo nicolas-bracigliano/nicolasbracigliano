@@ -2,7 +2,7 @@
 
 [![CI](https://github.com/nicolas-bracigliano/nicolasbracigliano/actions/workflows/ci.yml/badge.svg)](https://github.com/nicolas-bracigliano/nicolasbracigliano/actions/workflows/ci.yml)
 
-A bilingual personal site by Nicolás Bracigliano: a colophon, not a portfolio. Built as a small reference for taste in typography, architecture, and engineering.
+A bilingual personal site by Nicolás Bracigliano: work, writing, and the process behind making both. Built as a small reference for taste in typography, architecture, and engineering.
 
 → Live at **[nicolasbracigliano.com](https://nicolasbracigliano.com)** · en/es with full hreflang.
 
@@ -11,7 +11,7 @@ A bilingual personal site by Nicolás Bracigliano: a colophon, not a portfolio. 
   <img src="./docs/assets/home-noche.png" alt="Home page in the Noche (dark) theme" width="49%" />
 </p>
 
-The codebase is the colophon. Every consequential choice (the strict `script-src 'self'` under native View Transitions, the mirrored bilingual routes, the per-route visual treatments) is documented in [`docs/decisions/`](./docs/decisions/). Read those if you came for the architecture; jump to [**Local development**](#local-development) if you came to run it.
+The codebase documents how the site is made. Every consequential choice (the strict `script-src 'self'` under native View Transitions, the mirrored bilingual routes, the per-route visual treatments) is recorded in [`docs/decisions/`](./docs/decisions/). Read those if you came for the architecture; jump to [**Local development**](#local-development) if you came to run it.
 
 ---
 
@@ -19,9 +19,9 @@ The codebase is the colophon. Every consequential choice (the strict `script-src
 
 - **Strict CSP under View Transitions.** `default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'` over Astro's `<ClientRouter />`. The combination is non-obvious: ClientRouter injects runtime view-transition styles that can't be hashed at build time, and every hoisted `<script>` has to externalize for `script-src 'self'` to hold. See [ADR 0002](./docs/decisions/0002-csp-style-src-unsafe-inline.md) for the style-src trade-off and [ADR 0008](./docs/decisions/0008-externalize-hoisted-scripts-for-csp.md) for the script-side fix. CI enforces the contract: every route is asserted to ship zero inline `<script>` bodies on every PR.
 
-- **Cloudflare Workers Static Assets, one tiny Worker.** [`src/worker.ts`](./src/worker.ts) handles two dynamic paths — an `Accept-Language` redirect at `/` and `/.well-known/security.txt` — and delegates everything else to the asset binding. `run_worker_first` in [`wrangler.toml`](./wrangler.toml) keeps the redirect alive past Cloudflare's `not_found_handling = "404-page"` short-circuit, listing those two paths plus the `/en/*` and `/es/*` page prefixes — the prefixes purely so page views produce a Worker log, since every asset path stays out of the Worker entirely (a real bug the test suite now catches; the [ADR 0001 postscript](./docs/decisions/0001-cloudflare-pages.md) tells the migration story).
+- **Cloudflare Workers Static Assets, one tiny Worker.** [`src/worker.ts`](./src/worker.ts) handles an `Accept-Language` redirect at `/`, serves `/.well-known/security.txt`, and preserves renamed public routes; everything else delegates to the asset binding. `run_worker_first` in [`wrangler.toml`](./wrangler.toml) keeps those behaviors ahead of Cloudflare's asset lookup while the `/en/*` and `/es/*` prefixes also make page views produce a Worker log. Asset paths stay out of the Worker entirely (the [ADR 0001 postscript](./docs/decisions/0001-cloudflare-pages.md) tells the migration story).
 
-- **Bilingual mirrored routes.** Every page exists at `/en/<slug>` and `/es/<slug>` with localised URL segments (`/en/notes/` ↔ `/es/notas/`, `/en/works/` ↔ `/es/obras/`, `/en/colophon/` ↔ `/es/colofón/`). [`src/lib/routes.ts`](./src/lib/routes.ts) is the single source of truth, [ADR 0003](./docs/decisions/0003-mirrored-bilingual-routes.md) is the rationale, and the post-deploy CI smoke script ([`scripts/smoke-routes.ts`](./scripts/smoke-routes.ts)) derives its route list from `ROUTES` + published content frontmatter at runtime. Adding a route is one edit, not two.
+- **Bilingual mirrored routes.** Every page exists at `/en/<slug>` and `/es/<slug>` with localised URL segments (`/en/notes/` ↔ `/es/notas/`, `/en/works/` ↔ `/es/obras/`, `/en/build/` ↔ `/es/como-esta-hecho/`). [`src/lib/routes.ts`](./src/lib/routes.ts) is the single source of truth, [ADR 0003](./docs/decisions/0003-mirrored-bilingual-routes.md) is the rationale, and the post-deploy CI smoke script ([`scripts/smoke-routes.ts`](./scripts/smoke-routes.ts)) derives its route list from `ROUTES` + published content frontmatter at runtime. Adding a route is one edit, not two.
 
 - **TypeScript strict, the real flags.** All four "the ones that actually catch bugs" flags are on: `exactOptionalPropertyTypes`, `noUnusedLocals`, `noUnusedParameters`, `noImplicitReturns`. [ADR 0007](./docs/decisions/0007-tsconfig-strictness-flipped.md) documents the post-bootstrap flip.
 
@@ -31,7 +31,7 @@ The codebase is the colophon. Every consequential choice (the strict `script-src
 
 - **A11y on every PR.** `@axe-core/playwright` runs against every route in the e2e suite. Serious or critical violations fail the build, not a manual sweep.
 
-- **No analytics.** No beacon, no cookies, no third-party requests; the CSP's `connect-src 'self'` forecloses client-side tracking by default.
+- **No client-side analytics.** No beacon, no cookies, no third-party requests; the CSP's `connect-src 'self'` forecloses client-side tracking by default. Aggregate zone traffic and short-lived Worker invocation logs remain server-side, as documented in [`docs/security.md`](./docs/security.md#analytics).
 
 ---
 
@@ -55,7 +55,7 @@ The site treats each route as its own short essay with its own visual register. 
 - `/works/`: **Index-card catalog**. Vignette + `<dl>` of specs + status dot. Filter buttons gated to ~600 B of vanilla JS.
 - `/about/`: **Editorial + sidebar**. Two-column prose with sticky FactsCards. A first-visit `hola.` intro overlay that dissolves with `filter: blur()`.
 - `/about/now/`: **Numbered bench tour**. What's on my bench right now.
-- `/colophon/`: **Typewriter credits roll**. Tags + `<dl>` rows, ASCII signature.
+- `/build/` · `/como-esta-hecho/`: **Typewriter credits roll**. Tags + `<dl>` rows, ASCII signature.
 - `/404`: **Misplaced letter**. Bilingual recovery affordance.
 
 Animation discipline lives in [ADR 0006](./docs/decisions/0006-no-first-paint-animation.md) (no first-paint animation; axe-core would mid-fade-fail contrast checks otherwise) and [ADR 0005](./docs/decisions/0005-theme-state-auto-override-retire.md) (the Día/Noche theme state machine that retires explicit overrides when the OS catches up).

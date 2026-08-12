@@ -40,5 +40,5 @@ lighthouserc.pr.generated.json
 .playwright-mcp/
 /notes-*.png
 /page-*.png
-/colophon-*.png
+/build-*.png
 /works-*.png

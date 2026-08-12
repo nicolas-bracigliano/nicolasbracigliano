@@ -13,7 +13,7 @@
 // off the button is inert and the page simply has no copy affordance
 // (the address bar still has the URL).
 //
-// This does NOT cover the global site footer (© · hecho a mano) or the
+// This does NOT cover the global site footer (© · name · year · Build/Sitio · version) or the
 // index/list caps (SectionEnd.astro) — those are different objects.
 //
 // The em dash in the signature is the approved chrome use of `—`
@@ -60,7 +60,7 @@ const copy = {
 const t = copy[locale];
 ---
 
-<footer class="article-colophon">
+<footer class="article-footer">
   <p class="ac-meta"><slot /></p>
 
   <p class="ac-sig">
@@ -134,7 +134,7 @@ const t = copy[locale];
   //
   // `astro:page-load` fires on every ClientRouter navigation; the
   // `data-wired` guard prevents double-binding when an un-swapped
-  // colophon survives a transition (the swap replaces <main>, so a
+  // footer survives a transition (the swap replaces <main>, so a
   // fresh page's control arrives unwired and gets picked up).
   //
   // Three states, honest about outcomes:

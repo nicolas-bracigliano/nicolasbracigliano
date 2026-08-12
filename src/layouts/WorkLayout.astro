@@ -1,10 +1,11 @@
 ---
 import BaseLayout from './BaseLayout.astro';
-import ArticleColophon from '@components/ArticleColophon.astro';
+import ArticleFooter from '@components/ArticleFooter.astro';
 import ContentArt from '@components/ContentArt.astro';
 import type { CollectionEntry } from 'astro:content';
 import { ROUTES, type Locale } from '@lib/routes';
 import { ogImageUrlFor } from '@lib/i18n';
+import { workKindLabel, workLifecycleLabel } from '@lib/content-kinds';
 
 export interface Props {
   entry: CollectionEntry<'works'>;
@@ -31,13 +32,15 @@ const {
 const locale: Locale = lang;
 const specEntries = Object.entries(specs);
 const ogImage = ogImageUrlFor(entry);
+const kindLabel = workKindLabel(kind, locale);
+const lifecycleLabel = workLifecycleLabel(lifecycle, locale);
 
 const indexHref = ROUTES.works[locale];
 
 // Per-locale chrome copy. Strings live in this component (project
 // convention); i18n.ts is the routing module, not a translation store.
 // The signature (and its em-dash chrome exemption) moved into
-// `ArticleColophon.astro` with the rest of the foot.
+// `ArticleFooter.astro` with the rest of the foot.
 const copy = {
   en: {
     back: '← back to works',
@@ -115,11 +118,11 @@ const revDisplay = (d: string) => d.split('-').join(' · ');
           )
         }
         <span class="sep" aria-hidden="true">·</span>
-        <span class="work-detail-eyebrow-kind">{kind}</span>
+        <span class="work-detail-eyebrow-kind">{kindLabel}</span>
         <span class="sep" aria-hidden="true">·</span>
         <span class="work-detail-eyebrow-life">
           <span class={`status-dot status-dot--${lifecycle}`} aria-hidden="true"></span>
-          {lifecycle}
+          {lifecycleLabel}
         </span>
       </p>
       <h1 class="work-detail-title">{title}</h1>
@@ -179,7 +182,7 @@ const revDisplay = (d: string) => d.split('-').join(' · ');
                     </time>
                     {it.status && (
                       <span class={`work-detail-iter-chip work-detail-iter-chip--${it.status}`}>
-                        {it.status}
+                        {workLifecycleLabel(it.status, locale)}
                       </span>
                     )}
                   </p>
@@ -235,7 +238,7 @@ const revDisplay = (d: string) => d.split('-').join(' · ');
       )
     }
 
-    <ArticleColophon
+    <ArticleFooter
       locale={locale}
       backHref={indexHref}
       backLabel={t.allWorks}
@@ -250,8 +253,8 @@ const revDisplay = (d: string) => d.split('-').join(' · ');
       <span class="ac-sep" aria-hidden="true">·</span>
       <span>
         <span class="ac-label">{t.filedUnder}</span>
-        {kind}
+        {kindLabel}
       </span>
-    </ArticleColophon>
+    </ArticleFooter>
   </article>
 </BaseLayout>

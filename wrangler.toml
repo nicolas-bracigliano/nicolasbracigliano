@@ -73,13 +73,14 @@ binding = "ASSETS"
 # ── Kind 2: observability only ──
 #   "/en/*"  "/es/*"
 #
-# The Worker has NO branch for these — it falls straight through to
-# `env.ASSETS.fetch(request)`, exactly as if they weren't listed. They are
-# here on purpose anyway: a Worker invocation is what produces a Workers
-# Logs entry, so listing the two locale prefixes is what gives us per-page
-# view logs. Delete them and page-view observability silently goes to zero
-# while every test still passes — there is no assertion that can catch it,
-# which is why this comment is long.
+# The Worker branches only for the handful of legacy Build-note redirects under
+# these prefixes; current pages fall straight through to
+# `env.ASSETS.fetch(request)`. The broad prefixes are still here primarily for
+# observability: a Worker invocation is what produces a Workers Logs entry, so
+# listing them gives us per-page view logs. Narrow them to only the legacy paths
+# and page-view observability silently goes to zero while every current-page
+# test still passes — there is no assertion that can catch it, which is why this
+# comment is long.
 #
 # The choice is deliberate rather than `true`. `true` routes EVERY request
 # through the Worker — CSS, JS, fonts, OG PNGs, the ⌘K index — each paying
@@ -108,8 +109,8 @@ run_worker_first = ["/", "/.well-known/security.txt", "/en/*", "/es/*"]
 # `_headers` and `_redirects` from `public/` are copied into
 # `dist/` by Astro at build time. Cloudflare Workers Static
 # Assets reads both at deploy time — no extra config required.
-# The redirect for `/es/colofon` → `/es/colofón` and every
-# security header in `_headers` flow through automatically.
+# The legacy Build notes rules are an asset-layer fallback for the Worker-owned
+# redirects; every security header in `_headers` flows through automatically.
 
 # Workers Logs — ON, deliberately.
 #
@@ -156,4 +157,3 @@ invocation_logs = true
 enabled = true
 persist = true
 head_sampling_rate = 1
-

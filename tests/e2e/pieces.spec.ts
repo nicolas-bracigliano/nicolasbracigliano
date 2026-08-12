@@ -125,6 +125,54 @@ test.describe('piece editorial layout — ADR 0012', () => {
     await expect(esBack).toHaveAttribute('href', '/es/ensayos/');
   });
 
+  test('the Spanish dependency label stays inside the rings diagram', async ({ page }) => {
+    await page.goto('/es/ensayos/anillos-que-sigo-redibujando/');
+    await page.evaluate(() => document.fonts.ready);
+
+    const label = page.locator('.diagram--rings .d-arrow text');
+    await expect(label.locator('tspan')).toHaveCount(2);
+    await expect(label).toContainText('Dependencias del código fuente');
+
+    const bounds = await label.evaluate((element) => {
+      const labelBox = element.getBoundingClientRect();
+      const svgBox = element.ownerSVGElement?.getBoundingClientRect();
+      if (!svgBox) throw new Error('Dependency label must be inside an SVG');
+      return {
+        labelLeft: labelBox.left,
+        labelRight: labelBox.right,
+        svgLeft: svgBox.left,
+        svgRight: svgBox.right,
+      };
+    });
+
+    expect(bounds.labelLeft).toBeGreaterThanOrEqual(bounds.svgLeft);
+    expect(bounds.labelRight).toBeLessThanOrEqual(bounds.svgRight);
+  });
+
+  test('the Spanish Level 2 labels stay inside their container boxes', async ({ page }) => {
+    await page.goto('/es/ensayos/c4-cuatro-veces-seguidas/');
+    await page.evaluate(() => document.fonts.ready);
+
+    const diagram = page.locator('.diagram--c4-level-2');
+    const labels = [
+      { text: diagram.locator('.c4-label-web-app'), box: diagram.locator('.d-shape rect').nth(0) },
+      { text: diagram.locator('.c4-label-database'), box: diagram.locator('.d-shape rect').nth(2) },
+    ];
+
+    for (const { text, box } of labels) {
+      await expect(text.locator('tspan')).toHaveCount(2);
+      const [textBounds, boxBounds] = await Promise.all([text.boundingBox(), box.boundingBox()]);
+      expect(textBounds).not.toBeNull();
+      expect(boxBounds).not.toBeNull();
+      if (!textBounds || !boxBounds) throw new Error('C4 labels and boxes must be rendered');
+
+      expect(textBounds.x).toBeGreaterThanOrEqual(boxBounds.x);
+      expect(textBounds.x + textBounds.width).toBeLessThanOrEqual(boxBounds.x + boxBounds.width);
+      expect(textBounds.y).toBeGreaterThanOrEqual(boxBounds.y);
+      expect(textBounds.y + textBounds.height).toBeLessThanOrEqual(boxBounds.y + boxBounds.height);
+    }
+  });
+
   test('the lead paragraph carries `.lead-p` for the drop-cap rule', async ({ page }) => {
     // The remark plugin marks the first body paragraph with `class="lead-p"`
     // so `.piece-prose > .lead-p::first-letter` can target it. A future

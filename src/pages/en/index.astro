@@ -12,7 +12,6 @@ import { FEEDS } from '@lib/feeds';
 import { getSibling, entryRouteFor } from '@lib/i18n';
 import { assertNowEntry, benchItemsFrom } from '@lib/now-items';
 import { buildLatest } from '@lib/latest-entries';
-import { VERSION } from '@lib/version';
 
 const entry = await getEntry('pages', 'en/home');
 if (!entry) throw new Error('Missing pages/en/home');
@@ -88,15 +87,9 @@ const reading = [{ title: 'Nexus', author: 'Yuval Noah Harari' }];
       </h1>
 
       <Fragment slot="bio">
-        Senior software engineer, coding since 2006. Off-screen: guitar, garden, pool, gym, 3D
-        printing. Argentinian, so there's always <Mate /> on the desk. Audiobook in one ear, secateurs
-        in the other. This is the <em>colophon</em>: where the work, the drafts, and the tries live.
-      </Fragment>
-
-      <Fragment slot="meta">
-        <span>en proceso, en público</span>
-        <span class="sep">·</span>
-        <span>v.{VERSION}</span>
+        Software engineer. Coding since the ’90s. Off-screen: guitar, garden, pool, gym, 3D
+        printing. Argentinian, so there's always <Mate /> on the desk. This is where I keep the work,
+        the drafts, and whatever I’m trying next.
       </Fragment>
     </Masthead>
 

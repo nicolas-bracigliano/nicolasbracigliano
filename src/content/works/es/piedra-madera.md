@@ -20,6 +20,6 @@ specs:
 
 La mesa de la TV no es el mueble adecuado para una chiquita que trepa. La solución no es cambiar la mesa; es decidir que la pantalla forma parte de la pared, no algo apoyado en un mueble. Una carcasa de nogal anclada a la estructura de la pared, con el panel de 75″ encastrado adentro en lugar de apoyado encima.
 
-Madera para la carcasa porque madera y roca gritan naturaleza. Un bosque, una montaña. La pareja se me grabó en mi primer viaje a Bariloche. La repisa de piedra corta una línea horizontal sobre el nogal cálido; el hogar eléctrico por encima acentua la piedra con una franja de luz y movimiento.
+Madera para la carcasa porque madera y roca gritan naturaleza. Un bosque, una montaña. La pareja se me grabó en mi primer viaje a Bariloche. La repisa de piedra corta una línea horizontal sobre el nogal cálido; el hogar eléctrico por encima acentúa la piedra con una franja de luz y movimiento.
 
 Tres iteraciones en papel, tres presupuestos pedidos, la piedra todavía por elegir.

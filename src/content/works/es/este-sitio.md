@@ -9,16 +9,19 @@ tags: [code]
 kind: code
 lifecycle: ongoing
 number: '01'
-lede: 'El colofón que estás leyendo.'
+lede: 'El sitio que estás leyendo.'
 specs:
   framework: 'astro 7'
   hosting: 'cloudflare workers'
   lenguaje: 'typescript (estricto)'
   tipos: 'newsreader · jetbrains mono'
 iterations:
+  - rev: 'v1.26'
+    date: '2026-08-12'
+    status: ongoing
+    note: 'La página sobre la implementación pasa a llamarse Cómo está hecho, se muda a /como-esta-hecho y deja atrás la vieja metáfora editorial en todo el texto visible en inglés y español.'
   - rev: 'v1.24'
     date: '2026-07-07'
-    status: ongoing
     note: 'Migración a Astro 7: compilador Rust, Vite 8/Rolldown, endpoints JSON estáticos para la paleta de comandos y rutas OG ajustadas para prerender con trailing slash.'
   - rev: 'v1.19'
     date: '2026-06-02'
@@ -40,7 +43,7 @@ iterations:
     note: 'Migración de Cloudflare Pages a Workers Static Assets; después se externaliza cada script inline para sostener una CSP estricta del mismo origen.'
   - rev: 'v1.3'
     date: '2026-05-23'
-    note: 'Las primeras rutas de contenido alcanzan paridad con el prototipo: el colofón (esta página), Sobre, el recorrido numerado del banco y el 404 de la Carta Extraviada.'
+    note: 'Las primeras rutas de contenido alcanzan paridad con el prototipo: Cómo está hecho, Sobre, el recorrido numerado del banco y el 404 de la Carta Extraviada.'
   - rev: 'v1.0'
     date: '2026-05-22'
     status: shipping
@@ -51,8 +54,8 @@ elsewhere:
     note: 'el repositorio de esta página'
 ---
 
-Cada otra entrada acá es algo que hice. Esta es el estante donde se apoyan las demás. No es un portfolio; el portfolio es el trabajo mismo. El sitio es el colofón: un lugar para guardar el trabajo, los borradores y los recibos, con las herramientas a la vista a propósito.
+Cada una de las otras entradas es algo que hice. Esta es la estantería donde se apoyan las demás. No es un portfolio; el portfolio es el trabajo mismo. Este sitio es donde guardo el trabajo, los borradores y los recibos, con las herramientas a la vista a propósito.
 
 Estático al desplegar, casi sin JS; sin framework en la página. El contenido es markdown tipado con Zod, compilado por Astro y servido desde un único Worker de Cloudflare. Las restricciones son la parte divertida. Una política estricta que sólo permite scripts de este origen hace que nada corra inline, así que cada pedacito de comportamiento se publica como su propio archivo; sin cookies, sin analítica del lado del cliente, sin nada de terceros.
 
-Todo está escrito dos veces, en inglés y en español, compuesto en paralelo y no traducido. Es algo en curso a propósito: el colofón se actualiza cada vez que se mueve el blanco, y el blanco se sigue moviendo.
+Todo está escrito dos veces, en inglés y en español, compuesto en paralelo y no traducido. Es algo en curso a propósito: la página sobre cómo está hecho se actualiza cada vez que cambia el stack, y el stack sigue cambiando.

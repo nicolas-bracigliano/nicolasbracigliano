@@ -1,15 +1,15 @@
-/* ─── Shared footers: SectionEnd + ArticleColophon ───────────────────
+/* ─── Shared footers: SectionEnd + ArticleFooter ───────────────────
    Component-scoped stylesheet (same rationale as diagrams.css): these
    two end-of-page patterns are shared across routes, so their rules
    don't belong to any one `./routes/` file.
 
      .section-end       — index/list cap (notes, pieces, works, now):
                           centered mono eyebrow + ↺ glyph, dashed rule.
-     .article-colophon  — detail-page colophon (note · piece · work):
+     .article-footer  — detail-page footer (note · piece · work):
                           meta line · signature · nav with the quiet
                           copy-link control and its manual fallback.
 
-   Markup lives in `src/components/{SectionEnd,ArticleColophon}.astro`. */
+   Markup lives in `src/components/{SectionEnd,ArticleFooter}.astro`. */
 
 @layer routes {
   /* ─── section end (index cap) ─────────────────────────────────────── */
@@ -35,9 +35,9 @@
     font-size: 0.875rem;
   }
 
-  /* ─── article colophon (detail foot) ──────────────────────────────── */
+  /* ─── article footer (detail foot) ────────────────────────────────── */
 
-  .article-colophon {
+  .article-footer {
     max-width: 62ch;
     margin-block-start: 4.5rem;
     padding-block-start: 1.75rem;
@@ -185,7 +185,7 @@
     max-width: 16.25rem;
     min-width: 0;
     width: 30ch;
-    /* Same 2.75rem floor as every other colophon control — in the
+    /* Same 2.75rem floor as every other footer control — in the
        blocked-clipboard path this field IS the primary control. */
     min-block-size: 2.75rem;
   }

@@ -2,6 +2,7 @@
 import type { CollectionEntry } from 'astro:content';
 import type { Locale } from '@lib/routes';
 import { entryRouteFor } from '@lib/i18n';
+import { workKindLabel, workLifecycleLabel } from '@lib/content-kinds';
 import ContentArt from './ContentArt.astro';
 
 export interface Props {
@@ -13,6 +14,8 @@ const { entry, locale } = Astro.props;
 const { title, lede, kind, lifecycle, number, specs, date } = entry.data;
 const permalink = entryRouteFor(entry);
 const specEntries = Object.entries(specs);
+const kindLabel = workKindLabel(kind, locale);
+const lifecycleLabel = workLifecycleLabel(lifecycle, locale);
 
 // Short month + year, lowercased, bullet-joined. NOTE: `Intl` orders
 // month/year by locale, so en-AU and es-AR render MONTH-first here â€”
@@ -42,7 +45,7 @@ const dateDisplay = dateFormatter.format(date).toLowerCase().replace(/\s+/g, ' Â
 
     <div class="work-card-meta">
       <span class="work-card-no">{number ? `â„– ${number}` : ''}</span>
-      <span class="work-card-kind">{kind}</span>
+      <span class="work-card-kind">{kindLabel}</span>
     </div>
 
     <h3 class="work-card-title">
@@ -66,7 +69,7 @@ const dateDisplay = dateFormatter.format(date).toLowerCase().replace(/\s+/g, ' Â
     <div class="work-card-foot">
       <span class="work-card-lifecycle">
         <span class={`status-dot status-dot--${lifecycle}`} aria-hidden="true"></span>
-        {lifecycle}
+        {lifecycleLabel}
       </span>
       <span class="work-card-date">{dateDisplay}</span>
     </div>

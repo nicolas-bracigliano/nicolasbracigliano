@@ -13,7 +13,7 @@ describe('ROUTES', () => {
     expect(ROUTES.notes.es).toBe('/es/notas/');
     expect(ROUTES.works.es).toBe('/es/obras/');
     expect(ROUTES.about.es).toBe('/es/sobre/');
-    expect(ROUTES.colophon.es).toBe('/es/colofón/');
+    expect(ROUTES.build.es).toBe('/es/como-esta-hecho/');
     expect(ROUTES.pieces.es).toBe('/es/ensayos/');
   });
 

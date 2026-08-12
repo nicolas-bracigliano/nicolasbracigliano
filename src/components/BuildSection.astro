@@ -10,13 +10,13 @@ export interface Props {
 const { tag, title, accent = false } = Astro.props;
 ---
 
-<section class={`colofon-block${accent ? ' is-accent' : ''}`}>
-  <header class="colofon-block-head">
+<section class={`build-block${accent ? ' is-accent' : ''}`}>
+  <header class="build-block-head">
     <span class="block-tag">§{tag}</span>
     <h2 class="block-title">{title}</h2>
     <span class="block-line" aria-hidden="true"></span>
   </header>
-  <dl class="colofon-rows">
+  <dl class="build-rows">
     <slot />
   </dl>
 </section>

@@ -37,10 +37,12 @@ test.describe('command palette', () => {
   test('arrow + enter navigates to the active result', async ({ page }) => {
     await page.goto('/en/');
     await page.keyboard.press('Control+k');
-    await page.locator('[data-cmdk-input]').fill('colophon');
-    await expect(page.locator('.cmdk-item').first().locator('.cmdk-title')).toHaveText('colophon');
+    await page.locator('[data-cmdk-input]').fill('build');
+    await expect(page.locator('.cmdk-item').first().locator('.cmdk-title')).toHaveText(
+      'build notes',
+    );
     await page.keyboard.press('Enter');
-    await expect(page).toHaveURL(/\/en\/colophon\/$/);
+    await expect(page).toHaveURL(/\/en\/build\/$/);
   });
 
   test('hovering a row makes it the active one', async ({ page }) => {
@@ -94,9 +96,9 @@ test.describe('command palette', () => {
   }) => {
     await page.goto('/en/');
     await page.keyboard.press('Control+k');
-    await page.locator('[data-cmdk-input]').fill('colophon');
+    await page.locator('[data-cmdk-input]').fill('build');
     await page.keyboard.press('Enter');
-    await expect(page).toHaveURL(/\/en\/colophon\/$/);
+    await expect(page).toHaveURL(/\/en\/build\/$/);
     // View Transitions swapped the body; the document-level listeners must
     // still drive the new page's (fresh) overlay.
     await page.keyboard.press('Control+k');

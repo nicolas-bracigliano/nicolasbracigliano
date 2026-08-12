@@ -69,7 +69,7 @@ test.describe('mobile foot-rail', () => {
     const items = page.locator('.foot-rail li');
     await expect(items).toHaveCount(6);
     const labels = await items.allInnerTexts();
-    expect(labels).toEqual(['home', 'notes', 'works', 'pieces', 'about', 'colophon']);
+    expect(labels).toEqual(['home', 'notes', 'works', 'pieces', 'about', 'build']);
   });
 
   test('foot-rail labels localize on /es', async ({ page }) => {
@@ -77,13 +77,13 @@ test.describe('mobile foot-rail', () => {
     const items = page.locator('.foot-rail li');
     await expect(items).toHaveCount(6);
     const labels = await items.allInnerTexts();
-    expect(labels).toEqual(['inicio', 'notas', 'obras', 'ensayos', 'sobre', 'colofón']);
+    expect(labels).toEqual(['inicio', 'notas', 'obras', 'ensayos', 'sobre', 'sitio']);
   });
 
   test('foot-rail labels fit without truncation on a 360 px viewport', async ({ page }) => {
     await page.setViewportSize({ width: 360, height: 740 });
     await page.goto('/es/');
-    // The longest ES label is "colofón" (7 chars + diacritic). At 360 px
+    // The longest ES label is "ensayos" (7 chars). At 360 px
     // with 6 items, each gets ~60 px. The 380 px-and-below media query
     // shrinks the font and tightens padding so labels still fit. Verify
     // none of the anchor boxes are wider than its <li> parent (i.e. no

@@ -1,24 +1,24 @@
 @layer routes {
-  /* ─── Colophon: Typewriter credits roll (design system §3) ─────────────
+  /* ─── Build notes: Typewriter credits roll (design system §3) ─────────────
      Six (or so) stacked sections, each with a §NN tag + serif title +
      dashed-bordered <dl> of "key — value" rows. The accent variant (used
      for the "Principles" block) tints the row-stack background. Fade-up
      animation per row, staggered by index — animate-once-on-mount via
      `animation-fill-mode: both`; no scroll-driven re-fire. */
 
-  .colofon.wrap {
+  .build.wrap {
     max-width: 920px;
     margin-inline: auto;
     padding-inline: var(--gutter);
     font-family: var(--font-body);
   }
 
-  .colofon-head {
+  .build-head {
     padding-block-start: clamp(2.5rem, 6vw, 5rem);
     margin-block-end: 4rem;
     max-width: 720px;
   }
-  .colofon-h1 {
+  .build-h1 {
     font-family: var(--font-display);
     font-weight: 400;
     font-size: clamp(2.5rem, 5.6vw, 4.75rem);
@@ -26,22 +26,22 @@
     letter-spacing: -0.02em;
     margin: 0.75rem 0 1rem;
   }
-  .colofon-sub {
+  .build-sub {
     font-size: 0.875rem;
     color: var(--ink-2);
     max-width: 52ch;
     line-height: 1.6;
   }
 
-  .colofon-block {
+  .build-block {
     margin-block: 3rem;
     position: relative;
   }
-  .colofon-block.is-accent .colofon-rows {
+  .build-block.is-accent .build-rows {
     background: color-mix(in oklab, var(--accent) 5%, transparent);
   }
 
-  .colofon-block-head {
+  .build-block-head {
     display: grid;
     grid-template-columns: 3.75rem auto 1fr;
     align-items: baseline;
@@ -68,7 +68,7 @@
     align-self: center;
   }
 
-  .colofon-rows {
+  .build-rows {
     display: grid;
     grid-template-columns: 1fr;
     border: 1px dashed var(--rule);
@@ -76,7 +76,7 @@
     padding-block: 0.25rem;
     margin: 0;
   }
-  .colofon-row {
+  .build-row {
     display: grid;
     grid-template-columns: 12.5rem 1fr;
     gap: 1.5rem;
@@ -93,25 +93,25 @@
   /* Stagger animation-delay via :nth-child rather than inline `style=` —
      html-validate's no-inline-style forbids the prototype's `style={...}`
      pattern. Sections max out at ~6 rows in practice. */
-  .colofon-row:nth-child(2) {
+  .build-row:nth-child(2) {
     animation-delay: 60ms;
   }
-  .colofon-row:nth-child(3) {
+  .build-row:nth-child(3) {
     animation-delay: 120ms;
   }
-  .colofon-row:nth-child(4) {
+  .build-row:nth-child(4) {
     animation-delay: 180ms;
   }
-  .colofon-row:nth-child(5) {
+  .build-row:nth-child(5) {
     animation-delay: 240ms;
   }
-  .colofon-row:nth-child(6) {
+  .build-row:nth-child(6) {
     animation-delay: 300ms;
   }
-  .colofon-row:last-child {
+  .build-row:last-child {
     border-block-end: 0;
   }
-  .colofon-row dt {
+  .build-row dt {
     /* `--ink-2` not `--ink-3`: 10.5 px on the .is-accent block's tinted
        background dipped below AA at `--ink-3`. The bump is barely
        perceptible at this size and keeps WCAG AA on both themes. */
@@ -121,53 +121,53 @@
     font-size: 0.6563rem;
     margin: 0;
   }
-  .colofon-row dd {
+  .build-row dd {
     margin: 0;
     color: var(--ink);
     line-height: 1.55;
   }
   /* In-row typographic samples — names of fonts rendered in their own
-     typeface. Scoped to .colofon-row dd to avoid leaking the generic
+     typeface. Scoped to .build-row dd to avoid leaking the generic
      `.serif` / `.mono-display` names into the global namespace. */
-  .colofon-row dd .serif {
+  .build-row dd .serif {
     font-family: var(--font-display);
     font-style: italic;
   }
-  .colofon-row dd .mono-display {
+  .build-row dd .mono-display {
     font-family: var(--font-body);
     font-weight: 500;
   }
-  .colofon-row dd a {
+  .build-row dd a {
     color: var(--accent-aa);
     text-decoration: none;
     border-block-end: 1px dashed currentColor;
   }
-  .colofon-row dd a:hover,
-  .colofon-row dd a:focus-visible {
+  .build-row dd a:hover,
+  .build-row dd a:focus-visible {
     border-block-end-style: solid;
   }
 
   @media (max-width: 640px) {
-    .colofon-block-head {
+    .build-block-head {
       grid-template-columns: 3rem 1fr;
     }
-    .colofon-block-head .block-line {
+    .build-block-head .block-line {
       display: none;
     }
-    .colofon-row {
+    .build-row {
       grid-template-columns: 1fr;
       gap: 0.25rem;
       padding-inline: 1rem;
     }
   }
 
-  .colofon-sig {
+  .build-sig {
     margin-block-start: 4rem;
     text-align: end;
     font-family: var(--font-display);
     font-size: 1.375rem;
   }
-  .colofon-sig .muted {
+  .build-sig .muted {
     font-family: var(--font-body);
     font-style: normal;
     font-size: 0.6875rem;

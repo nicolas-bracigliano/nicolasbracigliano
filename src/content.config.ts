@@ -14,7 +14,7 @@ import { z } from 'astro/zod';
 import { nowItemSchema, NOW_ITEM_MIN, NOW_ITEM_MAX } from './lib/now-items';
 // Site-wide kind taxonomy. Per-collection subsets (`WORK_KINDS` etc.)
 // are imported below where they're used.
-import { WORK_KINDS, NOTE_KINDS } from './lib/content-kinds';
+import { WORK_KINDS, WORK_LIFECYCLES, NOTE_KINDS } from './lib/content-kinds';
 
 const base = z.object({
   title: z.string().min(1).max(80),
@@ -62,7 +62,7 @@ const notes = defineCollection({
          *  `entry.body`. */
         minutes: z.number().int().positive().optional(),
         aside: z.string().optional(),
-        /** Optional place for the detail-page colophon (e.g. "Melbourne, AU").
+        /** Optional place for the detail-page footer (e.g. "Melbourne, AU").
          *  Mirrors pieces' `written`: author-supplied, localised per file;
          *  `NoteDetail.astro` omits the segment gracefully when absent. */
         noted: z.string().max(80).optional(),
@@ -74,13 +74,6 @@ const notes = defineCollection({
         path: ['translationId'],
       }),
 });
-
-// Work lifecycle vocabulary — single source for the `lifecycle` field and
-// per-iteration `status` chips below, so the detail route renders one colour
-// vocabulary (`.status-dot--*` / `.work-detail-iter-chip--*`). Extracted from
-// an inline enum when the detail redesign added `iterations`, which reuses
-// these values rather than introducing a parallel "retired".
-const WORK_LIFECYCLE = ['shipping', 'ongoing', 'draft', 'archived'] as const;
 
 // Iteration / changelog date shape: YYYY-MM or YYYY-MM-DD. Both are valid
 // `<time datetime>` values, so the layout passes the raw string through to
@@ -100,7 +93,7 @@ const works = defineCollection({
         kind: z.enum(WORK_KINDS).default('code'),
         /** Work lifecycle — distinct from `status` (publish-state). Renders as
          *  a coloured dot + label in the WorkCard foot. */
-        lifecycle: z.enum(WORK_LIFECYCLE).default('shipping'),
+        lifecycle: z.enum(WORK_LIFECYCLES).default('shipping'),
         /** Display number (e.g. "07") used in the card meta row. Keeps the
          *  catalog flavour — "№ 07" reads like an entry in a hand-kept ledger. */
         number: z.string().optional(),
@@ -119,7 +112,7 @@ const works = defineCollection({
             z.object({
               rev: z.string().max(16),
               date: z.string().regex(WORK_REV_DATE, 'iteration date must be YYYY-MM or YYYY-MM-DD'),
-              status: z.enum(WORK_LIFECYCLE).optional(),
+              status: z.enum(WORK_LIFECYCLES).optional(),
               note: z.string().max(200),
             }),
           )
@@ -256,7 +249,7 @@ const pieces = defineCollection({
 // to a literal so TypeScript narrows `entry.data` based on a
 // slug check at the call site — that's how the /now page knows
 // `entry.data.items` is present without any optional fallback,
-// and how the home / about / colophon pages get a guarantee that
+// and how the home / about / build pages get a guarantee that
 // `items` ISN'T present (a stray `items:` accidentally added to
 // home.md fails Zod validation, loudly, at build time).
 //
@@ -285,7 +278,7 @@ const pages = defineCollection({
       // teaser'd items on the `now` variant below (single source).
       base.extend({ slug: z.literal('home'), ...common }),
       base.extend({ slug: z.literal('about'), ...common }),
-      base.extend({ slug: z.literal('colophon'), ...common }),
+      base.extend({ slug: z.literal('build'), ...common }),
       base.extend({
         slug: z.literal('now'),
         ...common,

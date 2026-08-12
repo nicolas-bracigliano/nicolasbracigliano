@@ -304,8 +304,8 @@
     color: var(--ink-3);
   }
 
-  /* foot — the shared ArticleColophon (meta · signature · nav with the
-     quiet copy-link): markup in `ArticleColophon.astro`, styles in
+  /* foot — the shared ArticleFooter (meta · signature · nav with the
+     quiet copy-link): markup in `ArticleFooter.astro`, styles in
      `../footers.css`. Its 2.75 rem nav tap-target floor started here. */
 
   @media (max-width: 720px) {

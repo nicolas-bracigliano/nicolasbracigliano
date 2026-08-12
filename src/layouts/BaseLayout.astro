@@ -9,6 +9,7 @@ import { ROUTES, buildHreflangAlternates, otherLocale, type Locale } from '@lib/
 import { getNavItems } from '@lib/chrome-nav';
 import { FEEDS, RSS_MIME } from '@lib/feeds';
 import { THEME_COLOR } from '@lib/theme-tokens';
+import { VERSION } from '@lib/version';
 import CommandPalette from '@components/CommandPalette.astro';
 
 export interface Props {
@@ -364,7 +365,7 @@ function isActive(key: keyof typeof ROUTES, currentPath: string): boolean {
       <p>
         <small>
           {locale === 'en' ? '© ' : '© '}Nicolas Bracigliano · {new Date().getFullYear()} ·
-          <a href={ROUTES.colophon[locale]}>{locale === 'en' ? 'Colophon' : 'Colofón'}</a>
+          <a href={ROUTES.build[locale]}>{locale === 'en' ? 'Build' : 'Sitio'}</a> · v{VERSION}
         </small>
       </p>
     </footer>

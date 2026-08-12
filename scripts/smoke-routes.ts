@@ -26,7 +26,7 @@ import { parse as parseYaml } from 'yaml';
 // TS-strip loader doesn't honour tsconfig path aliases (no resolver
 // plugin in stock Node). Don't "fix" this back to `@lib/routes` — it
 // will break CI.
-import { ROUTES } from '../src/lib/routes.ts';
+import { LEGACY_ROUTE_REDIRECTS, ROUTES } from '../src/lib/routes.ts';
 import { SECURITY_TXT_PATH } from '../src/lib/security-txt.ts';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -58,6 +58,9 @@ export interface ContentEntry {
 export interface SmokeTarget {
   path: string;
   expected: number;
+  /** Expected redirect destination path. Omitted for non-redirect targets
+   *  and for `/`, whose locale varies with Accept-Language. */
+  location?: string;
 }
 
 /** Pure: given a list of discovered entries, build the full sorted
@@ -79,6 +82,13 @@ export function buildTargets(entries: readonly ContentEntry[]): SmokeTarget[] {
   for (const pair of Object.values(ROUTES)) {
     targets.push({ path: pair.en, expected: 200 });
     targets.push({ path: pair.es, expected: 200 });
+  }
+
+  // Permanent redirects for public paths renamed to Build notes. Keep
+  // these in the post-deploy suite because Astro preview runs neither the
+  // Cloudflare Worker nor its asset-layer redirect fallback.
+  for (const redirect of LEGACY_ROUTE_REDIRECTS) {
+    targets.push({ path: redirect.from, expected: 301, location: redirect.to });
   }
 
   // Published content slugs.
@@ -156,13 +166,18 @@ async function listMarkdown(dir: string): Promise<string[]> {
   return out;
 }
 
-async function fetchStatus(url: string): Promise<number | null> {
+interface FetchResult {
+  status: number;
+  location: string | null;
+}
+
+async function fetchResult(url: string): Promise<FetchResult | null> {
   try {
     const res = await fetch(url, {
       redirect: 'manual',
       signal: AbortSignal.timeout(15_000),
     });
-    return res.status;
+    return { status: res.status, location: res.headers.get('location') };
   } catch {
     return null;
   }
@@ -171,16 +186,19 @@ async function fetchStatus(url: string): Promise<number | null> {
 async function checkOne(baseUrl: string, target: SmokeTarget): Promise<boolean> {
   const url = `${baseUrl}${target.path}`;
   for (let attempt = 1; attempt <= ROUTE_RETRY_ATTEMPTS; attempt++) {
-    const got = await fetchStatus(url);
-    if (got === target.expected) {
-      console.log(`  ${target.path} → ${got} ✓`);
+    const got = await fetchResult(url);
+    const locationPath = got?.location ? new URL(got.location, baseUrl).pathname : null;
+    const locationMatches = target.location === undefined || locationPath === target.location;
+    if (got?.status === target.expected && locationMatches) {
+      const suffix = target.location ? ` → ${target.location}` : '';
+      console.log(`  ${target.path} → ${got.status}${suffix} ✓`);
       return true;
     }
     if (attempt < ROUTE_RETRY_ATTEMPTS) {
       await new Promise((r) => setTimeout(r, ROUTE_RETRY_DELAY_MS));
     } else {
       console.error(
-        `::error::${target.path} expected ${target.expected}, got ${got ?? 'network-error'} (after ${ROUTE_RETRY_ATTEMPTS} attempts)`,
+        `::error::${target.path} expected ${target.expected}${target.location ? ` → ${target.location}` : ''}, got ${got?.status ?? 'network-error'}${got?.location ? ` → ${locationPath}` : ''} (after ${ROUTE_RETRY_ATTEMPTS} attempts)`,
       );
     }
   }

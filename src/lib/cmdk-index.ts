@@ -57,9 +57,9 @@ const PAGES: ReadonlyArray<{
     es: { title: 'ahora', deck: 'en qué ando esta semana' },
   },
   {
-    key: 'colophon',
-    en: { title: 'colophon', deck: 'how this site is made' },
-    es: { title: 'colofón', deck: 'cómo está hecho este sitio' },
+    key: 'build',
+    en: { title: 'build notes', deck: 'how this site is made' },
+    es: { title: 'cómo está hecho', deck: 'stack, tipografías y flujo del sitio' },
   },
 ];
 
