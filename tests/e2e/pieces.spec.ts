@@ -120,13 +120,13 @@ test.describe('piece editorial layout — ADR 0012', () => {
     const enBack = page.locator('.piece-eyebrow-back');
     await expect(enBack).toHaveAttribute('href', '/en/pieces/');
 
-    await page.goto('/es/ensayos/anillos-que-sigo-redibujando/');
+    await page.goto('/es/ensayos/circulos-que-sigo-redibujando/');
     const esBack = page.locator('.piece-eyebrow-back');
     await expect(esBack).toHaveAttribute('href', '/es/ensayos/');
   });
 
   test('the Spanish dependency label stays inside the rings diagram', async ({ page }) => {
-    await page.goto('/es/ensayos/anillos-que-sigo-redibujando/');
+    await page.goto('/es/ensayos/circulos-que-sigo-redibujando/');
     await page.evaluate(() => document.fonts.ready);
 
     const label = page.locator('.diagram--rings .d-arrow text');

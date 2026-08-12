@@ -27,7 +27,7 @@ const ROUTES = [
   // over-coverage — the layout is shared, so one slug per locale is
   // enough.
   { path: '/en/pieces/rings-i-keep-redrawing/', lang: 'en' },
-  { path: '/es/ensayos/anillos-que-sigo-redibujando/', lang: 'es' },
+  { path: '/es/ensayos/circulos-que-sigo-redibujando/', lang: 'es' },
 ] as const;
 
 for (const route of ROUTES) {
