@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.26.1](https://github.com/nicolas-bracigliano/nicolasbracigliano/compare/v1.26.0...v1.26.1) (2026-08-12)
+
+
+### Documentation
+
+* **pieces:** polish Spanish essays ([8ce4231](https://github.com/nicolas-bracigliano/nicolasbracigliano/commit/8ce4231095c371801a09a9e5598dc0c88b4ad186))
+* **pieces:** polish Spanish essays ([d52e916](https://github.com/nicolas-bracigliano/nicolasbracigliano/commit/d52e916169ee752ac4e94c091137c3ba611cf841))
+
 ## [1.26.0](https://github.com/nicolas-bracigliano/nicolasbracigliano/compare/v1.25.4...v1.26.0) (2026-08-12)
 
 
