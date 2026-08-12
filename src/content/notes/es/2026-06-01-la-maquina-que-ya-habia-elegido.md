@@ -7,12 +7,12 @@ date: 2026-06-01
 status: published
 tags: [café, espresso]
 kind: coffee
-aside: 'Fellow Espresso (S1) vs Meraki Gen 2. todavía decidiendo.'
-lede: 'Cambiando la Barista Pro, o: el todo-en-uno que reabrió una pregunta cerrada.'
+aside: 'Lelit MaraX vs Meraki Gen 2.'
+lede: 'Reemplazar la Barista Pro: la máquina todo en uno que reabrió una decisión que parecía tomada.'
 ---
 
-La Barista Pro es de una sola caldera, con el molinillo integrado, y ya me quedé sin margen. Quiero perfeccionar la receta y no me deja: poco control sobre la extracción, un molinillo que no puedo afinar en serio, una lanza de vapor que deja la leche a mitad de camino. Y con una sola caldera hay que esperar entre el shot y la jarra.
+La Barista Pro tiene el molinillo integrado, y ya me quedé sin margen. Quiero perfeccionar la receta y no me deja: poco control sobre la extracción, un molinillo que no puedo afinar en serio, una lanza de vapor con tan poca potencia que vaporizar la leche tarda una eternidad. Para cuando termino, el café ya está frío. O casi.
 
-Así que el plan era simple. Una máquina de espresso dedicada, porque la mayoría de los todo-en-uno son mediocres. La Fellow Espresso (Series 1) es a la que siempre vuelvo.
+Así que el plan era simple. Una máquina de espresso dedicada, porque la mayoría de las máquinas todo en uno son mediocres. La Lelit Bianca era la máquina a la que siempre volvía: dos calderas, control de verdad, nada de esperar entre extraer y vaporizar. Pero costaba más de lo que estaba dispuesto a pagar. Entonces consideré la Lelit MaraX. Es bastante más barata, y su caldera con intercambiador de calor podría ser justo el compromiso con el que puedo vivir.
 
-Y entonces apareció la Meraki Gen 2. Muele y extrae por volumen, bomba rotativa. Esa ficha técnica me hizo mirar los todo-en-uno con otros ojos. No desmiente la regla; la mayoría de los todo-en-uno son mediocres de verdad. La Meraki es la excepción. Y la excepción alcanza para que ya no sepa si estoy comprando una máquina y un molinillo, o abandonando el principio y llevándome un todo-en-uno.
+Y entonces apareció la Meraki Gen 2. Muele y extrae por peso, bomba rotativa. Esa ficha técnica me hizo mirar las máquinas todo en uno con otros ojos. No desmiente la regla; la mayoría son mediocres de verdad. Pero la Meraki parece ser la excepción. El molinillo suele ser el punto débil de estas máquinas, y el de la Meraki fue desarrollado junto a Timemore, lo que me da algo de esperanza. Ahora no sé si comprar una máquina y un molinillo o abandonar el principio y llevarme una máquina todo en uno. Al fin de cuentas, siempre puedo comprar un molinillo dedicado si hace falta.
