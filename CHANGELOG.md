@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.26.0](https://github.com/nicolas-bracigliano/nicolasbracigliano/compare/v1.25.4...v1.26.0) (2026-08-12)
+
+
+### Features
+
+* **site:** replace Colophon with Build notes ([fb188e6](https://github.com/nicolas-bracigliano/nicolasbracigliano/commit/fb188e6448e4b343453d4432129d7f6f987c2df0))
+* **site:** replace Colophon with Build notes ([2d57d46](https://github.com/nicolas-bracigliano/nicolasbracigliano/commit/2d57d46539ebd7419c3e2ab5c5a49121b1db688d))
+
+
+### Bug Fixes
+
+* **content:** update stone specification to Calacatta Gold marble in English and Spanish versions ([9f685bf](https://github.com/nicolas-bracigliano/nicolasbracigliano/commit/9f685bf35b6c13f27ff6f2bf5e1516b3330b77d9))
+
 ## [1.25.4](https://github.com/nicolas-bracigliano/nicolasbracigliano/compare/v1.25.3...v1.25.4) (2026-08-12)
 
 
