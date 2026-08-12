@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.26.3](https://github.com/nicolas-bracigliano/nicolasbracigliano/compare/v1.26.2...v1.26.3) (2026-08-12)
+
+
+### Bug Fixes
+
+* **deps:** update Astro to 7.2.1 ([2640a9a](https://github.com/nicolas-bracigliano/nicolasbracigliano/commit/2640a9ad5bb9daf1304e48af626850d401f99db7))
+
 ## [1.26.2](https://github.com/nicolas-bracigliano/nicolasbracigliano/compare/v1.26.1...v1.26.2) (2026-08-12)
 
 
