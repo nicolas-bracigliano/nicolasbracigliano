@@ -270,6 +270,27 @@ on a `translationKey:` line, still trips. The local pre-commit hook runs
 `gitleaks protect --staged` (current diff only), so it never saw this; the
 config makes both agree.
 
+## Accepted advisories
+
+Transitives with a published fix are force-upgraded via `overrides:` in
+`pnpm-workspace.yaml`, where each entry carries its advisory ID and the
+reason. This section is for the other case: an advisory with **no fix to
+apply**, recorded so the next audit doesn't re-derive it.
+
+- **`extract-zip` — GHSA-jmr9-qjv8-65gv** (CWE-22, unvalidated symlink path
+  traversal). Reached only via
+  `@lhci/cli → lighthouse → puppeteer-core → @puppeteer/browsers`. The
+  advisory names `>=2.0.2` as patched, but **2.0.2 was never published** —
+  2.0.1 is the latest release on npm, so there is nothing to override to.
+  `@lhci/cli@0.15.1` is itself the newest release and hasn't moved off it.
+  Dev-only, and the only archives it opens are Chrome builds that
+  `@puppeteer/browsers` downloads from Google's own endpoints during
+  Lighthouse CI, so the untrusted-zip precondition isn't met. It stays out of
+  the `--prod` gate, which is why `security.yml` still passes; it will keep
+  appearing in the uploaded `audit.json` artifact. Drop this entry once
+  `extract-zip` publishes a real 2.0.2 or `@lhci/cli` re-points its
+  Puppeteer chain.
+
 ## Notes on `lockfile-lint`
 
 Considered and removed. `lockfile-lint@5` doesn't parse `pnpm-lock.yaml`
