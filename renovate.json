@@ -44,8 +44,27 @@
   },
 
   "lockFileMaintenance": {
+    "description": [
+      "Monthly, not weekly. A refresh touches all ~1,200 lockfile entries, and",
+      "the global `minimumReleaseAge: 3 days` above is enforced per-PR by the",
+      "`renovate/stability-days` check. Across that many packages something has",
+      "almost always published in the last 3 days, so the check sits PENDING;",
+      "every regeneration of the branch then rewrites the lockfile to latest and",
+      "restarts the clock. PR #193 sat open from 2026-07-30 with six green CI",
+      "checks and a permanently pending gate, and the transitive advisories it",
+      "would have carried piled up until `pnpm audit --prod --audit-level=high`",
+      "failed the nightly `security.yml` run five nights running (2026-08-10 to",
+      "2026-08-14).",
+      "Monthly gives the window ~4 weeks to clear rather than ~7 days, and cuts",
+      "how often the branch is regenerated. It does NOT fully close the hole:",
+      "Renovate still rebases when the PR falls behind `main`, and each rebase",
+      "re-resolves and resets stability-days. If a monthly PR still can't go",
+      "green, the definitive lever is `\"minimumReleaseAge\": \"0\"` scoped to",
+      "this block — pnpm's built-in 24h floor remains the backstop, exactly as",
+      "the `vulnerabilityAlerts` note above reasons for security PRs."
+    ],
     "enabled": true,
-    "schedule": ["before 4am on friday"],
+    "schedule": ["before 4am on the first day of the month"],
     "labels": ["renovate", "lockfile-maintenance"],
     "automerge": true
   },
