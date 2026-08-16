@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.26.4](https://github.com/nicolas-bracigliano/nicolasbracigliano/compare/v1.26.3...v1.26.4) (2026-08-15)
+
+
+### Bug Fixes
+
+* **deps:** clear all but one pnpm audit advisory ([8c70981](https://github.com/nicolas-bracigliano/nicolasbracigliano/commit/8c7098195ea1455b49cc8af225f50e0d8810e369))
+* **deps:** clear pnpm audit advisories and unstick lockfile maintenance ([6a33296](https://github.com/nicolas-bracigliano/nicolasbracigliano/commit/6a332960185c5c09ab1a4b87f1a16d1634c3df75))
+
+
+### CI / Tooling
+
+* **renovate:** run lockFileMaintenance monthly instead of weekly ([5f1a6b0](https://github.com/nicolas-bracigliano/nicolasbracigliano/commit/5f1a6b0e9db3e30ecf7bab448d3918dfca650e02))
+
 ## [1.26.3](https://github.com/nicolas-bracigliano/nicolasbracigliano/compare/v1.26.2...v1.26.3) (2026-08-12)
 
 
