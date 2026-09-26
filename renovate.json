@@ -4,7 +4,7 @@
   "extends": ["config:best-practices", ":pinAllExceptPeerDependencies"],
 
   "timezone": "Australia/Melbourne",
-  "schedule": ["before 4am on monday"],
+  "schedule": ["on monday"],
 
   "labels": ["renovate"],
   "rangeStrategy": "pin",
@@ -22,49 +22,47 @@
 
   "vulnerabilityAlerts": {
     "description": [
-      "Security fixes bypass the 3-day global cooldown, but not entirely:",
-      "pnpm enforces its own 24h `minimumReleaseAge` floor at install time",
-      "(built-in default as of pnpm 11 — there is no repo-level config for it).",
-      "At '0 days' Renovate could open a PR whose lockfile references a release",
-      "younger than that floor; `pnpm install --frozen-lockfile` then fails with",
-      "ERR_PNPM_MINIMUM_RELEASE_AGE_VIOLATION, so CI never goes green and the",
-      "`automerge` below can't fire — a security PR blocked by construction.",
-      "'1 day' makes the two gates agree. It costs nothing real: the PR has to",
-      "wait for CI regardless, and install time is always later than lockfile",
-      "generation time, so the age only grows between the two checks.",
-      "Note this gates the *updated* package only. Transitives floated by",
-      "lockFileMaintenance aren't covered here; pnpm's floor stays the backstop",
-      "for those, and a failed install just means re-running once it ages out."
+      "Security fixes skip the Monday schedule but not the 3-day age floor.",
+      "`pnpm-workspace.yaml` sets pnpm's `minimumReleaseAge` to 3 days, and",
+      "pnpm enforces it both when resolving and at `--frozen-lockfile`",
+      "install. A Renovate PR pinning anything younger fails to generate its",
+      "lockfile at all, so a shorter age here would open PRs that can never go",
+      "green. 3 days makes the two gates agree.",
+      "The cost is small in practice: these alerts only fire for direct",
+      "dependencies, and every advisory this repo has seen was transitive,",
+      "fixed by lockFileMaintenance below. For a fix that truly can't wait,",
+      "add the exact `name@version` to `minimumReleaseAgeExclude` in",
+      "`pnpm-workspace.yaml`."
     ],
     "enabled": true,
     "labels": ["security"],
     "schedule": ["at any time"],
-    "minimumReleaseAge": "1 day",
+    "minimumReleaseAge": "3 days",
     "automerge": true
   },
 
   "lockFileMaintenance": {
     "description": [
-      "Monthly, not weekly. A refresh touches all ~1,200 lockfile entries, and",
-      "the global `minimumReleaseAge: 3 days` above is enforced per-PR by the",
-      "`renovate/stability-days` check. Across that many packages something has",
-      "almost always published in the last 3 days, so the check sits PENDING;",
-      "every regeneration of the branch then rewrites the lockfile to latest and",
-      "restarts the clock. PR #193 sat open from 2026-07-30 with six green CI",
-      "checks and a permanently pending gate, and the transitive advisories it",
-      "would have carried piled up until `pnpm audit --prod --audit-level=high`",
-      "failed the nightly `security.yml` run five nights running (2026-08-10 to",
-      "2026-08-14).",
-      "Monthly gives the window ~4 weeks to clear rather than ~7 days, and cuts",
-      "how often the branch is regenerated. It does NOT fully close the hole:",
-      "Renovate still rebases when the PR falls behind `main`, and each rebase",
-      "re-resolves and resets stability-days. If a monthly PR still can't go",
-      "green, the definitive lever is `\"minimumReleaseAge\": \"0\"` scoped to",
-      "this block — pnpm's built-in 24h floor remains the backstop, exactly as",
-      "the `vulnerabilityAlerts` note above reasons for security PRs."
+      "Weekly, and exempt from Renovate's own stability gate. The only route",
+      "for a transitive advisory is this refresh — `vulnerabilityAlerts` only",
+      "covers direct dependencies — so how often it lands sets how long the",
+      "nightly `security.yml` gate stays red.",
+      "With the global 3-day `minimumReleaseAge` applied here, the",
+      "`renovate/stability-days` check never cleared: every rebase re-resolved",
+      "~1,200 entries and restarted the clock. #193 (2026-07-30) and #241",
+      "(2026-08-31) both sat with every CI check green and the gate pending,",
+      "and no lockfile PR ever automerged; each was merged by hand or not at",
+      "all. Moving to monthly (August 2026) didn't help, and in September the",
+      "prod audit gate failed nightly for a week on an in-range svgo fix.",
+      "`0` is safe because the age floor moved to pnpm itself:",
+      "`pnpm-workspace.yaml` sets `minimumReleaseAge` to 3 days, so the",
+      "resolver never writes a version younger than that, and",
+      "`--frozen-lockfile` in CI rejects one if it somehow appears. That covers",
+      "every entry, not just the direct dependencies Renovate's check sees."
     ],
     "enabled": true,
-    "schedule": ["before 4am on the first day of the month"],
+    "schedule": ["on monday"],
+    "minimumReleaseAge": "0",
     "labels": ["renovate", "lockfile-maintenance"],
     "automerge": true
   },
@@ -76,9 +74,16 @@
       "automerge": true
     },
     {
-      "description": "Majors always require human review.",
+      "description": [
+        "Majors always require human review, and are only created once",
+        "ticked on the Dependency Dashboard. They never automerge, so left to",
+        "open on schedule they sit indefinitely and fill `prConcurrentLimit`",
+        "— eight were queued at once in September 2026, enough to block every",
+        "patch and minor behind them."
+      ],
       "matchUpdateTypes": ["major"],
       "automerge": false,
+      "dependencyDashboardApproval": true,
       "labels": ["renovate", "major-update"]
     },
     {
@@ -107,11 +112,51 @@
       "groupName": "types"
     },
     {
+      "description": [
+        "Every non-major devDependency update in one weekly PR. With one PR",
+        "per package, `prHourlyLimit: 4` inside a window that fit a single",
+        "run meant four PRs a week, and they went to the same fast-releasing",
+        "tools (html-validate, eslint, globals, @types) every Monday. Slower",
+        "ones starved: wrangler sat on 4.123.0 from mid-August while a sharp",
+        "advisory waited on it. Placed after the groups above so",
+        "it absorbs them for non-majors — typescript-eslint and the eslint",
+        "plugins still move together, just inside this group. `@astrojs/check`",
+        "is excluded so it stays in `astro core` alongside `astro`.",
+        "The `overrides:` floors in `pnpm-workspace.yaml` ride along too: they",
+        "pin dev-tooling transitives, and `yaml` appears both there and as a",
+        "devDependency, which otherwise meant two PRs for one package.",
+        "Production dependencies stay out on purpose: each keeps its own",
+        "`fix(deps)` PR, so the changelog records it and a regression in the",
+        "shipped site traces to one package. The cost here is that one bad",
+        "dev update holds the group back until it is split off."
+      ],
+      "matchDepTypes": ["devDependencies", "pnpm-workspace.overrides"],
+      "matchUpdateTypes": ["minor", "patch"],
+      "matchPackageNames": ["!@astrojs/check"],
+      "groupName": "dev dependencies (non-major)"
+    },
+    {
       "description": "GitHub Actions on their own track (digest pins maintained by best-practices preset).",
       "matchManagers": ["github-actions"],
       "groupName": "github-actions",
       "automerge": true,
       "labels": ["renovate", "github-actions"]
+    },
+    {
+      "description": [
+        "Leave `wranglerVersion: '^4.21'` in ci.yml as a range. The deploy",
+        "steps' `cloudflare/wrangler-action` probes `pnpm exec wrangler",
+        "--version` and reuses the lockfile's wrangler when it satisfies the",
+        "range. Pinning it to an exact version (which the github-actions group",
+        "above would do, and automerge) breaks that match the moment the two",
+        "drift, and the action then installs its own wrangler — outside the",
+        "lockfile and pnpm's 3-day age floor, in the step holding",
+        "CLOUDFLARE_API_TOKEN. wrangler moves via package.json instead."
+      ],
+      "matchManagers": ["github-actions"],
+      "matchDepTypes": ["uses-with"],
+      "matchPackageNames": ["wrangler"],
+      "enabled": false
     }
   ]
 }

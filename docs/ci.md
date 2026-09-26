@@ -92,10 +92,11 @@ filter logic — it doesn't bypass it.
 
 **Branch protection** landed on `main` on 2026-05-25 (the `Base`
 ruleset — see `docs/security.md` § Branch protection, and Phase-0
-Step 8 in `docs/phase-0-infrastructure.md`), but it carries no
-`required_status_checks` rule. Nothing on the platform side stops a
-PR merging with red CI today. When that rule is added, these are the
-checks to mark as **required**:
+Step 8 in `docs/phase-0-infrastructure.md`). The required checks live
+in a separate `CI Gate` ruleset (2026-09-26), which Renovate can't
+bypass. This table is its source of truth. **Renaming a required job
+in `ci.yml` means updating `CI Gate` in the same change**: a required
+check that never reports leaves every PR waiting on it forever.
 
 | Check name                     | Required | Why                                                                                                                                                                                    |
 | ------------------------------ | -------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
