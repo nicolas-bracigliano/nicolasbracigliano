@@ -9,9 +9,9 @@ minimumReleaseAgeExclude:
 
 # Force-upgrade transitive dependencies that ship with
 # known security advisories. These are pulled in through
-# tooling (typechecker, Lighthouse CI) — none are runtime-exposed —
-# but `pnpm audit` flags them and upstream releases of
-# Astro / `@astrojs/check` / `@lhci/cli` haven't rolled forward yet.
+# tooling (typechecker, Lighthouse CI, OG image rendering) — none are
+# runtime-exposed — but `pnpm audit` flags them and upstream releases of
+# Astro / `@astrojs/check` / `@lhci/cli` / satori haven't rolled forward yet.
 #
 # (Versions below are Renovate-pinned; the floors that matter are
 # the ones the advisories name.)
@@ -42,6 +42,13 @@ minimumReleaseAgeExclude:
 # - js-yaml (≥4.1.2; using published 4.2.0) — patches GHSA-h67p-54hq-rp68
 #                   (quadratic-complexity DoS in merge key handling via
 #                   repeated aliases). Pulled in via Astro internal helpers.
+# - fflate (≥0.7.5) — patches GHSA-px8p-9vwx-vf98 (`unzipSync` infinite
+#                   loop on malformed ZIP64 archives). satori pins
+#                   `fflate: 0.7.3` exactly, still true as of satori 0.33.5,
+#                   so no refresh can reach it. Build-time only (OG image
+#                   rendering over our own fonts). 0.7.5 is already in the
+#                   tree via satori → @shuding/opentype.js, so this dedupes
+#                   to one copy rather than adding a version.
 #
 # Revisit when upstream releases pick up the patched transitives
 # natively — these overrides can then be removed.
@@ -52,3 +59,4 @@ overrides:
   tmp: 0.2.7
   esbuild: 0.28.2
   js-yaml: 4.3.2
+  fflate: 0.7.5
