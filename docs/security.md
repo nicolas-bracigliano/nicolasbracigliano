@@ -6,8 +6,8 @@
 > resolves), **commit signing** (enforced server-side by a repo ruleset),
 > **zone traffic analytics** (collecting), and a **ruleset on `main`**
 > covering signatures, force-push, deletion, review, and a required
-> `preview` deployment. Still outstanding: a `required_status_checks` rule,
-> which is the one thing ADR 0004's Renovate revisit is waiting on — see
+> `preview` deployment, plus (since 2026-09-26) a second ruleset requiring
+> the three CI checks, which Renovate cannot bypass — see
 > [Branch protection](#branch-protection) below. Each section states its own
 > status; treat the section, not this banner, as authoritative.
 
@@ -57,8 +57,11 @@ on `main` — the branch protection rule rejects them.
 
 ## Branch protection
 
-**Status**: active as a **repo ruleset** named `Base`, targeting the default
-branch. Created 2026-05-25, audited 2026-07-30.
+**Status**: active as two **repo rulesets**, both targeting the default
+branch. `Base` created 2026-05-25, audited 2026-07-30; `CI Gate` created
+2026-09-26.
+
+**`Base`** (id `16820483`):
 
 | Rule                                                                                      | Effect                                |
 | ----------------------------------------------------------------------------------------- | ------------------------------------- |
@@ -68,21 +71,27 @@ branch. Created 2026-05-25, audited 2026-07-30.
 | `pull_request` — 1 approval, code-owner review required, stale reviews not auto-dismissed | no direct pushes; review gate         |
 | `required_deployments` — `preview`                                                        | the `preview` deployment must succeed |
 
-**The gap, deliberately recorded:** there is **no `required_status_checks`
-rule**. Nothing in the ruleset stops a PR merging with red CI — the enforced
-gates are review and a successful `preview` deployment (which does mean the
-build must at least pass). Test, Lighthouse, and e2e results are advisory as
-far as the platform is concerned; today they hold because of discipline, not
-configuration.
+Bypass actors, all `always`: the admin role, the Renovate app (`2740`),
+Dependabot (`29110`), and one unidentified integration (`946600`). Renovate's
+bypass is load-bearing: it's how its PRs merge without a review.
 
-That gap is precisely what [ADR 0004](./decisions/0004-renovate-internal-automerge.md)'s
-revisit is blocked on, and **that ADR's second postscript already recorded it
-correctly** — it names the `Base` ruleset, notes the missing
-`required_status_checks`, and explains that `platformAutomerge: true` without
-it would let GitHub merge the moment Renovate enables auto-merge, before CI
-completes. Treat ADR 0004 as the authority on the Renovate consequence; this
-section is the inventory. `platformAutomerge: false` remains correct and
-ADR 0004 needs no amendment — adding the rule is what unblocks it.
+**`CI Gate`** (id `24025027`):
+
+| Rule                                                                                               | Effect             |
+| -------------------------------------------------------------------------------------------------- | ------------------ |
+| `required_status_checks` — `Build & Verify`, `Lighthouse CI`, `E2E tests (Playwright)`, not strict | red CI can't merge |
+
+Each check is pinned to the GitHub Actions app (`integration_id: 15368`),
+so another app posting a status with the same name can't satisfy it. The
+only bypass actor is the admin role.
+
+**Why two rulesets, not one.** A bypass covers every rule in its ruleset.
+With the checks inside `Base`, Renovate's bypass would skip them too, and
+the only gate on its merges would be Renovate's own look at the check runs.
+Kept apart, Renovate skips review but not CI. Folding `CI Gate` back into
+`Base` quietly reopens that gap. [ADR 0004](./decisions/0004-renovate-internal-automerge.md)'s
+third postscript has the reasoning, including why `platformAutomerge`
+stays `false` for good.
 
 Worth noting how this file came to be wrong, since the same thing will happen
 again: ADR 0004 knew branch protection was configured on 2026-05-25, while
@@ -236,10 +245,14 @@ Four scheduled / event-driven workflows run independently of the main
   fix → patch, while pre-1.0 per `release-please-config.json`). Merging
   that PR cuts a GitHub Release with a tag.
 - **Renovate** (managed externally by the Mend Renovate GitHub App; config in
-  `renovate.json`) — runs Mondays 04:00 Australia/Melbourne. Automerges
-  patch/minor/digest/lockfile/vulnerability updates after CI gates pass;
-  majors gated for human review. Vulnerability alerts have a separate
-  immediate schedule. See [`docs/decisions/0004-renovate-internal-automerge.md`](./decisions/0004-renovate-internal-automerge.md).
+  `renovate.json`) — opens PRs on Mondays, Australia/Melbourne. Non-major
+  devDependency updates arrive as one grouped PR; production dependencies
+  keep their own. Automerges patch/minor/digest/lockfile/vulnerability
+  updates after CI gates pass. Majors are created only when ticked on the
+  Dependency Dashboard, then gated for human review. Vulnerability alerts
+  have a separate any-time schedule. Every update, including transitives
+  in the weekly lockfile refresh, waits out a 3-day release age that pnpm
+  itself enforces (`minimumReleaseAge` in `pnpm-workspace.yaml`). See [`docs/decisions/0004-renovate-internal-automerge.md`](./decisions/0004-renovate-internal-automerge.md).
 
 Action versions across all workflows are pinned to 40-char SHAs with the
 tag in a trailing comment; Renovate's `helpers:pinGitHubActionDigests`

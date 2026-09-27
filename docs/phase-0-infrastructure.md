@@ -494,17 +494,17 @@ that protection is missing. Rulesets live under Settings → **Rules**
 → **Rulesets**; `docs/security.md` § Commit signing has the `gh api`
 calls that tell the truth.
 
-**The remaining gap**: the ruleset has no `required_status_checks`
-rule, so nothing on the platform side stops a PR merging with red CI.
-Adding it is the one thing left, and it is what unblocks ADR 0004's
-Renovate revisit. `docs/ci.md` § Status checks lists which checks to
-mark required; ADR 0004's second postscript has the rollout sequence.
+**Required status checks** live in a second ruleset, `CI Gate`
+(2026-09-26), not in `Base`. `docs/ci.md` § Status checks lists them,
+and ADR 0004's third postscript explains why they're kept separate:
+Renovate's bypass on `Base` would otherwise skip them too.
 
 **Open question for the author**: the live `Base` ruleset has bypass
 actors configured, while the original step 3 below called for "Do not
-allow bypassing the above settings", even for admins. Whether the
-bypass is deliberate or a leftover from setup has not been decided.
-Recorded here rather than resolved in either direction.
+allow bypassing the above settings", even for admins. Renovate's bypass
+is now known to be load-bearing, since it's how its PRs merge without
+a review. The admin, Dependabot and `946600` entries are still
+undecided. Recorded here rather than resolved in either direction.
 
 <details>
 <summary>Original Phase 0 steps (legacy branch-protection UI, superseded by the ruleset)</summary>
@@ -529,10 +529,10 @@ Recorded here rather than resolved in either direction.
 
 Two of these are wrong as well as superseded. Step 3's "Do not allow
 bypassing" is not what was configured — see the open question above.
-Step 5 contradicts ADR 0004: `platformAutomerge` stays `false` until
-`required_status_checks` exists, and flipping it before then
-re-introduces the exact merge-before-CI failure that ADR was written
-to prevent.
+Step 5 contradicts ADR 0004: `platformAutomerge` stays `false` for
+good. GitHub's native auto-merge doesn't honour Renovate's bypass on
+the review rule, so flipping it would leave every Renovate PR blocked
+(ADR 0004, third postscript).
 
 </details>
 

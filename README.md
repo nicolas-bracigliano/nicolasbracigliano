@@ -131,7 +131,7 @@ The filenames are fixed and `/fonts/*` is served `immutable` for a year, so if t
 - **Security** ([`.github/workflows/security.yml`](./.github/workflows/security.yml)): daily 22:00 UTC. `pnpm audit`, license allow-list, gitleaks, CodeQL static analysis, security.txt expiry guard.
 - **security.txt rotate** ([`.github/workflows/security-txt-rotate.yml`](./.github/workflows/security-txt-rotate.yml)): monthly on the 1st. Opens a renewal PR when `Expires` is < 60 days from lapsing.
 - **release-please** ([`.github/workflows/release-please.yml`](./.github/workflows/release-please.yml)): every push to `main`. Maintains a release PR with `CHANGELOG.md` + `package.json` version bump; merging cuts a GitHub Release.
-- **Renovate** (Mend GitHub App; [`renovate.json`](./renovate.json)): Monday mornings, Australia/Melbourne. Auto-merges patch/minor/digest/lockfile/vulnerability updates after CI passes; majors gated for human review.
+- **Renovate** (Mend GitHub App; [`renovate.json`](./renovate.json)): Mondays, Australia/Melbourne. Non-major dev-tooling updates arrive as one grouped PR, production dependencies as their own, plus a weekly lockfile refresh. Auto-merges patch/minor/digest/lockfile/vulnerability updates after CI passes; majors are created only when ticked on the Dependency Dashboard, then gated for human review. Nothing younger than 3 days gets installed; pnpm enforces that floor (`minimumReleaseAge` in `pnpm-workspace.yaml`).
 
 All `uses:` references in workflow YAML are pinned to immutable 40-char SHAs with the version in a trailing comment. Renovate's `pinGitHubActionDigests` preset keeps them fresh.
 

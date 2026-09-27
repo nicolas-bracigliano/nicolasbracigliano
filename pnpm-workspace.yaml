@@ -4,8 +4,20 @@ allowBuilds:
   sharp: true
   workerd: true
 
-minimumReleaseAgeExclude:
-  - astro@7.2.1
+# Refuse any package version younger than 3 days (in minutes). pnpm's
+# built-in default is 24h; this raises it to match Renovate's
+# `minimumReleaseAge` so the two gates agree. It applies at resolution
+# time — `pnpm update`, `pnpm add`, and Renovate's own lockfile runs
+# pick the newest version old enough — and again at
+# `--frozen-lockfile` install, which fails on any lockfile entry
+# younger than the floor. That second check is what covers transitive
+# dependencies, which Renovate's per-PR stability gate never saw.
+minimumReleaseAge: 4320
+
+# Escape hatch for a release that can't wait out the floor (an urgent
+# security fix, say). Pin the exact `name@version` and remove the entry
+# once it ages past 3 days — a stale entry matches nothing.
+minimumReleaseAgeExclude: []
 
 # Force-upgrade transitive dependencies that ship with
 # known security advisories. These are pulled in through

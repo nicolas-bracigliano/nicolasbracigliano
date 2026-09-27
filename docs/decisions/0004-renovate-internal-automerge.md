@@ -1,6 +1,6 @@
 # 0004 — Renovate uses internal merger, not `platformAutomerge`
 
-**Status**: Accepted — pending revisit. The original justification (branch protection unavailable on a private repo without GitHub Pro) evaporated when the repo went public on 2026-05-25, and branch protection was configured that same day (the `Base` ruleset). See the **second Postscript** for what is still blocking: the ruleset carries no `required_status_checks` rule, so the flag stays `platformAutomerge: false` until one is added and the migration validated.
+**Status**: Accepted — revisit closed 2026-09-26. The original justification (branch protection unavailable on a private repo) evaporated on 2026-05-25, but a new one replaced it: GitHub's native auto-merge doesn't honour the Renovate app's ruleset bypass, so with `Base`'s required review it would never complete. `platformAutomerge` stays `false` for good; CI is now enforced on Renovate's own merges by a separate `CI Gate` ruleset. See the **third Postscript**.
 **Date**: 2026-05-22
 
 ## Context
@@ -67,3 +67,17 @@ The Mend Renovate GitHub App was installed via the [developer.mend.io](https://d
 Branch protection on `main` is configured (the "Base" ruleset, scoped to `~DEFAULT_BRANCH`), but it does not yet include a `required_status_checks` rule. Until that's added, `platformAutomerge: true` would let GitHub merge the moment Renovate enables it, before CI completes — the failure mode this ADR was written to prevent. The flag stays at `false`.
 
 The flip to `platformAutomerge: true` will land as a separate PR that does three things together: adds `required_status_checks` (Build & Verify, Lighthouse CI, E2E tests, Lint workflow pins (ADR 0009), Check deploy prerequisites) to the Base ruleset, flips the flag in `renovate.json`, and amends this ADR with the final postscript closing the loop.
+
+## Postscript — 2026-09-26: the flip is off, the gate is on
+
+The plan in the second postscript, adding `required_status_checks` to `Base` and flipping `platformAutomerge` to `true`, turns out to be wrong on both halves.
+
+**Why not add the rule to `Base`.** Renovate merges today because the Renovate app (integration `2740`) is a `Base` bypass actor with `bypass_mode: always`. That's what waives the review rule (1 approval plus code-owner review) on PRs nobody reviews. But a bypass covers every rule in its ruleset, so a `required_status_checks` rule inside `Base` wouldn't bind Renovate either. The one gate on a Renovate merge would still be Renovate's own look at the check runs, which its maintainers call ["just a basic/easy one"](https://github.com/renovatebot/renovate/discussions/28601).
+
+**Why not flip `platformAutomerge`.** GitHub's native auto-merge doesn't honour an app bypass on the approval rule: the PR sits blocked with every check green ([reported since January 2025, acknowledged by GitHub in March 2026, unfixed as of September 2026](https://github.com/gwenneg/mintmaker-automerge/pull/38)). With `Base` requiring review, every Renovate PR would wait forever. The repo's "Allow auto-merge" setting was briefly switched on during this revisit and then off again. Nothing uses it.
+
+**What landed instead.** A second ruleset, `CI Gate` (id `24025027`), targets `~DEFAULT_BRANCH` and carries a single rule: `required_status_checks` for `Build & Verify`, `Lighthouse CI` and `E2E tests (Playwright)`, each pinned to the GitHub Actions app (`integration_id: 15368`), not strict. Its only bypass actor is the admin role, so Renovate is outside it. Renovate still merges through its own API call, and `Base` still waives the review, but GitHub now rejects that merge unless all three checks passed. This is the same safety property the flip was meant to deliver, without depending on GitHub fixing the bypass bug.
+
+The required set follows `docs/ci.md` § Status checks, not the list above. `Lint workflow pins (ADR 0009)` is a step inside `Build & Verify`, not a check of its own. `Check deploy prerequisites` and `Deploy to Cloudflare Workers` stay informational, so a Cloudflare outage can't block merges. Jobs skipped by the path filter report success, so docs-only PRs still merge.
+
+**When to revisit, now.** Only if GitHub's native auto-merge starts honouring app bypass actors _and_ there's a reason to prefer it. The likeliest reason is throughput: the internal merger lands about one PR per Renovate run and rebases the rest in between. Even then, keep `CI Gate` as a separate ruleset, since folding it into `Base` would put Renovate back outside it.
