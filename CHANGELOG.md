@@ -1,5 +1,20 @@
 # Changelog
 
+## [1.26.6](https://github.com/nicolas-bracigliano/nicolasbracigliano/compare/v1.26.5...v1.26.6) (2026-09-27)
+
+
+### Bug Fixes
+
+* **deps:** clear all but the unpatchable pnpm audit advisories ([77cf92b](https://github.com/nicolas-bracigliano/nicolasbracigliano/commit/77cf92b9da833b810bb2974ead4b5b2842a42472))
+* **deps:** clear pnpm audit advisories and drop stale overrides ([5456f58](https://github.com/nicolas-bracigliano/nicolasbracigliano/commit/5456f58b22ca572dbb6d40dfcd79e580e8d10505))
+* **deps:** drop the yaml, esbuild and js-yaml overrides ([480eef1](https://github.com/nicolas-bracigliano/nicolasbracigliano/commit/480eef198e568ba69e4eadcb8918dcad42a67d47))
+
+
+### CI / Tooling
+
+* **renovate:** group dev updates, move the age floor into pnpm ([f313a7f](https://github.com/nicolas-bracigliano/nicolasbracigliano/commit/f313a7f39be5286615141aea7c4cca0cce679a7c))
+* **renovate:** group dev updates, move the age floor into pnpm ([fc76a6d](https://github.com/nicolas-bracigliano/nicolasbracigliano/commit/fc76a6d9883168c066d713b94deaf559e16b8b94))
+
 ## [1.26.5](https://github.com/nicolas-bracigliano/nicolasbracigliano/compare/v1.26.4...v1.26.5) (2026-08-31)
 
 
