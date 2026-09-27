@@ -1,6 +1,10 @@
 import { defineConfig, devices } from '@playwright/test';
 
-const PORT = 4321;
+/* Deliberately not Astro's default 4321. `reuseExistingServer` below
+   attaches to whatever already listens on this port, so a dev server
+   from any other Astro project on the machine silently became the
+   target of the whole suite (145 of 162 failed against the wrong app). */
+const PORT = 4817;
 
 export default defineConfig({
   testDir: './tests/e2e',
@@ -19,7 +23,7 @@ export default defineConfig({
     colorScheme: 'light',
   },
   webServer: {
-    command: 'pnpm preview --port 4321',
+    command: `pnpm preview --port ${PORT}`,
     // Astro 7.2 backgrounds preview automatically when it detects an AI agent.
     // Playwright must own the foreground process so readiness and teardown work.
     env: { ASTRO_PREVIEW_BACKGROUND: '0' },
