@@ -278,11 +278,16 @@ reason. This section is for the other case: an advisory with **no fix to
 apply**, recorded so the next audit doesn't re-derive it.
 
 - **`extract-zip` — GHSA-jmr9-qjv8-65gv** (CWE-22, unvalidated symlink path
-  traversal). Reached only via
-  `@lhci/cli → lighthouse → puppeteer-core → @puppeteer/browsers`. The
-  advisory names `>=2.0.2` as patched, but **2.0.2 was never published** —
-  2.0.1 is the latest release on npm, so there is nothing to override to.
+  traversal) **and GHSA-7pqw-9j4j-h8q3** (arbitrary file writes through
+  symlink archive entries, published 2026-08-17). Reached only via
+  `@lhci/cli → lighthouse → puppeteer-core → @puppeteer/browsers`. Both
+  advisories name `>=2.0.2` as patched, but **2.0.2 was never published** —
+  2.0.1 is the latest release on npm, so there is nothing to override to
+  (GitHub's own record for the second lists no first patched version).
   `@lhci/cli@0.15.1` is itself the newest release and hasn't moved off it.
+  `@puppeteer/browsers@3` drops `extract-zip` entirely, but forcing it would
+  mean a major-version override under `lighthouse@12.6.1`, which `@lhci/cli`
+  pins exactly and which expects `puppeteer-core@24`'s 2.x line.
   Dev-only, and the only archives it opens are Chrome builds that
   `@puppeteer/browsers` downloads from Google's own endpoints during
   Lighthouse CI, so the untrusted-zip precondition isn't met. It stays out of

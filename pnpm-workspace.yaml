@@ -9,17 +9,15 @@ minimumReleaseAgeExclude:
 
 # Force-upgrade transitive dependencies that ship with
 # known security advisories. These are pulled in through
-# tooling (typechecker, Lighthouse CI) — none are runtime-exposed —
-# but `pnpm audit` flags them and upstream releases of
-# Astro / `@astrojs/check` / `@lhci/cli` haven't rolled forward yet.
+# tooling (Lighthouse CI, OG image rendering) — none are
+# runtime-exposed — but `pnpm audit` flags them and upstream releases of
+# `@lhci/cli` / satori haven't rolled forward yet.
 #
 # (Versions below are Renovate-pinned; the floors that matter are
 # the ones the advisories name.)
 #
-# - yaml (≥2.8.3) — patches GHSA-48c2-rrv3-qjmp (stack overflow on
-#                   deeply-nested YAML). Pulled in via
-#                   @astrojs/check → language-server →
-#                   volar-service-yaml → yaml-language-server.
+# - yaml — removed 2026-09. yaml-language-server now pins 2.8.3
+#                   itself, already past GHSA-48c2-rrv3-qjmp's ≥2.8.3.
 # - uuid (≥11.1.1) — patches GHSA-w5hq-g745-h8pq (missing buffer
 #                   bounds check in v3/v5/v6). Pulled in via
 #                   @lhci/cli. v11 is a major bump from the version
@@ -32,23 +30,30 @@ minimumReleaseAgeExclude:
 #                   resolved against ^0.2.4 and is still vulnerable to
 #                   the newer advisory. Pulled in twice via @lhci/cli
 #                   (direct and via inquirer → external-editor).
-# - esbuild (≥0.28.1) — patches GHSA-gv7w-rqvm-qjhr (missing binary
-#                   integrity verification in Deno module path) and
-#                   GHSA-g7r4-m6w7-qqqr (Windows dev-server file read).
-#                   Pulled in via Astro, Vite, and vitefu → Vite.
+# - esbuild — removed 2026-09. Astro, Vite and wrangler all resolve
+#                   ≥0.28.1 on their own, past GHSA-gv7w-rqvm-qjhr and
+#                   GHSA-g7r4-m6w7-qqqr.
 # - vite — no override needed after the Astro 7 upgrade. Astro now
 #                   resolves Vite 8+, which is already above the
 #                   vulnerable range for GHSA-fx2h-pf6j-xcff.
-# - js-yaml (≥4.1.2; using published 4.2.0) — patches GHSA-h67p-54hq-rp68
-#                   (quadratic-complexity DoS in merge key handling via
-#                   repeated aliases). Pulled in via Astro internal helpers.
+# - js-yaml — removed 2026-09, and don't bring it back unscoped. Astro's
+#                   helpers resolve a patched 4.x on their own, and the
+#                   blanket pin also forced `@lhci/utils` (which wants
+#                   ^3.13.1) onto v4, which dropped the `yaml.safeLoad` it
+#                   calls. That only held because lighthouserc is JSON. Its
+#                   own 3.15.2 isn't flagged by GHSA-h67p-54hq-rp68.
+# - fflate (≥0.7.5) — patches GHSA-px8p-9vwx-vf98 (`unzipSync` infinite
+#                   loop on malformed ZIP64 archives). satori pins
+#                   `fflate: 0.7.3` exactly, still true as of satori 0.33.5,
+#                   so no refresh can reach it. Build-time only (OG image
+#                   rendering over our own fonts). 0.7.5 is already in the
+#                   tree via satori → @shuding/opentype.js, so this dedupes
+#                   to one copy rather than adding a version.
 #
 # Revisit when upstream releases pick up the patched transitives
 # natively — these overrides can then be removed.
 
 overrides:
-  yaml: 2.9.0
   uuid: 11.1.1
   tmp: 0.2.7
-  esbuild: 0.28.2
-  js-yaml: 4.3.2
+  fflate: 0.7.5
