@@ -122,18 +122,40 @@
         "it absorbs them for non-majors — typescript-eslint and the eslint",
         "plugins still move together, just inside this group. `@astrojs/check`",
         "is excluded so it stays in `astro core` alongside `astro`.",
-        "The `overrides:` floors in `pnpm-workspace.yaml` ride along too: they",
-        "pin dev-tooling transitives, and `yaml` appears both there and as a",
-        "devDependency, which otherwise meant two PRs for one package.",
         "Production dependencies stay out on purpose: each keeps its own",
         "`fix(deps)` PR, so the changelog records it and a regression in the",
         "shipped site traces to one package. The cost here is that one bad",
         "dev update holds the group back until it is split off."
       ],
-      "matchDepTypes": ["devDependencies", "pnpm-workspace.overrides"],
+      "matchDepTypes": ["devDependencies"],
       "matchUpdateTypes": ["minor", "patch"],
       "matchPackageNames": ["!@astrojs/check"],
       "groupName": "dev dependencies (non-major)"
+    },
+    {
+      "description": [
+        "`overrides:` in `pnpm-workspace.yaml`: patch updates join the dev",
+        "group; anything bigger waits for Dependency Dashboard approval.",
+        "An override forces one version on every consumer, including ones",
+        "whose own range excludes it, so a minor bump there can break a",
+        "package that never asked for it, and CI won't necessarily notice.",
+        "The grouped PR #255 (2026-09) moved the `fflate` override",
+        "0.7.5 -> 0.8.3 (Renovate counts a 0.x minor as non-major). satori",
+        "pins 0.7.3 and calls `inflateSync(data, out)`, and in 0.8 that",
+        "second argument became an options object, so its WOFF decoding",
+        "silently returned zeros. It went unnoticed only because the OG",
+        "images use a TTF font."
+      ],
+      "matchDepTypes": ["pnpm-workspace.overrides"],
+      "matchUpdateTypes": ["patch"],
+      "groupName": "dev dependencies (non-major)"
+    },
+    {
+      "description": "See the rule above: override bumps beyond patch need a human check against every consumer.",
+      "matchDepTypes": ["pnpm-workspace.overrides"],
+      "matchUpdateTypes": ["minor", "major"],
+      "automerge": false,
+      "dependencyDashboardApproval": true
     },
     {
       "description": "GitHub Actions on their own track (digest pins maintained by best-practices preset).",
