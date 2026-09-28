@@ -58,9 +58,11 @@ minimumReleaseAgeExclude: []
 #                   loop on malformed ZIP64 archives). satori pins
 #                   `fflate: 0.7.3` exactly, still true as of satori 0.33.5,
 #                   so no refresh can reach it. Build-time only (OG image
-#                   rendering over our own fonts). 0.7.5 is already in the
-#                   tree via satori → @shuding/opentype.js, so this dedupes
-#                   to one copy rather than adding a version.
+#                   rendering over our own fonts). Stay on 0.7.x: 0.8 turned
+#                   `inflateSync`'s second argument (satori passes an
+#                   output buffer) into an options object, so satori's
+#                   WOFF decoding silently yields zeros. Renovate proposes
+#                   only patch bumps for overrides; see renovate.json.
 #
 # Revisit when upstream releases pick up the patched transitives
 # natively — these overrides can then be removed.
@@ -68,4 +70,4 @@ minimumReleaseAgeExclude: []
 overrides:
   uuid: 11.1.1
   tmp: 0.2.7
-  fflate: 0.8.3
+  fflate: 0.7.5
