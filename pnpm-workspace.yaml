@@ -68,4 +68,4 @@ minimumReleaseAgeExclude: []
 overrides:
   uuid: 11.1.1
   tmp: 0.2.7
-  fflate: 0.7.5
+  fflate: 0.8.3
