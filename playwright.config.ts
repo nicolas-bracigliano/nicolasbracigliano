@@ -23,7 +23,14 @@ export default defineConfig({
     colorScheme: 'light',
   },
   webServer: {
-    command: `pnpm preview --port ${PORT}`,
+    /* Runs `astro preview` directly, not through `pnpm preview`. Playwright
+       stops the webServer by SIGKILLing its process group. From pnpm 11.27
+       the script's child runs in a group of its own, so that signal took
+       pnpm down and left `astro preview` orphaned and holding the port, and
+       the run never finished (#258). With no wrapper there's no second
+       group. The explicit path works however Playwright is launched,
+       including editor integrations that don't put `.bin` on PATH. */
+    command: `node_modules/.bin/astro preview --port ${PORT}`,
     // Astro 7.2 backgrounds preview automatically when it detects an AI agent.
     // Playwright must own the foreground process so readiness and teardown work.
     env: { ASTRO_PREVIEW_BACKGROUND: '0' },
