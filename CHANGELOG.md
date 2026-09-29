@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.26.7](https://github.com/nicolas-bracigliano/nicolasbracigliano/compare/v1.26.6...v1.26.7) (2026-09-29)
+
+
+### Bug Fixes
+
+* **deps:** pin the fflate override back to 0.7.x ([#262](https://github.com/nicolas-bracigliano/nicolasbracigliano/issues/262)) ([fa9a139](https://github.com/nicolas-bracigliano/nicolasbracigliano/commit/fa9a13915200abf6e5ce2f6278ae173864f19066))
+* **deps:** update astrojs integrations ([#259](https://github.com/nicolas-bracigliano/nicolasbracigliano/issues/259)) ([6dc2672](https://github.com/nicolas-bracigliano/nicolasbracigliano/commit/6dc267238d349a1b5ce4558e462d1a675e645501))
+* **deps:** update dependency astro to v7.3.5 ([#260](https://github.com/nicolas-bracigliano/nicolasbracigliano/issues/260)) ([fef622f](https://github.com/nicolas-bracigliano/nicolasbracigliano/commit/fef622f3118bfa8271bf9a0f3f0e16719652ba68))
+
 ## [1.26.6](https://github.com/nicolas-bracigliano/nicolasbracigliano/compare/v1.26.5...v1.26.6) (2026-09-27)
 
 
