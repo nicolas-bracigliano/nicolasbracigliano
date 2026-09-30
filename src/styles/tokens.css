@@ -6,14 +6,21 @@
    with their consumers and aren't inventoried; grep `max-width:` for
    the full set.
 
-     720 px  — mobile/desktop split. `.chrome .nav` hides; the
-               `.foot-rail` mobile-only nav appears. ALSO defined as
-               `MOBILE_BREAKPOINT` in `src/scripts/chrome.ts` so the
-               scroll-direction listener attaches/detaches at the
-               same threshold — keep the two in sync.
+     720 px  — mobile page layouts: route grids collapse to one column
+               (e.g. the home masthead, piece rows); grep
+               `max-width: 720px` in the route sheets for the rest.
 
      880 px  — two-column layouts collapse to one (`/about` prose +
                sidebar grid, `/notes` marginalia rails).
+
+     920 px  — chrome split: `.chrome .nav` hides and the `.foot-rail`
+               nav appears, with the compact mark and icon-only search
+               and day/night (base.css, cmdk.css). The full desktop row
+               needs ~901 px in Spanish; it moved here from 720 px after
+               overflowing the viewport in between. ALSO defined as
+               `MOBILE_BREAKPOINT` in `src/scripts/chrome.ts` so the
+               scroll-direction listener attaches/detaches at the same
+               threshold — keep them in sync.
  */
 @layer tokens {
   :root {

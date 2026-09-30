@@ -7,7 +7,7 @@
 import type { TransitionBeforeSwapEvent } from 'astro:transitions/client';
 import { decideOnOsChange, parseStoredTheme, pickTheme, THEME_COLOR, type Theme } from './theme';
 
-const MOBILE_BREAKPOINT = '(max-width: 720px)';
+const MOBILE_BREAKPOINT = '(max-width: 920px)';
 const HIDE_AT_SCROLL_PX = 120;
 const ALWAYS_SHOW_BELOW_PX = 60;
 const DY_DEBOUNCE_PX = 5;

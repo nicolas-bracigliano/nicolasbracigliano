@@ -226,7 +226,7 @@
     color: var(--ink-3);
     margin-inline-end: 2px;
   }
-  /* Drop the slash prefix on narrower viewports — between the 720 px
+  /* Drop the slash prefix on narrower viewports — between the 920 px
     breakpoint (where the top nav hides entirely in favour of the
     foot-rail) and ~1030 px the chrome is already tight, and the slash
     row reads as visual noise once the nav (now 6 items after the
@@ -236,13 +236,6 @@
   @media (max-width: 1130px) {
     .nav a::before {
       content: none;
-    }
-  }
-  /* Below 880 px, tighten the gap further so 6 unslashed items still
-     fit between the mark and chrome-end. */
-  @media (max-width: 880px) {
-    .nav ul {
-      gap: 0.875rem;
     }
   }
   .nav a[aria-current='page'],
@@ -406,7 +399,13 @@
     display: none;
   }
 
-  @media (max-width: 720px) {
+  /* Compact chrome + foot-rail below 920 px (tokens.css). The desktop
+     row — mark, 6-item nav, jump-to + lang + day/night — needs ~901 px
+     in Spanish once the gutters are respected; narrower, it overflowed
+     the viewport (up to ~100 px at 740 px, pushing the theme toggle
+     off-screen) or ran into the right gutter. 920 leaves ~19 px of
+     slack. Page layouts keep their own 720 px split. */
+  @media (max-width: 920px) {
     .chrome {
       gap: 0.5rem;
       padding: 0.65rem var(--gutter);
