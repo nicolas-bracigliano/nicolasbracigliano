@@ -119,7 +119,8 @@
   }
 
   /* Inline vignettes — coffee + mate, used in masthead h1/bio and field notes.
-     and the vignette label keeps its own colour even inside the headline. */
+     The doubled class on the `em` rule outranks `.masthead-text h1 em`,
+     so the vignette label keeps its own colour even inside the headline. */
   .inline-vignette {
     display: inline-flex;
     align-items: center;
@@ -145,7 +146,7 @@
   .inline-vignette .vignette-label {
     color: inherit;
   }
-  /* Mate inherits `.inline-vignette`'s default `--accent` colour
+  /* Mate inherits `.inline-vignette`'s default `--accent-aa` colour
      (matching Coffee) — the gourd-and-bombilla SVG reads warm enough
      that the olive `--mate` it used to carry felt mismatched against
      the surrounding accent treatment.
