@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.26.8](https://github.com/nicolas-bracigliano/nicolasbracigliano/compare/v1.26.7...v1.26.8) (2026-09-30)
+
+
+### Bug Fixes
+
+* **home:** sit the mate and coffee icons on the text baseline ([#265](https://github.com/nicolas-bracigliano/nicolasbracigliano/issues/265)) ([3a36e24](https://github.com/nicolas-bracigliano/nicolasbracigliano/commit/3a36e2489bf50546406c6d595cfd19d2144a0279))
+
 ## [1.26.7](https://github.com/nicolas-bracigliano/nicolasbracigliano/compare/v1.26.6...v1.26.7) (2026-09-29)
 
 
