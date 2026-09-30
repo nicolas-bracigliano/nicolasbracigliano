@@ -166,15 +166,31 @@
      (matching Coffee) — the gourd-and-bombilla SVG reads warm enough
      that the olive `--mate` it used to carry felt mismatched against
      the surrounding accent treatment.
-     The gourd's bottom is drawn at the foot of Mate.astro's viewBox, so
-     the shared baseline alignment already lands it on the text baseline;
-     the rim falls near cap height and the straw rises like an ascender.
+     The gourd's round bottom (stroke edge at y 208 of Mate.astro's
+     5–210 viewBox) is treated like a round letter: it drops the 2/205
+     of the icon it stops short of the SVG's bottom edge, plus the
+     0.01em that JetBrains Mono's round lowercase (o, a, e) overshoot
+     the baseline. Without it the gourd sat ~0.3px above "mate"'s round
+     letters, which reads as floating. The shift is a `transform`, not
+     `top`: a sub-pixel `top` gets snapped to the device pixel grid, so
+     the result depended on where the line fell (at 2× WebKit rounded it
+     away entirely, Chromium doubled it). A transform isn't snapped, and
+     it's visual only, so the line box is untouched. The rim falls near
+     cap height and the straw rises like an ascender.
+     `overflow: visible` because the stroke ends only 2 viewBox units
+     (~0.2px) inside the SVG's edges, and Chromium pixel-snaps the SVG's
+     clip rect: it shaved the bottom of the curve flat, which also read
+     as the gourd sitting high.
      In the bio the box narrows to the viewBox's portrait 145 × 205 ratio,
      so the gourd isn't letterboxed inside the shared square and the gap
      to its label is just the flex `gap`. The width is computed here
      rather than left to `width: auto`, which takes the ratio of the SVG's
      16 × 20 attributes, not the viewBox. Elsewhere (the Field Notes cup
      rows) it keeps the square, so stacked icons share one column. */
+  .vignette--mate svg {
+    overflow: visible;
+    transform: translateY(calc(var(--vignette-size) * 2 / 205 + 0.01em));
+  }
   .masthead-bio .vignette--mate svg {
     width: calc(var(--vignette-size) * 145 / 205);
   }
