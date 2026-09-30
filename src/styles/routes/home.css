@@ -120,10 +120,26 @@
 
   /* Inline vignettes — coffee + mate, used in masthead h1/bio and field notes.
      The doubled class on the `em` rule outranks `.masthead-text h1 em`,
-     so the vignette label keeps its own colour even inside the headline. */
+     so the vignette label keeps its own colour even inside the headline.
+
+     Both icons sit on the text baseline like glyphs. An SVG has no text
+     baseline, so under `align-items: center` the box took the SVG's
+     bottom edge as its baseline and centred the rest around it: icons
+     floated or sank and grew their line boxes. With `baseline`, a label
+     (Mate's `.vignette-label`, Coffee's `<em>`) sets the box's baseline;
+     label-less (Field Notes), the SVG's bottom edge does. The per-icon
+     rules below land each drawing's bottom on that baseline.
+
+     `--vignette-size` is the icon's rendered size; the per-icon offsets
+     are derived from it, so change it here and they follow. The negative
+     top margin caps the icon's layout box at 0.7em above the baseline,
+     under the tightest strut (the masthead h1's 1.04 line-height leaves
+     ~0.75em), so the icon overhangs into the leading instead of growing
+     the line box. It's layout-only: the icon still paints at full size. */
   .inline-vignette {
+    --vignette-size: 1.3em;
     display: inline-flex;
-    align-items: center;
+    align-items: baseline;
     gap: 0.25em;
     white-space: nowrap;
     /* `--accent-aa`, not raw `--accent`: the inline vignette puts an
@@ -131,12 +147,12 @@
        `#b8512a` measures 4.49:1 on `--bg` (one hundredth under WCAG AA).
        The AA-safe variant nudges the hue slightly toward `--ink`. */
     color: var(--accent-aa);
-    position: relative;
   }
   .inline-vignette svg {
     flex-shrink: 0;
-    width: 1.3em;
-    height: 1.3em;
+    width: var(--vignette-size);
+    height: var(--vignette-size);
+    margin-block-start: calc(0.7em - var(--vignette-size));
   }
   .inline-vignette.inline-vignette em {
     color: var(--accent-aa);
@@ -150,47 +166,26 @@
      (matching Coffee) — the gourd-and-bombilla SVG reads warm enough
      that the olive `--mate` it used to carry felt mismatched against
      the surrounding accent treatment.
-     Mate's first flex item is the SVG, which has no text baseline, so
-     under `align-items: center` the inline-flex box takes the SVG's
-     bottom edge as its baseline and rides ~5px above the line, growing
-     that line box. Baseline-aligning the label makes it the box's
-     baseline (sitting exactly on the surrounding text). The SVG is
-     baseline-aligned too, so the gourd's bottom sits on the text
-     baseline like a glyph and its rim lands near cap height; the
-     straw rises above like an ascender. The negative top margin lets
-     the straw overhang into the leading without growing the line box
-     (the SVG is 1.3em, taller than the label's ascent + half-leading).
-     Label-less (Field Notes), the SVG's own bottom edge is the
-     baseline, and the gourd still lands on it.
-     `width: auto` sizes the box to the portrait viewBox (145 × 205)
-     instead of the shared 1.3em square, which letterboxed the gourd
-     with ~0.2em of dead space on each side on top of the flex `gap`.
-     The Field Notes cup rows put the square back (see `.cup`). */
-  .vignette--mate {
-    align-items: baseline;
+     The gourd's bottom is drawn at the foot of Mate.astro's viewBox, so
+     the shared baseline alignment already lands it on the text baseline;
+     the rim falls near cap height and the straw rises like an ascender.
+     In the bio the box narrows to the viewBox's portrait 145 × 205 ratio,
+     so the gourd isn't letterboxed inside the shared square and the gap
+     to its label is just the flex `gap`. The width is computed here
+     rather than left to `width: auto`, which takes the ratio of the SVG's
+     16 × 20 attributes, not the viewBox. Elsewhere (the Field Notes cup
+     rows) it keeps the square, so stacked icons share one column. */
+  .masthead-bio .vignette--mate svg {
+    width: calc(var(--vignette-size) * 145 / 205);
   }
-  .vignette--mate svg {
-    width: auto;
-    margin-block-start: -0.3em;
-  }
-  /* Coffee sits its saucer on the text baseline, like Mate's gourd.
-     Baseline-aligned, the SVG (no text baseline of its own) puts its
-     bottom edge on the baseline — set by the `<em>` label in the
-     masthead h1, or by the SVG itself when label-less (Field Notes).
-     The saucer is drawn at y≈22.7 of the 30-unit viewBox, so
-     `top: 0.316em` ((30 − 22.7) / 30 × 1.3em) drops it onto the
-     baseline. `top` is visual only, so the negative top margin keeps
-     the layout box inside the strut: the h1's 1.04 line-height leaves
-     ~0.75em above the baseline against the icon's 1.3em, and without
-     it the coffee line pushes its neighbours ~9px apart. Re-derive both
-     if the icon's viewBox or 1.3em size changes. */
-  .vignette--coffee {
-    align-items: baseline;
-  }
+  /* Coffee's saucer is drawn at y≈22.7 of Coffee.astro's 30-unit
+     viewBox, so with the SVG's bottom edge on the baseline it floats
+     (30 − 22.7) / 30 of the icon above the text. `top` drops it back
+     down; it's visual only, so the shared margin still governs the
+     line box. Re-derive if the saucer or viewBox changes. */
   .vignette--coffee svg {
     position: relative;
-    top: 0.316em;
-    margin-block-start: -0.6em;
+    top: calc(var(--vignette-size) * 7.3 / 30);
   }
 
   /* Bench section — "Currently on the bench" + 2×2 dashed-rule grid */
@@ -584,12 +579,6 @@
     font-size: 0.82rem;
     color: var(--ink-2);
     max-width: none;
-  }
-  /* Stacked cup rows read as an icon column: undo Mate's portrait
-     `width: auto` so its box matches Coffee's 1.3em square and the
-     text after each icon starts at the same x. */
-  .cup .vignette--mate svg {
-    width: 1.3em;
   }
 
   /* Global tone-down utility. The codebase has been using

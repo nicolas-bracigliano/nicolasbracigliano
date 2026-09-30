@@ -8,15 +8,22 @@
 // glyphs use 24, so two things differ from the vignette:
 // - `stroke-width` is 1.75 (1.4 × 30/24), matching the siblings'
 //   rendered line weight at the shared 22px size.
-// - The viewBox is offset so the drawing (x 4.3–27.7, y 4.3–22.7 with
-//   stroke) sits centred in the glyph box instead of baseline-anchored
-//   like the vignette.
+// - The viewBox is offset so the drawing (x 4.125–27.875,
+//   y 4.125–22.875 with the 1.75 stroke; centre 16, 13.5) sits centred
+//   in the glyph box instead of baseline-anchored like the vignette.
+// Round joins match the sibling glyphs; they don't touch the path data.
 // Static: the steam loop is scoped to `.inline-vignette`.
 ---
 
 <svg viewBox="1 -1.5 30 30" width="22" height="22" role="img" aria-label="coffee glyph">
   <title>coffee</title>
-  <g fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round">
+  <g
+    fill="none"
+    stroke="currentColor"
+    stroke-width="1.75"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  >
     <path d="M5 22 L 25 22"></path>
     <path d="M7 12 L 9 22 L 21 22 L 23 12 Z"></path>
     <path d="M23 14 q 4 0 4 4 q 0 4 -4 4"></path>

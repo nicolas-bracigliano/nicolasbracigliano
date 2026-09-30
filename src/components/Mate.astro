@@ -4,6 +4,11 @@
 // label; no aria-label on the wrapper (per axe-core's
 // aria-prohibited-attr rule — span has no role that supports
 // accessible names).
+//
+// routes/home.css leans on this drawing's geometry: the gourd's bottom
+// sits at the foot of the viewBox (so baseline alignment lands it on
+// the text baseline), and `.masthead-bio .vignette--mate svg` sizes its
+// box from the viewBox's 145 × 205 ratio. Update both if you redraw.
 
 export interface Props {
   /** Optional label after the icon. Defaults to "mate"; pass "" for the icon alone. */
