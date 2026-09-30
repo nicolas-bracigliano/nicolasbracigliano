@@ -2,7 +2,11 @@
 // Inline coffee vignette — the steaming long-black icon used in the
 // masthead h1 ("…and <Coffee /> every morning") and the Field Notes
 // "In the cup" block. Steam strokes loop via @keyframes steam-rise,
-// gated by prefers-reduced-motion in animations.css.
+// gated by prefers-reduced-motion in animations.css. The `kind: coffee`
+// note glyph (art/glyphs/Coffee.astro) reuses this path data, and
+// routes/home.css (`.vignette--coffee svg`) derives the offset that
+// sits the saucer on the text baseline from its y (≈22.7) in this
+// 30-unit viewBox. Update both if you redraw.
 //
 // The icon is decorative: <svg aria-hidden>, no aria-label on the
 // wrapper. Meaning comes from the optional visible `label` prop
