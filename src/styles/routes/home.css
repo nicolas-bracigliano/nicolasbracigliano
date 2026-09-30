@@ -159,11 +159,15 @@
      baseline like a glyph and its rim lands near cap height; the
      straw rises above like an ascender. The negative top margin lets
      the straw overhang into the leading without growing the line box
-     (the SVG is 1.3em, taller than the label's ascent + half-leading). */
+     (the SVG is 1.3em, taller than the label's ascent + half-leading).
+     `width: auto` sizes the box to the portrait viewBox (145 × 205)
+     instead of the shared 1.3em square, which letterboxed the gourd
+     with ~0.2em of dead space on each side on top of the flex `gap`. */
   .vignette--mate {
     align-items: baseline;
   }
   .vignette--mate svg {
+    width: auto;
     margin-block-start: -0.3em;
   }
   /* Coffee sits its saucer on the text baseline, like Mate's gourd.
