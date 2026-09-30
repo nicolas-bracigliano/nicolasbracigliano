@@ -297,11 +297,11 @@
       display: none;
     }
   }
-  /* Mobile (≤720, where the top nav gives way to the foot-rail): collapse
-     to just the magnifier icon — the ⌘K key drops too. The chrome icon is
-     the search affordance here (the foot-rail is full with the six nav
-     items). */
-  @media (max-width: 720px) {
+  /* Compact chrome (≤920, where the top nav gives way to the foot-rail;
+     see tokens.css): collapse to just the magnifier icon — the ⌘K key
+     drops too. The chrome icon is the search affordance here (the
+     foot-rail is full with the six nav items). */
+  @media (max-width: 920px) {
     .cmdk-trigger .cmdk-trigger-key {
       display: none;
     }
