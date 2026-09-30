@@ -160,6 +160,8 @@
      straw rises above like an ascender. The negative top margin lets
      the straw overhang into the leading without growing the line box
      (the SVG is 1.3em, taller than the label's ascent + half-leading).
+     Label-less (Field Notes), the SVG's own bottom edge is the
+     baseline, and the gourd still lands on it.
      `width: auto` sizes the box to the portrait viewBox (145 × 205)
      instead of the shared 1.3em square, which letterboxed the gourd
      with ~0.2em of dead space on each side on top of the flex `gap`. */
