@@ -164,7 +164,8 @@
      baseline, and the gourd still lands on it.
      `width: auto` sizes the box to the portrait viewBox (145 × 205)
      instead of the shared 1.3em square, which letterboxed the gourd
-     with ~0.2em of dead space on each side on top of the flex `gap`. */
+     with ~0.2em of dead space on each side on top of the flex `gap`.
+     The Field Notes cup rows put the square back (see `.cup`). */
   .vignette--mate {
     align-items: baseline;
   }
@@ -583,6 +584,12 @@
     font-size: 0.82rem;
     color: var(--ink-2);
     max-width: none;
+  }
+  /* Stacked cup rows read as an icon column: undo Mate's portrait
+     `width: auto` so its box matches Coffee's 1.3em square and the
+     text after each icon starts at the same x. */
+  .cup .vignette--mate svg {
+    width: 1.3em;
   }
 
   /* Global tone-down utility. The codebase has been using
