@@ -144,16 +144,45 @@
   }
   .inline-vignette .vignette-label {
     color: inherit;
-    position: relative;
-    top: 3px;
   }
   /* Mate inherits `.inline-vignette`'s default `--accent` colour
      (matching Coffee) — the gourd-and-bombilla SVG reads warm enough
      that the olive `--mate` it used to carry felt mismatched against
-     the surrounding accent treatment. `top: 1px` keeps the taller
-     Mate SVG aligned on the surrounding text baseline. */
+     the surrounding accent treatment.
+     Mate's first flex item is the SVG, which has no text baseline, so
+     under `align-items: center` the inline-flex box takes the SVG's
+     bottom edge as its baseline and rides ~5px above the line, growing
+     that line box. Baseline-aligning the label makes it the box's
+     baseline (sitting exactly on the surrounding text). The SVG is
+     baseline-aligned too, so the gourd's bottom sits on the text
+     baseline like a glyph and its rim lands near cap height; the
+     straw rises above like an ascender. The negative top margin lets
+     the straw overhang into the leading without growing the line box
+     (the SVG is 1.3em, taller than the label's ascent + half-leading). */
   .vignette--mate {
-    top: 1px;
+    align-items: baseline;
+  }
+  .vignette--mate svg {
+    margin-block-start: -0.3em;
+  }
+  /* Coffee sits its saucer on the text baseline, like Mate's gourd.
+     Baseline-aligned, the SVG (no text baseline of its own) puts its
+     bottom edge on the baseline — set by the `<em>` label in the
+     masthead h1, or by the SVG itself when label-less (Field Notes).
+     The saucer is drawn at y≈22.7 of the 30-unit viewBox, so
+     `top: 0.316em` ((30 − 22.7) / 30 × 1.3em) drops it onto the
+     baseline. `top` is visual only, so the negative top margin keeps
+     the layout box inside the strut: the h1's 1.04 line-height leaves
+     ~0.75em above the baseline against the icon's 1.3em, and without
+     it the coffee line pushes its neighbours ~9px apart. Re-derive both
+     if the icon's viewBox or 1.3em size changes. */
+  .vignette--coffee {
+    align-items: baseline;
+  }
+  .vignette--coffee svg {
+    position: relative;
+    top: 0.316em;
+    margin-block-start: -0.6em;
   }
 
   /* Bench section — "Currently on the bench" + 2×2 dashed-rule grid */
