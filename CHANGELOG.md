@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.26.9](https://github.com/nicolas-bracigliano/nicolasbracigliano/compare/v1.26.8...v1.26.9) (2026-09-30)
+
+
+### Bug Fixes
+
+* **chrome:** stop the header shifting and overflowing ([#267](https://github.com/nicolas-bracigliano/nicolasbracigliano/issues/267)) ([06ac7a4](https://github.com/nicolas-bracigliano/nicolasbracigliano/commit/06ac7a4dbbbf1c4d02fce442b51518f994e95672))
+
 ## [1.26.8](https://github.com/nicolas-bracigliano/nicolasbracigliano/compare/v1.26.7...v1.26.8) (2026-09-30)
 
 
