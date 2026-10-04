@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.26.10](https://github.com/nicolas-bracigliano/nicolasbracigliano/compare/v1.26.9...v1.26.10) (2026-10-04)
+
+
+### Bug Fixes
+
+* **deps:** update dependency sharp to v0.35.5 ([#270](https://github.com/nicolas-bracigliano/nicolasbracigliano/issues/270)) ([1a7f5ca](https://github.com/nicolas-bracigliano/nicolasbracigliano/commit/1a7f5ca37a5d4f091d57357fbcd8cf47b894a0ae))
+
 ## [1.26.9](https://github.com/nicolas-bracigliano/nicolasbracigliano/compare/v1.26.8...v1.26.9) (2026-09-30)
 
 
