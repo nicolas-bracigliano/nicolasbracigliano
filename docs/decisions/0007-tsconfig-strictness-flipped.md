@@ -67,4 +67,3 @@ For those cases, periodic manual audits or a dead-code analyzer like `knip` rema
 - PR #10 (`chore(cleanup): remove stale exports + CSS + tighten tsconfig`) — initial flip
 - PR #11 (`feat(meta): wire OG cards and auto reading-time`) — accidentally introduced the receiver-widening anti-pattern
 - The staff-critique follow-up PR — reverted the receiver widening, established the conditional-spread pattern
-- Memory: `feedback-legacy-route-selectors` documents the bug class this decision structurally addresses

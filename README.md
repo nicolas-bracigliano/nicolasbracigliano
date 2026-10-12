@@ -19,7 +19,7 @@ The codebase documents how the site is made. Every consequential choice (the str
 
 - **Strict CSP under View Transitions.** `default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'` over Astro's `<ClientRouter />`. The combination is non-obvious: ClientRouter injects runtime view-transition styles that can't be hashed at build time, and every hoisted `<script>` has to externalize for `script-src 'self'` to hold. See [ADR 0002](./docs/decisions/0002-csp-style-src-unsafe-inline.md) for the style-src trade-off and [ADR 0008](./docs/decisions/0008-externalize-hoisted-scripts-for-csp.md) for the script-side fix. CI enforces the contract: every route is asserted to ship zero inline `<script>` bodies on every PR.
 
-- **Cloudflare Workers Static Assets, one tiny Worker.** [`src/worker.ts`](./src/worker.ts) handles an `Accept-Language` redirect at `/`, serves `/.well-known/security.txt`, and preserves renamed public routes; everything else delegates to the asset binding. `run_worker_first` in [`wrangler.toml`](./wrangler.toml) keeps those behaviors ahead of Cloudflare's asset lookup while the `/en/*` and `/es/*` prefixes also make page views produce a Worker log. Asset paths stay out of the Worker entirely (the [ADR 0001 postscript](./docs/decisions/0001-cloudflare-pages.md) tells the migration story).
+- **Cloudflare Workers Static Assets, one tiny Worker.** [`src/worker.ts`](./src/worker.ts) handles an `Accept-Language` redirect at `/`, serves `/.well-known/security.txt`, and preserves renamed public routes; everything else delegates to the asset binding. Deployment configuration lives in [`wrangler.toml`](./wrangler.toml); [ADR 0001](./docs/decisions/0001-cloudflare-pages.md) records the hosting rationale.
 
 - **Bilingual mirrored routes.** Every page exists at `/en/<slug>` and `/es/<slug>` with localised URL segments (`/en/notes/` ↔ `/es/notas/`, `/en/works/` ↔ `/es/obras/`, `/en/build/` ↔ `/es/como-esta-hecho/`). [`src/lib/routes.ts`](./src/lib/routes.ts) is the single source of truth, [ADR 0003](./docs/decisions/0003-mirrored-bilingual-routes.md) is the rationale, and the post-deploy CI smoke script ([`scripts/smoke-routes.ts`](./scripts/smoke-routes.ts)) derives its route list from `ROUTES` + published content frontmatter at runtime. Adding a route is one edit, not two.
 
@@ -31,7 +31,7 @@ The codebase documents how the site is made. Every consequential choice (the str
 
 - **A11y on every PR.** `@axe-core/playwright` runs against every route in the e2e suite. Serious or critical violations fail the build, not a manual sweep.
 
-- **No client-side analytics.** No beacon, no cookies, no third-party requests; the CSP's `connect-src 'self'` forecloses client-side tracking by default. Aggregate zone traffic and short-lived Worker invocation logs remain server-side, as documented in [`docs/security.md`](./docs/security.md#analytics).
+- **No client-side analytics.** No beacon, no cookies, no third-party requests; the CSP's `connect-src 'self'` forecloses client-side tracking by default. Server-side observability is configured in [`wrangler.toml`](./wrangler.toml).
 
 ---
 
@@ -78,13 +78,13 @@ src/
 docs/           # design-system · architecture · security · ci · decisions/ (ADRs)
 ```
 
-| Doc                                                | When to read                                                                                                            |
-| -------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------- |
-| [`docs/design-system.md`](./docs/design-system.md) | Canonical visual + a11y spec. Read before changing colour, copy, layout, or adding a route.                             |
-| [`docs/architecture.md`](./docs/architecture.md)   | Layer map, dependency rule, where to put new code.                                                                      |
-| [`docs/security.md`](./docs/security.md)           | Commit signing, DNSSEC, host-neutral header directives, automation workflows, Cloudflare lock-in surface + escape plan. |
-| [`docs/ci.md`](./docs/ci.md)                       | What each CI job does, when it's required-vs-informational.                                                             |
-| [`docs/decisions/`](./docs/decisions/)             | ADRs. One file per consequential trade-off. Start here when you need to know _why_.                                     |
+| Doc                                                | When to read                                                                                |
+| -------------------------------------------------- | ------------------------------------------------------------------------------------------- |
+| [`docs/design-system.md`](./docs/design-system.md) | Canonical visual + a11y spec. Read before changing colour, copy, layout, or adding a route. |
+| [`docs/architecture.md`](./docs/architecture.md)   | Layer map, dependency rule, where to put new code.                                          |
+| [`docs/security.md`](./docs/security.md)           | Vulnerability reporting, public repository scope, and response-header conventions.          |
+| [`docs/ci.md`](./docs/ci.md)                       | Quality checks, local verification, and workflow maintenance.                               |
+| [`docs/decisions/`](./docs/decisions/)             | ADRs. One file per consequential trade-off. Start here when you need to know _why_.         |
 
 ---
 
@@ -111,7 +111,7 @@ pnpm verify       # both
 
 ### Drafts
 
-`getStaticPaths` filters on `status: 'published'`, so drafts are invisible locally too. To preview, flip the frontmatter in a working copy and run `pnpm dev`. Don't commit the flip.
+`getStaticPaths` filters on `status: 'published'`, so drafts are invisible locally too. To preview, flip the frontmatter in a working copy and run `pnpm dev`. Don't commit the flip. **Draft status does not make committed files private:** keep unpublished writing outside this public repository.
 
 ### Fonts
 
@@ -125,15 +125,12 @@ The filenames are fixed and `/fonts/*` is served `immutable` for a year, so if t
 
 ---
 
-## What runs automatically
+## Automation
 
-- **CI** ([`.github/workflows/ci.yml`](./.github/workflows/ci.yml)): every push + PR. Build → Lighthouse + Playwright in parallel → Cloudflare deploy gated on all of the above. Path-filter skips the heavy jobs on docs-only changes; `vars.LHCI_FORCE` / `vars.E2E_FORCE` are the override.
-- **Security** ([`.github/workflows/security.yml`](./.github/workflows/security.yml)): daily 22:00 UTC. `pnpm audit`, license allow-list, gitleaks, CodeQL static analysis, security.txt expiry guard.
-- **security.txt rotate** ([`.github/workflows/security-txt-rotate.yml`](./.github/workflows/security-txt-rotate.yml)): monthly on the 1st. Opens a renewal PR when `Expires` is < 60 days from lapsing.
-- **release-please** ([`.github/workflows/release-please.yml`](./.github/workflows/release-please.yml)): every push to `main`. Maintains a release PR with `CHANGELOG.md` + `package.json` version bump; merging cuts a GitHub Release.
-- **Renovate** (Mend GitHub App; [`renovate.json`](./renovate.json)): Mondays, Australia/Melbourne. Non-major dev-tooling updates arrive as one grouped PR, production dependencies as their own, plus a weekly lockfile refresh. Auto-merges patch/minor/digest/lockfile/vulnerability updates after CI passes; majors are created only when ticked on the Dependency Dashboard, then gated for human review. Nothing younger than 3 days gets installed; pnpm enforces that floor (`minimumReleaseAge` in `pnpm-workspace.yaml`).
-
-All `uses:` references in workflow YAML are pinned to immutable 40-char SHAs with the version in a trailing comment. Renovate's `pinGitHubActionDigests` preset keeps them fresh.
+GitHub Actions runs build, browser, performance, and security checks. See
+[`docs/ci.md`](./docs/ci.md) for local verification and
+[`.github/workflows/`](./.github/workflows/) for configuration.
+Renovate manages dependency updates; release-please maintains releases.
 
 ---
 

@@ -81,7 +81,7 @@ Bumps go through the same review as any other change: a PR with the new SHA, the
 
 **Accepted cost:**
 
-- Every action bump is a manual step. Renovate eases this when configured (currently being audited — see [[PR-δ]]).
+- Action bumps must keep the SHA and version comment in sync. Renovate proposes updates through PRs.
 - The `# vTAG` comment can drift from reality if someone bumps the SHA without updating the comment. The `lint:actions` enforcement step (see Compensating controls) catches the syntactic shape but not the semantic match between SHA and tag.
 - Browsing the workflow files takes one extra cognitive step to see what version is in play (read past the SHA to the comment).
 - We forgo the OSSF Scorecard `Pinned-Dependencies` perfect score (see Decision § OSSF stance) for engineering ergonomics.
@@ -91,7 +91,7 @@ Bumps go through the same review as any other change: a PR with the new SHA, the
 - **CI enforcement**: `scripts/lint-workflow-pins.sh` runs as the `Lint workflow pins (ADR 0009)` step in `ci.yml`'s Build & Verify job, on every push and PR. Any `uses:` ref that isn't `@<40-char SHA> # vTAG` fails the build before merge. Runnable locally as `pnpm run lint:actions`.
 - The trailing `# vTAG` comment makes the pin readable at a glance, which mitigates the "is this SHA up to date?" question without forcing the reader to navigate to upstream.
 - `gh api .../releases/latest` is a one-line check at audit time.
-- Renovate's role is the drift-detection layer above the syntactic enforcement: it surfaces _newer_ versions as PRs (see [[ADR-0004]] and [[PR-δ]]). The two together close the drift loop — ADR 0009 enforces _shape_, Renovate enforces _freshness_.
+- Renovate's role is the drift-detection layer above the syntactic enforcement: it surfaces _newer_ versions as PRs (see [ADR 0004](./0004-renovate-internal-automerge.md)). The two together close the drift loop — ADR 0009 enforces _shape_, Renovate enforces _freshness_.
 
 **Operational:**
 

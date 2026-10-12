@@ -9,7 +9,7 @@ Pieces (`/en/pieces/` · `/es/ensayos/`) shipped in PR P3 with the same visual t
 
 The editorial review pass that followed P3 surfaced a tension. The notebook treatment fits short-form writing — a note is a field-log entry, scribbled in mono, dated, in process. A piece is something else: an argued position, polished, slow. Reading a 1200–1500-word argument in mono with a marginalia rail reads as "long note," not as "essay." The face is the message, but the layout has to earn it.
 
-A prototype CSS file (`Prototype/styles-pieces.css`, prototype screenshots) was drafted to test what the editorial register would look like: single column, 760px centered, display H1 (clamp 46–88px), italic large lede, drop cap on the first paragraph, italic H2 with a floated `§` marker, inline pull quotes where the margin notes lived, dashed-border foot with an italic signature, redesigned index row-list with hover-slide. The prototype reads as an editorial article. The current state reads as a long-form note. They are different documents.
+The editorial layout uses a centered single column, display heading, italic lede, drop cap, section markers, inline pull quotes, and a restrained article footer.
 
 ## Decision
 
@@ -62,5 +62,5 @@ Concrete commitments:
 
 ## References
 
-- Prototype CSS — committed alongside this ADR at [`0012-prototype-styles.css`](./0012-prototype-styles.css). The shipped `src/styles/routes/pieces.css` adapts this spec to the project's `.piece-*` class convention (ADR 0010 keeps the EN slug as `pieces`, not `essays`); the prototype's class names (`.essay-body`, `.essays-list`) map to `.piece-prose`, `.pieces-list > .piece-row`.
+- Shipped implementation: [`src/styles/routes/pieces.css`](../../src/styles/routes/pieces.css).
 - ADR 0010 — asymmetric bilingual route naming.
