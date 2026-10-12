@@ -21,6 +21,11 @@ Ignored files are a convenience, not an access control. Review the staged diff
 before committing. A content entry marked `draft` is excluded from the built
 site but remains public if committed to this repository.
 
+`pnpm lint:public` checks tracked paths against the repository's `.gitignore`,
+including files added with `git add --force`. It runs in the pre-commit hook,
+the fast verification suite, and CI. It checks file paths; reviewing content
+and secret scanning are still necessary for files in allowed locations.
+
 ## Response headers
 
 [`public/_headers`](../public/_headers) defines the static response headers.

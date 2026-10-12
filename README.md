@@ -98,7 +98,7 @@ pnpm install
 pnpm dev          # astro dev on :4321
 pnpm dev:fn       # astro build + wrangler dev; exercises the / redirect via the real Worker runtime
 pnpm new          # interactive scaffold for a new note / piece / work / now-item (see Authoring content)
-pnpm verify:fast  # typecheck + lint + workflow-pin lint + format:check + vitest
+pnpm verify:fast  # public-file check + typecheck + lint + workflow pins + format + vitest
 pnpm verify:slow  # build + html-validate + playwright + lhci
 pnpm verify       # both
 ```

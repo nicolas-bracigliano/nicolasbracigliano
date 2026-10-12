@@ -9,6 +9,11 @@ Routine dependency updates should merge after validation, while major updates
 and selected overrides require human review. The merge strategy needs to work
 with the project's review and CI requirements.
 
+In the configuration validated for this decision, native platform auto-merge
+left automated updates waiting for human approvals. Renovate's internal merger
+worked with the intended review policy, so switching strategies would require
+validating that behavior again.
+
 ## Decision
 
 Keep `platformAutomerge: false` in [`renovate.json`](../../renovate.json).
@@ -20,6 +25,8 @@ requirements are defined by the package rules in that configuration.
 Changes to the merge strategy need validation with a low-risk dependency PR.
 CI requirements must continue to apply to automated merges independently of
 the bot's own assessment of check results.
+Keep CI enforcement separate from review exceptions: an exception intended to
+waive human approval must not also waive required checks.
 
 ## When to revisit
 

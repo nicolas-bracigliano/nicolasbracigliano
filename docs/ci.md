@@ -19,7 +19,7 @@ workflow; renaming a required check also requires updating repository settings.
 ## Local verification
 
 ```sh
-pnpm verify:fast   # typecheck, lint, workflow pins, formatting, unit tests
+pnpm verify:fast   # public-file check, typecheck, lint, workflow pins, formatting, unit tests
 pnpm verify:slow   # build, HTML validation, Playwright, Lighthouse
 pnpm verify        # both suites
 ```
@@ -27,6 +27,10 @@ pnpm verify        # both suites
 Use the fast suite during development and the slow suite for changes that
 affect rendered pages or browser behavior. Deployment credentials are not
 needed for local verification.
+
+`pnpm lint:public` rejects tracked files matching the repository's `.gitignore`,
+even when force-added. The same check runs in the pre-commit hook and the build
+job on every PR, including documentation-only changes.
 
 ## Deployment checks
 
