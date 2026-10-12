@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.26.11](https://github.com/nicolas-bracigliano/nicolasbracigliano/compare/v1.26.10...v1.26.11) (2026-10-12)
+
+
+### Bug Fixes
+
+* **deps:** update dependency @astrojs/markdown-remark to v7.3.2 ([#277](https://github.com/nicolas-bracigliano/nicolasbracigliano/issues/277)) ([2fbbe84](https://github.com/nicolas-bracigliano/nicolasbracigliano/commit/2fbbe8474b30f493c60d91e3b8dd56dc53ed6e15))
+* **deps:** update dependency astro to v7.3.8 ([#278](https://github.com/nicolas-bracigliano/nicolasbracigliano/issues/278)) ([63ce68b](https://github.com/nicolas-bracigliano/nicolasbracigliano/commit/63ce68bb2b4886fba9304f21306950ed7d9bfe73))
+
 ## [1.26.10](https://github.com/nicolas-bracigliano/nicolasbracigliano/compare/v1.26.9...v1.26.10) (2026-10-04)
 
 
