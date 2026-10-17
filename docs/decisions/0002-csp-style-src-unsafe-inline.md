@@ -48,7 +48,7 @@ We also discovered a CSP spec quirk: **`'unsafe-inline'` is silently ignored** i
 
 **Documentation:**
 
-- `docs/security.md § Why style-src 'unsafe-inline'` explains the trade-off
+- `docs/security.md § CSP delivery` summarizes the implementation contract
 - `docs/design-system.md §16` change-log entry on 2026-05-22 records the spec change
 
 ## When to revisit

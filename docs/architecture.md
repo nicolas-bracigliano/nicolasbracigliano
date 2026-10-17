@@ -67,25 +67,25 @@ Cloudflare Pages Function shape we used pre-PR-#49). To port the
 redirect, write a similar adapter on the new host — the logic doesn't
 move.
 
-See `docs/security.md § Lock-in surface and escape plan` for the full
-Cloudflare lock-in surface and how to leave.
+Hosting-specific configuration lives in `wrangler.toml`, `public/_headers`,
+`public/_redirects`, and the deployment workflow.
 
 ## Where to put new code
 
-| New thing                              | Goes in                                                                                                                                          |
-| -------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
-| A markdown note / work / essay         | `src/content/{collection}/{lang}/*.md`                                                                                                           |
-| A new bilingual route                  | mirror it in `src/pages/en/` + `src/pages/es/`; add it to `ROUTES`                                                                               |
-| A schema field on existing content     | edit `src/content.config.ts`                                                                                                                     |
-| A pure helper (no framework deps)      | `src/lib/*.ts` — must be unit-testable in plain Vitest                                                                                           |
-| A helper that needs `astro:content`    | `src/lib/i18n.ts` (or a sibling `*.ts` next to it)                                                                                               |
-| A reusable `.astro` snippet            | `src/components/` — only once it's used in 2+ places                                                                                             |
-| A design token                         | `src/styles/tokens.css`                                                                                                                          |
-| Per-route styling                      | `src/styles/routes/*.css`, imported from `base.css`                                                                                              |
-| Cloudflare-specific code               | `src/worker.ts` — keep it adapter-thin                                                                                                           |
-| Header / redirect / cache rule         | `public/_headers` or `public/_redirects` — mirror the change in `docs/security.md § Host-neutral header directives`                              |
-| Build-time generated artefact          | a script in `scripts/`, wired into a `package.json` script                                                                                       |
-| A consequential architectural decision | `docs/decisions/NNNN-kebab-name.md` — use the next free 0006+ number; see `docs/decisions/README.md` for the format. Append-only; never rewrite. |
+| New thing                              | Goes in                                                                                                                              |
+| -------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------ |
+| A markdown note / work / essay         | `src/content/{collection}/{lang}/*.md`                                                                                               |
+| A new bilingual route                  | mirror it in `src/pages/en/` + `src/pages/es/`; add it to `ROUTES`                                                                   |
+| A schema field on existing content     | edit `src/content.config.ts`                                                                                                         |
+| A pure helper (no framework deps)      | `src/lib/*.ts` — must be unit-testable in plain Vitest                                                                               |
+| A helper that needs `astro:content`    | `src/lib/i18n.ts` (or a sibling `*.ts` next to it)                                                                                   |
+| A reusable `.astro` snippet            | `src/components/` — only once it's used in 2+ places                                                                                 |
+| A design token                         | `src/styles/tokens.css`                                                                                                              |
+| Per-route styling                      | `src/styles/routes/*.css`, imported from `base.css`                                                                                  |
+| Cloudflare-specific code               | `src/worker.ts` — keep it adapter-thin                                                                                               |
+| Header / redirect / cache rule         | `public/_headers` or `public/_redirects` — keep Worker security headers in `src/lib/security-headers.ts` in sync                     |
+| Build-time generated artefact          | a script in `scripts/`, wired into a `package.json` script                                                                           |
+| A consequential architectural decision | `docs/decisions/NNNN-kebab-name.md` — use the next available number; see `docs/decisions/README.md` for the format and public scope. |
 
 ## Why this works at this size
 

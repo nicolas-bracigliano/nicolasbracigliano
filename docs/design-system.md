@@ -2,14 +2,14 @@
 
 The reference for everything about this site. Read this before changing color, copy, layout, or adding a route. The document exists to make next month's work easier, not to look comprehensive.
 
-> **This file is the authoritative source.** If `~/Developer/NB/Design System/DESIGN-SYSTEM.md` (or any other personal-notes copy) disagrees, the in-repo version wins.
+> **This file is the authoritative source** for the site's design and writing conventions.
 
 ## Change log
 
 - **2026‑05‑21** — initial system written down. Two palettes (Dia / Noche). Five nav routes. Avatar is a placeholder.
 - **2026‑05‑21** — v1 scope cuts to clear the bootstrap path. Dropped: intro overlay (§11), scroll thread (§11). Clarified: "no analytics" → "no client-side analytics" in §16 (Cloudflare server-side aggregation is allowed). Why: removing JS-heavy decorations keeps the near-zero-JS promise honest and unblocks the Astro/Cloudflare bootstrap.
 - **2026‑05‑22** — §16 CSP clarified: `script-src` stays strict (`'self'`); `style-src` adds `'unsafe-inline'`. Why: enables Astro `<ClientRouter />` native View Transitions, which inject per-build runtime styles that build-time CSP hashing can't cover. The real attack surface (script execution) is untouched.
-- **2026‑05‑22** — `docs/design-system.md` declared the canonical version. Why: was previously forked between this in-repo copy and the external `~/Developer/NB/Design System/DESIGN-SYSTEM.md`. One source of truth, lives with the code.
+- **2026-05-22** — `docs/design-system.md` declared the canonical version, maintained alongside the code.
 - **2026‑05‑22** — `--ink-3` tokens darkened (Día `#736b5e`) and lightened (Noche `#8c8678`) to pass WCAG AA. Why: axe-core caught the originals failing contrast in CI.
 - **2026‑05‑22** — §11/§12/§16 brought up to current state; §17 Search + OG cards moved to shipped. Why: canonical promotion missed everything but the change-log.
 - **2026‑05‑22** — first-paint motion removed (ADR 0006). Why: incompatible with axe-core contrast checks in CI.

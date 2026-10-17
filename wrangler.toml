@@ -1,148 +1,26 @@
-# Cloudflare Worker with Static Assets — hosts the Astro build at
-# `nicolas-bracigliano.<account>.workers.dev` and at the custom
-# domain `nicolasbracigliano.com`.
-#
-# `name` MUST match the Worker on Cloudflare exactly. Renaming
-# here orphans the existing Worker and creates a new one
-# alongside; the Cloudflare dashboard shows the canonical name at
-# the top of the project page.
+# Static Astro build with a small Worker for redirects and security.txt.
+# Changing the Worker name creates a different deployment target.
 name = "nicolas-bracigliano"
 
-# `compatibility_date` pins the Workers runtime semantics. Bump
-# every few months to pick up engine improvements. Each date's
-# behaviour changes are catalogued at
-# developers.cloudflare.com/workers/configuration/compatibility-dates.
 compatibility_date = "2026-05-24"
 
-# Worker entry point. Handles the one dynamic route on the site:
-# the `/` path does an Accept-Language redirect to `/en/` or
-# `/es/`. Everything else is served directly from the static-asset
-# binding below — the Worker is bypassed entirely for paths that
-# match an asset.
 main = "src/worker.ts"
 
-# `src/worker.ts` imports `public/.well-known/security.txt` as a string
-# to serve it directly (Workers Static Assets won't serve dot-prefixed
-# dirs). wrangler's built-in default would bundle it as Text, but we
-# declare the rule explicitly so the dependency is visible and survives
-# any change to wrangler's defaults. `fallthrough = true` keeps the
-# built-in rules active for everything else (and silences the
-# shadow-warning the bare rule would emit).
 rules = [{ type = "Text", globs = ["**/.well-known/security.txt"], fallthrough = true }]
 
 [assets]
-# Astro outputs the built site here. Uploaded as part of the
-# Worker deployment; static files (HTML, CSS, fonts, OG PNGs,
-# the ⌘K search index at /cmdk/*.json) are served from Cloudflare's
-# edge without invoking the Worker — assets win for every path that has
-# one, except the four explicitly listed in `run_worker_first` below.
 directory = "./dist"
 
-# When no asset matches a request, serve the built `dist/404.html`
-# with HTTP 404 status. Default (`none`) returns Cloudflare's
-# generic error page, which would discard the hand-crafted
-# Misplaced Letter 404 from PR #25.
 not_found_handling = "404-page"
 
-# Bind the assets fetcher into the Worker's `env` so the entry
-# in `src/worker.ts` can delegate non-`/` requests via
-# `env.ASSETS.fetch(request)`. `ASSETS` is the convention; any
-# binding name works.
 binding = "ASSETS"
 
-# Run the Worker before the static-asset lookup, for these paths only.
-#
-# The list has TWO KINDS of entry and they exist for different reasons. Read
-# this before adding or removing one.
-#
-# ── Kind 1: the Worker genuinely handles it ──
-#   "/"                          → acceptLanguageRedirect
-#   "/.well-known/security.txt"  → securityTxtResponse
-#
-# These MUST be here or the feature breaks. Without `/`, Cloudflare's assets
-# layer intercepts it (no `dist/index.html` matches → `not_found_handling =
-# "404-page"` serves `dist/404.html` directly) and the Worker is never
-# invoked, so `acceptLanguageRedirect` is dead code on the deployed Worker.
-# Observed in PR #54: browser hits `/` returned the 404 page
-# (cf-cache-status: HIT on the cached 404), while curl from a different
-# edge / cache state reached origin and got the 302. Both paths mirror a
-# branch in `src/worker.ts`'s `fetch`; the security.txt literal is exported
-# as `SECURITY_TXT_PATH` from `src/lib/security-txt.ts` (this file can't
-# import it, so it's the one duplicated string).
-#
-# ── Kind 2: observability only ──
-#   "/en/*"  "/es/*"
-#
-# The Worker branches only for the handful of legacy Build-note redirects under
-# these prefixes; current pages fall straight through to
-# `env.ASSETS.fetch(request)`. The broad prefixes are still here primarily for
-# observability: a Worker invocation is what produces a Workers Logs entry, so
-# listing them gives us per-page view logs. Narrow them to only the legacy paths
-# and page-view observability silently goes to zero while every current-page
-# test still passes — there is no assertion that can catch it, which is why this
-# comment is long.
-#
-# The choice is deliberate rather than `true`. `true` routes EVERY request
-# through the Worker — CSS, JS, fonts, OG PNGs, the ⌘K index — each paying
-# an invocation and a hop to do nothing. A page view pulls ~10 assets, so
-# `true` cost roughly 10x the invocations for the same information. These
-# two prefixes are HTML-only in the build (`/_astro/*`, `/fonts/*`, `/og/*`,
-# `/cmdk/*`, `/rss-*.xml`, `/sitemap*` all live outside them), so we capture
-# 100% of page views and none of the asset noise.
-#
-# Known gap, accepted: a 404 at an unmatched path (`/nope/`) is outside both
-# prefixes, so it produces no Worker log. Zone Traffic analytics still counts
-# it at the edge. Full trade-off, and why Cloudflare Web Analytics is NOT the
-# answer here, in `docs/security.md § Analytics`.
-#
-# Pattern syntax is Cloudflare's route matcher: an exact path matches only
-# itself, a trailing `/*` matches the prefix INCLUDING the bare directory
-# (`/en/*` matches `/en/`, verified against wrangler dev), and a leading `!`
-# negates.
-#
-# Post-deploy verification: `scripts/smoke-routes.ts` asserts `/` → 302 and
-# a 200 at `SECURITY_TXT_PATH` on every deploy, so a mis-scoped Kind 1 entry
-# fails CI rather than silently reverting the redirect to dead code. Kind 2
-# entries have no such net — see above.
+# Required for the root redirect, security.txt, and legacy locale redirects.
+# Locale prefixes also enable page-level Worker observability.
 run_worker_first = ["/", "/.well-known/security.txt", "/en/*", "/es/*"]
 
-# `_headers` and `_redirects` from `public/` are copied into
-# `dist/` by Astro at build time. Cloudflare Workers Static
-# Assets reads both at deploy time — no extra config required.
-# The legacy Build notes rules are an asset-layer fallback for the Worker-owned
-# redirects; every security header in `_headers` flows through automatically.
-
-# Workers Logs — ON, deliberately.
-#
-# This block used to read `enabled = false` at the top level while
-# `[observability.logs]` below set `enabled = true`. That is not a
-# belt-and-braces "off": the nested `enabled` DEFAULTS to the top-level
-# value and an explicit setting overrides it, so logging was on the whole
-# time and the top-level `false` was just misleading anyone reading the
-# file. Stating it once, truthfully, beats a contradiction that resolves in
-# Cloudflare's favour.
-#
-# These logs ARE the site's page-view metrics — that is the deliberate
-# reason `run_worker_first` above lists `/en/*` and `/es/*`. Cloudflare Web
-# Analytics is not an option here: both its setup modes load a beacon from
-# `static.cloudflareinsights.com`, which `script-src 'self'` forbids (and
-# which would break the "no beacon" promise). A Worker invocation log is the
-# only page-level signal available that ships no client JS at all.
-#
-# Scope: page views under the two locale prefixes, plus the apex redirect
-# and security.txt. Assets are excluded, so this is not a per-request log.
-# It is a retained, Worker-scoped view of requests Cloudflare's edge already
-# sees and already aggregates for any proxied zone — not a new collection
-# surface, and nothing client-side. The README's "no beacon, no cookies, no
-# third-party requests" claim is about the page, and stays true: no JS
-# ships, no cookie is set, no third-party host is contacted.
-#
-# Retention is days, not months, and there is no aggregation UI — this
-# answers "what happened this week", not "what are my trends this quarter".
-#
-# Documented in `docs/security.md § Analytics` alongside the two zone-level
-# surfaces. If you ever want this genuinely off, set `enabled = false` here
-# AND remove the two sub-blocks below — don't leave them disagreeing again.
+# Server-side observability; no client analytics beacon. Nested enabled
+# flags override the parent: update all three when changing this setting.
 [observability]
 enabled = true
 head_sampling_rate = 1

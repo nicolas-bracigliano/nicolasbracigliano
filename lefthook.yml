@@ -1,6 +1,8 @@
 pre-commit:
   parallel: true
   commands:
+    public-files:
+      run: node scripts/check-public-files.mjs
     eslint:
       glob: '*.{js,ts,tsx,astro}'
       run: pnpm exec eslint --fix {staged_files}
