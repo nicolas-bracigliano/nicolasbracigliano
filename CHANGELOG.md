@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.26.12](https://github.com/nicolas-bracigliano/nicolasbracigliano/compare/v1.26.11...v1.26.12) (2026-10-19)
+
+
+### Bug Fixes
+
+* **deps:** update dependency @astrojs/markdown-remark to v7.3.3 ([#285](https://github.com/nicolas-bracigliano/nicolasbracigliano/issues/285)) ([7cc22b8](https://github.com/nicolas-bracigliano/nicolasbracigliano/commit/7cc22b838e44f8ebb28b075ae163befb107c276a))
+
 ## [1.26.11](https://github.com/nicolas-bracigliano/nicolasbracigliano/compare/v1.26.10...v1.26.11) (2026-10-12)
 
 
