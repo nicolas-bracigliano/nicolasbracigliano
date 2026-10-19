@@ -42,3 +42,12 @@ lighthouserc.pr.generated.json
 /page-*.png
 /build-*.png
 /works-*.png
+
+# Local working documents; keep private material outside the repository.
+/.local/
+/docs/plans/
+/docs/internal/
+/docs/audits/
+/docs/phase-*-*.md
+/audit.json
+/gitleaks-report*.json

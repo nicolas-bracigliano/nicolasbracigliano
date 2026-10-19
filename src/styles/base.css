@@ -564,23 +564,8 @@
   }
 }
 
-/* ─── Print stylesheet (starter) ─────────────────────────────────────────
-   Lives outside `@layer base` so its declarations beat any layered
-   route rule on the cascade — print is a different output, not a
-   variation on the screen styles. Sits at the very end of base.css
-   because it's small and intentionally last.
-
-   Phase 1 floor: hide chrome / toggles / interactive UI, drop the
-   sticky positioning, full-bleed prose, page breaks at h2,
-   disable motion (browsers already do this for print but the
-   reset.css clamp is media-screen-only).
-
-   Phase 3 polish: expand `<a href>` URLs as a `::after` content,
-   add per-route tweaks (force notes to single-column, hide
-   facts-card portrait, etc.), tune page-break behaviour around
-   widows / orphans. Land when the first essay or notebook
-   actually gets printed.
-   --------------------------------------------------------------- */
+/* Print rules sit outside layers so they override screen route styles.
+   Hide interactive chrome, use full-width prose, and disable sticky positioning. */
 @media print {
   /* Suppress chrome + interactive affordances. The reader has
      the URL in the footer of the printed page already. The
@@ -611,12 +596,7 @@
     position: static !important;
   }
 
-  /* Page-break behaviour: keep headings with the following
-     paragraph; new page at every h2 (per the plan: notes +
-     essays should print like typed letters with section
-     boundaries on fresh pages). Per-route tuning (e.g. drop
-     the h2 break on `/now` where the sections are short) is
-     deferred to Phase 3. */
+  /* Keep headings with the following paragraph; start H2 sections on a new page. */
   h1,
   h2,
   h3 {

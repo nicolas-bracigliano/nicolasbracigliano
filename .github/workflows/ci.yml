@@ -72,8 +72,8 @@ jobs:
               - '.prettierignore'
 
   build:
-    # Required check in the `CI Gate` ruleset, matched by this exact
-    # name. Rename it there in the same change (docs/ci.md § Status checks).
+    # Required check name: update repository settings if renaming it
+    # (docs/ci.md § Quality checks).
     name: Build & Verify
     runs-on: ubuntu-latest
     timeout-minutes: 8
@@ -88,6 +88,8 @@ jobs:
           cache: 'pnpm'
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
+      - name: Check public repository files
+        run: pnpm lint:public
       - name: Typecheck
         run: pnpm typecheck
       - name: Lint
@@ -115,8 +117,8 @@ jobs:
           if-no-files-found: error
 
   lighthouse:
-    # Required check in the `CI Gate` ruleset, matched by this exact
-    # name. Rename it there in the same change (docs/ci.md § Status checks).
+    # Required check name: update repository settings if renaming it
+    # (docs/ci.md § Quality checks).
     name: Lighthouse CI
     needs: [build, changes]
     # Skip when only docs/config-comment changes — the build job
@@ -164,8 +166,8 @@ jobs:
           if-no-files-found: ignore
 
   e2e:
-    # Required check in the `CI Gate` ruleset, matched by this exact
-    # name. Rename it there in the same change (docs/ci.md § Status checks).
+    # Required check name: update repository settings if renaming it
+    # (docs/ci.md § Quality checks).
     name: E2E tests (Playwright)
     needs: [build, changes]
     # Same skip-on-docs-only as `lighthouse` above. The Playwright

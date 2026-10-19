@@ -83,7 +83,7 @@ describe.each([
     // build on a dangling `work:`), but catches it in ~150 ms here: a
     // now item's "see also" must point at a work that's actually
     // published in the SAME locale, by translationId. A typo, or a ref
-    // to a draft work (e.g. huerta-spring), fails here before e2e.
+    // to an unpublished or missing work fails here before e2e.
     const fm = loadCollectionSync('works', locale)
       .filter((w) => w.status === 'published')
       .map((w) => w.translationId);

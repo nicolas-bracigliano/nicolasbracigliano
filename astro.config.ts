@@ -64,9 +64,8 @@ export default defineConfig({
   //      `'unsafe-inline'` is ignored. So mixing them (the only fallback
   //      for runtime styles) doesn't actually permit the runtime styles.
   //
-  // `_headers` is the single source of truth; the directive table in
-  // `docs/security.md` documents every header so future-you can translate
-  // to another host's syntax if needed.
+  // `_headers` is the source of truth for static response headers. Keep
+  // Worker-generated headers in `src/lib/security-headers.ts` in sync.
   integrations: [
     sitemap({
       i18n: {
