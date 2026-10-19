@@ -51,7 +51,7 @@
     "verify": "pnpm verify:fast && pnpm verify:slow"
   },
   "dependencies": {
-    "@astrojs/markdown-remark": "7.3.2",
+    "@astrojs/markdown-remark": "7.3.3",
     "@astrojs/rss": "4.0.19",
     "@astrojs/sitemap": "3.7.4",
     "astro": "7.3.8",
