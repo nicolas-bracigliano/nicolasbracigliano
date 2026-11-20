@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.26.15](https://github.com/nicolas-bracigliano/nicolasbracigliano/compare/v1.26.14...v1.26.15) (2026-11-17)
+
+
+### Bug Fixes
+
+* **deps:** update dependency @astrojs/markdown-remark to v7.3.5 ([#305](https://github.com/nicolas-bracigliano/nicolasbracigliano/issues/305)) ([83a7e5f](https://github.com/nicolas-bracigliano/nicolasbracigliano/commit/83a7e5f5ca5045b6ed1f90e853e5814bb5f2a73a))
+* **deps:** update dependency @astrojs/markdown-remark to v7.3.6 ([#314](https://github.com/nicolas-bracigliano/nicolasbracigliano/issues/314)) ([da725fc](https://github.com/nicolas-bracigliano/nicolasbracigliano/commit/da725fc01d3c6508ab700246f35300aadad8b16c))
+* **deps:** update dependency @astrojs/markdown-remark to v7.3.8 ([#317](https://github.com/nicolas-bracigliano/nicolasbracigliano/issues/317)) ([47f4242](https://github.com/nicolas-bracigliano/nicolasbracigliano/commit/47f4242cc673b32791ccec0eeadc87432ba1a30a))
+* **deps:** update dependency astro to v7.4.12 ([#318](https://github.com/nicolas-bracigliano/nicolasbracigliano/issues/318)) ([07c783b](https://github.com/nicolas-bracigliano/nicolasbracigliano/commit/07c783b4e18bebbb1440676ae7515c29f89cd821))
+* **deps:** update dependency astro to v7.4.4 ([#306](https://github.com/nicolas-bracigliano/nicolasbracigliano/issues/306)) ([f064dff](https://github.com/nicolas-bracigliano/nicolasbracigliano/commit/f064dff89f0d08f3f636a0d7568f37b1a08db451))
+* **deps:** update dependency astro to v7.4.7 ([#311](https://github.com/nicolas-bracigliano/nicolasbracigliano/issues/311)) ([5ce685b](https://github.com/nicolas-bracigliano/nicolasbracigliano/commit/5ce685b27e4836db674c6419cffb42454b3bee0f))
+
 ## [1.26.14](https://github.com/nicolas-bracigliano/nicolasbracigliano/compare/v1.26.13...v1.26.14) (2026-10-26)
 
 
