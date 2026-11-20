@@ -16,8 +16,10 @@
 
   "platformAutomerge": false,
 
-  "dependencyDashboard": true,
-  "dependencyDashboardOSVVulnerabilitySummary": "unresolved",
+  "dependencyDashboard": {
+    "enabled": true,
+    "osvVulnerabilitySummary": "unresolved"
+  },
   "osvVulnerabilityAlerts": true,
 
   "vulnerabilityAlerts": {
